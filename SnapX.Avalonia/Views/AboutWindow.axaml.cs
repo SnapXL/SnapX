@@ -1,10 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using FluentAvalonia.UI.Windowing;
 using SnapX.Core.Utils;
 
 namespace SnapX.Avalonia;
 
-public partial class AboutWindow : Window
+public partial class AboutWindow : AppWindow
 {
     // Internal instance of the base class (SnapX.CommonUI.AboutDialog)
     private readonly SnapX.CommonUI.AboutDialog _commonAboutDialog;

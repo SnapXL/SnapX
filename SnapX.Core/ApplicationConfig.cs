@@ -345,6 +345,7 @@ public class RootConfiguration
     public bool TaskbarProgressEnabled = true;
     public bool UseWhiteShareXIcon = false;
     public bool RememberMainFormSize = false;
+    public bool RememberMainFormPosition = true;
     public Point MainFormPosition = Point.Empty;
     public Size MainFormSize = Size.Empty;
     public HotkeyType TrayLeftClickAction = HotkeyType.RectangleRegion;

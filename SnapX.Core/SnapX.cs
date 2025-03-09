@@ -454,6 +454,8 @@ public class SnapX
     }
 
     public CLIManager GetCLIManager() => CLIManager;
+    public RootConfiguration GetConfiguration() => Settings;
+
     // TODO: Implement Dependency Injection to pass around instance of SnapX to classes
     // TODO: Add back all notification sounds calls
     public async virtual Task PlaySound(Stream stream) => throw new NotImplementedException("PlaySound is not implemented.");

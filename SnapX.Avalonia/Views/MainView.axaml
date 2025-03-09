@@ -1,52 +1,22 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:core="clr-namespace:SnapX.Core;assembly=SnapX.Core"
-        xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
-        xmlns:local="clr-namespace:SnapX.Avalonia"
-        xmlns:models="clr-namespace:SnapX.Avalonia.Models"
-        xmlns:converters="clr-namespace:SnapX.Avalonia.Converters"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        MinWidth="512" MinHeight="200"
-        MaxWidth="1024" MaxHeight="600"
-        x:Class="SnapX.Avalonia.MainView"
-        x:DataType="local:MainView"
-
-        Title="{Binding MainWindowName}">
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+              xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+              xmlns:converters="clr-namespace:SnapX.Avalonia.Converters"
+              xmlns:models="clr-namespace:SnapX.Avalonia.Models"
+              mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="700"
+              x:Class="SnapX.Avalonia.Views.MainView"
+              x:DataType="viewModels:MainViewModel">
     <Design.DataContext>
-        <local:MainView/>
+        <viewModels:MainViewModel />
     </Design.DataContext>
-    <!-- <Grid Background="#262626" ColumnDefinitions="Auto, *" MaxWidth="400"> -->
-    <!--     <Border Padding="20"> -->
-    <!--         <Grid RowDefinitions="*, Auto"> -->
-    <!--             <StackPanel Spacing="12"> -->
-    <!--                 <Button HorizontalAlignment="Stretch"> -->
-    <!--                     <StackPanel Orientation="Horizontal"> -->
-    <!--                         <Label Classes="icon" Content="#3335a"></Label> -->
-    <!--                         <Label Classes="akko" Content="Capture"></Label> -->
-    <!--                     </StackPanel> -->
-    <!--                 </Button> -->
-    <!--                 <TextBlock Text="{x:Static utils:Lang.WelcomeMessage}" Classes="h1"/> -->
-    <!-- -->
-    <!--                 ~1~ TextBox for the image URL with placeholder text @1@ -->
-    <!--                 <TextBox Name="ImageURLTextBox" Watermark="https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg" -->
-    <!--                          Margin="0,0,0,10"/> -->
-    <!-- -->
-    <!--                 ~1~ Button that triggers the upload action @1@ -->
-    <!--                 <Button Content="Upload Remote Image" Click="OnDemoTestButtonClick"/> -->
-    <!--                 <Button Click="ClickAboutButton" Content="About SnapX" /> -->
-    <!-- -->
-    <!--             </StackPanel> -->
-    <!--         </Grid> -->
-    <!--     </Border> -->
-    <!-- </Grid> -->
-    <Grid RowDefinitions="Auto, *">
+        <Grid RowDefinitions="Auto, *">
         <SplitView
             IsPaneOpen="{Binding IsPaneOpen}"
-            CompactPaneLength="48"
+            CompactPaneLength="46"
             DisplayMode="CompactInline"
-            OpenPaneLength="250"
+            OpenPaneLength="200"
             Background="#1e1e1e"
             PaneBackground="#1e1e1e"
             Grid.Row ="1"
@@ -56,24 +26,22 @@
                     Orientation="Vertical"
                     Spacing="5"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Top">
-                    <!-- Needs property Command="{Binding TriggerPaneCommand}"  -->
+                    VerticalAlignment="Top"
+                    >
                     <Button
                         HorizontalAlignment="Left"
                         Width="32"
                         Height="32"
                         Margin="0 10"
-
+                        Command="{Binding TriggerPaneCommand}"
                         >
-                        <PathIcon Height="11" Data="{StaticResource LinearHorizonalRegular}"/>
+                        <PathIcon Height="11" Data="{StaticResource LineHorizontal3Regular}"/>
                     </Button>
-                    <!--
-                        ItemsSource="{Binding Items}"
-                        SelectedItem="{Binding SelectedItem}"
-                    -->
                     <ListBox
                         Margin="5 0"
                         Padding="0"
+                        ItemsSource="{Binding Items}"
+                        SelectedItem="{Binding SelectedListItem}"
                         >
                         <ListBox.Styles>
                             <Style Selector="ListBoxItem">
@@ -94,16 +62,21 @@
             </SplitView.Pane>
 
             <SplitView.Content>
-                <Border CornerRadius="12 0 0 0"
-                        Background="#2d2d2d">
+                <Border Background="#2d2d2d">
                     <Grid>
-                        <!-- <TransitioningContentControl Content="{Binding CurrentPage}" /> -->
-                        <Button Click="ClickAboutButton" Content="About SnapX" />
+                        <TransitioningContentControl Content="{Binding CurrentPage}" />
+                        <!-- <Button Click="ClickAboutButton"> -->
+                        <!--     <Button.Content> -->
+                        <!--         <StackPanel> -->
+                        <!--             <StaticResource ResourceKey="SettingsIcon"/> -->
+                        <!--             <TextBlock Text="About SnapX"/> -->
+                        <!--         </StackPanel> -->
+                        <!--     </Button.Content> -->
+                        <!-- -->
+                        <!-- </Button> -->
                     </Grid>
                 </Border>
             </SplitView.Content>
         </SplitView>
     </Grid>
-</Window>
-
-
+</UserControl>

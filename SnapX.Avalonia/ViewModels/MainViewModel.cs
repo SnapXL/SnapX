@@ -33,13 +33,14 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel() : this(new WeakReferenceMessenger()) { }
 
     [ObservableProperty]
-    private bool _isPaneOpen;
+    private bool _isPaneOpen = true;
 
     [ObservableProperty]
     private ViewModelBase _currentPage = new HomePageViewModel();
 
     [ObservableProperty]
     private ListItemTemplate? _selectedListItem;
+
 
     partial void OnSelectedListItemChanged(ListItemTemplate? value)
     {
@@ -55,6 +56,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     public ObservableCollection<ListItemTemplate> Items { get; }
+
 
     [RelayCommand]
     private void TriggerPane()

@@ -3,15 +3,141 @@
               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
               xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
+              xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
               mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
               x:Class="SnapX.Avalonia.HomePageView"
               x:DataType="viewModels1:HomePageViewModel">
-    <Grid RowDefinitions="Auto, *" Margin="20">
-        <TextBlock Grid.Row="0" Margin="0 20" FontSize="20" FontWeight="Bold">
-            Homepage
-        </TextBlock>
-        <Border Grid.Row="1" Background="#2d323c" CornerRadius="10">
-            <Image Source="/../SnapX.Core/Resources/SnapX_Logo.png" Height="320" />
-        </Border>
-    </Grid>
+    <ScrollViewer>
+    <StackPanel>
+  <Grid>
+    <!-- Define 3 rows and 3 columns -->
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <!-- Cell 1 -->
+    <ToggleButton Grid.Row="0" Grid.Column="0" Margin="5"
+                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png"
+                  >
+      <Border CornerRadius="3">
+        <StackPanel>
+          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
+                     HorizontalAlignment="Center" Foreground="White"/>
+          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
+        </StackPanel>
+      </Border>
+    </ToggleButton>
+
+    <!-- Cell 2 -->
+    <ToggleButton Grid.Row="0" Grid.Column="1" Margin="5"
+                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
+        <StackPanel>
+            <!-- TextBlock placed above the image border -->
+            <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
+                       HorizontalAlignment="Center" Foreground="White"/>
+            <Border CornerRadius="3">
+                <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
+            </Border>
+        </StackPanel>
+    </ToggleButton>
+
+    <!-- Cell 3 -->
+    <ToggleButton Grid.Row="0" Grid.Column="2" Margin="5"
+                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
+      <Border CornerRadius="3">
+        <StackPanel>
+            <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
+                       HorizontalAlignment="Center" Foreground="White"/>
+            <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
+        </StackPanel>
+      </Border>
+    </ToggleButton>
+
+    <!-- Cell 4 -->
+    <ToggleButton Grid.Row="1" Grid.Column="0" Margin="5"
+                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
+      <Border CornerRadius="3">
+        <StackPanel>
+          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
+                     HorizontalAlignment="Center" Foreground="White"/>
+          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
+        </StackPanel>
+      </Border>
+    </ToggleButton>
+
+    <!-- Cell 5 -->
+    <ToggleButton Grid.Row="1" Grid.Column="1" Margin="5"
+                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
+      <Border CornerRadius="3">
+        <StackPanel>
+          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
+                     HorizontalAlignment="Center" Foreground="White"/>
+          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
+        </StackPanel>
+      </Border>
+    </ToggleButton>
+
+    <!-- Cell 6 -->
+    <ToggleButton Grid.Row="1" Grid.Column="2" Margin="5"
+                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
+      <Border CornerRadius="3">
+        <StackPanel>
+          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
+                     HorizontalAlignment="Center" Foreground="White"/>
+          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
+        </StackPanel>
+      </Border>
+    </ToggleButton>
+
+    <!-- Cell 7 -->
+    <ToggleButton Grid.Row="2" Grid.Column="0" Margin="5"
+                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
+      <Border CornerRadius="3">
+        <StackPanel>
+          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
+                     HorizontalAlignment="Center" Foreground="White"/>
+          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
+        </StackPanel>
+      </Border>
+    </ToggleButton>
+
+    <!-- Cell 8 -->
+    <ToggleButton Grid.Row="2" Grid.Column="1" Margin="5"
+                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
+      <Border CornerRadius="3">
+        <StackPanel>
+          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
+                     HorizontalAlignment="Center" Foreground="White"/>
+          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
+        </StackPanel>
+      </Border>
+    </ToggleButton>
+
+    <!-- Cell 9 -->
+    <ToggleButton Grid.Row="2" Grid.Column="2" Margin="5"
+                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
+      <Border CornerRadius="3">
+        <StackPanel>
+          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
+                     HorizontalAlignment="Center" Foreground="White"/>
+          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
+        </StackPanel>
+      </Border>
+    </ToggleButton>
+
+
+  </Grid>
+    <!--     <Grid RowDefinitions="Auto, *" Margin="20"> -->
+    <!--     <Border Grid.Row="1" Background="#2d323c" CornerRadius="10"> -->
+    <!--         <Image Source="/SnapX_Logo.png" Height="320" /> -->
+    <!--     </Border> -->
+    <!-- </Grid> -->
+    </StackPanel>
+        </ScrollViewer>
 </UserControl>

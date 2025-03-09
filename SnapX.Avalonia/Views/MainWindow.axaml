@@ -1,0 +1,43 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:SnapX.Avalonia.Views"
+        xmlns:mainView="clr-namespace:SnapX.Avalonia.Views"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        MinWidth="512" MinHeight="200"
+        x:Class="SnapX.Avalonia.Views.MainWindow"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/SnapX_Icon.ico"
+        x:DataType="mainView:MainWindow"
+
+        Title="{Binding MainWindowName}">
+    <!-- <Grid Background="#262626" ColumnDefinitions="Auto, *" MaxWidth="400"> -->
+    <!--     <Border Padding="20"> -->
+    <!--         <Grid RowDefinitions="*, Auto"> -->
+    <!--             <StackPanel Spacing="12"> -->
+    <!--                 <Button HorizontalAlignment="Stretch"> -->
+    <!--                     <StackPanel Orientation="Horizontal"> -->
+    <!--                         <Label Classes="icon" Content="#3335a"></Label> -->
+    <!--                         <Label Classes="akko" Content="Capture"></Label> -->
+    <!--                     </StackPanel> -->
+    <!--                 </Button> -->
+    <!--                 <TextBlock Text="{x:Static utils:Lang.WelcomeMessage}" Classes="h1"/> -->
+    <!-- -->
+    <!--                 ~1~ TextBox for the image URL with placeholder text @1@ -->
+    <!--                 <TextBox Name="ImageURLTextBox" Watermark="https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg" -->
+    <!--                          Margin="0,0,0,10"/> -->
+    <!-- -->
+    <!--                 ~1~ Button that triggers the upload action @1@ -->
+    <!--                 <Button Content="Upload Remote Image" Click="OnDemoTestButtonClick"/> -->
+    <!--                 <Button Click="ClickAboutButton" Content="About SnapX" /> -->
+    <!-- -->
+    <!--             </StackPanel> -->
+    <!--         </Grid> -->
+    <!--     </Border> -->
+    <!-- </Grid> -->
+    <views:MainView />
+
+</Window>
+
+

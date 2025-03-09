@@ -3,7 +3,7 @@ using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using SnapX.Avalonia.ViewModels;
-using SnapX.CommonUI;
+using SnapX.Avalonia.Views;
 
 namespace SnapX.Avalonia;
 
@@ -13,7 +13,7 @@ public class ViewLocator : IDataTemplate
 
     public ViewLocator()
     {
-        RegisterViewFactory<MainViewModel, MainView>();
+        RegisterViewFactory<MainViewModel, MainWindow>();
         RegisterViewFactory<HomePageViewModel, HomePageView>();
         // RegisterViewFactory<ButtonPageViewModel, ButtonPageView>();
         // RegisterViewFactory<TextPageViewModel, TextPageView>();

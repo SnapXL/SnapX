@@ -5,21 +5,33 @@ using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Styling;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Messaging;
+using FluentAvalonia.UI.Windowing;
 using LibVLCSharp.Shared;
+using Microsoft.Extensions.DependencyInjection;
+using SnapX.Avalonia.ViewModels;
+using SnapX.Avalonia.Views;
 using SnapX.Core;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
+#if DEBUG
+using HotAvalonia;
+#endif
 
 namespace SnapX.Avalonia;
 
 public class App : Application
 {
-    public SnapXAvalonia SnapX { get; set; }
+    public static SnapXAvalonia SnapX { get; set; }
     public override void Initialize()
     {
 
         SnapX = new SnapXAvalonia();
-        SnapX.setQualifier(" UI");
+        // SnapX.setQualifier(" UI");
+		#if DEBUG
+		this.EnableHotReload();
+		#endif
         AvaloniaXamlLoader.Load(this);
         AppDomain.CurrentDomain.UnhandledException += (Sender, Args) =>
         {
@@ -31,7 +43,7 @@ public class App : Application
         Current.AttachDevTools();
 #endif
 
-        // Default logic doesn't auto detect windows theme anymore in designer
+        // Default logic doesn't auto-detect windows theme anymore in designer
         // to stop light mode, force here
         if (Design.IsDesignMode)
         {
@@ -47,9 +59,7 @@ public class App : Application
         var stackPanel = new StackPanel
         {
             Orientation = Orientation.Vertical,
-            Spacing = 3,
-
-
+            Spacing = 3
         };
         var buttonPanel = new StackPanel
         {
@@ -155,7 +165,7 @@ public class App : Application
         stackPanel.Children.Add(buttonPanel);
 
         // Create and show the error dialog with the formatted message
-        var dialog = new Window
+        var dialog = new AppWindow
         {
             Title = title,
             Content = stackPanel,
@@ -190,6 +200,16 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        var locator = new ViewLocator();
+        DataTemplates.Add(locator);
+        var services = new ServiceCollection();
+        ConfigureServices(services);
+
+        var provider = services.BuildServiceProvider();
+
+        Ioc.Default.ConfigureServices(provider);
+        var vm = Ioc.Default.GetRequiredService<MainViewModel>();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var sigintReceived = false;
@@ -254,7 +274,8 @@ public class App : Application
                     vlc.Dispose();
                 };
             }
-            var Window = new MainView();
+            var Window = new MainWindow(vm);
+
             Window.Show();
             desktop.MainWindow = Window;
 
@@ -262,9 +283,24 @@ public class App : Application
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
         {
             if (SnapX.isSilent()) return;
-            singleView.MainView = new MainView();
+            var mv = new MainWindow();
+            mv.Show();
+            singleView.MainView = mv;
         }
     }
 
     private void NativeMenuAboutSnapXClick(object? Sender, EventArgs E) => new AboutWindow().Show();
+
+    public static void ConfigureServices(IServiceCollection services)
+    {
+        services.AddSingleton<MainViewModel>();
+        services.AddTransient<HomePageViewModel>();
+
+        services.AddTransient<MainWindow>();
+        services.AddTransient<AboutWindow>();
+        services.AddTransient<HomePageView>();
+        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
+
+    }
+
 }
