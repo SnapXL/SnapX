@@ -82,7 +82,7 @@
     <!-- QR Code library-->
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
     <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.17" />
-    <PackageReference Include="FluentFTP" Version="52.0.0" />
+    <PackageReference Include="FluentFTP" Version="52.1.0" />
     <PackageReference Include="MegaApiClient" Version="1.10.4" />
     <PackageReference Include="SSH.NET" Version="2024.2.0" />
   </ItemGroup>
