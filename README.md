@@ -106,7 +106,7 @@ sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev
 
 ### Windows 10 22H2+ 🪟
 
-End of life Windows versions are not supported. For example, Windows 11 22H2 is EOL and thus not supported.
+End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and thus, not supported.
 
 ```shell
 # Installing Visual Studio Community
