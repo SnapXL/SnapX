@@ -4,7 +4,7 @@
   <!-- Semantic-release should generate Version changelogs -->
   <id>io.github.BrycensRanch.SnapX</id>
   <name>SnapX</name>
-  <summary>Screenshot and screen recording tool</summary>
+  <summary>Capture, share, and boost productivity.</summary>
   <developer id="app.brycen">
     <name>Brycen Granville</name>
     <email>brycengranville@outlook.com</email>
@@ -16,6 +16,7 @@
   <description>
     <p>SnapX is a free, open-source, cross-platform tool that lets you capture or record any area of your screen and instantly share it with a single keypress.</p>
     <p>Upload images, videos, text, and more to multiple supported destinations—all with ease.</p>
+    <p>It is a hard fork of the Windows application ShareX.</p>
   </description>
   <screenshots>
     <screenshot type="default">
@@ -47,9 +48,9 @@
   <content_rating type="oars-1.1">
     <content_attribute id="social-info">moderate</content_attribute>
   </content_rating>
-  <launchable type="desktop-id">io.github.brycensranch.SnapX.desktop</launchable>
+  <launchable type="desktop-id">io.github.BrycensRanch.SnapX.desktop</launchable>
   <provides>
-    <id>io.github.brycensranch.SnapX.desktop</id>
+    <id>io.github.BrycensRanch.SnapX.desktop</id>
     <binary>snapx-ui</binary>
   </provides>
   <keywords>
@@ -61,6 +62,9 @@
     <keyword>screenshot</keyword>
     <keyword>ocr</keyword>
     <keyword>gif</keyword>
+    <keyword>ftp</keyword>
+    <keyword>sftp</keyword>
+    <keyword>ftp</keyword>
   </keywords>
 <!--  <releases>-->
 <!--    <release version="1.0.0" date="2024-09-22">-->
