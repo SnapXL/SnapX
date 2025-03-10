@@ -65,7 +65,7 @@
       <Border CornerRadius="3">
         <StackPanel>
           <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                     HorizontalAlignment="Center" Foreground="White"/>
+                     HorizontalAlignment="Center" Foreground="White" />
           <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
         </StackPanel>
       </Border>

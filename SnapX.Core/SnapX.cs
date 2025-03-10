@@ -271,7 +271,6 @@ public class SnapX
         // TODO: Implement CLI in a better way than what it is now.
         CLIManager = new SnapXCLIManager(args);
         CLIManager.ParseCommands();
-        CLIManager.UseCommandLineArgs(CLIManager.Commands).GetAwaiter().GetResult();
 
         if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute a task as Admin
 
@@ -453,7 +452,7 @@ public class SnapX
 
     }
 
-    public CLIManager GetCLIManager() => CLIManager;
+    public SnapXCLIManager GetCLIManager() => CLIManager;
     public RootConfiguration GetConfiguration() => Settings;
 
     // TODO: Implement Dependency Injection to pass around instance of SnapX to classes

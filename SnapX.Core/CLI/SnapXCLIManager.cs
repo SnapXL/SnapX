@@ -11,6 +11,8 @@ public class SnapXCLIManager : CLIManager
     {
     }
 
+    public async Task UseCommandLineArgs() => UseCommandLineArgs(Commands);
+
     public async Task UseCommandLineArgs(List<CLICommand> commands)
     {
         if (commands != null && commands.Count > 0)

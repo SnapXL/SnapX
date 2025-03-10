@@ -36,6 +36,8 @@ application.OnActivate += (sender, eventArgs) =>
     try
     {
         snapx.start(args);
+        var CLIManager = snapx.GetCLIManager();
+        CLIManager.UseCommandLineArgs().GetAwaiter().GetResult();
     }
     catch (Exception e)
     {

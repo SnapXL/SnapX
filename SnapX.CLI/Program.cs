@@ -11,6 +11,11 @@ snapx.silenceLogging();
 snapx.silenceLogging();
 #endif
 snapx.start(args);
+
+var CLIManager = snapx.GetCLIManager();
+
+Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult()).ConfigureAwait(false).GetAwaiter().GetResult();
+
 var version = Helpers.GetApplicationVersion();
 if (args.Length == 0 || args[0] == "--help" || args[0] == "-h")
 {

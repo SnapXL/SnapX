@@ -248,6 +248,8 @@ public class App : Application
             try
             {
                 Task.Run(() => SnapX.start(desktop.Args ?? [])).GetAwaiter().GetResult();
+                var CLIManager = SnapX.GetCLIManager();
+                Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult()).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
