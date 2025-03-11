@@ -83,7 +83,7 @@ Instructions for other projects within the SnapX solution are not provided yet.
 > SnapX.GTK4 does not use header files and only requires the binary GTK4 package at runtime.
 
 - `git`
-- `gtk4` on Fedora or `libgtk-4-1` on Ubuntu
+- `gtk4` & `gstreamer` (and respective plugins) (Installed by default on Ubuntu & Fedora)
 - `dotnet-sdk-9.0`
 - `ffmpeg` (7.0.0)
 - `clang`
@@ -92,7 +92,7 @@ Instructions for other projects within the SnapX solution are not provided yet.
 ### Fedora 41+ 🌟
 
 ```bash
-sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs vlc-libs
+sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs vlc-devel
 ```
 
 ### Ubuntu 24.04+ ⚡
@@ -106,7 +106,7 @@ sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev
 
 ### Windows 10 22H2+ 🪟
 
-End of life Windows versions are not supported. For example, Windows 11 22H2 is EOL and thus not supported.
+End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and thus, not supported.
 
 ```shell
 # Installing Visual Studio Community
@@ -118,7 +118,7 @@ winget install -e --id Git.Git
 
 ## macOS Ventura+ 🍎
 
-Avalonia can run on macOS 11+. But you can't develop with such an old version.
+Avalonia can run on macOS 12+. But you can't develop with such an old version.
 
 #### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
 

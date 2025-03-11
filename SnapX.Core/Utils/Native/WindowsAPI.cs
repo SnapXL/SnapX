@@ -201,7 +201,8 @@ public class WindowsAPI : NativeAPI
 
     [DllImport("kernel32.dll")]
     private static extern bool GlobalUnlock(IntPtr hMem);
-
+    [DllImport("kernel32.dll")]
+    private static extern bool GlobalFree(IntPtr hMem);
     [DllImport("user32.dll", SetLastError = true)]
     private static extern IntPtr SetClipboardData(uint uFormat, IntPtr data);
 
@@ -215,6 +216,7 @@ public class WindowsAPI : NativeAPI
     {
         public int X;
         public int Y;
+        public WinPoint(int x, int y) { X = x; Y = y; }
     }
     [DllImport("user32.dll")]
     private static extern bool GetCursorPos(out WinPoint lpPoint);
@@ -229,29 +231,26 @@ public class WindowsAPI : NativeAPI
         OpenClipboard(IntPtr.Zero);
         EmptyClipboard();
 
-        // Save image to memory stream in PNG format
         using var ms = new MemoryStream();
-        if (image.Metadata.DecodedImageFormat != null)
-        {
-            image.Save(ms, image.Metadata.DecodedImageFormat);
-        }
-        else
-        {
-            image.SaveAsPng(ms);
-        }
-
+        var format = image.Metadata.DecodedImageFormat ?? PngFormat.Instance;
+        image.Save(ms, format);
         var imageBytes = ms.ToArray();
 
-        // Allocate memory for image data
-        var dataSize = (uint)(imageBytes.Length);
-        var dataPtr = GlobalAlloc(0x0040, dataSize);
+        var dataSize = (uint)imageBytes.Length;
+        var dataPtr = GlobalAlloc(0x0042, dataSize);
+        if (dataPtr == IntPtr.Zero) return;
 
-        Marshal.Copy(imageBytes, 0, dataPtr, imageBytes.Length);
+        var lockedData = GlobalLock(dataPtr);
+        if (lockedData == IntPtr.Zero)
+        {
+            GlobalFree(dataPtr);
+            return;
+        }
 
-        // Set image data in the clipboard (CF_DIB format)
-        SetClipboardData(CF_DIB, dataPtr);
+        Marshal.Copy(imageBytes, 0, lockedData, imageBytes.Length);
         GlobalUnlock(dataPtr);
 
+        SetClipboardData(CF_DIB, dataPtr);
         CloseClipboard();
     }
     public override Rectangle GetWindowRectangle(WindowInfo Window)
