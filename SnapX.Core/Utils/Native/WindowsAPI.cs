@@ -28,6 +28,7 @@ public class WindowsAPI : NativeAPI
     public const uint CF_TEXT = 1;
     private const uint CF_DIB = 8;
     public const uint CF_UNICODETEXT = 13;
+    public const int SRCCOPY = 0x00CC0020;
 
     public const int GMEM_ZEROINIT = 0x0040;
 
@@ -82,7 +83,7 @@ public class WindowsAPI : NativeAPI
         public System.Drawing.Point PtMaxPosition;
         public RECT rcNormalPosition;
     }
-    private static (int X, int Y) GetWindowPosition(IntPtr hwnd)
+    public static (int X, int Y) GetWindowPosition(IntPtr hwnd)
     {
         RECT rect;
         GetWindowRect(hwnd, out rect);
@@ -90,7 +91,7 @@ public class WindowsAPI : NativeAPI
     }
 
     // Method to check if a window is minimized
-    private static bool IsWindowMinimized(IntPtr hwnd)
+    public static bool IsWindowMinimized(IntPtr hwnd)
     {
         WINDOWPLACEMENT placement = new WINDOWPLACEMENT();
         placement.Length = Marshal.SizeOf(typeof(WINDOWPLACEMENT));
@@ -102,9 +103,9 @@ public class WindowsAPI : NativeAPI
     }
 
     // Method to check if the window is the active (foreground) window
-    private static bool IsWindowActive(IntPtr hwnd)
+    public static bool IsWindowActive(IntPtr hwnd)
     {
-        IntPtr activeWindow = GetForegroundWindow();
+        var activeWindow = GetForegroundWindow();
         return hwnd == activeWindow;
     }
 
@@ -113,7 +114,7 @@ public class WindowsAPI : NativeAPI
     public delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
 
     // The method that is called by EnumWindows
-    private static bool EnumWindowsCallback(IntPtr hwnd, IntPtr lParam)
+    public static bool EnumWindowsCallback(IntPtr hwnd, IntPtr lParam)
     {
         // We are only interested in top-level windows that are visible
         if (!IsWindowVisible(hwnd))
@@ -275,9 +276,44 @@ public class WindowsAPI : NativeAPI
         GetWindowRect(handle, out RECT rect);
         return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
     }
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
+
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int width, int height);
+
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr SelectObject(IntPtr hdc, IntPtr h);
+
+    [DllImport("gdi32.dll")]
+    public static extern bool BitBlt(IntPtr hdcDest, int xDest, int yDest, int width, int height, IntPtr hdcSrc, int xSrc, int ySrc, uint rop);
+
+    [DllImport("gdi32.dll")]
+    public static extern bool DeleteDC(IntPtr hdc);
+
+    [DllImport("gdi32.dll")]
+    public static extern bool DeleteObject(IntPtr hObject);
 
     [DllImport("user32.dll")]
-    private static extern IntPtr GetForegroundWindow();
+    public static extern IntPtr GetDC(IntPtr hwnd);
+    [DllImport("gdi32.dll")]
+    public static extern int GetDIBits(IntPtr hdc, IntPtr hBitmap, uint uStartScan, uint cScanLines, IntPtr lpvBits, ref BITMAPINFO lpbi, uint uUsage);
+
+    [DllImport("user32.dll")]
+    public static extern int ReleaseDC(IntPtr hwnd, IntPtr hdc);
+    [DllImport("user32.dll")]
+    private static extern IntPtr WindowFromPoint(WinPoint Point);
+
+    public static IntPtr WindowFromPoint(Point pos)
+    {
+        var winPoint = new WinPoint();
+        winPoint.X = pos.X;
+        winPoint.Y = pos.Y;
+        return WindowFromPoint(winPoint);
+    }
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
 
     [StructLayout(LayoutKind.Sequential)]
     public struct RECT
@@ -287,6 +323,22 @@ public class WindowsAPI : NativeAPI
         public int Right;
         public int Bottom;
     }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BITMAPINFO
+    {
+        public int biSize;
+        public int biWidth;
+        public int biHeight;
+        public short biPlanes;
+        public short biBitCount;
+        public int biCompression;
+        public int biSizeImage;
+        public int biXPelsPerMeter;
+        public int biYPelsPerMeter;
+        public int biClrUsed;
+        public int biClrImportant;
+    }
+
     // Beginning of IntegrationHelper class being integrated into WindowsAPI class
 
     private static readonly string ApplicationPath = $"\"{AppDomain.CurrentDomain.BaseDirectory}\"";

@@ -3,10 +3,10 @@ using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Utils.Native;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
-
 namespace SnapX.Core.ScreenCapture.SharpCapture.Windows;
 
 [SupportedOSPlatform("windows")]
@@ -150,7 +150,51 @@ public class WindowsCapture : BaseCapture
         var defaultBounds = new Rectangle(defaultOutput.X, defaultOutput.Y, defaultOutput.Width, defaultOutput.Height);
         return await CaptureOutputImage(defaultOutput.Output, defaultOutput.Adapter, defaultBounds);
     }
-
+    public override async Task<Image?> CaptureWindow(Point pos)
+    {
+        return await Task.Run(() =>
+        {
+            var hwnd = WindowsAPI.WindowFromPoint(pos);
+            if (hwnd == IntPtr.Zero) return null;
+            var rect = WindowsAPI.GetWindowRect(hwnd);
+            int width = rect.Right - rect.Left;
+            int height = rect.Bottom - rect.Top;
+            if (width <= 0 || height <= 0) return null;
+            var hdcScreen = WindowsAPI.GetDC(IntPtr.Zero);
+            var hdcMem = WindowsAPI.CreateCompatibleDC(hdcScreen);
+            var hBitmap = WindowsAPI.CreateCompatibleBitmap(hdcScreen, width, height);
+            var hOld = WindowsAPI.SelectObject(hdcMem, hBitmap);
+            WindowsAPI.BitBlt(hdcMem, 0, 0, width, height, hdcScreen, rect.Left, rect.Top, WindowsAPI.SRCCOPY);
+            WindowsAPI.SelectObject(hdcMem, hOld);
+            WindowsAPI.DeleteDC(hdcMem);
+            WindowsAPI.ReleaseDC(IntPtr.Zero, hdcScreen);
+            var bitmapData = new byte[width * height * 4];
+            var bitmapHandle = GCHandle.Alloc(bitmapData, GCHandleType.Pinned);
+            try
+            {
+                var bmpInfo = new WindowsAPI.BITMAPINFO
+                {
+                    biSize = Marshal.SizeOf<WindowsAPI.BITMAPINFO>(), biWidth = width, biHeight = -height, biPlanes = 1,
+                    biBitCount = 32, biCompression = 0
+                };
+                var hdc = WindowsAPI.GetDC(IntPtr.Zero);
+                WindowsAPI.GetDIBits(hdc, hBitmap, 0, (uint)height, bitmapHandle.AddrOfPinnedObject(), ref bmpInfo, 0);
+                WindowsAPI.ReleaseDC(IntPtr.Zero, hdc);
+                WindowsAPI.DeleteObject(hBitmap);
+                for (int i = 0; i < bitmapData.Length; i += 4)
+                {
+                    (bitmapData[i], bitmapData[i + 2]) = (bitmapData[i + 2], bitmapData[i]);
+                }
+                return Image.LoadPixelData<Rgba32>(bitmapData, width, height);
+            }
+            finally
+            {
+                if (bitmapHandle.IsAllocated)
+                    bitmapHandle.Free();
+                WindowsAPI.DeleteObject(hBitmap);
+            }
+        });
+    }
     private List<IDXGIAdapter1> EnumerateAdapters(IDXGIFactory1 factory)
     {
         var adapters = new List<IDXGIAdapter1>();

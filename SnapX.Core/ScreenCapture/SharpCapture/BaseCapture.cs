@@ -9,7 +9,7 @@ public class BaseCapture
         throw new NotImplementedException("SharpCapture CaptureScreen is not implemented.");
     public virtual async Task<Image?> CaptureScreen(Point? pos) =>
         throw new NotImplementedException("SharpCapture CaptureScreen is not implemented.");
-    public virtual async Task<Image?> CaptureWindow(Point? pos) =>
+    public virtual async Task<Image?> CaptureWindow(Point pos) =>
         throw new NotImplementedException("SharpCapture CaptureWindow is not implemented.");
     public virtual async Task<Image?> CaptureWindow(WindowInfo? windowInfo) =>
         throw new NotImplementedException("SharpCapture CaptureWindow is not implemented.");
