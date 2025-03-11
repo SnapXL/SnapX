@@ -203,6 +203,8 @@ public class WindowsAPI : NativeAPI
 
     [DllImport("kernel32.dll")]
     private static extern IntPtr GlobalLock(IntPtr hMem);
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GlobalFree(IntPtr hMem);
 
     [DllImport("kernel32.dll")]
     private static extern bool GlobalUnlock(IntPtr hMem);
@@ -216,38 +218,44 @@ public class WindowsAPI : NativeAPI
     [DllImport("user32.dll")]
     private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
     [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out Point lpPoint);
-
+    private static extern bool GetCursorPos(out POINT lpPoint);
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+        public POINT(int x, int y) { X = x; Y = y; }
+    }
     public override Point GetCursorPosition()
     {
         GetCursorPos(out var LpPoint);
-        return LpPoint;
+        return new Point(LpPoint.X, LpPoint.Y);
     }
     public override void CopyImage(Image image)
     {
         OpenClipboard(IntPtr.Zero);
         EmptyClipboard();
 
-
         using var ms = new MemoryStream();
-        if (image.Metadata.DecodedImageFormat != null)
-        {
-            image.Save(ms, image.Metadata.DecodedImageFormat);
-        }
-        else
-        {
-            image.Save(ms, new PngEncoder());
-        }
+        var format = image.Metadata.DecodedImageFormat ?? PngFormat.Instance;
+        image.Save(ms, format);
         var imageBytes = ms.ToArray();
 
-        var dataSize = (uint)(imageBytes.Length);
-        var dataPtr = GlobalAlloc(0x0040, dataSize);
+        var dataSize = (uint)imageBytes.Length;
+        var dataPtr = GlobalAlloc(0x0042, dataSize);
+        if (dataPtr == IntPtr.Zero) return;
 
-        Marshal.Copy(imageBytes, 0, dataPtr, imageBytes.Length);
+        var lockedData = GlobalLock(dataPtr);
+        if (lockedData == IntPtr.Zero)
+        {
+            GlobalFree(dataPtr);
+            return;
+        }
 
-        SetClipboardData(CF_DIB, dataPtr);
+        Marshal.Copy(imageBytes, 0, lockedData, imageBytes.Length);
         GlobalUnlock(dataPtr);
 
+        SetClipboardData(CF_DIB, dataPtr);
         CloseClipboard();
     }
     public override Rectangle GetWindowRectangle(WindowInfo Window)
