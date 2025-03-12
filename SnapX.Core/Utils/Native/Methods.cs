@@ -13,14 +13,14 @@ public static class Methods
 {
     private static bool IsMacOS => OperatingSystem.IsMacOS();
     private static bool IsLinux => OperatingSystem.IsLinux();
-
+    private static bool IsWindows => OperatingSystem.IsWindows();
 
     private static NativeAPI NativeAPI
     {
         get
         {
 #if TARGET_WINDOWS
-            return new WindowsAPI();
+             return new WindowsAPI();
 #else
             if (IsMacOS) return new MacOSAPI();
             if (IsLinux) return new LinuxAPI();

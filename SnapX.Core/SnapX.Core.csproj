@@ -44,6 +44,10 @@
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
     <DefineConstants>TARGET_WINDOWS</DefineConstants>
   </PropertyGroup>
+  <!-- Exclude Windows-specific files from macOS and Linux -->
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Compile Remove="SharpCapture/Windows/*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Google Photos Library from Microsoft employee -->
