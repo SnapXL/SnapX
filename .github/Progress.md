@@ -16,7 +16,7 @@
 - [ ] Create custom uploader list with reviews & privacy policies enforced & popularity filter to quality control hosts. Run service on HB VPS to automatically prune custom uploaders that aren't online 90% of the time in a week.
 - [ ] Package PaddleOCR for Linux properly.
 - [ ] Add charts for statistics like uploading, avg image size, most used image extension, and error rate for uploading
-- [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation. 
+- [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation.
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
 - [ ] Add back OCR with [TesseractOCR](https://github.com/Sicos1977/TesseractOCR) and train with [tessdata_best](https://github.com/tesseract-ocr/tessdata_best)
 - [ ] Expose entire Core in UI (Avalonia, GTK4)
@@ -26,6 +26,7 @@
 - [ ] Add to Microsoft Store
 - [ ] Add to Winget
 - [ ] Add to COPR
+- [ ] Add to Itch.io
 - [ ] Add to AUR see PR #56 for the initial PKGBUILD
 - [ ] Port `go-keyring` to C# (Needed for not saving auth creds in plaintext, big no no )
 - [x] Bring in XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
@@ -57,7 +58,7 @@ To accomplish this goal, <https://github.com/gircore/gir.core> is called upon.
 
 ### SemVer & New Commit Message Standard
 
-The version for this port has been set to 0.0.0 until the project is in a usable state. The version will be updated to 1.0.0 when the project feature is complete and ready for general use. The project begins with ShareX's version 16 code base.
+The version for this port has been set to 0.1.0 until the project is in a usable state. The version will be updated to 1.0.0 when the project feature is complete and ready for general use. The project begins with ShareX's version 16 code base.
 
 For the commit messages, I will be following the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard. This will allow for automatic versioning and changelog generation. This will also allow for easier tracking of changes and features.
 

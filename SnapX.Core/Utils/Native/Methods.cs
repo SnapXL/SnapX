@@ -1,10 +1,10 @@
 using SixLabors.ImageSharp;
 using SnapX.Core.Media;
-using SnapX.Core.ScreenCapture.SharpCapture;
-using SnapX.Core.ScreenCapture.SharpCapture.Linux;
-using SnapX.Core.ScreenCapture.SharpCapture.macOS;
+using SnapX.Core.SharpCapture;
+using SnapX.Core.SharpCapture.Linux;
+using SnapX.Core.SharpCapture.macOS;
 #if TARGET_WINDOWS
-using SnapX.Core.ScreenCapture.SharpCapture.Windows;
+using SnapX.Core.SharpCapture.Windows;
 #endif
 
 namespace SnapX.Core.Utils.Native;
@@ -46,18 +46,17 @@ public static class Methods
     public static void ShowWindow(WindowInfo window) => NativeAPI.ShowWindow(window);
     public static void RestoreWindow(WindowInfo window) => ShowWindow(window);
     public static void CopyText(string text) => NativeAPI.CopyText(text);
-    public static async Task<Image?> CaptureScreen(Screen screen) => await SharpCapture.CaptureScreen(screen);
+    public static async Task<Image?> CaptureScreen(Rectangle bounds) => await SharpCapture.CaptureScreen(bounds);
     public static async Task<Image?> CaptureScreen(Point pos) => await SharpCapture.CaptureScreen(pos);
 
     public static async Task<Image?> CaptureFullscreen() => await SharpCapture.CaptureFullscreen();
     public static async Task<Image?> CaptureRectangle(Rectangle rect) => await SharpCapture.CaptureRectangle(rect);
     public static async Task<Image?> CaptureWindow(Point pos) => await SharpCapture.CaptureWindow(pos);
-    public static async Task<Image?> CaptureWindow(WindowInfo window) => await SharpCapture.CaptureWindow(window);
     public static async Task<Rectangle> GetWorkingArea() => await SharpCapture.GetWorkingArea();
-    public static async Task<Screen> GetPrimaryScreen() => await SharpCapture.GetPrimaryScreen();
-    public static async Task<Screen> GetActiveScreen() => await SharpCapture.GetScreen(GetCursorPosition());
+    public static async Task<Rectangle> GetPrimaryScreen() => await SharpCapture.GetPrimaryScreen();
+    public static async Task<Rectangle> GetActiveScreen() => await SharpCapture.GetScreen(GetCursorPosition());
 
-    public static Screen GetScreen(Point pos) => SharpCapture.GetScreen(pos).GetAwaiter().GetResult();
+    public static Rectangle GetScreen(Point pos) => SharpCapture.GetScreen(pos).GetAwaiter().GetResult();
 
     public static void CopyImage(Image image, string fileName) => NativeAPI.CopyImage(image, fileName);
 

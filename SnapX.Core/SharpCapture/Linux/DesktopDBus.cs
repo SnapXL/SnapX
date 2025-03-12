@@ -1,6 +1,6 @@
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.ScreenCapture.SharpCapture.Linux;
+namespace SnapX.Core.SharpCapture.Linux;
 
 using System;
 using System.Collections.Generic;
@@ -3657,7 +3657,7 @@ class PortalResponse
             },
             handler: (ex, response, _, __) =>
             {
-                DebugHelper.WriteLine($"Got {response}");
+                Console.WriteLine($"Got {response}");
                 if (ex is null)
                 {
                     lock (results)

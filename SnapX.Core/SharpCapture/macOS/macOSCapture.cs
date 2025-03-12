@@ -3,7 +3,7 @@ using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace SnapX.Core.ScreenCapture.SharpCapture.macOS;
+namespace SnapX.Core.SharpCapture.macOS;
 
 [SupportedOSPlatform ("maccatalyst18.2")]
 [SupportedOSPlatform("macos12.3")]

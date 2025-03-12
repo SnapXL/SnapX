@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="./Linux.png" alt="SnapX Banner"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="./.github/Linux.png" alt="SnapX Banner"/></a></p>
 <h1 align="center">SnapX</h1>
 <h3 align="center">Capture, share, and boost productivity. All in one.</h3>
 <br>
@@ -161,6 +161,10 @@ Output/snapx-gtk/snapx-gtk # Run SnapX.GTK4
 ## Contributions
 
 Contributions are welcome. The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
+
+### Roadmap
+
+See [Progress.md](./.github/Progress.md)
 
 ---
 

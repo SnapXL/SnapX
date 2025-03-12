@@ -301,16 +301,6 @@ public class WindowsAPI : NativeAPI
 
     [DllImport("user32.dll")]
     public static extern int ReleaseDC(IntPtr hwnd, IntPtr hdc);
-    [DllImport("user32.dll")]
-    private static extern IntPtr WindowFromPoint(WinPoint Point);
-
-    public static IntPtr WindowFromPoint(Point pos)
-    {
-        var winPoint = new WinPoint();
-        winPoint.X = pos.X;
-        winPoint.Y = pos.Y;
-        return WindowFromPoint(winPoint);
-    }
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();

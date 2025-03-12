@@ -1,16 +1,15 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using SnapX.Core.Media;
-using SnapX.Core.Utils.Native;
 using Tmds.DBus;
 using Tmds.DBus.Protocol;
 
-namespace SnapX.Core.ScreenCapture.SharpCapture.Linux;
+namespace SnapX.Core.SharpCapture.Linux;
+
 public class LinuxCapture : BaseCapture
 {
     public override async Task<Image> CaptureFullscreen()
     {
-        if (LinuxAPI.IsWayland()) return await TakeScreenshotWithPortal();
+        // if (LinuxAPI.IsWayland()) return await TakeScreenshotWithPortal();
         return await TakeScreenshotWithPortal();
     }
 
@@ -38,23 +37,12 @@ public class LinuxCapture : BaseCapture
         var uri = new Uri(Response.Results["uri"].GetString());
         var fileURL = Uri.UnescapeDataString(uri.LocalPath);
         var img = await Image.LoadAsync(fileURL);
-        _ = Task.Run(() =>
-        {
-            try
-            {
-                File.Delete(fileURL);
-            }
-            catch (Exception ex)
-            {
-                DebugHelper.WriteException(ex);
-            }
-        });
+        _ = Task.Run(() => File.Delete(fileURL));
 
         return img;
     }
-    private static Image CropFullscreenScreenshotToScreen(Screen screen, Image img)
+    private static Image CropFullscreenScreenshotToBounds(Rectangle bounds, Image img)
     {
-        var bounds = screen.Bounds;
         var cropRectangle = new Rectangle(
             Math.Max(0, bounds.X),
             Math.Max(0, bounds.Y),
@@ -66,7 +54,7 @@ public class LinuxCapture : BaseCapture
 
         return img;
     }
-    public override async Task<Image> CaptureScreen(Screen screen)
+    public override async Task<Image> CaptureScreen(Rectangle bounds)
     {
         // TODO: Implement pure X11 screenshotting instead of using portal
         // if (LinuxAPI.IsWayland())
@@ -77,7 +65,7 @@ public class LinuxCapture : BaseCapture
 
         var fullscreenImage = await TakeScreenshotWithPortal().ConfigureAwait(false);
         Console.WriteLine($"{fullscreenImage.Width}x{fullscreenImage.Height} {fullscreenImage.Configuration.ImageFormats}");
-        var croppedImage = CropFullscreenScreenshotToScreen(screen, fullscreenImage);
+        var croppedImage = CropFullscreenScreenshotToBounds(bounds, fullscreenImage);
         Console.WriteLine($"{croppedImage.Width}x{croppedImage.Height} {croppedImage.Configuration.ImageFormats}");
         SynchronizationContext.SetSynchronizationContext(syncContext);
         return croppedImage;

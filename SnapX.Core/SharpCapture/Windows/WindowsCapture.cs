@@ -3,11 +3,14 @@ using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SnapX.Core.Utils.Native;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
-namespace SnapX.Core.ScreenCapture.SharpCapture.Windows;
+using Windows.Graphics.Capture;
+using Windows.Graphics.DirectX;
+using Windows.Graphics.DirectX.Direct3D11;
+
+namespace SnapX.Core.SharpCapture.Windows;
 
 [SupportedOSPlatform("windows")]
 public class WindowsCapture : BaseCapture
@@ -150,50 +153,80 @@ public class WindowsCapture : BaseCapture
         var defaultBounds = new Rectangle(defaultOutput.X, defaultOutput.Y, defaultOutput.Width, defaultOutput.Height);
         return await CaptureOutputImage(defaultOutput.Output, defaultOutput.Adapter, defaultBounds);
     }
+    [ComImport]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    [Guid("A9B3D012-3DF2-4EE3-BF3A-0BFCB8E6D9D9")]
+    interface IDirect3DDxgiInterfaceAccess
+    {
+        IntPtr GetInterface(ref Guid iid);
+    }
+    [DllImport("user32.dll")]
+    private static extern IntPtr WindowFromPoint(WinPoint Point);
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct WinPoint
+    {
+        public int X;
+        public int Y;
+        public WinPoint(int x, int y) { X = x; Y = y; }
+    }
+    internal static IntPtr WindowFromPoint(Point pos)
+    {
+        var winPoint = new WinPoint();
+        winPoint.X = pos.X;
+        winPoint.Y = pos.Y;
+        return WindowFromPoint(winPoint);
+    }
     public override async Task<Image?> CaptureWindow(Point pos)
     {
-        return await Task.Run(() =>
+
+        var hwnd = WindowFromPoint(pos);
+        if (hwnd == IntPtr.Zero)
         {
-            var hwnd = WindowsAPI.WindowFromPoint(pos);
-            if (hwnd == IntPtr.Zero) return null;
-            var rect = WindowsAPI.GetWindowRect(hwnd);
-            int width = rect.Right - rect.Left;
-            int height = rect.Bottom - rect.Top;
-            if (width <= 0 || height <= 0) return null;
-            var hdcScreen = WindowsAPI.GetDC(IntPtr.Zero);
-            var hdcMem = WindowsAPI.CreateCompatibleDC(hdcScreen);
-            var hBitmap = WindowsAPI.CreateCompatibleBitmap(hdcScreen, width, height);
-            var hOld = WindowsAPI.SelectObject(hdcMem, hBitmap);
-            WindowsAPI.BitBlt(hdcMem, 0, 0, width, height, hdcScreen, rect.Left, rect.Top, WindowsAPI.SRCCOPY);
-            WindowsAPI.SelectObject(hdcMem, hOld);
-            WindowsAPI.DeleteDC(hdcMem);
-            WindowsAPI.ReleaseDC(IntPtr.Zero, hdcScreen);
-            var bitmapData = new byte[width * height * 4];
-            var bitmapHandle = GCHandle.Alloc(bitmapData, GCHandleType.Pinned);
-            try
-            {
-                var bmpInfo = new WindowsAPI.BITMAPINFO
-                {
-                    biSize = Marshal.SizeOf<WindowsAPI.BITMAPINFO>(), biWidth = width, biHeight = -height, biPlanes = 1,
-                    biBitCount = 32, biCompression = 0
-                };
-                var hdc = WindowsAPI.GetDC(IntPtr.Zero);
-                WindowsAPI.GetDIBits(hdc, hBitmap, 0, (uint)height, bitmapHandle.AddrOfPinnedObject(), ref bmpInfo, 0);
-                WindowsAPI.ReleaseDC(IntPtr.Zero, hdc);
-                WindowsAPI.DeleteObject(hBitmap);
-                for (int i = 0; i < bitmapData.Length; i += 4)
-                {
-                    (bitmapData[i], bitmapData[i + 2]) = (bitmapData[i + 2], bitmapData[i]);
-                }
-                return Image.LoadPixelData<Rgba32>(bitmapData, width, height);
-            }
-            finally
-            {
-                if (bitmapHandle.IsAllocated)
-                    bitmapHandle.Free();
-                WindowsAPI.DeleteObject(hBitmap);
-            }
-        });
+            await Console.Error.WriteLineAsync("WindowsCapture was provieded a invalid window handle");
+            return null;
+        }
+        var captureItem = CaptureItemHelper.CreateItemForWindow(hwnd);
+
+        using var d3d11Device = D3D11.D3D11CreateDevice(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
+        using var direct3DDevice = D3D11.GetDXGIDevice(d3d11Device);
+
+        var size = captureItem.Size;
+        using var framePool = Direct3D11CaptureFramePool.Create(d3d11Device as IDirect3DDevice, DirectXPixelFormat.B8G8R8A8UIntNormalized,
+            1,
+            size);
+
+        using var session = framePool.CreateCaptureSession(captureItem);
+        session.IsBorderRequired = false;
+        session.StartCapture();
+
+        using var frame = framePool.TryGetNextFrame();
+
+        using var surface = frame.Surface;
+        var width = size.Width;
+        var height = size.Height;
+        var textureDesc = new Texture2DDescription
+        {
+            CPUAccessFlags = CpuAccessFlags.Read,
+            BindFlags = BindFlags.None,
+            Format = Format.B8G8R8A8_UNorm,
+            Width = (uint)width,
+            Height = (uint)height,
+            MiscFlags = ResourceOptionFlags.None,
+            MipLevels = 1,
+            ArraySize = 1,
+            SampleDescription = { Count = 1, Quality = 0 },
+            Usage = ResourceUsage.Staging
+        };
+        var currentFrame = d3d11Device.CreateTexture2D(textureDesc);
+        var tempTexture = currentFrame.QueryInterface<ID3D11Texture2D>();
+
+        d3d11Device.ImmediateContext.CopyResource(currentFrame, tempTexture);
+
+        var dataBox = d3d11Device.ImmediateContext.Map(currentFrame, 0);
+        var screenshotBytes = GetDataAsByteArray(dataBox.DataPointer, (int)dataBox.RowPitch, width, height);
+        // currentFrame.ReleaseFrame();
+        d3d11Device.ImmediateContext.Unmap(currentFrame, 0);
+        return Image.LoadPixelData<Rgba32>(screenshotBytes, width, height);
     }
     private List<IDXGIAdapter1> EnumerateAdapters(IDXGIFactory1 factory)
     {
@@ -211,7 +244,7 @@ public class WindowsCapture : BaseCapture
 
             if (IsSupportedFeatureLevel(adapter, FeatureLevel.Level_11_1, DeviceCreationFlags.BgraSupport))
             {
-                DebugHelper.WriteLine($"Feature level {FeatureLevel.Level_11_1} not supported. Skipping Adapter {adapter.Description}");
+                Console.WriteLine($"Feature level {FeatureLevel.Level_11_1} not supported. Skipping Adapter {adapter.Description}");
                 adapter.Dispose();
                 continue;
             }

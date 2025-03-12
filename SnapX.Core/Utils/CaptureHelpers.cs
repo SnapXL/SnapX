@@ -23,9 +23,9 @@ public static class CaptureHelpers
         return GetActiveScreenWorkingArea();
     }
 
-    public static Rectangle GetActiveScreenWorkingArea() => Methods.GetActiveScreen().GetAwaiter().GetResult().Bounds;
+    public static Rectangle GetActiveScreenWorkingArea() => Methods.GetActiveScreen().GetAwaiter().GetResult();
 
-    public static Rectangle GetPrimaryScreenBounds() => Methods.GetPrimaryScreen().GetAwaiter().GetResult().Bounds;
+    public static Rectangle GetPrimaryScreenBounds() => Methods.GetPrimaryScreen().GetAwaiter().GetResult();
 
     public static Point ScreenToClient(Point p)
     {

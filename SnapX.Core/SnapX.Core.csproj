@@ -12,6 +12,19 @@
     <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
 
   </PropertyGroup>
+  <!-- Most elegant way of handling platform specific code -->
+  <PropertyGroup Condition="'$(OS)' == 'Darwin'">
+    <TargetFrameworks>net9.0-macos;net9.0</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <TargetFrameworks>net9.0-windows10.0.26100;net9.0</TargetFrameworks>
+    <!-- Windows 10 22H2 -->
+    <TargetPlatformMinVersion>10.0.19045</TargetPlatformMinVersion>
+    <CsWinRTWindowsMetadata>10.0.26100</CsWinRTWindowsMetadata>
+    <CsWinRTIncludes>Windows;Windows.Graphics;Windows.Graphics.Capture</CsWinRTIncludes>
+    <CsWinRTEmbedded>true</CsWinRTEmbedded>
+    <SimulateCsWinRTNugetReference>true</SimulateCsWinRTNugetReference>
+  </PropertyGroup>
 
   <!-- Feature Flags -->
   <PropertyGroup Condition="'$(DisableTelemetry)' == '1'">
@@ -46,6 +59,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
     <!-- Windows Registry Configuration Support -->
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Condition="'$(OS)' == 'Windows_NT'" Version="2.2.0" />
     <!-- Source generator dependency. It is just useful for keeping redudant code out of tree  -->
     <PackageReference Include="MimeTypes" Version="2.5.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

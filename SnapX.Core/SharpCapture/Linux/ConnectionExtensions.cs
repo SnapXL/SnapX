@@ -1,4 +1,4 @@
-using SnapX.Core.ScreenCapture.SharpCapture.Linux;
+using SnapX.Core.SharpCapture.Linux;
 
 namespace Tmds.DBus;
 
