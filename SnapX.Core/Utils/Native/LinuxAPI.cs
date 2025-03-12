@@ -9,6 +9,7 @@ namespace SnapX.Core.Utils.Native;
 
 public class LinuxAPI : NativeAPI
 {
+    internal const string LibX11 = "libx11.so.6";
     internal static bool IsWayland()
     {
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
@@ -145,53 +146,53 @@ public class LinuxAPI : NativeAPI
         XCloseDisplay(display);  // Close the display connection
         return windows;
     }
-    [DllImport("libX11.so")]
+    [DllImport(LibX11)]
     private static extern IntPtr XOpenDisplay(string? display);
 
-    [DllImport("libX11.so")]
+    [DllImport(LibX11)]
     private static extern IntPtr XRootWindow(IntPtr display, int screen_number);
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XDefaultRootWindow(IntPtr display);
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XScreenOfDisplay(IntPtr display, int screeenNumber);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern int XWidthOfScreen(IntPtr screen);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern int XHeightOfScreen(IntPtr screen);
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern int XScreenCount(IntPtr display);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XRootWindowOfScreen(IntPtr screen);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XDefaultScreenOfDisplay(IntPtr display);
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XGetImage(IntPtr display, IntPtr drawable, int x, int y, uint width, uint height, long planeMask, int format);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern int XGetGeometry(IntPtr display, IntPtr window, out IntPtr root, out int x, out int y, out uint width, out uint height, out uint border_width, out uint depth);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XGetInputFocus(IntPtr display, out IntPtr focus_window, out int revert_to);
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XGetWindowProperty(IntPtr display, IntPtr window, IntPtr property, long offset, long length, bool delete, IntPtr type, out IntPtr prop_return, out uint nitems, out uint bytes_after, out int format);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XGetWMName(IntPtr display, IntPtr window, out IntPtr name);
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XGetSubImage(IntPtr display, IntPtr drawable, int x, int y, uint width, uint height, long planeMask, int format, IntPtr image, int destX, int dextY);
 
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern int XGetWMState(IntPtr display, IntPtr window, out IntPtr state);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern void XStoreBytes(IntPtr display, IntPtr property, byte[] data, int length);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern int XFlush(IntPtr display);
     private static bool IsWindowMinimized(IntPtr display, IntPtr hwnd)
     {
@@ -257,21 +258,21 @@ public class LinuxAPI : NativeAPI
         }
         return "Untitled";
     }
-    [DllImport("libX11.so")]
+    [DllImport(LibX11)]
     private static extern IntPtr XGetSelectionOwner(IntPtr display, IntPtr selection);
 
-    [DllImport("libX11.so")]
+    [DllImport(LibX11)]
     private static extern void XSetSelectionOwner(IntPtr display, IntPtr selection, IntPtr owner, uint time);
-    [DllImport("libX11.so", CharSet = CharSet.Auto)]
+    [DllImport(LibX11, CharSet = CharSet.Auto)]
     private static extern IntPtr XInternAtom(IntPtr display, string type, bool only_if_exists);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern int XQueryTree(IntPtr display, IntPtr window, out IntPtr root, out IntPtr parent, out IntPtr windows, out uint nchildren);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern IntPtr XFetchName(IntPtr display, IntPtr window);
 
-    [DllImport("libX11.so.6")]
+    [DllImport(LibX11)]
     private static extern void XCloseDisplay(IntPtr display);
 
     // X11 Constants
@@ -367,7 +368,7 @@ public class LinuxAPI : NativeAPI
 
         throw new InvalidOperationException("Unable to get window attributes.");
     }
-    [DllImport("libX11.so")]
+    [DllImport(LibX11)]
     private static extern int XQueryPointer(
         IntPtr display,
         IntPtr window,
@@ -399,7 +400,7 @@ public class LinuxAPI : NativeAPI
         DebugHelper.Logger?.Debug($"Cursor position: {rootX}, {rootY}, {winX}, {winY}, {mask}");
         return new Point(rootX, rootY);
     }
-    [DllImport("libX11.so")]
+    [DllImport(LibX11)]
     private static extern int XGetWindowAttributes(IntPtr display, IntPtr window, out XWindowAttributes attributes);
 
     [StructLayout(LayoutKind.Sequential)]
