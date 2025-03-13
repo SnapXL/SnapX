@@ -7,9 +7,6 @@ namespace SnapX.Core.Utils.Native;
 
 public class MacOSAPI : NativeAPI
 {
-    // Finally, I can breathe!
-    // No need to call DLLImport.
-    // It's beautiful.
     public override void CopyText(string text)
     {
         // Escape quotes in the text to ensure AppleScript handles them correctly
