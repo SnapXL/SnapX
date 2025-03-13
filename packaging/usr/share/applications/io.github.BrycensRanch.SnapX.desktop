@@ -3,20 +3,20 @@
 
 [Desktop Entry]
 Name=SnapX
-Comment=Screenshot and screen recording tool
+Comment=Capture, share, and boost productivity.
 Exec=snapx-ui
-Icon=io.github.brycensranch.snapx
+Icon=io.github.BrycensRanch.SnapX
 Terminal=false
 Type=Application
-GenericName=Screenshot capture tool
+GenericName=Screenshot tool & sharing tool
 Categories=ScreenCapture;Graphics;Utility;Productivity
 StartupNotify=true
-Keywords=ShareX;sharenix;sharexen;share;imgur;ocr;ftp;gif
+Keywords=ShareX;sharenix;sharexen;share;imgur;ocr;ftp;gif;screenshot
 MimeType=image/png;image/jpeg;image/jpg;image/gif;image/tiff;image/bmp;image/x-raw;video/mp4;video/x-msvideo;video/x-flv;video/webm;application/zip;application/x-7z-compressed;application/x-sxcu;video/x-matroska;
 Actions=uploadWithSnapX
 X-KDE-Priority=TopLevel
 
 [Desktop Action uploadWithSnapX]
 Name=Upload with SnapX
-Icon=io.github.brycensranch.snapx
+Icon=io.github.BrycensRanch.SnapX
 Exec=snapx-ui %u

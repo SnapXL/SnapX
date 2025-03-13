@@ -59,8 +59,8 @@
     <PackageReference Include="OpenCvSharp4.runtime.osx_arm64" Version="4.8.1-rc" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
     <!-- Crash forensics & performance analytics -->
-    <PackageReference Include="Sentry" Version="5.2.0" />
-    <PackageReference Include="Sentry.Profiling" Version="5.2.0" />
+    <PackageReference Include="Sentry" Version="5.3.0" />
+    <PackageReference Include="Sentry.Profiling" Version="5.3.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
@@ -82,7 +82,7 @@
     <!-- QR Code library-->
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
     <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.17" />
-    <PackageReference Include="FluentFTP" Version="52.0.0" />
+    <PackageReference Include="FluentFTP" Version="52.1.0" />
     <PackageReference Include="MegaApiClient" Version="1.10.4" />
     <PackageReference Include="SSH.NET" Version="2024.2.0" />
   </ItemGroup>
