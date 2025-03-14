@@ -3,6 +3,8 @@
              xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
              xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
              xmlns:avalonia="clr-namespace:SnapX.Avalonia"
+             x:DataType="avalonia:App"
+
              x:Class="SnapX.Avalonia.App">
     <Application.Styles>
         <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" PreferUserAccentColor="True" PreferSystemTheme="True" />
@@ -28,4 +30,61 @@
             <NativeMenuItem Header="{x:Static utils:Lang.AboutSnapX}" Click="NativeMenuAboutSnapXClick" />
         </NativeMenu>
     </NativeMenu.Menu>
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/SnapX_Icon.ico"
+                      ToolTipText="SnapX" Clicked="TrayIcon_OnClicked">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="{Binding TrayTitle}" ToolTip="{x:Static utils:Lang.AboutSnapX}" Icon="/Assets/SnapX_Icon.ico" Click="NativeMenuItem_SnapX_OnClick" />
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="Capture">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Fullscreen" Click="NativeMenuItem_Capture_Fullscreen_OnClick" />
+                                <NativeMenuItem Header="Window">
+                                    <NativeMenu>
+                                        <NativeMenuItem Header="SnapX UI" Icon="/Assets/SnapX_Icon.ico" />
+                                        <NativeMenuItem Header="Marvel Rivals" Icon="/Assets/SnapX_Icon.ico" />
+                                        <NativeMenuItem Header="Man of Steel (2013)" Icon="/Assets/SnapX_Icon.ico" />
+
+                                    </NativeMenu>
+                                </NativeMenuItem>
+                                <NativeMenuItem Header="Monitor">
+                                    <NativeMenu>
+                                        <NativeMenuItem Header="LG ULTRAGEAR: 2 (1920x1080)"/>
+                                        <NativeMenuItem Header="E23: 3 (1920x1080)"/>
+                                        <NativeMenuItem Header="Internal Display: 1 (1920x1080)"/>
+                                    </NativeMenu>
+                                </NativeMenuItem>
+                                <NativeMenuItem Header="Region"/>
+                                <NativeMenuItem Header="Region (Light)"/>
+                                <NativeMenuItem Header="Region (Transparent)"/>
+                            </NativeMenu>
+                        </NativeMenuItem>
+                        <NativeMenuItem Header="Upload">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Upload File..."   />
+                                <NativeMenuItem Header="Upload Folder..."   />
+                                <NativeMenuItem Header="Upload from clipboard..."   />
+                                <NativeMenuItem Header="Upload text..."   />
+                                <NativeMenuItem Header="Drag and drop upload..."   />
+                                <NativeMenuItem Header="Shorten URL..."   />
+                                <NativeMenuItem Header="Tweet message..."   />
+                            </NativeMenu>
+                        </NativeMenuItem>
+                        <NativeMenuItem Header="Workflows">
+                            <NativeMenu>
+                            <NativeMenuItem Header="Capture entire screen" Click="NativeMenuItem_Capture_Fullscreen_OnClick"  />
+                            <NativeMenuItem Header="Capture active screen" Click="NativeMenuItem_Workflows_CaptureActiveScreen_OnClick" />
+                            <NativeMenuItem Header="Capture active window" Click="NativeMenuItem_Workflows_CaptureActiveWindow_OnClick" />
+                            </NativeMenu>
+                            </NativeMenuItem>
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="Open" Click="NativeMenuItem_Open_OnClick"/>
+                        <NativeMenuItem Header="Quit" Click="NativeMenuItem_Quit_OnClick"/>
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
 </Application>

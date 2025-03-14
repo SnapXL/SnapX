@@ -9,13 +9,10 @@ using SnapX.Avalonia;
 Console.WriteLine("Initializing Avalonia");
 BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
+
 AppBuilder BuildAvaloniaApp()
-   => AppBuilder.Configure<App>()
-       .UsePlatformDetect()
-       .UseManagedSystemDialogs()
-       .WithInterFont()
-       .LogToTrace()
-       .With(new FontManagerOptions
-       {
-           DefaultFamilyName = "avares://Avalonia.Fonts.Inter/Assets#Inter"
-       });
+    => AppBuilder.Configure<App>()
+        .UsePlatformDetect()
+        .UseManagedSystemDialogs()
+        .WithInterFont()
+        .LogToTrace();

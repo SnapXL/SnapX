@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views;
 using SnapX.Core;
+using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
 #if DEBUG
@@ -23,7 +24,22 @@ namespace SnapX.Avalonia;
 
 public class App : Application
 {
+    public App()
+    {
+        DataContext = this;
+    }
     public static SnapXAvalonia SnapX { get; set; }
+    private MainWindow? myMainWindow;
+
+    private static string SimpleVersion()
+    {
+        var version = Version.Parse(Helpers.GetApplicationVersion());
+        var versionString = $"{version.Major}.{version.Minor}.{version.Revision}";
+        if (version.Build > 0)
+            versionString += $".{version.Build}";
+        return versionString;
+    }
+    public static string TrayTitle => $"SnapX v{SimpleVersion()}";
     public override void Initialize()
     {
 
@@ -198,6 +214,7 @@ public class App : Application
         Console.WriteLine("Report Error button clicked. No action yet.");
     }
 
+    private void Shutdown() => Environment.Exit(0);
     public override void OnFrameworkInitializationCompleted()
     {
         var locator = new ViewLocator();
@@ -213,36 +230,44 @@ public class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var sigintReceived = false;
+            desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             desktop.ShutdownRequested += (_, _) =>
             {
-                sigintReceived = true;
                 DebugHelper.WriteLine("Received Shutdown from Avalonia");
-                SnapX.shutdown();
-                desktop.Shutdown();
+                if (!sigintReceived)
+                {
+                    sigintReceived = true;
+                    SnapX.shutdown();
+                }
+
+                // desktop.Shutdown();
             };
 
             Console.CancelKeyPress += (_, ea) =>
             {
-                ea.Cancel = true;
-                sigintReceived = true;
 
                 DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
-                SnapX.shutdown();
-                desktop.Shutdown();
-            };
-            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
-            {
                 if (!sigintReceived)
                 {
-                    DebugHelper.WriteLine("Received SIGTERM");
+                    ea.Cancel = true;
+                    sigintReceived = true;
                     SnapX.shutdown();
                     desktop.Shutdown();
                 }
-                else
-                {
-                    DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
-                }
             };
+            // AppDomain.CurrentDomain.ProcessExit += (o, _) =>
+            // {
+            //     if (!sigintReceived)
+            //     {
+            //         sigintReceived = true;
+            //         DebugHelper.WriteLine("Received SIGTERM");
+            //         SnapX.shutdown();
+            //     }
+            //     else
+            //     {
+            //         DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
+            //     }
+            // };
             var errorStarting = false;
             // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
             try
@@ -279,20 +304,20 @@ public class App : Application
             var Window = new MainWindow(vm);
 
             Window.Show();
+            myMainWindow = Window;
             desktop.MainWindow = Window;
 
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
         {
             if (SnapX.isSilent()) return;
-            var mv = new MainWindow();
+            var mv = new MainWindow(vm);
             mv.Show();
             singleView.MainView = mv;
         }
     }
 
     private void NativeMenuAboutSnapXClick(object? Sender, EventArgs E) => new AboutWindow().Show();
-
     public static void ConfigureServices(IServiceCollection services)
     {
         services.AddSingleton<MainViewModel>();
@@ -305,4 +330,30 @@ public class App : Application
 
     }
 
+    private void TrayIcon_OnClicked(object? Sender, EventArgs E)
+    {
+        DebugHelper.WriteLine("TrayIcon_OnClicked");
+    }
+
+    private void NativeMenuItem_Quit_OnClick(object? Sender, EventArgs E) => Shutdown();
+    private void NativeMenuItem_SnapX_OnClick(object? Sender, EventArgs E) => NativeMenuAboutSnapXClick(Sender, E);
+
+    private void NativeMenuItem_Capture_Fullscreen_OnClick(object? Sender, EventArgs E) =>
+        TaskHelpers.GetScreenshot().CaptureFullscreen();
+
+    private void NativeMenuItem_Workflows_CaptureActiveScreen_OnClick(object? Sender, EventArgs E) =>
+        TaskHelpers.GetScreenshot().CaptureActiveMonitor();
+
+    private void NativeMenuItem_Workflows_CaptureActiveWindow_OnClick(object? Sender, EventArgs E) => TaskHelpers.GetScreenshot().CaptureActiveWindow();
+
+    private void NativeMenuItem_Open_OnClick(object? Sender, EventArgs E)
+    {
+        if (!myMainWindow?.IsLoaded ?? false)
+        {
+            var vm = Ioc.Default.GetRequiredService<MainViewModel>();
+            myMainWindow = new MainWindow(vm);
+            myMainWindow.Show();
+        }
+        myMainWindow?.Focus();
+    }
 }
