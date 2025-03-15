@@ -274,7 +274,7 @@ class Build : NukeBuild
             }
 
             var localAvaloniaWrapperScript = Path.Join(RootDirectory, "snapx-ui");
-            
+
             var avaloniaPath = Path.Join(Prefix, "lib", "snapx", "snapx-ui");
             var fallbackPath = Path.Join(LibDir, "snapx", "snapx-ui");
             using (var writer = new StreamWriter(localAvaloniaWrapperScript))
@@ -283,7 +283,7 @@ class Build : NukeBuild
                 writer.WriteLine("# Wrapper script provided by SnapX to invoke the true Avalonia binary.");
                 writer.WriteLine($"# NMH Path: {NMHostPath}");
                 writer.WriteLine($"# Version: {SnapXVersion}");
-                writer.WriteLine(@"
+                writer.WriteLine(@$"
 if [ -f ""{avaloniaPath}"" ]; then
     exec {avaloniaPath} ""$@""
 else
