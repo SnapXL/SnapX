@@ -15,7 +15,7 @@
   <!-- Most elegant way of handling platform specific code -->
   <Target Name="CompileSwift" BeforeTargets="BeforeBuild"  Condition="$([MSBuild]::IsOsPlatform('OSX'))">
     <PropertyGroup>
-      <SwiftSourceFile>ScreenCapture.swift</SwiftSourceFile>
+      <SwiftSourceFile>SharpCapture/macOS/ScreenCapture.swift</SwiftSourceFile>
       <SwiftOutputDirectory>$(OutputPath)</SwiftOutputDirectory>
       <DylibName>SharpCapture.dylib</DylibName>
       <SwiftCompilerPath>swiftc</SwiftCompilerPath>
