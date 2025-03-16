@@ -13,9 +13,6 @@
 
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
-  <PropertyGroup Condition="'$(OS)' == 'Darwin'">
-    <TargetFrameworks>net9.0-macos;net9.0</TargetFrameworks>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
     <TargetFrameworks>net9.0-windows10.0.26100;net9.0</TargetFrameworks>
     <!-- Windows 10 22H2 -->
