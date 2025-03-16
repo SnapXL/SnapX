@@ -98,22 +98,22 @@ import AppKit
 
     // MARK: - Helper Functions
 
-    private func capture(contentRect: CGRect?, windows: [SCWindow]? = nil, completion: @escaping (NSData?) -> Void) {
+    private func capture(contentRect: CGRect? = nil, windows: [SCWindow]? = nil, completion: @escaping (NSData?) -> Void) {
         singleCaptureCompletion = completion
         startCapture(contentRect: contentRect, windows: windows, forContinuous: false)
     }
 
-    private func startCapture(contentRect: CGRect? = nil, windows: [SCWindow]? = nil, forContinuous: Bool) {
+    private func startCapture(contentRect: CGRect?, windows: [SCWindow]?, forContinuous: Bool) {
         Task {
             do {
                 let filter: SCContentFilter
                 if let rect = contentRect {
-                    filter = SCContentFilter(desktopIndependentWindow: .exclude, screen: .some(rect))
+                    filter = SCContentFilter(desktopIndependentWindow: .exclude, screenFilter: .some(rect))
                 } else if let windowsToCapture = windows {
                     filter = SCContentFilter(desktopIndependentWindows: windowsToCapture, screen: nil)
                 } else {
                     guard let mainScreen = NSScreen.main else { return }
-                    filter = SCContentFilter(desktop: mainScreen.screen, excludingApplications:) // Use mainScreen.screen
+                    filter = SCContentFilter(desktop: mainScreen.screen, excludingApplications: nil) // Use mainScreen.screen
                 }
 
                 let config = SCStreamConfiguration()
@@ -167,7 +167,11 @@ import AppKit
 
     private func stopCapture() {
         Task {
-            await stream?.stopCapture()
+            do {
+                try await stream?.stopCapture()
+            } catch {
+                print("Error stopping capture stream: \(error.localizedDescription)")
+            }
         }
     }
 
