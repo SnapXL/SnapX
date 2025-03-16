@@ -9,17 +9,9 @@ namespace SnapX.Core.SharpCapture.macOS;
 [SupportedOSPlatform("macos12.3")]
 public class macOSCapture : BaseCapture
 {
-    private const string ScreenCaptureKit = "/System/Library/Frameworks/ScreenCaptureKit.framework/ScreenCaptureKit";
+    // private const string ScreenCaptureKit = "/System/Library/Frameworks/ScreenCaptureKit.framework/ScreenCaptureKit";
     private const string CoreGraphics = "/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics";
-
-    [DllImport(ScreenCaptureKit)]
-    private static extern IntPtr SCStreamCreateSnapshot(IntPtr stream, out IntPtr error);
-
-    [DllImport(ScreenCaptureKit)]
-    private static extern void SCStreamReleaseSnapshot(IntPtr snapshot);
-
-    [DllImport(ScreenCaptureKit)]
-    private static extern IntPtr SCStreamCopyBitmapRepresentation(IntPtr snapshot);
+    private const string SharpCaptureDylib = "SharpCapture.dylib";
 
     [DllImport(CoreGraphics)]
     private static extern IntPtr CGImageCreateCopy(IntPtr image);
@@ -52,97 +44,215 @@ public class macOSCapture : BaseCapture
     [DllImport(CoreGraphics)]
     private static extern IntPtr CGDisplayBounds(uint displayId);
 
+    [DllImport(SharpCaptureDylib)]
+    private static extern void captureFullscreen(Action<IntPtr?> completion);
+
+    [DllImport(SharpCaptureDylib)]
+    private static extern void captureScreen(NSRect bounds, Action<IntPtr?> completion);
+
+    [DllImport(SharpCaptureDylib)]
+    private static extern void captureScreen(CGFloat posX, CGFloat posY, Action<IntPtr?> completion);
+
+    [DllImport(SharpCaptureDylib)]
+    private static extern void captureWindow(CGFloat posX, CGFloat posY, Action<IntPtr?> completion);
+
+    [DllImport(SharpCaptureDylib)]
+    private static extern void captureRectangle(NSRect rect, Action<IntPtr?> completion);
+
+    [DllImport(SharpCaptureDylib)]
+    private static extern void startContinuousCapture(Action<IntPtr?> completion);
+
+    [DllImport(SharpCaptureDylib)]
+    private static extern void stopContinuousCapture();
+
+    [DllImport(SharpCaptureDylib)]
+    private static extern void getLatestFrame(Action<IntPtr?> completion);
+
+    private Action<Image?>? _continuousFrameCallback;
+    private CancellationTokenSource? _continuousCaptureCancellationTokenSource;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NSRect
+    {
+        public CGFloat x;
+        public CGFloat y;
+        public CGFloat width;
+        public CGFloat height;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CGFloat
+    {
+        public double Value;
+
+        public static implicit operator CGFloat(double value) => new() { Value = value };
+        public static implicit operator double(CGFloat cgFloat) => cgFloat.Value;
+    }
+    [DllImport(SharpCaptureDylib)]
+    private static extern ulong getNSDataLength(IntPtr data);
+    [DllImport(SharpCaptureDylib)]
+    private static extern void releaseNSData(IntPtr data);
+    private static Image? PngDataToImage(IntPtr? dataPtr)
+    {
+        if (dataPtr == IntPtr.Zero || dataPtr == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var length = getNSDataLength(dataPtr.Value);
+
+            var buffer = new byte[length];
+            Marshal.Copy(dataPtr.Value, buffer, 0, (int)length);
+            return Image.Load(buffer);
+        }
+        finally
+        {
+            releaseNSData(dataPtr.Value);
+        }
+    }
+
     public override async Task<Image?> CaptureFullscreen()
     {
-        return await Task.Run(() =>
+        var tcs = new TaskCompletionSource<Image?>();
+        Action<IntPtr?> completion = (dataPtr) =>
         {
-            IntPtr error;
-            var snapshot = SCStreamCreateSnapshot(IntPtr.Zero, out error);
-            if (snapshot == IntPtr.Zero)
-            {
-                DebugHelper.WriteLine("Failed to capture screenshot.");
-                return null;
-            }
-
-            var bitmap = SCStreamCopyBitmapRepresentation(snapshot);
-            SCStreamReleaseSnapshot(snapshot);
-
-            if (bitmap == IntPtr.Zero)
-            {
-                DebugHelper.WriteLine("Failed to retrieve bitmap.");
-                return null;
-            }
-
-            var cgImage = CGImageCreateCopy(bitmap);
-            if (cgImage == IntPtr.Zero)
-            {
-                DebugHelper.WriteLine("Failed to create CGImage.");
-                return null;
-            }
-
-            var pngData = ConvertCGImageToPNG(cgImage);
-            CGImageRelease(cgImage);
-
-            if (pngData == IntPtr.Zero)
-            {
-                DebugHelper.WriteLine("Failed to convert image to PNG.");
-                return null;
-            }
-
-            var pngBytes = CFDataToByteArray(pngData);
-            CFRelease(pngData);
-            return Image.Load(pngBytes);
-        });
+            tcs.SetResult(PngDataToImage(dataPtr));
+        };
+        captureFullscreen(completion);
+        return await tcs.Task;
     }
+
+    public override async Task<Image?> CaptureScreen(Rectangle bounds)
+    {
+        var tcs = new TaskCompletionSource<Image?>();
+        var nsRect = new NSRect
+        {
+            x = bounds.X,
+            y = bounds.Y,
+            width = bounds.Width,
+            height = bounds.Height
+        };
+        Action<IntPtr?> completion = (dataPtr) =>
+        {
+            tcs.SetResult(PngDataToImage(dataPtr));
+        };
+        captureScreen(nsRect, completion);
+        return await tcs.Task;
+    }
+
     public override async Task<Image?> CaptureScreen(Point? pos)
     {
-        return await Task.Run(() =>
+        if (!pos.HasValue)
         {
-            var displayId = GetDisplayForPoint(pos);
-            if (displayId == 0)
+            return null;
+        }
+
+        TaskCompletionSource<Image?> tcs = new TaskCompletionSource<Image?>();
+        Action<IntPtr?> completion = (dataPtr) =>
+        {
+            tcs.SetResult(PngDataToImage(dataPtr));
+        };
+        captureScreen(pos.Value.X, pos.Value.Y, completion);
+        return await tcs.Task;
+    }
+
+    public override async Task<Image?> CaptureWindow(Point pos)
+    {
+        TaskCompletionSource<Image?> tcs = new TaskCompletionSource<Image?>();
+        Action<IntPtr?> completion = (dataPtr) =>
+        {
+            tcs.SetResult(PngDataToImage(dataPtr));
+        };
+        captureWindow(pos.X, pos.Y, completion);
+        return await tcs.Task;
+    }
+
+    public override async Task<Image?> CaptureRectangle(Rectangle rect)
+    {
+        TaskCompletionSource<Image?> tcs = new TaskCompletionSource<Image?>();
+        NSRect nsRect = new NSRect
+        {
+            x = rect.X,
+            y = rect.Y,
+            width = rect.Width,
+            height = rect.Height
+        };
+        Action<IntPtr?> completion = (dataPtr) =>
+        {
+            tcs.SetResult(PngDataToImage(dataPtr));
+        };
+        captureRectangle(nsRect, completion);
+        return await tcs.Task;
+    }
+
+    public Task StartContinuousCapture(Action<Image?> frameCallback)
+    {
+        if (_continuousCaptureCancellationTokenSource != null)
+        {
+            _continuousCaptureCancellationTokenSource.Cancel();
+            _continuousCaptureCancellationTokenSource.Dispose();
+            _continuousCaptureCancellationTokenSource = null;
+        }
+
+        _continuousFrameCallback = frameCallback;
+        _continuousCaptureCancellationTokenSource = new CancellationTokenSource();
+
+        Action<IntPtr?> completion = (dataPtr) =>
+        {
+            if (_continuousFrameCallback != null && !_continuousCaptureCancellationTokenSource.Token.IsCancellationRequested)
             {
-                DebugHelper.WriteLine("No display found for given position.");
-                return null;
+                _continuousFrameCallback(PngDataToImage(dataPtr));
             }
+        };
 
-            var snapshot = SCStreamCreateSnapshot(IntPtr.Zero, out var error);
-            if (snapshot == IntPtr.Zero)
+        // Start the continuous capture in Swift
+        startContinuousCapture(completion);
+
+        // For single frame capture requests during continuous capture
+        Task.Run(async () =>
+        {
+            try
             {
-                DebugHelper.WriteLine("Failed to capture screenshot.");
-                return null;
+                while (!_continuousCaptureCancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    await Task.Delay(16, _continuousCaptureCancellationTokenSource.Token); // Check for new frame roughly every 60 FPS
+                }
             }
-
-            var bitmap = SCStreamCopyBitmapRepresentation(snapshot);
-            SCStreamReleaseSnapshot(snapshot);
-
-            if (bitmap == IntPtr.Zero)
+            catch (TaskCanceledException)
             {
-                DebugHelper.WriteLine("Failed to retrieve bitmap.");
-                return null;
+                // Expected when stopping continuous capture
             }
-
-            var cgImage = CGImageCreateCopy(bitmap);
-            if (cgImage == IntPtr.Zero)
-            {
-                DebugHelper.WriteLine("Failed to create CGImage.");
-                return null;
-            }
-
-            var pngData = ConvertCGImageToPNG(cgImage);
-            CGImageRelease(cgImage);
-
-            if (pngData == IntPtr.Zero)
-            {
-                DebugHelper.WriteLine("Failed to convert image to PNG.");
-                return null;
-            }
-
-            var pngBytes = CFDataToByteArray(pngData);
-            CFRelease(pngData);
-
-            using var ms = new MemoryStream(pngBytes);
-            return Image.Load<Rgba32>(ms);
         });
+
+        return Task.CompletedTask;
+    }
+
+    public Task StopContinuousCapture()
+    {
+        stopContinuousCapture();
+        _continuousCaptureCancellationTokenSource?.Cancel();
+        _continuousCaptureCancellationTokenSource?.Dispose();
+        _continuousCaptureCancellationTokenSource = null;
+        _continuousFrameCallback = null;
+        return Task.CompletedTask;
+    }
+
+    private async Task<Image?> GetOneFrame()
+    {
+        TaskCompletionSource<Image?> tcs = new TaskCompletionSource<Image?>();
+        Action<IntPtr?> completion = (dataPtr) =>
+        {
+            tcs.SetResult(PngDataToImage(dataPtr));
+        };
+
+        // Temporarily start and immediately try to get the latest frame
+        startContinuousCapture(completion);
+        await Task.Delay(50); // Give it a short time to capture a frame
+        stopContinuousCapture();
+
+        return await tcs.Task;
     }
 
     private static IntPtr ConvertCGImageToPNG(IntPtr cgImage)
