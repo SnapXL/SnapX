@@ -59,18 +59,20 @@ import AppKit
         capture(with: rect, windows: nil, completion: completion)
     }
 
-    @objc public func captureScreen(posX: CGFloat, posY: CGFloat, completion: @escaping (NSData?) -> Void) {
-        let rect = CGRect(x: posX - 5, y: posY - 5, width: 10, height: 10) // Capture a small area around the point
-        capture(with: rect, windows: nil, completion: completion)
-    }
+    // Temporarily removed functionality
+    // @objc public func captureScreen(posX: CGFloat, posY: CGFloat, completion: @escaping (NSData?) -> Void) {
+    //     let rect = CGRect(x: posX - 5, y: posY - 5, width: 10, height: 10) // Capture a small area around the point
+    //     capture(with: rect, windows: nil, completion: completion)
+    // }
 
-    @objc public func captureWindow(posX: CGFloat, posY: CGFloat, completion: @escaping (NSData?) -> Void) {
-        guard let window = getWindowAt(point: CGPoint(x: posX, y: posY)) else {
-            completion(nil)
-            return
-        }
-        capture(with: nil, windows: [window], completion: completion)
-    }
+    // Temporarily removed functionality
+    // @objc public func captureWindow(posX: CGFloat, posY: CGFloat, completion: @escaping (NSData?) -> Void) {
+    //     guard let window = getWindowAt(point: CGPoint(x: posX, y: posY)) else {
+    //         completion(nil)
+    //         return
+    //     }
+    //     capture(with: nil, windows: [window], completion: completion)
+    // }
 
     // MARK: - Continuous Screen Capture
 
@@ -108,7 +110,7 @@ import AppKit
             do {
                 let filter: SCContentFilter
                 if let rect = contentRect {
-                    filter = SCContentFilter(desktopIndependentWindows: [], screenFilter: .some(.init(rect)))
+                    filter = SCContentFilter(desktopIndependentWindows: [], screen: rect)
                 } else if let windowsToCapture = windows {
                     filter = SCContentFilter(desktopIndependentWindows: windowsToCapture, screen: nil)
                 } else {
@@ -175,17 +177,18 @@ import AppKit
         }
     }
 
-    private func getWindowAt(point: CGPoint) -> SCWindow? {
-        guard let windows = try? SCShareableContent.current.windows(onScreenOnly: true) else {
-            return nil
-        }
-        for window in windows {
-            if window.frame.contains(point) {
-                return window
-            }
-        }
-        return nil
-    }
+    // Temporarily removed functionality
+    // private func getWindowAt(point: CGPoint) -> SCWindow? {
+    //     guard let windows = try? SCShareableContent.current.windows(onScreenOnly: true) else {
+    //         return nil
+    //     }
+    //     for window in windows {
+    //         if window.frame.contains(point) {
+    //             return window
+    //         }
+    //     }
+    //     return nil
+    // }
 
     private func convertImageBufferToCGImage(_ buffer: CVImageBuffer) -> CGImage? {
         let ciImage = CIImage(cvImageBuffer: buffer)
