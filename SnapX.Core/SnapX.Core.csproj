@@ -13,7 +13,7 @@
 
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
-  <Target Name="CompileSwift" BeforeTargets="Build" Condition="$([MSBuild]::IsOsPlatform('OSX'))">
+  <Target Name="CompileSwift" BeforeTargets="BeforeBuild"  Condition="$([MSBuild]::IsOsPlatform('OSX'))">
     <PropertyGroup>
       <SwiftSourceFile>ScreenCapture.swift</SwiftSourceFile>
       <SwiftOutputDirectory>$(OutputPath)</SwiftOutputDirectory>
@@ -23,13 +23,6 @@
     <Exec Command="$(SwiftCompilerPath) -emit-library -o &quot;$(SwiftOutputDirectory)/$(DylibName)&quot; &quot;$(SwiftSourceFile)&quot;" />
     <Message Importance="High" Text="Successfully compiled Swift code into $(SwiftOutputDirectory)/$(DylibName)" />
   </Target>
-
-  <ItemGroup>
-    <Content Include="$(OutputPath)/$(DylibName)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
     <TargetFrameworks>net9.0-windows10.0.26100;net9.0</TargetFrameworks>
     <!-- Windows 10 22H2 -->
