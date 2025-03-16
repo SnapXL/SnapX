@@ -48,20 +48,20 @@ import AppKit
     // MARK: - Capture Methods
 
     @objc public func captureFullscreen(completion: @escaping (NSData?) -> Void) {
-        capture(contentRect: nil, completion: completion)
+        capture(with: nil, windows: nil, completion: completion)
     }
 
     @objc public func captureScreen(bounds: NSRect, completion: @escaping (NSData?) -> Void) {
-        capture(contentRect: bounds, completion: completion)
+        capture(with: bounds, windows: nil, completion: completion)
     }
 
     @objc public func captureRectangle(rect: NSRect, completion: @escaping (NSData?) -> Void) {
-        capture(contentRect: rect, completion: completion)
+        capture(with: rect, windows: nil, completion: completion)
     }
 
     @objc public func captureScreen(posX: CGFloat, posY: CGFloat, completion: @escaping (NSData?) -> Void) {
         let rect = CGRect(x: posX - 5, y: posY - 5, width: 10, height: 10) // Capture a small area around the point
-        capture(contentRect: rect, completion: completion)
+        capture(with: rect, windows: nil, completion: completion)
     }
 
     @objc public func captureWindow(posX: CGFloat, posY: CGFloat, completion: @escaping (NSData?) -> Void) {
@@ -69,7 +69,7 @@ import AppKit
             completion(nil)
             return
         }
-        capture(windows: [window], completion: completion)
+        capture(with: nil, windows: [window], completion: completion)
     }
 
     // MARK: - Continuous Screen Capture
@@ -98,7 +98,7 @@ import AppKit
 
     // MARK: - Helper Functions
 
-    private func capture(contentRect: CGRect? = nil, windows: [SCWindow]? = nil, completion: @escaping (NSData?) -> Void) {
+    private func capture(with contentRect: CGRect?, windows: [SCWindow]?, completion: @escaping (NSData?) -> Void) {
         singleCaptureCompletion = completion
         startCapture(contentRect: contentRect, windows: windows, forContinuous: false)
     }
@@ -108,7 +108,7 @@ import AppKit
             do {
                 let filter: SCContentFilter
                 if let rect = contentRect {
-                    filter = SCContentFilter(desktopIndependentWindow: .exclude, screenFilter: .some(rect))
+                    filter = SCContentFilter(desktopIndependentWindows: [], screenFilter: .some(.init(rect)))
                 } else if let windowsToCapture = windows {
                     filter = SCContentFilter(desktopIndependentWindows: windowsToCapture, screen: nil)
                 } else {
