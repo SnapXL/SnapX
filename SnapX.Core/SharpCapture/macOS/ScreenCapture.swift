@@ -2,6 +2,7 @@ import ScreenCaptureKit
 import CoreGraphics
 import ImageIO
 import AVFoundation
+import UniformTypeIdentifiers
 
 @objc public class ScreenCaptureManager: NSObject, SCStreamDelegate {
     private var stream: SCStream?
@@ -138,7 +139,7 @@ import AVFoundation
 
     private func convertCGImageToPNG(_ image: CGImage) -> Data? {
         guard let mutableData = CFDataCreateMutable(nil, 0),
-              let destination = CGImageDestinationCreateWithData(mutableData, kUTTypePNG, 1, nil) else {
+              let destination = CGImageDestinationCreateWithData(mutableData, UTTypePNG, 1, nil) else {
             return nil
         }
         CGImageDestinationAddImage(destination, image, nil)
