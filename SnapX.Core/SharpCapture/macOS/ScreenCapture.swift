@@ -17,12 +17,12 @@ import UniformTypeIdentifiers
     // MARK: - SCStreamDelegate
 
     public func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
-        guard type == .screen, let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        guard type == .screen, let imageBuffer: CVImageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
         latestFrame = convertImageBufferToCGImage(imageBuffer)
 
-        if isCapturingContinuously, let completion = continuousCaptureCompletion {
-            completion(convertCGImageToPNG(latestFrame!))
+        if isCapturingContinuously, let frame = latestFrame, let completion = continuousCaptureCompletion {
+            completion(convertCGImageToPNG(frame))
         }
     }
 
@@ -56,9 +56,9 @@ import UniformTypeIdentifiers
         Task {
             do {
                 guard let mainScreen = NSScreen.main else { return }
-                let screenSize = mainScreen.frame.size
+                let screenSize: CGSize = mainScreen.frame.size
 
-                let filter = SCContentFilter(display: mainScreen, excluding: [])
+                let filter = SCContentFilter(desktop: mainScreen, excludingApplications: [])
                 let config = SCStreamConfiguration()
                 config.width = Int(screenSize.width)
                 config.height = Int(screenSize.height)
@@ -96,9 +96,9 @@ import UniformTypeIdentifiers
         Task {
             do {
                 guard let mainScreen = NSScreen.main else { return }
-                let screenSize = mainScreen.frame.size
+                let screenSize: CGSize = mainScreen.frame.size
 
-                let filter = SCContentFilter(display: mainScreen, excluding: [])
+                let filter = SCContentFilter(desktop: mainScreen, excludingApplications: [])
                 let config = SCStreamConfiguration()
 
                 if let rect = contentRect {
@@ -139,7 +139,7 @@ import UniformTypeIdentifiers
 
     private func convertCGImageToPNG(_ image: CGImage) -> Data? {
         guard let mutableData = CFDataCreateMutable(nil, 0),
-              let destination = CGImageDestinationCreateWithData(mutableData, UTTypePNG, 1, nil) else {
+              let destination = CGImageDestinationCreateWithData(mutableData, UTType.png.identifier as CFString, 1, nil) else {
             return nil
         }
         CGImageDestinationAddImage(destination, image, nil)
