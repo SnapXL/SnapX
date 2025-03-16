@@ -85,10 +85,12 @@ Instructions for other projects within the SnapX solution are not provided yet.
 - `git`
 - `gtk4` & `gstreamer` (and respective plugins) (Installed by default on Ubuntu & Fedora)
 - `dotnet-sdk-9.0`
-- `ffmpeg` (7.0.0)
+- `ffmpeg` (7)
 - `clang`
 - `zlib-devel`
+- `curl-devel`
 - `vlc-libs` (libvlc)
+
 ### Fedora 41+ 🌟
 
 ```bash
@@ -106,7 +108,7 @@ sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev
 
 ### Windows 10 22H2+ 🪟
 
-End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and thus, not supported.
+End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and thus, unsupported.
 
 ```shell
 # Installing Visual Studio Community
@@ -116,9 +118,9 @@ winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --
 winget install -e --id Git.Git
 ```
 
-## macOS Ventura+ 🍎
+## macOS Ventura+ (13) 🍎
 
-Avalonia can run on macOS 12+. But you can't develop with such an old version.
+End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
 #### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
 
