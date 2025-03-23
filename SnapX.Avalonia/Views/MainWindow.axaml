@@ -1,8 +1,5 @@
 <windowing:AppWindow
-    ExtendClientAreaChromeHints="PreferSystemChrome"
-    ExtendClientAreaToDecorationsHint="True"
     Icon="avares://snapx-ui/SnapX_Logo.png"
-    IsExtendedIntoWindowDecorations="True"
     MinHeight="200"
     MinWidth="512"
     Title="{Binding MainWindowName}"

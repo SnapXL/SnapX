@@ -1,12 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Styling;
-using Avalonia.VisualTree;
 using FluentAvalonia.Styling;
 using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
@@ -93,7 +91,7 @@ public partial class AboutWindow : AppWindow
             {
                 FindURLOnDescendant(child);
             }
-             var url = toolTip?.Content as string ?? string.Empty;
+            var url = toolTip?.Content as string ?? string.Empty;
             if (!string.IsNullOrEmpty(url)) URLHelpers.OpenURL(url);
         }
     }
@@ -135,14 +133,12 @@ public partial class AboutWindow : AppWindow
 
         Application.Current!.ActualThemeVariantChanged += ApplicationActualThemeVariantChanged;
         var thm = ActualThemeVariant;
-        if (IsWindows11 && thm != FluentAvaloniaTheme.HighContrastTheme)
-        {
-            TransparencyBackgroundFallback = Brushes.Transparent;
-            TransparencyLevelHint = new[]
-                { WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.None };
+        if (!IsWindows11 || thm == FluentAvaloniaTheme.HighContrastTheme) return;
+        TransparencyBackgroundFallback = Brushes.Transparent;
+        TransparencyLevelHint = new[]
+            { WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.None };
 
-            TryEnableMicaEffect();
-        }
+        TryEnableMicaEffect();
     }
     private void TryEnableMicaEffect()
     {

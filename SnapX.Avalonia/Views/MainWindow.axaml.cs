@@ -11,7 +11,6 @@ using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
-using SnapX.Core.History;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;

@@ -1,17 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.Hosting;
 using SnapX.Avalonia.Models;
-using SnapX.Core;
-using SnapX.Core.History;
 using SnapX.Core.Job;
 
 namespace SnapX.Avalonia.ViewModels;

@@ -1,11 +1,5 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using SnapX.Avalonia.ViewModels;
-using SnapX.CommonUI;
+﻿using Avalonia.Controls;
 using SnapX.Core;
-using SnapX.Core.Job;
 
 namespace SnapX.Avalonia;
 
