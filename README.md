@@ -24,9 +24,9 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows ap
 - Elegance in user interfaces by separating essential settings from advanced or intermediate functionality
 - Supporting high DPI screens
 - Screenshots on an HDR monitor aren't blown out*
-- Cross platform OCR powered by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR/blob/main/README_en.md) that [rivals PowerToys OCR, Sharex OCR, & Windows 10 built in OCR in accuracy](https://toon-beerten.medium.com/ocr-comparison-tesseract-versus-easyocr-vs-paddleocr-vs-mmocr-a362d9c79e66)
+- Cross-platform OCR powered by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR/blob/main/README_en.md) that [rivals PowerToys OCR, ShareX OCR, & Windows 10 built in OCR in accuracy](https://toon-beerten.medium.com/ocr-comparison-tesseract-versus-easyocr-vs-paddleocr-vs-mmocr-a362d9c79e66)
 
-[1]: When tested on KDE Plasma Wayland 6.2.90 with HDR on the resulting screenshot's colors were not blown out. Your mileage may vary.
+[1]: When tested on KDE Plasma Wayland 6.2.90 with HDR the resulting screenshot's colors were not blown out. Your mileage may vary.
 
 ## Technical Details
 
@@ -34,14 +34,15 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows ap
 - Dependency on Newtonsoft.JSON dropped, traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
 - And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet keeping JSON as an option.
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach. For SnapX.GTK4, it uses [BindingSharp](https://github.com/BrycensRanch/BindingSharp)
+- UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/) and uses [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!!)
 - Uses the power of VLC to playback video on Avalonia & uses Gstreamer on GTK4
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
-- Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* uses TLS 1.3 out of the box.
-- Keeps compatability with the custom uploader configuration format (.sxcu)
+- Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* use TLS 1.3 out of the box.
+- Keeps compatibility with the custom uploader configuration format (.sxcu)
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and *modern* application.
@@ -83,16 +84,18 @@ Instructions for other projects within the SnapX solution are not provided yet.
 > SnapX.GTK4 does not use header files and only requires the binary GTK4 package at runtime.
 
 - `git`
-- `gtk4` on Fedora or `libgtk-4-1` on Ubuntu
+- `gtk4` & `gstreamer` (and respective plugins) (Installed by default on Ubuntu & Fedora)
 - `dotnet-sdk-9.0`
-- `ffmpeg` (7.0.0)
+- `ffmpeg` (7)
 - `clang`
 - `zlib-devel`
+- `curl-devel`
 - `vlc-libs` (libvlc)
+
 ### Fedora 41+ 🌟
 
 ```bash
-sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs vlc-libs
+sudo dnf install -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs vlc-devel
 ```
 
 ### Ubuntu 24.04+ ⚡
@@ -106,7 +109,7 @@ sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev
 
 ### Windows 10 22H2+ 🪟
 
-End of life Windows versions are not supported. For example, Windows 11 22H2 is EOL and thus not supported.
+End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and thus, unsupported.
 
 ```shell
 # Installing Visual Studio Community
@@ -116,9 +119,9 @@ winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --
 winget install -e --id Git.Git
 ```
 
-## macOS Ventura+ 🍎
+## macOS Ventura+ (13) 🍎
 
-SnapX can run on macOS 12.3+ But you can't develop with such an old version.
+End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
 #### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
 

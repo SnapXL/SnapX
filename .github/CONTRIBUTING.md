@@ -18,6 +18,7 @@ Please make sure you checked all the following before submitting a new issue.
 - If you found an existing issue - use the react feature to show you have the same problem or need the same feature. Don't post comments like +1.
 - Use the Bug & Feature Issue templates and provide all the required information.
 - Be as detailed as possible and include screenshots wherever possible. This will help reproducing your bug or understanding your feature request.
+- Do not create GitHub issues with AI. 
 
 ## Contributing Code
 
