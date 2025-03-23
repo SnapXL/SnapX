@@ -556,6 +556,7 @@ public class SnapX
     private static void RegisterIntegrations()
     {
         if (Portable || Sandbox) return;
+        #if WINDOWS
         if (OperatingSystem.IsWindows())
         {
             // TODO: Reimplement FirstTimeForm to give users chance to consent
@@ -568,6 +569,7 @@ public class SnapX
             if (!WindowsAPI.CheckFirefoxAddonSupport())
                 WindowsAPI.CreateFirefoxAddonSupport(true);
         }
+        #endif
     }
 
     private static void MigratePersonalPathConfig()
