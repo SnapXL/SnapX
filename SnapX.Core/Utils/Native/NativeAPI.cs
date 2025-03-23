@@ -8,8 +8,8 @@ public class NativeAPI
 {
     public virtual void ShowWindow(WindowInfo windowInfo) => throw new NotImplementedException("NativeAPI.ShowWindow is not implemented.");
 
-    public virtual void ShowWindow(IntPtr handle) => throw new NotImplementedException("NativeAPI.ShowWindow is not implemented.");
-
+    public virtual void ShowWindow(IntPtr hwnd) => throw new NotImplementedException("NativeAPI.ShowWindow is not implemented.");
+    public virtual Image GetJumboFileIcon(string filePath, bool jumboSize = true) => throw new NotImplementedException("NativeAPI.GetJumboFileIcon is not implemented.");
     public virtual void HideWindow(WindowInfo windowInfo) => throw new NotImplementedException("NativeAPI.HideWindow is not implemented.");
     public virtual List<WindowInfo> GetWindowList() => throw new NotImplementedException("NativeAPI.GetWindowList is not implemented.");
     public virtual void HideWindow(IntPtr handle) => throw new NotImplementedException("NativeAPI.HideWindow is not implemented.");

@@ -1,143 +1,166 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
-              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-              xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
-              xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
-              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-              x:Class="SnapX.Avalonia.HomePageView"
-              x:DataType="viewModels1:HomePageViewModel">
+﻿<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.HomePageView"
+    x:DataType="viewModels1:HomePageViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.DataContext>
+        <viewModels1:HomePageViewModel />
+    </Design.DataContext>
     <ScrollViewer>
-    <StackPanel>
-  <Grid>
-    <!-- Define 3 rows and 3 columns -->
-    <Grid.RowDefinitions>
-      <RowDefinition Height="*" />
-      <RowDefinition Height="*" />
-      <RowDefinition Height="*" />
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*" />
-      <ColumnDefinition Width="*" />
-      <ColumnDefinition Width="*" />
-    </Grid.ColumnDefinitions>
-    <!-- Cell 1 -->
-    <ToggleButton Grid.Row="0" Grid.Column="0" Margin="5"
-                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png"
-                  >
-      <Border CornerRadius="3">
-        <StackPanel>
-          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                     HorizontalAlignment="Center" Foreground="White"/>
-          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
-        </StackPanel>
-      </Border>
-    </ToggleButton>
+        <ItemsControl ItemsSource="{Binding RecentTaskss}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel>
+                        <UniformGrid Margin="5" Name="ThumbnailView" />
+                    </WrapPanel>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
 
-    <!-- Cell 2 -->
-    <ToggleButton Grid.Row="0" Grid.Column="1" Margin="5"
-                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
-        <StackPanel>
-            <!-- TextBlock placed above the image border -->
-            <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                       HorizontalAlignment="Center" Foreground="White"/>
-            <Border CornerRadius="3">
-                <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
-            </Border>
-        </StackPanel>
-    </ToggleButton>
+                    <ToggleButton
+                        CommandParameter="{Binding}"
+                        Height="200"
+                        Margin="5"
+                        UseLayoutRounding="True"
+                        Width="208">
+                        <ToolTip.Tip>
+                            <WrapPanel>
+                                <TextBlock Margin="5" Text="{Binding task.FilePath}" />
+                                <Image
+                                    Height="300"
+                                    Stretch="Uniform"
+                                    Width="800"
+                                    asyncImageLoader:ImageLoader.Source="{Binding task.FilePath}" />
+                            </WrapPanel>
+                        </ToolTip.Tip>
+                        <ToggleButton.ContextFlyout>
+                            <controls:FAMenuFlyout Opening="PopupFlyoutBase_OnOpening" Placement="Bottom">
+                                <controls:MenuFlyoutItem
+                                    HotKey="Enter"
+                                    IconSource="ReportHacked"
+                                    Text="Show errors" />
+                                <controls:MenuFlyoutSeparator />
+                                <controls:MenuFlyoutSubItem IconSource="Open" Text="Open">
+                                    <controls:MenuFlyoutItem HotKey="Enter" Text="URL" />
+                                    <controls:MenuFlyoutItem Text="Shortened URL" />
+                                    <controls:MenuFlyoutItem Text="Thumbnail URL" />
+                                    <controls:MenuFlyoutItem Text="Deletion URL" />
+                                    <controls:MenuFlyoutSeparator />
+                                    <controls:MenuFlyoutItem HotKey="CTRL+Enter" Text="File" />
 
-    <!-- Cell 3 -->
-    <ToggleButton Grid.Row="0" Grid.Column="2" Margin="5"
-                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
-      <Border CornerRadius="3">
-        <StackPanel>
-            <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                       HorizontalAlignment="Center" Foreground="White"/>
-            <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
-        </StackPanel>
-      </Border>
-    </ToggleButton>
+                                    <controls:MenuFlyoutItem HotKey="Shift+Enter" Text="Folder" />
+                                    <controls:MenuFlyoutItem Text="Thumbnail file" />
 
-    <!-- Cell 4 -->
-    <ToggleButton Grid.Row="1" Grid.Column="0" Margin="5"
-                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
-      <Border CornerRadius="3">
-        <StackPanel>
-          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                     HorizontalAlignment="Center" Foreground="White" />
-          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
-        </StackPanel>
-      </Border>
-    </ToggleButton>
+                                </controls:MenuFlyoutSubItem>
+                                <controls:MenuFlyoutSubItem IconSource="Copy" Text="Copy">
+                                    <controls:MenuFlyoutItem HotKey="CTRL+C" Text="URL" />
+                                    <controls:MenuFlyoutItem Text="Shortened URL" />
+                                    <controls:MenuFlyoutItem Text="Thumbnail URL" />
+                                    <controls:MenuFlyoutItem Text="Deletion URL" />
+                                    <controls:MenuFlyoutSeparator />
+                                    <controls:MenuFlyoutItem HotKey="Shift+C" Text="File" />
+                                    <controls:MenuFlyoutItem HotKey="Alt+C" Text="Image" />
+                                    <controls:MenuFlyoutItem Text="Image dimensions" />
+                                    <controls:MenuFlyoutItem Text="Text" />
+                                    <controls:MenuFlyoutItem Text="Thumbnail file" />
+                                    <controls:MenuFlyoutItem Text="Thumbnail image" />
 
-    <!-- Cell 5 -->
-    <ToggleButton Grid.Row="1" Grid.Column="1" Margin="5"
-                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
-      <Border CornerRadius="3">
-        <StackPanel>
-          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                     HorizontalAlignment="Center" Foreground="White"/>
-          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
-        </StackPanel>
-      </Border>
-    </ToggleButton>
+                                    <controls:MenuFlyoutSeparator />
 
-    <!-- Cell 6 -->
-    <ToggleButton Grid.Row="1" Grid.Column="2" Margin="5"
-                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
-      <Border CornerRadius="3">
-        <StackPanel>
-          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                     HorizontalAlignment="Center" Foreground="White"/>
-          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
-        </StackPanel>
-      </Border>
-    </ToggleButton>
+                                    <controls:MenuFlyoutItem Text="File path" />
+                                    <controls:MenuFlyoutItem Text="File name" />
+                                    <controls:MenuFlyoutItem Text="File name with extension" />
+                                    <controls:MenuFlyoutItem Text="Folder" />
 
-    <!-- Cell 7 -->
-    <ToggleButton Grid.Row="2" Grid.Column="0" Margin="5"
-                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
-      <Border CornerRadius="3">
-        <StackPanel>
-          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                     HorizontalAlignment="Center" Foreground="White"/>
-          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
-        </StackPanel>
-      </Border>
-    </ToggleButton>
+                                </controls:MenuFlyoutSubItem>
+                                <controls:MenuFlyoutItem
+                                    HotKey="CTRL+U"
+                                    IconSource="Share"
+                                    Text="Upload"
+                                    ToolTip.Tip="Uploads to your specified image destination or custom uploader." />
+                                <controls:MenuFlyoutItem
+                                    IconSource="ImageAltText"
+                                    Text="OCR Image..."
+                                    ToolTip.Tip="Analyzes images using optical character recognition powered by PaddleOCR." />
+                                <controls:MenuFlyoutItem
+                                    HotKey="CTRL+E"
+                                    IconSource="ImageEdit"
+                                    Text="Edit Image..."
+                                    ToolTip.Tip="Opens image editor with this image." />
+                                <controls:MenuFlyoutItem
+                                    IconSource="Emoji"
+                                    Text="Beautify Image..."
+                                    ToolTip.Tip="Opens image beautifier with this image." />
+                                <controls:MenuFlyoutItem
+                                    IconSource="Preview"
+                                    Text="Add image effects..."
+                                    ToolTip.Tip="Opens image effects editor with this image." />
+                                <controls:MenuFlyoutSeparator />
+                                <!--  Marks task as hidden  -->
+                                <controls:MenuFlyoutItem
+                                    IconSource="Remove"
+                                    Text="Remove recent task from list"
+                                    ToolTip.Tip="Removes recent task from MainWindow list but still exists in History." />
+                                <controls:MenuFlyoutItem
+                                    IconSource="Dismiss"
+                                    Text="Clear task list"
+                                    ToolTip.Tip="Clears all recent tasks from the MainWindow yet they still exist in History." />
+                                <!-- <controls:MenuFlyoutSeparator /> -->
+                                <!-- <controls:ToggleMenuFlyoutItem IconSource="Bold" Text="Toggle Item" /> -->
+                                <!-- <controls:MenuFlyoutSeparator /> -->
+                                <!--  <controls:RadioMenuFlyoutItem  -->
+                                <!--  GroupName="Test Group"  -->
+                                <!--  IconSource="Games"  -->
+                                <!--  IsChecked="True"  -->
+                                <!--  Text="Radio Menu Item" />  -->
+                                <!--  <controls:RadioMenuFlyoutItem  -->
+                                <!--  GroupName="Test Group"  -->
+                                <!--  IconSource="Icons"  -->
+                                <!--  Text="Radio Menu Item 2" />  -->
+                                <controls:MenuFlyoutItem
+                                    HotKey="Shift+Delete"
+                                    IconSource="Delete"
+                                    Text="Delete file locally..."
+                                    ToolTip.Tip="Deletes it from your computer, not any configured destinations or uploaders." />
+                            </controls:FAMenuFlyout>
+                        </ToggleButton.ContextFlyout>
 
-    <!-- Cell 8 -->
-    <ToggleButton Grid.Row="2" Grid.Column="1" Margin="5"
-                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
-      <Border CornerRadius="3">
-        <StackPanel>
-          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                     HorizontalAlignment="Center" Foreground="White"/>
-          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
-        </StackPanel>
-      </Border>
-    </ToggleButton>
-
-    <!-- Cell 9 -->
-    <ToggleButton Grid.Row="2" Grid.Column="2" Margin="5"
-                  ToolTip.Tip="C:\Users\Brycen\Documents\SnapX\Screenshots\2025-03\SnapX_Logo.png">
-      <Border CornerRadius="3">
-        <StackPanel>
-          <TextBlock Text="SnapX_Logo.png" FontWeight="Bold"
-                     HorizontalAlignment="Center" Foreground="White"/>
-          <Image Source="/SnapX_Logo.png" Stretch="Uniform" Width="250" Height="150"/>
-        </StackPanel>
-      </Border>
-    </ToggleButton>
-
-
-  </Grid>
-    <!--     <Grid RowDefinitions="Auto, *" Margin="20"> -->
-    <!--     <Border Grid.Row="1" Background="#2d323c" CornerRadius="10"> -->
-    <!--         <Image Source="/SnapX_Logo.png" Height="320" /> -->
-    <!--     </Border> -->
-    <!-- </Grid> -->
-    </StackPanel>
-        </ScrollViewer>
+                        <ToggleButton.Styles>
+                            <Style Selector="ToggleButton:checked SelectableTextBlock#FileNameText">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </Style>
+                            <Style Selector="ToggleButton:unchecked SelectableTextBlock#FileNameText">
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </Style>
+                        </ToggleButton.Styles>
+                        <Border CornerRadius="3">
+                            <StackPanel>
+                                <Image
+                                    Height="150"
+                                    Stretch="Uniform"
+                                    Width="200"
+                                    asyncImageLoader:ImageLoader.Source="{Binding task.FilePath}" />
+                                <SelectableTextBlock
+                                    FontWeight="SemiBold"
+                                    Foreground="White"
+                                    HorizontalAlignment="Center"
+                                    Text="{Binding task.FileName}"
+                                    TextTrimming="CharacterEllipsis"
+                                    x:Name="FileNameText" />
+                            </StackPanel>
+                        </Border>
+                    </ToggleButton>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
 </UserControl>

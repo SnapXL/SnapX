@@ -52,7 +52,7 @@ indent_size = 2
 indent_size = 2
 
 # Xml files
-[*.{xml,stylecop,resx,ruleset}]
+[*.{xml,stylecop,resx,ruleset,xaml,axaml}]
 indent_size = 2
 
 # Xml config files

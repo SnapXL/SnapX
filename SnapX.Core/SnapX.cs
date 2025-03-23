@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,7 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Native;
 using SnapX.Core.Watch;
 using Xdg.Directories;
 
@@ -16,7 +18,7 @@ namespace SnapX.Core;
 public class SnapX
 {
     public const string AppName = "SnapX";
-    public static string Qualifier { get; set; }  = "";
+    public static string Qualifier { get; set; } = "";
     public const BuildType Build =
 
 #if DEBUG
@@ -105,7 +107,8 @@ public class SnapX
     public static bool IgnoreHotkeyWarning { get; private set; }
     public static bool PuushMode { get; private set; }
 
-    internal static RootConfiguration Settings { get; set; } = new();
+    public static RootConfiguration Settings { get; set; } = new();
+    public static List<string> Flags { get; set; } = new();
 
     internal static IConfiguration Configuration { get; set; }
     internal static TaskSettings DefaultTaskSettings { get; set; } = TaskSettings.GetDefaultTaskSettings();
@@ -263,6 +266,7 @@ public class SnapX
     {
         CloseSequence();
     }
+    public Assembly[] GetAssemblies() => AppDomain.CurrentDomain.GetAssemblies();
     public void start(string[] args)
     {
         HandleExceptions();
@@ -414,6 +418,13 @@ public class SnapX
 
                 // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
                 options.Debug = Environment.GetEnvironmentVariable("SENTRY_DEBUG") == "1";
+
+                #if DEBUG
+                options.Environment = "development";
+                #else
+                options.Environment = "production";
+                #endif
+
                 // VLCException includes multiple paths with username
                 // For full transparency, I discovered this issue on my computer.
                 // No other users are effected to my knowledge.
@@ -545,17 +556,18 @@ public class SnapX
     private static void RegisterIntegrations()
     {
         if (Portable || Sandbox) return;
-#if WINDOWS
-        // TODO: Reimplement FirstTimeForm to give users chance to consent
-        if (!WindowsAPI.CheckCustomUploaderExtension()) WindowsAPI.CreateCustomUploaderExtension(true);
-        if (!WindowsAPI.CheckImageEffectExtension()) WindowsAPI.CreateImageEffectExtension(true);
-        if (!WindowsAPI.CheckShellContextMenuButton()) WindowsAPI.CreateShellContextMenuButton(true);
-        if (!WindowsAPI.CheckSendToMenuButton()) WindowsAPI.CreateSendToMenuButton(true);
+        if (OperatingSystem.IsWindows())
+        {
+            // TODO: Reimplement FirstTimeForm to give users chance to consent
+            if (!WindowsAPI.CheckCustomUploaderExtension()) WindowsAPI.CreateCustomUploaderExtension(true);
+            if (!WindowsAPI.CheckImageEffectExtension()) WindowsAPI.CreateImageEffectExtension(true);
+            if (!WindowsAPI.CheckShellContextMenuButton()) WindowsAPI.CreateShellContextMenuButton(true);
+            if (!WindowsAPI.CheckSendToMenuButton()) WindowsAPI.CreateSendToMenuButton(true);
 
-        if (!WindowsAPI.CheckChromeExtensionSupport()) WindowsAPI.CreateChromeExtensionSupport(true);
-        if (!WindowsAPI.CheckFirefoxAddonSupport())
-            WindowsAPI.CreateFirefoxAddonSupport(true);
-#endif
+            if (!WindowsAPI.CheckChromeExtensionSupport()) WindowsAPI.CreateChromeExtensionSupport(true);
+            if (!WindowsAPI.CheckFirefoxAddonSupport())
+                WindowsAPI.CreateFirefoxAddonSupport(true);
+        }
     }
 
     private static void MigratePersonalPathConfig()
@@ -575,9 +587,10 @@ public class SnapX
                     return;
                 }
                 if (e.HResult == -2147024816 ||
-                    e.HResult == -2147024713) {
+                    e.HResult == -2147024713)
+                {
                     // The file already exists, ignore.
-                   return;
+                    return;
                 }
                 DebugHelper.WriteLine("Failed to symbolic link typical SnapX path. You can safely ignore this.");
                 DebugHelper.WriteException(e);
@@ -677,20 +690,19 @@ public class SnapX
 
     private static void DebugWriteFlags()
     {
-        var flags = new List<string>();
 
-        if (Settings.DevMode) flags.Add(nameof(Settings.DevMode));
-        if (MultiInstance) flags.Add(nameof(MultiInstance));
-        if (Portable) flags.Add(nameof(Portable));
-        if (SilentRun) flags.Add(nameof(SilentRun));
-        if (Sandbox) flags.Add(nameof(Sandbox));
-        if (IgnoreHotkeyWarning) flags.Add(nameof(IgnoreHotkeyWarning));
-        if (FeatureFlags.DisableTelemetry) flags.Add(nameof(FeatureFlags.DisableTelemetry));
-        if (FeatureFlags.DisableAutoUpdates) flags.Add(nameof(FeatureFlags.DisableAutoUpdates));
-        if (FeatureFlags.DisableUploads) flags.Add(nameof(FeatureFlags.DisableUploads));
-        if (PuushMode) flags.Add(nameof(PuushMode));
+        if (Settings.DevMode) Flags.Add(nameof(Settings.DevMode));
+        if (MultiInstance) Flags.Add(nameof(MultiInstance));
+        if (Portable) Flags.Add(nameof(Portable));
+        if (SilentRun) Flags.Add(nameof(SilentRun));
+        if (Sandbox) Flags.Add(nameof(Sandbox));
+        if (IgnoreHotkeyWarning) Flags.Add(nameof(IgnoreHotkeyWarning));
+        if (FeatureFlags.DisableTelemetry) Flags.Add(nameof(FeatureFlags.DisableTelemetry));
+        if (FeatureFlags.DisableAutoUpdates) Flags.Add(nameof(FeatureFlags.DisableAutoUpdates));
+        if (FeatureFlags.DisableUploads) Flags.Add(nameof(FeatureFlags.DisableUploads));
+        if (PuushMode) Flags.Add(nameof(PuushMode));
 
-        var output = string.Join(", ", flags);
+        var output = string.Join(", ", Flags);
         DebugHelper.WriteLine("Flags: " + output);
     }
 }

@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Windowing;
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views;
 using SnapX.Core;
@@ -29,7 +30,7 @@ public class App : Application
         DataContext = this;
     }
     public static SnapXAvalonia SnapX { get; set; }
-    private MainWindow? myMainWindow;
+    public static MainWindow? MyMainWindow { get; set; }
 
     private static string SimpleVersion()
     {
@@ -45,9 +46,9 @@ public class App : Application
 
         SnapX = new SnapXAvalonia();
         // SnapX.setQualifier(" UI");
-		#if DEBUG
-		this.EnableHotReload();
-		#endif
+#if DEBUG
+        this.EnableHotReload();
+#endif
         AvaloniaXamlLoader.Load(this);
         AppDomain.CurrentDomain.UnhandledException += (Sender, Args) =>
         {
@@ -187,6 +188,7 @@ public class App : Application
             Content = stackPanel,
             SizeToContent = SizeToContent.WidthAndHeight,
             MinWidth = 400,
+            MaxWidth = 1920,
             Padding = new Thickness(6),
             // Background = new ImageBrush()
             // {
@@ -225,6 +227,7 @@ public class App : Application
         var provider = services.BuildServiceProvider();
 
         Ioc.Default.ConfigureServices(provider);
+        Ioc.Default.AddStaticLogging();
         var vm = Ioc.Default.GetRequiredService<MainViewModel>();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -295,7 +298,7 @@ public class App : Application
                 var media = new Media(vlc, input);
                 MediaPlayer.EnableHardwareDecoding = true;
                 MediaPlayer.Play(media);
-                MediaPlayer.Stopped += async(Sender, Args) =>
+                MediaPlayer.Stopped += async (Sender, Args) =>
                 {
                     media.Dispose();
                     vlc.Dispose();
@@ -304,9 +307,10 @@ public class App : Application
             var Window = new MainWindow(vm);
 
             Window.Show();
-            myMainWindow = Window;
-            desktop.MainWindow = Window;
+            DebugHelper.WriteLine("MainWindow startup time: {0} ms", SnapX.getStartupTime());
 
+            MyMainWindow = Window;
+            desktop.MainWindow = Window;
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
         {
@@ -317,15 +321,30 @@ public class App : Application
         }
     }
 
-    private void NativeMenuAboutSnapXClick(object? Sender, EventArgs E) => new AboutWindow().Show();
+    public static void CreateAboutWindowStatic()
+    {
+        if (Design.IsDesignMode)
+        {
+            Activator.CreateInstance<AboutWindow>().Show();
+            return;
+        }
+
+        Ioc.Default.GetService<AboutWindow>()?.Show();
+
+    }
+
+
+    private void NativeMenuAboutSnapXClick(object? Sender, EventArgs E) => CreateAboutWindowStatic();
     public static void ConfigureServices(IServiceCollection services)
     {
         services.AddSingleton<MainViewModel>();
-        services.AddTransient<HomePageViewModel>();
+        services.AddSingleton<HomePageViewModel>();
+        services.AddLogging(loggingBuilder =>
+            loggingBuilder.AddSerilog(dispose: true));
 
-        services.AddTransient<MainWindow>();
+        services.AddSingleton<MainWindow>();
         services.AddTransient<AboutWindow>();
-        services.AddTransient<HomePageView>();
+        services.AddSingleton<HomePageView>();
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
 
     }
@@ -348,12 +367,12 @@ public class App : Application
 
     private void NativeMenuItem_Open_OnClick(object? Sender, EventArgs E)
     {
-        if (!myMainWindow?.IsLoaded ?? false)
+        if (!MyMainWindow?.IsLoaded ?? false)
         {
             var vm = Ioc.Default.GetRequiredService<MainViewModel>();
-            myMainWindow = new MainWindow(vm);
-            myMainWindow.Show();
+            MyMainWindow = new MainWindow(vm);
+            MyMainWindow.Show();
         }
-        myMainWindow?.Focus();
+        MyMainWindow?.Focus();
     }
 }

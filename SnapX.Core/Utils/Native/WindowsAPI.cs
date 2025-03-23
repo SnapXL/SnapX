@@ -3,36 +3,138 @@ using System.Management.Automation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Security;
 using System.Text;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Media;
 using SnapX.Core.Utils.Extensions;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Gdi;
+using Windows.Win32.Storage.FileSystem;
+using Windows.Win32.System.Memory;
+using Windows.Win32.UI.Controls;
+using Windows.Win32.UI.Shell;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace SnapX.Core.Utils.Native;
 
-[SupportedOSPlatform("windows")]
+
+[SecurityCritical]
+[SecuritySafeCritical]
+[SupportedOSPlatform("windows10.0.18362")]
+public sealed class SafeHICON : SafeHandle
+{
+    internal HICON Hicon;
+    internal SafeHICON(HICON Hicon, bool ownsHandle) : base(IntPtr.Zero, ownsHandle)
+    {
+        this.Hicon = Hicon;
+    }
+
+    public override bool IsInvalid => handle == IntPtr.Zero;
+
+    protected override bool ReleaseHandle()
+    {
+        return PInvoke.DestroyIcon(Hicon);
+    }
+}
+
+// Windows 10 version 1903
+[SupportedOSPlatform("windows10.0.18362")]
 public class WindowsAPI : NativeAPI
 {
-    // Constants for Windows semantics
-    private const int SW_HIDE = 0; // Hide the window
-    private const int SW_SHOW = 5; // Show the window
-    private const int SW_MINIMIZE = 6; // Minimize the window
-    private const int SW_RESTORE = 9; // Restore the window
-    private const int SW_SHOWDEFAULT = 10;
-    private const int RetryTimes = 20;
-
-    private const int RetryDelay = 100;
 
     // Constants for allocating memory and setting data format
     public const uint CF_TEXT = 1;
     private const uint CF_DIB = 8;
 
-    public const int GMEM_ZEROINIT = 0x0040;
 
-    private static readonly object ClipboardLock = new();
+    internal static HICON GetFileIcon(string filePath, bool isSmallIcon)
+    {
+        unsafe
+        {
+            var shfi = new SHFILEINFOW();
+            var flags = SHGFI_FLAGS.SHGFI_ICON;
 
+            if (isSmallIcon)
+            {
+                flags |= SHGFI_FLAGS.SHGFI_SMALLICON;
+            }
+            else
+            {
+                flags |= SHGFI_FLAGS.SHGFI_LARGEICON;
+            }
+            var shfiPtr = Marshal.AllocHGlobal(sizeof(SHFILEINFOW));
+            var shfiUnsafe = (SHFILEINFOW*)shfiPtr;
+            PInvoke.SHGetFileInfo(filePath, FILE_FLAGS_AND_ATTRIBUTES.SECURITY_ANONYMOUS, shfiUnsafe,
+                (uint)Marshal.SizeOf(shfi), flags);
+
+            var icon = shfi.hIcon;
+            PInvoke.DestroyIcon(icon);
+            return icon;
+        }
+    }
+
+    public override Image GetJumboFileIcon(string filePath, bool jumboSize = true)
+    {
+        unsafe
+        {
+
+            SHFILEINFOW shfi;
+            PInvoke.SHGetFileInfo(filePath, FILE_FLAGS_AND_ATTRIBUTES.SECURITY_ANONYMOUS, &shfi, (uint)Marshal.SizeOf<SHFILEINFOW>(),
+                SHGFI_FLAGS.SHGFI_SYSICONINDEX | SHGFI_FLAGS.SHGFI_USEFILEATTRIBUTES);
+            var guid = new Guid("46EB5926-582E-4017-9FDF-E8998DAA0950");
+            void* pImageList;
+            PInvoke.SHGetImageList(jumboSize ? (int)PInvoke.SHIL_JUMBO : (int)PInvoke.SHIL_EXTRALARGE, in guid, out pImageList);
+            HIMAGELIST imagelist = new((nint)pImageList);
+            var hIcon = PInvoke.ImageList_GetIcon(imagelist, shfi.iIcon,
+                IMAGE_LIST_DRAW_STYLE.ILD_TRANSPARENT | IMAGE_LIST_DRAW_STYLE.ILD_IMAGE);
+            ICONINFO iconInfo;
+            var safeHIcon = new SafeHICON(hIcon, true);
+            PInvoke.GetIconInfo(safeHIcon, out iconInfo);
+            var bmp = new BITMAP();
+            Image img;
+            var width = 0;
+            var height = 0;
+            var bitsPerPixel = 0;
+            if (iconInfo.hbmColor != IntPtr.Zero)
+            {
+
+                var nWrittenBytes = PInvoke.GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
+                if (nWrittenBytes > 0)
+                {
+                    width = bmp.bmWidth;
+                    height = bmp.bmHeight;
+                    bitsPerPixel = bmp.bmBitsPixel;
+                }
+            }
+            else if (iconInfo.hbmMask != IntPtr.Zero)
+            {
+                var nWrittenBytes = PInvoke.GetObject(iconInfo.hbmMask, sizeof(BITMAP), &bmp);
+                if (nWrittenBytes > 0)
+                {
+                    width = bmp.bmWidth;
+                    height = bmp.bmHeight / 2;
+                    bitsPerPixel = 1;
+                }
+            }
+
+            var totalBytes = width * Math.Abs(height) * (bitsPerPixel / 8);
+
+            var managedArray = new byte[totalBytes];
+            Marshal.Copy((IntPtr)bmp.bmBits, managedArray, 0, totalBytes);
+
+            img = Image.LoadPixelData<Bgra32>(managedArray, width, height);
+            if (iconInfo.hbmColor != IntPtr.Zero) PInvoke.DeleteObject(iconInfo.hbmColor);
+            if (iconInfo.hbmMask != IntPtr.Zero) PInvoke.DeleteObject(iconInfo.hbmMask);
+
+            PInvoke.DestroyIcon(hIcon);
+            return img;
+        }
+    }
 
     public override void ShowWindow(WindowInfo Window)
     {
@@ -42,61 +144,35 @@ public class WindowsAPI : NativeAPI
             throw new InvalidOperationException("Invalid window handle.");
         }
 
-        ShowWindow(handle, SW_SHOW);
+        PInvoke.ShowWindow(new HWND(handle), SHOW_WINDOW_CMD.SW_SHOW);
 
     }
 
-    public override void ShowWindow(IntPtr handle)
+    public override void ShowWindow(IntPtr hwnd)
     {
-        if (handle == IntPtr.Zero)
+        if (hwnd == IntPtr.Zero)
         {
             throw new InvalidOperationException("Invalid window handle.");
         }
 
-        ShowWindow(handle, SW_SHOW);
+        PInvoke.ShowWindow(new HWND(hwnd), SHOW_WINDOW_CMD.SW_SHOW);
 
     }
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
 
-    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    public static extern int GetWindowText(IntPtr hwnd, StringBuilder lpString, int nMaxCount);
-
-    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    public static extern int GetClassName(IntPtr hwnd, StringBuilder lpClassName, int nMaxCount);
-
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool IsWindowVisible(IntPtr hwnd);
-
-    [DllImport("user32.dll")]
-    public static extern bool GetWindowPlacement(IntPtr hwnd, ref WINDOWPLACEMENT lpwndpl);
-
-    // Struct to hold window placement (minimized, maximized, etc.)
-    [StructLayout(LayoutKind.Sequential)]
-    public struct WINDOWPLACEMENT
-    {
-        public int Length;
-        public int ShowCmd;
-        public System.Drawing.Point PtMinPosition;
-        public System.Drawing.Point PtMaxPosition;
-        public RECT rcNormalPosition;
-    }
     private static (int X, int Y) GetWindowPosition(IntPtr hwnd)
     {
         RECT rect;
-        GetWindowRect(hwnd, out rect);
-        return (rect.Left, rect.Top);
+        PInvoke.GetWindowRect(new HWND(hwnd), out rect);
+        return (rect.left, rect.top);
     }
 
     // Method to check if a window is minimized
     private static bool IsWindowMinimized(IntPtr hwnd)
     {
-        WINDOWPLACEMENT placement = new WINDOWPLACEMENT();
-        placement.Length = Marshal.SizeOf(typeof(WINDOWPLACEMENT));
-        if (GetWindowPlacement(hwnd, ref placement))
+        var placement = new WINDOWPLACEMENT();
+        if (PInvoke.GetWindowPlacement(new HWND(hwnd), ref placement))
         {
-            return placement.ShowCmd == 2; // SW_MINIMIZE = 2
+            return placement.showCmd == SHOW_WINDOW_CMD.SW_MINIMIZE;
         }
         return false;
     }
@@ -104,46 +180,43 @@ public class WindowsAPI : NativeAPI
     // Method to check if the window is the active (foreground) window
     private static bool IsWindowActive(IntPtr hwnd)
     {
-        IntPtr activeWindow = GetForegroundWindow();
+        IntPtr activeWindow = PInvoke.GetForegroundWindow();
         return hwnd == activeWindow;
     }
-
-
-    // Delegate type for EnumWindowsProc
-    public delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
-
-    // The method that is called by EnumWindows
-    private static bool EnumWindowsCallback(IntPtr hwnd, IntPtr lParam)
+    // [UnmanagedCallersOnly]
+    private static BOOL EnumWindowsCallback(HWND hwnd, LPARAM lParam)
     {
         // We are only interested in top-level windows that are visible
-        if (!IsWindowVisible(hwnd))
+        if (!PInvoke.IsWindowVisible(hwnd))
             return true;
 
         var windowTitle = new StringBuilder(256);
-        GetWindowText(hwnd, windowTitle, 256);
+        var GcHandle = GCHandle.Alloc(windowTitle, GCHandleType.Pinned);
+        var ptr = GcHandle.AddrOfPinnedObject();
+
+
+        PInvoke.GetWindowText(hwnd, new PWSTR(ptr), 256);
 
         // If the window has a non-empty title, add it to the list
-        if (windowTitle.Length > 0)
+        if (windowTitle.Length <= 0) return true; // Continue enumeration
+        var (X, Y) = GetWindowPosition(hwnd);
+        var windowRECT = GetWindowRect(hwnd);
+        var windowInfo = new WindowInfo
         {
-            var (X, Y) = GetWindowPosition(hwnd);
-            var windowRECT = GetWindowRect(hwnd);
-            var windowInfo = new WindowInfo
-            {
-                Handle = hwnd,
-                Title = windowTitle.ToString(),
-                Rectangle = windowRECT,
-                X = windowRECT.X,
-                Y = windowRECT.Y,
-                Width = windowRECT.Width,
-                Height = windowRECT.Height,
-                IsVisible = IsWindowVisible(hwnd),
-                IsMinimized = IsWindowMinimized(hwnd),
-                IsActive = IsWindowActive(hwnd)
-            };
+            Handle = hwnd,
+            Title = windowTitle.ToString(),
+            Rectangle = windowRECT,
+            X = windowRECT.X,
+            Y = windowRECT.Y,
+            Width = windowRECT.Width,
+            Height = windowRECT.Height,
+            IsVisible = PInvoke.IsWindowVisible(hwnd),
+            IsMinimized = IsWindowMinimized(hwnd),
+            IsActive = IsWindowActive(hwnd)
+        };
 
-            // Add the window to the global list
-            windowList.Add(windowInfo);
-        }
+        // Add the window to the global list
+        windowList.Add(windowInfo);
 
         return true; // Continue enumeration
     }
@@ -155,86 +228,56 @@ public class WindowsAPI : NativeAPI
     public List<WindowInfo> GetWindowList()
     {
         windowList.Clear();
-        EnumWindows(EnumWindowsCallback, IntPtr.Zero);
+        unsafe
+        {
+            var callback = EnumWindowsCallback;
+            // Convert delegate to a function pointer
+            var functionPointer =
+                (delegate* unmanaged[Stdcall]<HWND, LPARAM, BOOL>)Marshal.GetFunctionPointerForDelegate(callback);
+
+            PInvoke.EnumWindows(functionPointer, IntPtr.Zero);
+        }
         return windowList;
     }
 
     public override void CopyText(string text)
     {
-        if (!OpenClipboard(IntPtr.Zero))
+        if (!PInvoke.OpenClipboard(new HWND()))
         {
             throw new AccessViolationException("Failed to open clipboard.");
         }
 
-        // Empty the clipboard
-        EmptyClipboard();
+        PInvoke.EmptyClipboard();
 
         // Allocate global memory for the text
-        IntPtr hGlobal = GlobalAlloc(GMEM_ZEROINIT, (uint)(text.Length + 1) * sizeof(char));
+        var hGlobal = PInvoke.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GMEM_ZEROINIT, (uint)(text.Length + 1) * sizeof(char));
 
         // Lock the memory so that we can copy the text into it
-        IntPtr lpGlobal = GlobalLock(hGlobal);
+        unsafe
+        {
+            var lpGlobal = (IntPtr)PInvoke.GlobalLock(hGlobal);
 
-        // Copy the text into the allocated memory
-        Marshal.Copy(text.ToCharArray(), 0, lpGlobal, text.Length);
+            // Copy the text into the allocated memory
+            Marshal.Copy(text.ToCharArray(), 0, lpGlobal, text.Length);
 
-        // Unlock the memory
-        GlobalUnlock(hGlobal);
+            PInvoke.GlobalUnlock(hGlobal);
 
-        // Set the clipboard data (CF_TEXT is used for plain text)
-        SetClipboardData(CF_TEXT, hGlobal);
+            PInvoke.SetClipboardData(CF_TEXT, new HANDLE((IntPtr)hGlobal));
 
-        // Close the clipboard
-        CloseClipboard();
-
+            PInvoke.CloseClipboard();
+        }
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool OpenClipboard(IntPtr hWnd);
-
-    [DllImport("user32.dll")]
-    private static extern bool CloseClipboard();
-
-    [DllImport("user32.dll")]
-    private static extern bool EmptyClipboard();
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-    private static extern IntPtr GlobalAlloc(int uFlags, uint dwBytes);
-
-    [DllImport("kernel32.dll")]
-    private static extern IntPtr GlobalLock(IntPtr hMem);
-    [DllImport("kernel32.dll")]
-    private static extern IntPtr GlobalFree(IntPtr hMem);
-
-    [DllImport("kernel32.dll")]
-    private static extern bool GlobalUnlock(IntPtr hMem);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr SetClipboardData(uint uFormat, IntPtr data);
-
-    [DllImport("user32.dll")]
-    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    [DllImport("user32.dll")]
-    private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
-    [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out POINT lpPoint);
-    [StructLayout(LayoutKind.Sequential)]
-    public struct POINT
-    {
-        public int X;
-        public int Y;
-        public POINT(int x, int y) { X = x; Y = y; }
-    }
     public override Point GetCursorPosition()
     {
-        GetCursorPos(out var LpPoint);
+        System.Drawing.Point LpPoint;
+        PInvoke.GetCursorPos(out LpPoint);
         return new Point(LpPoint.X, LpPoint.Y);
     }
     public override void CopyImage(Image image)
     {
-        OpenClipboard(IntPtr.Zero);
-        EmptyClipboard();
+        PInvoke.OpenClipboard(new HWND());
+        PInvoke.EmptyClipboard();
 
         using var ms = new MemoryStream();
         var format = image.Metadata.DecodedImageFormat ?? PngFormat.Instance;
@@ -242,21 +285,23 @@ public class WindowsAPI : NativeAPI
         var imageBytes = ms.ToArray();
 
         var dataSize = (uint)imageBytes.Length;
-        var dataPtr = GlobalAlloc(0x0042, dataSize);
+        var dataPtr = PInvoke.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GHND, dataSize);
         if (dataPtr == IntPtr.Zero) return;
 
-        var lockedData = GlobalLock(dataPtr);
-        if (lockedData == IntPtr.Zero)
+        unsafe
         {
-            GlobalFree(dataPtr);
-            return;
+            var lockedData = (IntPtr)PInvoke.GlobalLock(dataPtr);
+            if (lockedData == IntPtr.Zero)
+            {
+                PInvoke.GlobalFree(dataPtr);
+                return;
+            }
+            Marshal.Copy(imageBytes, 0, lockedData, imageBytes.Length);
+            PInvoke.GlobalUnlock(dataPtr);
+
+            PInvoke.SetClipboardData(CF_DIB, new HANDLE((IntPtr)dataPtr));
+            PInvoke.CloseClipboard();
         }
-
-        Marshal.Copy(imageBytes, 0, lockedData, imageBytes.Length);
-        GlobalUnlock(dataPtr);
-
-        SetClipboardData(CF_DIB, dataPtr);
-        CloseClipboard();
     }
     public override Rectangle GetWindowRectangle(WindowInfo Window)
     {
@@ -266,31 +311,18 @@ public class WindowsAPI : NativeAPI
             throw new InvalidOperationException("Invalid window handle.");
         }
 
-        GetWindowRect(handle, out RECT rect);
-        return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
+        return GetWindowRect(handle);
     }
 
-    public static Rectangle GetWindowRect(IntPtr handle)
+    public static Rectangle GetWindowRect(IntPtr hwnd)
     {
-        if (handle == IntPtr.Zero)
+        if (hwnd == IntPtr.Zero)
         {
             throw new InvalidOperationException("Invalid window handle.");
         }
 
-        GetWindowRect(handle, out RECT rect);
-        return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
-    }
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetForegroundWindow();
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct RECT
-    {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
+        PInvoke.GetWindowRect(new HWND(hwnd), out RECT rect);
+        return new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
     }
     // Beginning of IntegrationHelper class being integrated into WindowsAPI class
 
@@ -494,263 +526,11 @@ public class WindowsAPI : NativeAPI
         CreateRegistry(ShellCustomUploaderAssociatePath, ShellCustomUploaderAssociateValue);
         CreateRegistry(ShellCustomUploaderIconPath, ShellCustomUploaderIconValue);
         CreateRegistry(ShellCustomUploaderCommandPath, ShellCustomUploaderCommandValue);
-
-        SHChangeNotify(HChangeNotifyEventID.SHCNE_ASSOCCHANGED, HChangeNotifyFlags.SHCNF_FLUSH,
-            IntPtr.Zero, IntPtr.Zero);
+        unsafe
+        {
+            PInvoke.SHChangeNotify(SHCNE_ID.SHCNE_ASSOCCHANGED, SHCNF_FLAGS.SHCNF_FLUSH);
+        }
     }
-    /// <summary>
-    /// Describes the event that has occurred.
-    /// Typically, only one event is specified at a time.
-    /// If more than one event is specified, the values contained
-    /// in the <i>dwItem1</i> and <i>dwItem2</i>
-    /// parameters must be the same, respectively, for all specified events.
-    /// This parameter can be one or more of the following values.
-    /// </summary>
-    /// <remarks>
-    /// <para><b>Windows NT/2000/XP:</b> <i>dwItem2</i> contains the index
-    /// in the system image list that has changed.
-    /// <i>dwItem1</i> is not used and should be <see langword="null"/>.</para>
-    /// <para><b>Windows 95/98:</b> <i>dwItem1</i> contains the index
-    /// in the system image list that has changed.
-    /// <i>dwItem2</i> is not used and should be <see langword="null"/>.</para>
-    /// </remarks>
-    [Flags]
-    public enum HChangeNotifyEventID
-    {
-        /// <summary>
-        /// All events have occurred.
-        /// </summary>
-        SHCNE_ALLEVENTS = 0x7FFFFFFF,
-
-        /// <summary>
-        /// A file type association has changed. <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/>
-        /// must be specified in the <i>uFlags</i> parameter.
-        /// <i>dwItem1</i> and <i>dwItem2</i> are not used and must be <see langword="null"/>.
-        /// </summary>
-        SHCNE_ASSOCCHANGED = 0x08000000,
-
-        /// <summary>
-        /// The attributes of an item or folder have changed.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the item or folder that has changed.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_ATTRIBUTES = 0x00000800,
-
-        /// <summary>
-        /// A nonfolder item has been created.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the item that was created.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_CREATE = 0x00000002,
-
-        /// <summary>
-        /// A nonfolder item has been deleted.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the item that was deleted.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_DELETE = 0x00000004,
-
-        /// <summary>
-        /// A drive has been added.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the root of the drive that was added.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_DRIVEADD = 0x00000100,
-
-        /// <summary>
-        /// A drive has been added and the Shell should create a new window for the drive.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the root of the drive that was added.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_DRIVEADDGUI = 0x00010000,
-
-        /// <summary>
-        /// A drive has been removed. <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the root of the drive that was removed.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_DRIVEREMOVED = 0x00000080,
-
-        /// <summary>
-        /// Not currently used.
-        /// </summary>
-        SHCNE_EXTENDED_EVENT = 0x04000000,
-
-        /// <summary>
-        /// The amount of free space on a drive has changed.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the root of the drive on which the free space changed.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_FREESPACE = 0x00040000,
-
-        /// <summary>
-        /// Storage media has been inserted into a drive.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the root of the drive that contains the new media.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_MEDIAINSERTED = 0x00000020,
-
-        /// <summary>
-        /// Storage media has been removed from a drive.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the root of the drive from which the media was removed.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_MEDIAREMOVED = 0x00000040,
-
-        /// <summary>
-        /// A folder has been created. <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/>
-        /// or <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the folder that was created.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_MKDIR = 0x00000008,
-
-        /// <summary>
-        /// A folder on the local computer is being shared via the network.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the folder that is being shared.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_NETSHARE = 0x00000200,
-
-        /// <summary>
-        /// A folder on the local computer is no longer being shared via the network.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the folder that is no longer being shared.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_NETUNSHARE = 0x00000400,
-
-        /// <summary>
-        /// The name of a folder has changed.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the previous pointer to an item identifier list (PIDL) or name of the folder.
-        /// <i>dwItem2</i> contains the new PIDL or name of the folder.
-        /// </summary>
-        SHCNE_RENAMEFOLDER = 0x00020000,
-
-        /// <summary>
-        /// The name of a nonfolder item has changed.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the previous PIDL or name of the item.
-        /// <i>dwItem2</i> contains the new PIDL or name of the item.
-        /// </summary>
-        SHCNE_RENAMEITEM = 0x00000001,
-
-        /// <summary>
-        /// A folder has been removed.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the folder that was removed.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_RMDIR = 0x00000010,
-
-        /// <summary>
-        /// The computer has disconnected from a server.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the server from which the computer was disconnected.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// </summary>
-        SHCNE_SERVERDISCONNECT = 0x00004000,
-
-        /// <summary>
-        /// The contents of an existing folder have changed,
-        /// but the folder still exists and has not been renamed.
-        /// <see cref="HChangeNotifyFlags.SHCNF_IDLIST"/> or
-        /// <see cref="HChangeNotifyFlags.SHCNF_PATH"/> must be specified in <i>uFlags</i>.
-        /// <i>dwItem1</i> contains the folder that has changed.
-        /// <i>dwItem2</i> is not used and should be <see langword="null"/>.
-        /// If a folder has been created, deleted, or renamed, use SHCNE_MKDIR, SHCNE_RMDIR, or
-        /// SHCNE_RENAMEFOLDER, respectively, instead.
-        /// </summary>
-        SHCNE_UPDATEDIR = 0x00001000,
-
-        /// <summary>
-        /// An image in the system image list has changed.
-        /// <see cref="HChangeNotifyFlags.SHCNF_DWORD"/> must be specified in <i>uFlags</i>.
-        /// </summary>
-        SHCNE_UPDATEIMAGE = 0x00008000
-    }
-
-    /// <summary>
-    /// Flags that indicate the meaning of the <i>dwItem1</i> and <i>dwItem2</i> parameters.
-    /// The uFlags parameter must be one of the following values.
-    /// </summary>
-    [Flags]
-    public enum HChangeNotifyFlags
-    {
-        /// <summary>
-        /// The <i>dwItem1</i> and <i>dwItem2</i> parameters are DWORD values.
-        /// </summary>
-        SHCNF_DWORD = 0x0003,
-        /// <summary>
-        /// <i>dwItem1</i> and <i>dwItem2</i> are the addresses of ITEMIDLIST structures that
-        /// represent the item(s) affected by the change.
-        /// Each ITEMIDLIST must be relative to the desktop folder.
-        /// </summary>
-        SHCNF_IDLIST = 0x0000,
-        /// <summary>
-        /// <i>dwItem1</i> and <i>dwItem2</i> are the addresses of null-terminated strings of
-        /// maximum length MAX_PATH that contain the full path names
-        /// of the items affected by the change.
-        /// </summary>
-        SHCNF_PATHA = 0x0001,
-        /// <summary>
-        /// <i>dwItem1</i> and <i>dwItem2</i> are the addresses of null-terminated strings of
-        /// maximum length MAX_PATH that contain the full path names
-        /// of the items affected by the change.
-        /// </summary>
-        SHCNF_PATHW = 0x0005,
-        /// <summary>
-        /// <i>dwItem1</i> and <i>dwItem2</i> are the addresses of null-terminated strings that
-        /// represent the friendly names of the printer(s) affected by the change.
-        /// </summary>
-        SHCNF_PRINTERA = 0x0002,
-        /// <summary>
-        /// <i>dwItem1</i> and <i>dwItem2</i> are the addresses of null-terminated strings that
-        /// represent the friendly names of the printer(s) affected by the change.
-        /// </summary>
-        SHCNF_PRINTERW = 0x0006,
-        /// <summary>
-        /// The function should not return until the notification
-        /// has been delivered to all affected components.
-        /// As this flag modifies other data-type flags, it cannot by used by itself.
-        /// </summary>
-        SHCNF_FLUSH = 0x1000,
-        /// <summary>
-        /// The function should begin delivering notifications to all affected components
-        /// but should return as soon as the notification process has begun.
-        /// As this flag modifies other data-type flags, it cannot by used by itself.
-        /// </summary>
-        SHCNF_FLUSHNOWAIT = 0x2000
-    }
-    [DllImport("shell32.dll")]
-    public static extern void SHChangeNotify(HChangeNotifyEventID wEventId, HChangeNotifyFlags uFlags, IntPtr dwItem1, IntPtr dwItem2);
-
-
     private static void UnregisterCustomUploaderExtension()
     {
         RemoveRegistry(ShellCustomUploaderExtensionPath);
@@ -799,9 +579,10 @@ public class WindowsAPI : NativeAPI
         CreateRegistry(ShellImageEffectAssociatePath, ShellImageEffectAssociateValue);
         CreateRegistry(ShellImageEffectIconPath, ShellImageEffectIconValue);
         CreateRegistry(ShellImageEffectCommandPath, ShellImageEffectCommandValue);
-
-        SHChangeNotify(HChangeNotifyEventID.SHCNE_ASSOCCHANGED, HChangeNotifyFlags.SHCNF_FLUSH,
-            IntPtr.Zero, IntPtr.Zero);
+        unsafe
+        {
+            PInvoke.SHChangeNotify(SHCNE_ID.SHCNE_ASSOCCHANGED, SHCNF_FLAGS.SHCNF_FLUSH);
+        }
     }
 
     private static void UnregisterImageEffectExtension()
@@ -1118,20 +899,20 @@ public class WindowsAPI : NativeAPI
         {
             DeleteShortcut(shortcutPath);
 
-            string script = $@"
-$WshShell = New-Object -ComObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut('{shortcutPath}')
-$Shortcut.TargetPath = '{targetPath}'
-$Shortcut.Arguments = '{arguments}'
-$Shortcut.WorkingDirectory = '{Path.GetDirectoryName(targetPath)}'
-$Shortcut.Save()
-";
+            string script = $"""
+                             $WshShell = New-Object -ComObject WScript.Shell
+                             $Shortcut = $WshShell.CreateShortcut('{shortcutPath}')
+                             $Shortcut.TargetPath = '{targetPath}'
+                             $Shortcut.Arguments = '{arguments}'
+                             $Shortcut.WorkingDirectory = '{Path.GetDirectoryName(targetPath)}'
+                             $Shortcut.Save()
+                             """;
 
             using var ps = PowerShell.Create();
             ps.AddScript(script);
             ps.Invoke();
 
-            Console.WriteLine("Shortcut created successfully using PowerShell.");
+            DebugHelper.WriteLine("Shortcut created successfully using PowerShell.");
 
             return true;
         }
@@ -1141,11 +922,11 @@ $Shortcut.Save()
 
     private static string GetShortcutTargetPath(string shortcutPath)
     {
-        string script = $@"
-$WshShell = New-Object -ComObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut('{shortcutPath}')
-$Shortcut.TargetPath
-";
+        string script = $"""
+                         $WshShell = New-Object -ComObject WScript.Shell
+                         $Shortcut = $WshShell.CreateShortcut('{shortcutPath}')
+                         $Shortcut.TargetPath
+                         """;
 
         using var ps = PowerShell.Create();
         ps.AddScript(script);

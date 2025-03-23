@@ -9,115 +9,10 @@ using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core;
 
-public class GeneralSettings
-{
-    public bool PlaySoundAfterCapture { get; set; } = true;
-    public bool PlaySoundAfterUpload { get; set; } = true;
-    public bool ShowToastNotificationAfterTaskCompleted { get; set; } = true;
-    public double ToastWindowDuration { get; set; } = 3.0;
-    public double ToastWindowFadeDuration { get; set; } = 1.0;
-    public string ToastWindowPlacement { get; set; } = "BottomRight";
-    public string ToastWindowSize { get; set; } = "400, 300";
-    public string ToastWindowLeftClickAction { get; set; } = "OpenUrl";
-    public string ToastWindowRightClickAction { get; set; } = "CloseNotification";
-    public string ToastWindowMiddleClickAction { get; set; } = "AnnotateImage";
-    public bool ToastWindowAutoHide { get; set; } = true;
-    public bool UseCustomCaptureSound { get; set; } = false;
-    public string CustomCaptureSoundPath { get; set; } = "";
-    public bool UseCustomTaskCompletedSound { get; set; } = false;
-    public string CustomTaskCompletedSoundPath { get; set; } = "";
-    public bool UseCustomErrorSound { get; set; } = false;
-    public string CustomErrorSoundPath { get; set; } = "";
-    public bool DisableNotifications { get; set; } = false;
-    public bool DisableNotificationsOnFullscreen { get; set; } = false;
-}
-
 public class GradientColor
 {
     public string Color { get; set; }
     public double Location { get; set; }
-}
-
-public class CaptureSettings
-{
-    public bool ShowCursor { get; set; } = true;
-    public double ScreenshotDelay { get; set; } = 1.0;
-    public bool CaptureTransparent { get; set; } = true;
-    public bool CaptureShadow { get; set; } = true;
-    public int CaptureShadowOffset { get; set; } = 0;
-    public bool CaptureClientArea { get; set; } = true;
-    public bool CaptureAutoHideTaskbar { get; set; } = false;
-    public string CaptureCustomRegion { get; set; } = String.Empty;
-    public string CaptureCustomWindow { get; set; } = String.Empty;
-    public RegionCaptureOptions RegionCaptureOptions { get; set; }
-    public FFmpegOptions FFmpegOptions { get; set; }
-    public int ScreenRecordFPS { get; set; } = 30;
-    public int GIFFPS { get; set; } = 15;
-    public bool ScreenRecordShowCursor { get; set; } = true;
-    public bool ScreenRecordAutoStart { get; set; } = true;
-    public double ScreenRecordStartDelay { get; set; } = 2.0;
-    public bool ScreenRecordFixedDuration { get; set; } = true;
-    public double ScreenRecordDuration { get; set; } = 300.0;
-    public bool ScreenRecordTwoPassEncoding { get; set; } = false;
-    public bool ScreenRecordAskConfirmationOnAbort { get; set; } = true;
-    public bool ScreenRecordTransparentRegion { get; set; } = true;
-    public OCROptions OCROptions { get; set; }
-}
-
-public class OCROptions
-{
-    public string Language { get; set; }
-    public double ScaleFactor { get; set; }
-    public bool SingleLine { get; set; }
-    public bool Silent { get; set; }
-    public bool AutoCopy { get; set; }
-    public List<ServiceLink> ServiceLinks { get; set; }
-    public bool CloseWindowAfterOpeningServiceLink { get; set; }
-    public int SelectedServiceLink { get; set; }
-}
-
-public class ServiceLink
-{
-    public string Name { get; set; }
-    public string URL { get; set; }
-}
-
-public class UploadSettings
-{
-    public bool UseCustomTimeZone { get; set; }
-    private TimeZoneInfo _customTimeZone;
-
-    public TimeZoneInfo CustomTimeZone
-    {
-        get => _customTimeZone ??= TimeZoneInfo.Local;
-        set => _customTimeZone = value;
-    }
-    public string NameFormatPattern { get; set; }
-    public string NameFormatPatternActiveWindow { get; set; }
-    public bool FileUploadUseNamePattern { get; set; }
-    public bool FileUploadReplaceProblematicCharacters { get; set; }
-    public bool URLRegexReplace { get; set; }
-    public string URLRegexReplacePattern { get; set; }
-    public string URLRegexReplaceReplacement { get; set; }
-    public bool ClipboardUploadURLContents { get; set; }
-    public bool ClipboardUploadShortenURL { get; set; }
-    public bool ClipboardUploadShareURL { get; set; }
-    public bool ClipboardUploadAutoIndexFolder { get; set; }
-    public List<string> UploaderFilters { get; set; }
-}
-
-public class ToolsSettings
-{
-    public string ScreenColorPickerFormat { get; set; }
-    public string ScreenColorPickerFormatCtrl { get; set; }
-    public string ScreenColorPickerInfoText { get; set; }
-    public PinToScreenOptions PinToScreenOptions { get; set; }
-    public IndexerSettings IndexerSettings { get; set; }
-    public ImageBeautifierOptions ImageBeautifierOptions { get; set; }
-    public ImageCombinerOptions ImageCombinerOptions { get; set; }
-    public VideoConverterOptions VideoConverterOptions { get; set; }
-    public VideoThumbnailOptions VideoThumbnailOptions { get; set; }
-    public BorderlessWindowSettings BorderlessWindowSettings { get; set; }
 }
 
 public class PinToScreenOptions
@@ -217,35 +112,6 @@ public class BorderlessWindowSettings
     public bool ExcludeTaskbarArea { get; set; }
 }
 
-public class AdvancedSettings
-{
-    public bool ProcessImagesDuringFileUpload { get; set; }
-    public bool ProcessImagesDuringClipboardUpload { get; set; }
-    public bool ProcessImagesDuringExtensionUpload { get; set; }
-    public bool UseAfterCaptureTasksDuringFileUpload { get; set; }
-    public bool TextTaskSaveAsFile { get; set; }
-    public bool AutoClearClipboard { get; set; }
-    public bool RegionCaptureDisableAnnotation { get; set; }
-    public List<string> ImageExtensions { get; set; }
-    public List<string> TextExtensions { get; set; }
-    public ProxySettings ProxySettings { get; set; } = new();
-    public bool EarlyCopyURL { get; set; }
-    public bool UserAnalyticsTelemetry => true;
-    public bool CrashReportingTelemetry => true;
-    public string TextFileExtension { get; set; }
-    public string TextFormat { get; set; }
-    public string TextCustom { get; set; }
-    public bool TextCustomEncodeInput { get; set; }
-    public bool ResultForceHTTPS { get; set; } = true;
-    public string ClipboardContentFormat { get; set; }
-    public string BalloonTipContentFormat { get; set; }
-    public string OpenURLFormat { get; set; }
-    public int AutoShortenURLLength { get; set; }
-    public bool AutoCloseAfterUploadForm { get; set; }
-    public int NamePatternMaxLength { get; set; }
-    public int NamePatternMaxTitleLength { get; set; }
-}
-
 public class QuickTaskPreset
 {
     public string Name { get; set; }
@@ -312,23 +178,8 @@ public class ImageHistorySettings
     public string SearchText { get; set; }
 }
 
-public class PrintSettings
-{
-    public int Margin { get; set; }
-    public bool AutoRotateImage { get; set; }
-    public bool AutoScaleImage { get; set; }
-    public bool AllowEnlargeImage { get; set; }
-    public bool CenterImage { get; set; }
-    public string TextFont { get; set; }
-    public bool ShowPrintDialog { get; set; }
-    public string DefaultPrinterOverride { get; set; }
-}
-
 public class RootConfiguration
 {
-    public AdvancedSettings AdvancedSettings { get; set; } = new();
-    public GeneralSettings GeneralSettings { get; set; } = new();
-    public CaptureSettings CaptureSettings { get; set; } = new();
     public TaskSettings DefaultTaskSettings = TaskSettings.GetDefaultTaskSettings();
     public DateTime FirstTimeRunDate = DateTime.Now;
     public string FileUploadDefaultDirectory = "";
@@ -338,7 +189,7 @@ public class RootConfiguration
     public bool FirstTimeMinimizeToTray = true;
     public List<int> TaskListViewColumnWidths = [];
     public int PreviewSplitterDistance = 335;
-    public SupportedLanguage Language = SupportedLanguage.English;
+    public SupportedLanguage Language = SupportedLanguage.Automatic;
     public bool ShowTray = true;
     public bool SilentRun = false;
     public bool TrayIconProgressEnabled = true;
@@ -365,8 +216,7 @@ public class RootConfiguration
     public bool ShowMenu = true;
     public TaskViewMode TaskViewMode = TaskViewMode.ThumbnailView;
     public bool ShowThumbnailTitle = true;
-    public ThumbnailTitleLocation ThumbnailTitleLocation = ThumbnailTitleLocation.Top;
-    public Size ThumbnailSize = new Size(200, 150);
+    public Size ThumbnailSize = new(200, 150);
     public ThumbnailViewClickAction ThumbnailClickAction = ThumbnailViewClickAction.Default;
     public bool ShowColumns = true;
     public ImagePreviewVisibility ImagePreview = ImagePreviewVisibility.Automatic;
@@ -406,6 +256,8 @@ public class RootConfiguration
     public Point ActionsToolbarPosition = Point.Empty;
     public bool ActionsToolbarLockPosition = false;
     public bool ActionsToolbarStayTopMost = true;
+    [Category("Application"), DefaultValue(true), Description("Uses your GPU to render the UI, slightly increases memory usage")]
+    public bool HardwareAccelerated { get; set; } = true;
     public List<Color> RecentColors = [];
     [Category("Application"), DefaultValue(false), Description("Calculate and show file sizes in binary units (KiB, MiB etc.)")]
     public bool BinaryUnits { get; set; }
@@ -521,7 +373,6 @@ public class RootConfiguration
 
     [Category("Drag and drop window"), DefaultValue(255), Description("When you drag file to drop window then opacity will change to this.")]
     public int DropHoverOpacity { get; set; }
-
     // [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
     // public ContentAlignment DropAlignment { get; set; }
     public string ApplicationVersion => Assembly.GetExecutingAssembly().GetName().Version!.ToString();

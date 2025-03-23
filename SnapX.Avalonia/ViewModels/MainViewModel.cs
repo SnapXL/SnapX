@@ -63,4 +63,10 @@ public partial class MainViewModel : ViewModelBase
     {
         IsPaneOpen = !IsPaneOpen;
     }
+
+    [RelayCommand]
+    private void OpenAboutWindow()
+    {
+        App.CreateAboutWindowStatic();
+    }
 }

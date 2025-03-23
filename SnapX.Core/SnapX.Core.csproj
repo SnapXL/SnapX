@@ -43,6 +43,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
     <!-- Windows Registry Configuration Support -->
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" Condition="'$(OS)' == 'Windows_NT'">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <!-- Source generator dependency. It is just useful for keeping redudant code out of tree  -->
     <PackageReference Include="MimeTypes" Version="2.5.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -63,11 +67,10 @@
     <PackageReference Include="Sentry.Profiling" Version="5.3.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog" Version="4.2.0" />
-    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" Condition="'$(Configuration)'=='Debug'" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <!-- Cross platform image library -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
@@ -97,15 +100,14 @@
   <ItemGroup>
     <Content Include="Resources\OAuthCallbackPage.html" />
     <Content Include="Resources\jira_sharex.pfx" />
+    <EmbeddedResource Include="Resources\*.flac" />
+
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Localization\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\*.flac" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="Localization\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

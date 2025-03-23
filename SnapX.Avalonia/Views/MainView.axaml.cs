@@ -9,6 +9,4 @@ public partial class MainView : UserControl
     {
         InitializeComponent();
     }
-    private void ClickAboutButton(object? Sender, RoutedEventArgs E) => new AboutWindow().Show();
-
 }

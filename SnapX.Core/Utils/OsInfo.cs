@@ -8,6 +8,32 @@ namespace SnapX.Core.Utils;
 
 public static partial class OsInfo
 {
+    private static readonly Dictionary<string, string> BuildToFriendlyName = new()
+    {
+        // Windows 11
+        { "22000", "21H2" },
+        { "22621", "22H2" },
+        { "22631", "23H2" },
+        { "26100", "24H2" },
+        { "27768", "25H2" },
+        { "27813", "25H2" },
+
+        // Windows 10
+        { "10240", "1507" },
+        { "10586", "1511" },
+        { "14393", "1607" },
+        { "15063", "1703" },
+        { "16299", "1709" },
+        { "17134", "1803" },
+        { "17763", "1809" },
+        { "18362", "1903" },
+        { "18363", "1909" },
+        { "19041", "2004" },
+        { "19042", "20H2" },
+        { "19043", "21H1" },
+        { "19044", "21H2" },
+        { "19045", "22H2" }
+    };
     public static string GetFancyOSNameAndVersion()
     {
         if (OperatingSystem.IsWindows())
@@ -43,6 +69,24 @@ public static partial class OsInfo
 
             if (Helpers.IsWindows11OrGreater())
                 productName = productName.Replace("10", "11");
+            if (BuildToFriendlyName.TryGetValue(currentBuild, out string friendlyName))
+            {
+                return $"{productName} {friendlyName}";
+            }
+
+            if (int.TryParse(currentBuild, out int currentBuildNumber))
+            {
+                var closestMatch = BuildToFriendlyName
+                    .Where(kvp => int.TryParse(kvp.Key, out int buildNumber))
+                    .Select(kvp => new { BuildNumber = int.Parse(kvp.Key), FriendlyName = kvp.Value })
+                    .OrderBy(match => Math.Abs(currentBuildNumber - match.BuildNumber))
+                    .FirstOrDefault();
+
+                if (closestMatch != null)
+                {
+                    return $"{productName} {closestMatch.FriendlyName}";
+                }
+            }
 
             return $"{productName} {currentBuild}";
 
@@ -383,8 +427,8 @@ public static partial class OsInfo
     {
         try
         {
-// PowerShell script to get GPU info and format driver version for NVIDIA GPUs
-var command = @"
+            // PowerShell script to get GPU info and format driver version for NVIDIA GPUs
+            var command = @"
 $gpuInfo = Get-WmiObject Win32_VideoController | Select-Object Description, DriverVersion
 foreach ($gpu in $gpuInfo) {
     $description = $gpu.Description

@@ -284,15 +284,15 @@ public class TaskSettingsGeneral
     public bool PlaySoundAfterCapture = true;
     public bool PlaySoundAfterUpload = true;
     public bool PlaySoundAfterAction = true;
+    // Should be named ShowNotificationAfterTaskCompleted
+    // but I don't want to break COMPAT
     public bool ShowToastNotificationAfterTaskCompleted = true;
-    public float ToastWindowDuration = 3f;
-    public float ToastWindowFadeDuration = 1f;
-    // public ContentAlignment ToastWindowPlacement = ContentAlignment.BottomRight;
-    public Size ToastWindowSize = new Size(400, 300);
+    // Native operating system prompt will definitely support left click action
     public ToastClickAction ToastWindowLeftClickAction = ToastClickAction.OpenUrl;
-    public ToastClickAction ToastWindowRightClickAction = ToastClickAction.CloseNotification;
-    public ToastClickAction ToastWindowMiddleClickAction = ToastClickAction.AnnotateImage;
-    public bool ToastWindowAutoHide = true;
+    // Not so sure about this one, chief.
+    // public ToastClickAction ToastWindowRightClickAction = ToastClickAction.CloseNotification;
+    // Get out
+    // public ToastClickAction ToastWindowMiddleClickAction = ToastClickAction.AnnotateImage;
     public bool DisableNotificationsOnFullscreen = false;
     public bool UseCustomCaptureSound = false;
     public string CustomCaptureSoundPath = "";

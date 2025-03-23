@@ -1,7 +1,5 @@
-using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
@@ -13,6 +11,8 @@ using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
+using SnapX.Core.History;
+using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using Color = Avalonia.Media.Color;
@@ -23,6 +23,7 @@ public partial class MainWindow : AppWindow
 {
 
     public static string MainWindowName => Core.SnapX.Title + " " + Core.SnapX.VersionText;
+    public static string LogoResourcePath => OperatingSystem.IsWindows() ? "/Assets/SnapX_Icon.ico" : "avares://snapx-ui/SnapX_Logo.png";
     public MainWindow(MainViewModel vm)
     {
         DataContext = vm;
@@ -35,8 +36,15 @@ public partial class MainWindow : AppWindow
         else
         {
             var activeScreen = Screens.ScreenFromWindow(this);
-            Width = activeScreen.Bounds.Width / 2.27;
-            Height = activeScreen.Bounds.Height / 2.2;
+            var screenWidth = activeScreen?.Bounds.Width ?? 1920;
+            var screenHeight = activeScreen?.Bounds.Height ?? 1080;
+            Width = screenWidth / 2.27;
+            Height = screenHeight / 2.2;
+            if (config.RememberMainFormSize)
+            {
+                config.MainFormSize.Width = (int)Width;
+                config.MainFormSize.Height = (int)Height;
+            }
         }
 
         if (config.RememberMainFormPosition && !config.MainFormPosition.IsEmpty &&
@@ -108,18 +116,25 @@ public partial class MainWindow : AppWindow
 
         Application.Current!.ActualThemeVariantChanged += ApplicationActualThemeVariantChanged;
         var thm = ActualThemeVariant;
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (IsWindows11 && thm != FluentAvaloniaTheme.HighContrastTheme)
         {
-            if (IsWindows11 && thm != FluentAvaloniaTheme.HighContrastTheme)
-            {
-                TransparencyBackgroundFallback = Brushes.Transparent;
-                TransparencyLevelHint = new[]
-                    { WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.None };
+            TransparencyBackgroundFallback = Brushes.Transparent;
+            TransparencyLevelHint = new[]
+                { WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.None };
 
-                TryEnableMicaEffect();
-            }
+            TryEnableMicaEffect();
         }
+        TaskManager.RecentManager.InitItems();
+        TaskManager.RecentManager.MaxCount = SnapX.Core.SnapX.Settings.RecentTasksMaxCount;
+        if (SnapX.Core.SnapX.Settings.RecentTasksSave && SnapX.Core.SnapX.Settings.RecentTasksShowInMainWindow && SnapX.Core.SnapX.Settings.RecentTasks.Count > 0)
+        {
+            TaskManager.AddRecentTasksToMainWindow();
+        }
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        TaskManager.StopAllTasks();
     }
 
     private void TryEnableMicaEffect()

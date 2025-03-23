@@ -141,7 +141,11 @@ application.OnActivate += (sender, eventArgs) =>
             loadedAssemblies
                 .Where(a => a.GetName().Name != null)
                 .Where(a => !a.GetName().Name.StartsWith("System") && !a.GetName().Name.StartsWith("SnapX", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.Contains("netstandard", StringComparison.OrdinalIgnoreCase))
-                .Select(a => $"{a.GetName().Name} {a.GetName().Version}")
+                .Select(a => new { a.GetName().Name, a.GetName().Version })
+                .GroupBy(a => a.Name.Split('.')[0])
+                .Select(g => g.Count() > 1
+                    ? $"{g.Key} {g.First().Version.Major}.{g.First().Version.Minor}.{g.First().Version.Build}"
+                    : $"{g.First().Name} {g.First().Version.Major}.{g.First().Version.Minor}.{g.First().Version.Build}")
                 .OrderBy(name => name)
                 .ToArray());
         var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";

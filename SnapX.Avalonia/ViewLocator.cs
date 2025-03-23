@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System.Diagnostics.CodeAnalysis;
+using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
@@ -44,7 +45,7 @@ public class ViewLocator : IDataTemplate
         return data is ObservableObject;
     }
 
-    private void RegisterViewFactory<TViewModel, TView>()
+    private void RegisterViewFactory<TViewModel, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TView>()
         where TViewModel : class
         where TView : Control
         => _locator.Add(

@@ -91,7 +91,7 @@ internal class ForceProportions : ImageEffect
                 targetHeight = (int)Math.Round(img.Width / targetRatio);
             }
 
-            return ImageHelpers.ResizeImage(img, targetWidth, targetHeight, false, true, GrowFillColor);
+            return ImageHelpers.ResizeImage(img, new Size(targetWidth, targetHeight), false, true, GrowFillColor);
         }
 
         return img;

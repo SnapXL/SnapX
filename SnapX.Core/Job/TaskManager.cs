@@ -49,45 +49,34 @@ public static class TaskManager
     }
     public static void Remove(WorkerTask task)
     {
-        if (task != null)
-        {
-            task.Stop();
-            Tasks.Remove(task);
-            task.Dispose();
-        }
+        if (task == null) return;
+        task.Stop();
+        Tasks.Remove(task);
+        task.Dispose();
     }
 
     private static void StartTasks()
     {
-        int workingTasksCount = Tasks.Count(x => x.IsWorking);
-        WorkerTask[] inQueueTasks = Tasks.Where(x => x.Status == TaskStatus.InQueue).ToArray();
+        var workingTasksCount = Tasks.Count(x => x.IsWorking);
+        var inQueueTasks = Tasks.Where(x => x.Status == TaskStatus.InQueue).ToArray();
 
-        if (inQueueTasks.Length > 0)
+        if (inQueueTasks.Length <= 0) return;
+        int len;
+
+        len = SnapX.Settings.UploadLimit == 0 ? inQueueTasks.Length : (SnapX.Settings.UploadLimit - workingTasksCount).Clamp(0, inQueueTasks.Length);
+
+        for (var i = 0; i < len; i++)
         {
-            int len;
-
-            if (SnapX.Settings.UploadLimit == 0)
-            {
-                len = inQueueTasks.Length;
-            }
-            else
-            {
-                len = (SnapX.Settings.UploadLimit - workingTasksCount).Clamp(0, inQueueTasks.Length);
-            }
-
-            for (int i = 0; i < len; i++)
-            {
-                inQueueTasks[i].Start();
-            }
+            inQueueTasks[i].Start();
         }
     }
 
     public static void StopAllTasks()
     {
         DebugHelper.WriteLine("StopAllTasks called.");
-        foreach (WorkerTask task in Tasks)
+        foreach (var task in Tasks.OfType<WorkerTask>())
         {
-            if (task != null) task.Stop();
+            task.Stop();
         }
     }
 
@@ -254,5 +243,12 @@ public static class TaskManager
 
             history.AppendHistoryItem(historyItem);
         });
+    }
+    public static void AddRecentTasksToMainWindow()
+    {
+        foreach (var task in RecentManager.Tasks.Select(recentTask => WorkerTask.CreateHistoryTask(recentTask)))
+        {
+            Start(task);
+        }
     }
 }

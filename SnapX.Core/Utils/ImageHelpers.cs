@@ -56,15 +56,9 @@ public static class ImageHelpers
     // See how clean the code is?!
     // See how it's thread safe, and doesn't mess around with pointers!?!?
     // BLESSED.
-    public static Image ResizeImage(Image img, Size size)
+    public static Image ResizeImage(Image img, Size TargetSize, bool preserveAspectRatio = false, bool fill = false, Color? growFillColor = null)
     {
-        img.Mutate(x => x.Resize(size.Width, size.Height));
-
-        return img;
-    }
-    public static Image ResizeImage(Image img, int targetWidth, int targetHeight, bool preserveAspectRatio, bool fill, Color growFillColor)
-    {
-
+        if (growFillColor == null) growFillColor = Color.Transparent;
         // Mutate the image to apply resizing and fill (if necessary)
         img.Mutate(ctx =>
         {
@@ -73,17 +67,17 @@ public static class ImageHelpers
                 ctx.Resize(new ResizeOptions
                 {
                     Mode = ResizeMode.Max,
-                    Size = new Size(targetWidth, targetHeight)
+                    Size = TargetSize
                 });
             }
             else
             {
-                ctx.Resize(targetWidth, targetHeight);
+                ctx.Resize(TargetSize);
             }
 
             if (fill)
             {
-                ctx.BackgroundColor(growFillColor);
+                ctx.BackgroundColor((Color)growFillColor);
             }
         });
 
