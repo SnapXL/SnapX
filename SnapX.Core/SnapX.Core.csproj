@@ -125,4 +125,7 @@
 <ItemGroup>
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
 </ItemGroup>
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Compile Remove=".\Utils\Native\WindowsAPI.cs" />
+  </ItemGroup>
 </Project>
