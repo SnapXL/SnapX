@@ -24,9 +24,9 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows ap
 - Elegance in user interfaces by separating essential settings from advanced or intermediate functionality
 - Supporting high DPI screens
 - Screenshots on an HDR monitor aren't blown out*
-- Cross platform OCR powered by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR/blob/main/README_en.md) that [rivals PowerToys OCR, ShareX OCR, & Windows 10 built in OCR in accuracy](https://toon-beerten.medium.com/ocr-comparison-tesseract-versus-easyocr-vs-paddleocr-vs-mmocr-a362d9c79e66)
+- Cross-platform OCR powered by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR/blob/main/README_en.md) that [rivals PowerToys OCR, ShareX OCR, & Windows 10 built in OCR in accuracy](https://toon-beerten.medium.com/ocr-comparison-tesseract-versus-easyocr-vs-paddleocr-vs-mmocr-a362d9c79e66)
 
-[1]: When tested on KDE Plasma Wayland 6.2.90 with HDR on the resulting screenshot's colors were not blown out. Your mileage may vary.
+[1]: When tested on KDE Plasma Wayland 6.2.90 with HDR the resulting screenshot's colors were not blown out. Your mileage may vary.
 
 ## Technical Details
 
@@ -34,15 +34,16 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows ap
 - Dependency on Newtonsoft.JSON dropped, traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
 - And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet keeping JSON as an option.
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach. For SnapX.GTK4, it uses [BindingSharp](https://github.com/BrycensRanch/BindingSharp)
-- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/) & Symlinks ~/Documents/SnapX to respective config/data directory
+- UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
+- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/),  uses [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux, Symlinks ~/Documents/SnapX to respective config/data directory
 - Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [ScreenCaptureKit](https://developer.apple.com/documentation/screencapturekit/) on macOS, and [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!!)
 - Uses the power of [VLC](https://wiki.videolan.org/LibVLC/) to playback video on Avalonia & uses [Gstreamer](https://gstreamer.freedesktop.org/) on GTK4
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
-- Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* uses TLS 1.3 out of the box.
-- Keeps compatability with the custom uploader configuration format (.sxcu)
+- Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* use TLS 1.3 out of the box.
+- Keeps compatibility with the custom uploader configuration format (.sxcu)
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and *modern* application.
