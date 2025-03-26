@@ -507,7 +507,7 @@ public static partial class OsInfo
             for (var i = 1; i < lines.Length; i++)
             {
                 var line = lines[i].Trim();
-                if (string.IsNullOrEmpty(line) || !line.Contains("+")) continue;
+                if (string.IsNullOrEmpty(line) || !line.Contains('+')) continue;
                 var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 var monitorName = parts[3];
