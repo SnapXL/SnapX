@@ -142,13 +142,11 @@ public static partial class OsInfo
     {
         try
         {
-            using (var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0"))
+            using var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0");
+            if (key != null)
             {
-                if (key != null)
-                {
-                    var processorName = key.GetValue("ProcessorNameString")?.ToString();
-                    return processorName ?? "Unknown Processor";
-                }
+                var processorName = key.GetValue("ProcessorNameString")?.ToString();
+                return processorName ?? "Unknown Processor";
             }
         }
         catch (Exception ex)
@@ -164,15 +162,13 @@ public static partial class OsInfo
     {
         try
         {
-            var cpuInfoPath = "/proc/cpuinfo";
+            const string cpuInfoPath = "/proc/cpuinfo";
             var lines = File.ReadAllLines(cpuInfoPath);
             foreach (var line in lines)
             {
-                if (line.StartsWith("model name"))
-                {
-                    var processorName = line.Substring(line.IndexOf(":") + 2).Trim();
-                    return processorName;
-                }
+                if (!line.StartsWith("model name")) continue;
+                var processorName = line[(line.IndexOf(":") + 2)..].Trim();
+                return processorName;
             }
         }
         catch (Exception ex)
@@ -228,8 +224,10 @@ public static partial class OsInfo
     {
         try
         {
-            var status = new MEMORYSTATUSEX();
-            status.dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
+            var status = new MEMORYSTATUSEX
+            {
+                dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX))
+            };
 
             if (GlobalMemoryStatusEx(ref status))
             {
@@ -268,8 +266,10 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows")]
     private static long GetAvailableMemoryWindows()
     {
-        MEMORYSTATUSEX status = new MEMORYSTATUSEX();
-        status.dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
+        var status = new MEMORYSTATUSEX
+        {
+            dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX))
+        };
 
         if (GlobalMemoryStatusEx(ref status))
         {
@@ -384,45 +384,63 @@ public static partial class OsInfo
         try
         {
             // PowerShell script to get GPU info and format driver version for NVIDIA GPUs
-            var command = @"
-$gpuInfo = Get-WmiObject Win32_VideoController | Select-Object Description, DriverVersion
-foreach ($gpu in $gpuInfo) {
-    $description = $gpu.Description
-    $driverVersion = $gpu.DriverVersion
+            const string gpuCommand = """
 
-    if ($description -like '*nvidia*') {
-        # Check if it's an NVIDIA GPU
-        if ($driverVersion.Length -ge 12) {
-            # Check if driver version length is at least 12 characters (expected format length)
-            $versionParts = $driverVersion.Split('.')
-            if ($versionParts.Length -ge 4) {
-                # Check if driver version has at least 4 parts separated by dots
-                $buildNumberPart = $versionParts[2] # The 3rd part is assumed to be build number (e.g., ""15"")
-                $revisionNumberPart = $versionParts[3] # The 4th part is assumed to be revision number (e.g., ""7216"")
+                                      $gpuInfo = Get-WmiObject Win32_VideoController | Select-Object Description, DriverVersion
+                                      foreach ($gpu in $gpuInfo) {
+                                          $description = $gpu.Description
+                                          $driverVersion = $gpu.DriverVersion
 
-                $lastDigitOfBuild = $buildNumberPart.Substring($buildNumberPart.Length - 1, 1) # Extract last digit of build number
-                $firstTwoDigitsOfRevision = $revisionNumberPart.Substring(0, 2)          # Extract first two digits of revision number
-                $lastTwoDigitsOfRevision = $revisionNumberPart.Substring($revisionNumberPart.Length - 2, 2) # Extract last two digits of revision number
+                                          if ($description -like '*nvidia*') {
+                                              # Check if it's an NVIDIA GPU
+                                              if ($driverVersion.Length -ge 12) {
+                                                  # Check if driver version length is at least 12 characters (expected format length)
+                                                  $versionParts = $driverVersion.Split('.')
+                                                  if ($versionParts.Length -ge 4) {
+                                                      # Check if driver version has at least 4 parts separated by dots
+                                                      $buildNumberPart = $versionParts[2] # The 3rd part is assumed to be build number (e.g., "15")
+                                                      $revisionNumberPart = $versionParts[3] # The 4th part is assumed to be revision number (e.g., "7216")
 
-                # Format the driver version as: (last digit of build).(first two digits of revision)(last two digits of revision)
-                $formattedDriverVersion = $lastDigitOfBuild + $firstTwoDigitsOfRevision + '.' + $lastTwoDigitsOfRevision
-                Write-Host ""GPU: $($description), Driver Version: $($formattedDriverVersion)""
-            } else {
-                # If less than 4 parts, output raw driver version
-                Write-Host ""GPU: $($description), Driver Version: $($driverVersion)""
-            }
-        } else {
-            # If driver version length is less than 12 characters, output raw driver version
-            Write-Host ""GPU: $($description), Driver Version: $($driverVersion)""
-        }
-    }
-    else {
-        # For non-NVIDIA GPUs, output raw driver version
-        Write-Host ""GPU: $($description), Driver Version: $($driverVersion)""
-    }
-}";
-            var gpuInfo = RunPowerShellCommand(command);
+                                                      $lastDigitOfBuild = $buildNumberPart.Substring($buildNumberPart.Length - 1, 1) # Extract last digit of build number
+                                                      $firstTwoDigitsOfRevision = $revisionNumberPart.Substring(0, 2)          # Extract first two digits of revision number
+                                                      $lastTwoDigitsOfRevision = $revisionNumberPart.Substring($revisionNumberPart.Length - 2, 2) # Extract last two digits of revision number
+
+                                                      # Format the driver version as: (last digit of build).(first two digits of revision)(last two digits of revision)
+                                                      $formattedDriverVersion = $lastDigitOfBuild + $firstTwoDigitsOfRevision + '.' + $lastTwoDigitsOfRevision
+                                                      Write-Host "GPU: $($description), Driver Version: $($formattedDriverVersion)"
+                                                  } else {
+                                                      # If less than 4 parts, output raw driver version
+                                                      Write-Host "GPU: $($description), Driver Version: $($driverVersion)"
+                                                  }
+                                              } else {
+                                                  # If driver version length is less than 12 characters, output raw driver version
+                                                  Write-Host "GPU: $($description), Driver Version: $($driverVersion)"
+                                              }
+                                          }
+                                          else {
+                                              # For non-NVIDIA GPUs, output raw driver version
+                                              Write-Host "GPU: $($description), Driver Version: $($driverVersion)"
+                                          }
+                                      }
+                                      """;
+            var gpuInfo = RunPowerShellCommand(gpuCommand);
             DebugHelper.WriteLine("GPU Info: " + gpuInfo);
+            const string monitorCommand = """
+
+                                          Add-Type -AssemblyName System.Windows.Forms
+
+                                          [System.Windows.Forms.Screen]::AllScreens | ForEach-Object {
+                                              $name = $_.DeviceName
+                                              $bounds = $_.Bounds
+                                              $position = "X: $($bounds.X), Y: $($bounds.Y)"
+                                              $resolution = "$($bounds.Width) x $($bounds.Height)"
+                                              Write-Host "Monitor: $name, Position: $position, Resolution: $resolution"
+                                          }
+
+                                          """;
+
+            var monitorInfo = RunPowerShellCommand(monitorCommand);
+            DebugHelper.WriteLine("Monitor Info: " + monitorInfo);
         }
         catch (Exception ex)
         {
@@ -433,7 +451,7 @@ foreach ($gpu in $gpuInfo) {
     {
         var process = new Process();
         process.StartInfo.FileName = "powershell";
-        process.StartInfo.Arguments = $"-Command \"{command}\"";
+        process.StartInfo.Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"";
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
@@ -453,7 +471,7 @@ foreach ($gpu in $gpuInfo) {
                 DebugHelper.WriteLine("GPU: " + GpuInfo);
                 var glxInfo = RunShellCommand("glxinfo | grep -E 'OpenGL version|OpenGL vendor string'");
 
-                var lines = glxInfo.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                var lines = glxInfo.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
                 var driverVersion = lines.FirstOrDefault(line => line.Contains("OpenGL version")).Split(':')[1].Trim();
                 var vendor = lines.FirstOrDefault(line => line.Contains("OpenGL vendor string")).Split(':')[1].Trim();
@@ -486,23 +504,21 @@ foreach ($gpu in $gpuInfo) {
             var lines = output.Split('\n');
 
             // Skip the first line (header)
-            for (int i = 1; i < lines.Length; i++)
+            for (var i = 1; i < lines.Length; i++)
             {
                 var line = lines[i].Trim();
-                if (!string.IsNullOrEmpty(line) && line.Contains("+"))
-                {
-                    var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (string.IsNullOrEmpty(line) || !line.Contains("+")) continue;
+                var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-                    var monitorName = parts[3];
+                var monitorName = parts[3];
 
-                    // The coordinates are at the end of the resolution, typically in format +x+y
-                    var resolutionAndCoords = parts[2];  // e.g., "1920/344x1080/193+885+1080"
-                    var coordinates = resolutionAndCoords.Split('+');
-                    var x = coordinates[1];
-                    var y = coordinates[2];
+                // The coordinates are at the end of the resolution, typically in format +x+y
+                var resolutionAndCoords = parts[2];  // e.g., "1920/344x1080/193+885+1080"
+                var coordinates = resolutionAndCoords.Split('+');
+                var x = coordinates[1];
+                var y = coordinates[2];
 
-                    DebugHelper.WriteLine($"Monitor: {monitorName}, Coordinates: ({x}, {y})");
-                }
+                DebugHelper.WriteLine($"Monitor: {monitorName}, Coordinates: ({x}, {y})");
             }
         }
         catch (Exception ex)

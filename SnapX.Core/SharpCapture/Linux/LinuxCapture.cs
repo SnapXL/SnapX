@@ -7,7 +7,7 @@ namespace SnapX.Core.SharpCapture.Linux;
 
 public class LinuxCapture : BaseCapture
 {
-    public override async Task<Image> CaptureFullscreen()
+    public override async Task<Image?> CaptureFullscreen()
     {
         // if (LinuxAPI.IsWayland()) return await TakeScreenshotWithPortal();
         return await TakeScreenshotWithPortal();
@@ -15,7 +15,7 @@ public class LinuxCapture : BaseCapture
 
     private static async Task<Image> TakeScreenshotWithPortal()
     {
-        var connection = new Connection(Address.Session);
+        var connection = new Connection(Address.Session!);
         await connection.ConnectAsync().ConfigureAwait(false);
         var desktop = new DesktopService(connection, "org.freedesktop.portal.Desktop");
         // var access = new DesktopService(connection, "org.freedesktop.access");
@@ -54,7 +54,7 @@ public class LinuxCapture : BaseCapture
 
         return img;
     }
-    public override async Task<Image> CaptureScreen(Rectangle bounds)
+    public override async Task<Image?> CaptureScreen(Rectangle bounds)
     {
         // TODO: Implement pure X11 screenshotting instead of using portal
         // if (LinuxAPI.IsWayland())

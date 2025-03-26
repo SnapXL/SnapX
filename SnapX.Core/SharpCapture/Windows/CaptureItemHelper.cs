@@ -56,8 +56,8 @@ public static class CaptureItemHelper
             DebugHelper.WriteLine($"CreateItemForWindow: itemPointer {itemPointer} is invalid!");
             return null;
         }
-        ComWrappers cw = new StrategyBasedComWrappers();
-        var item = cw.GetOrCreateObjectForComInstance(itemPointer, CreateObjectFlags.None) as GraphicsCaptureItem;
+        ComWrappers cw = new DefaultComWrappers();
+         var item = cw.GetOrCreateObjectForComInstance(itemPointer, CreateObjectFlags.None) as GraphicsCaptureItem;
         // var item = Marshal.GetObjectForIUnknown(itemPointer) as GraphicsCaptureItem;
         Marshal.Release(itemPointer);
         return item;

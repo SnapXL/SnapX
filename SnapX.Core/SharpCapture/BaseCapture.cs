@@ -1,8 +1,9 @@
 using SixLabors.ImageSharp;
+#pragma warning disable CS1998
 
 namespace SnapX.Core.SharpCapture;
 
-public class BaseCapture
+public abstract class BaseCapture
 {
     public virtual async Task<Image?> CaptureScreen(Rectangle bounds) =>
         throw new NotImplementedException("SharpCapture CaptureScreen is not implemented.");
