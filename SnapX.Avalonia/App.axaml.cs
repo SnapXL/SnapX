@@ -61,7 +61,6 @@ public class App : Application
 #endif
 
         // Default logic doesn't auto-detect windows theme anymore in designer
-        // to stop light mode, force here
         if (Design.IsDesignMode)
         {
             RequestedThemeVariant = ThemeVariant.Dark;
@@ -337,13 +336,15 @@ public class App : Application
     private void NativeMenuAboutSnapXClick(object? Sender, EventArgs E) => CreateAboutWindowStatic();
     public static void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<MainViewModel>();
-        services.AddSingleton<HomePageViewModel>();
         services.AddLogging(loggingBuilder =>
             loggingBuilder.AddSerilog(dispose: true));
 
+
+        services.AddSingleton<MainViewModel>();
+        services.AddSingleton<HomePageViewModel>();
         services.AddSingleton<MainWindow>();
         services.AddTransient<AboutWindow>();
+
         services.AddSingleton<HomePageView>();
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
 

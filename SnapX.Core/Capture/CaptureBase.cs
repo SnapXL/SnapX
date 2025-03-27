@@ -51,7 +51,7 @@ public abstract class CaptureBase
         if (autoHideForm && AllowAutoHideForm)
         {
             // SnapX.MainWindow.Hide();
-            Thread.Sleep(250);
+            // Thread.Sleep(250);
         }
 
         TaskMetadata metadata = null;

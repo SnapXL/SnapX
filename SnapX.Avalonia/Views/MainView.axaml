@@ -12,7 +12,8 @@
   xmlns:models="clr-namespace:SnapX.Avalonia.Models"
   xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
   xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="clr-namespace:SnapX.Avalonia.Views">
   <Design.DataContext>
     <viewModels:MainViewModel />
   </Design.DataContext>
@@ -36,11 +37,6 @@
 
             <controls:CommandBarElementContainer>
               <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedListItem}">
-                <!-- <ListBox.Styles> -->
-                <!--     <Style Selector="ListBoxItem"> -->
-                <!--         <Setter Property="Padding" Value="12 8" /> -->
-                <!--     </Style> -->
-                <!-- </ListBox.Styles> -->
                 <ListBox.ItemTemplate>
                   <DataTemplate DataType="{x:Type models:ListItemTemplate}">
                     <StackPanel Orientation="Horizontal" Spacing="17">
@@ -57,6 +53,25 @@
             </controls:CommandBarElementContainer>
           </controls:CommandBar.PrimaryCommands>
           <controls:CommandBar.SecondaryCommands>
+            <controls:CommandBarElementContainer>
+              <WrapPanel Orientation="Horizontal">
+                <TextBox Text="Capture" IsReadOnly="True" ClearSelectionOnLostFocus="True" SelectionBrush="Transparent" />
+                <SplitButton x:Name="CaptureSplitButton">
+                <Label Content="Region"/>
+                <SplitButton.Flyout>
+                  <controls:FAMenuFlyout>
+                    <controls:ToggleMenuFlyoutItem Text="Region" />
+                    <controls:ToggleMenuFlyoutItem Text="Region (Light)" />
+                    <controls:ToggleMenuFlyoutItem Text="Region (Transparent)" />
+
+                    <controls:ToggleMenuFlyoutItem Text="Window" />
+                    <controls:ToggleMenuFlyoutItem Text="Monitor" />
+
+                  </controls:FAMenuFlyout>
+                </SplitButton.Flyout>
+              </SplitButton>
+              </WrapPanel>
+            </controls:CommandBarElementContainer>
             <controls:CommandBarButton
               Command="{Binding OpenAboutWindowCommand}"
               IconSource="Favorite"

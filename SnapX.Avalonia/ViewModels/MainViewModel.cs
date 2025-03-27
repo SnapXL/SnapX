@@ -1,10 +1,13 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.Models;
+using SnapX.Avalonia.Views;
 
 namespace SnapX.Avalonia.ViewModels;
 
@@ -20,6 +23,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly List<ListItemTemplate> _templates =
     [
         new(typeof(HomePageViewModel), "HomeRegular", "Home"),
+
         // new(typeof(ButtonPageViewModel), "CursorHoverRegular", "Buttons"),
         // new(typeof(TextPageViewModel), "TextNumberFormatRegular", "Text"),
         // new(typeof(ValueSelectionPageViewModel), "CalendarCheckmarkRegular", "Value Selection"),
@@ -40,8 +44,6 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private ListItemTemplate? _selectedListItem;
-
-
     partial void OnSelectedListItemChanged(ListItemTemplate? value)
     {
         if (value is null) return;
@@ -56,7 +58,6 @@ public partial class MainViewModel : ViewModelBase
     }
 
     public ObservableCollection<ListItemTemplate> Items { get; }
-
 
     [RelayCommand]
     private void TriggerPane()
