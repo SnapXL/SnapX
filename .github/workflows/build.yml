@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-latest ]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-2025 ]
         configuration:
           - Release
           - Debug
