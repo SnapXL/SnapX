@@ -95,6 +95,10 @@ jobs:
           path: "Output/snapx-gtk"
           compression-level: 9
           if-no-files-found: error
+      - name: Cleanup previous build files
+        if: matrix.os == 'windows-latest'
+        run: |
+          Remove-Item -Path "SnapX.Avalonia/obj", "SnapX.CLI/obj" -Recurse -Force
       - name: Publish Windows ARM64
         if: matrix.os == 'windows-latest'
         run: ./build.ps1 --configuration ${{ matrix.configuration }} --runtime win-arm64
