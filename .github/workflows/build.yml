@@ -63,14 +63,14 @@ jobs:
           compression-level: 9
 
       - name: Publish
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2025'
         run: |
           ./build.ps1 --configuration ${{ matrix.configuration }}
       - name: Install NativeAOT Linux Deps
         if: runner.os == 'Linux'
         run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
       - name: Publish
-        if: matrix.os != 'windows-latest'
+        if: matrix.os != 'windows-2025'
         run: ./build.sh --configuration ${{ matrix.configuration }}
 
       - name: Upload Publish artifact (CLI)
@@ -96,14 +96,14 @@ jobs:
           compression-level: 9
           if-no-files-found: error
       - name: Cleanup previous build files
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2025'
         run: |
           Remove-Item -Path "SnapX.Avalonia/obj", "SnapX.CLI/obj" -Recurse -Force
       - name: Publish Windows ARM64
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2025'
         run: ./build.ps1 --configuration ${{ matrix.configuration }} --runtime win-arm64
       - name: Upload ARM64 Publish artifact (CLI)
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2025'
         uses: actions/upload-artifact@v4
         with:
           name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-ARM64
@@ -111,7 +111,7 @@ jobs:
           compression-level: 9
           if-no-files-found: error
       - name: Upload ARM64 Publish artifact (Avalonia)
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2025'
         uses: actions/upload-artifact@v4
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-ARM64
