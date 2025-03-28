@@ -18,7 +18,6 @@ public static class DebugHelper
         var loggerConfig = new LoggerConfiguration()
 #if DEBUG
             .MinimumLevel.Debug()
-            .WriteTo.Debug()
 #endif
             .Enrich.WithThreadId()
             .Enrich.WithThreadName()
