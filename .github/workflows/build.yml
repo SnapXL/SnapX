@@ -66,6 +66,14 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           ./build.ps1 --configuration ${{ matrix.configuration }}
+      - name: Publish CLI Windows ARM64
+        if: matrix.os == 'windows-latest'
+        working-directory: SnapX.CLI
+        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
+      - name: Publish Avalonia Windows ARM64
+        if: matrix.os == 'windows-latest'
+        working-directory: SnapX.Avalonia
+        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
       - name: Install NativeAOT Linux Deps
         if: runner.os == 'Linux'
         run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
