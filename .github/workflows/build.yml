@@ -66,14 +66,6 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           ./build.ps1 --configuration ${{ matrix.configuration }}
-      - name: Publish CLI Windows ARM64
-        if: matrix.os == 'windows-latest'
-        working-directory: SnapX.CLI
-        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
-      - name: Publish Avalonia Windows ARM64
-        if: matrix.os == 'windows-latest'
-        working-directory: SnapX.Avalonia
-        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
       - name: Install NativeAOT Linux Deps
         if: runner.os == 'Linux'
         run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
@@ -101,5 +93,24 @@ jobs:
         with:
           name: SnapX-GTK4-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "Output/snapx-gtk"
+          compression-level: 9
+          if-no-files-found: error
+      - name: Publish Windows ARM64
+        if: matrix.os == 'windows-latest'
+        run: ./build.ps1 --configuration ${{ matrix.configuration }} --runtime win-arm64
+      - name: Upload ARM64 Publish artifact (CLI)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-ARM64
+          path: "Output/snapx"
+          compression-level: 9
+          if-no-files-found: error
+      - name: Upload ARM64 Publish artifact (Avalonia)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-ARM64
+          path: "Output/snapx-ui"
           compression-level: 9
           if-no-files-found: error
