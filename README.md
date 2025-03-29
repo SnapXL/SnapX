@@ -123,11 +123,15 @@ sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev zlib1g
 
 End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and, thus, unsupported.
 
+SnapX now uses the Windows SDK to generate C# Windows API binding code.
+You need the Windows 11 SDK `10.0.26100.0`.
+It works on Windows 10, too.
+
 ```shell
 # Installing Visual Studio Community
 # You cannot build with NativeAOT without it on Windows. It has the linker program. However, you can compile on Rider or whatever your favorite IDE is after you've installed Visual Studio.
 # See https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot
-winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
+winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Component.Windows11SDK.26100	--includeRecommended"
 winget install -e --id Git.Git
 # Install Rider (optional)
 winget install -e --id JetBrains.Rider
