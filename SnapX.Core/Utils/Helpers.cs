@@ -481,7 +481,7 @@ public static class Helpers
         var sb = new StringBuilder();
         foreach (var x in bytes)
         {
-            sb.Append(string.Format("{0:x2}", x));
+            sb.Append($"{x:x2}");
         }
         return sb.ToString();
     }
@@ -660,7 +660,7 @@ public static class Helpers
 
     public static bool IsDefaultSettings<T>(IEnumerable<T> current, IEnumerable<T> source, Func<T, T, bool> predicate)
     {
-        if (current != null && current.Count() > 0)
+        if (current != null && current.Any())
         {
             return current.All(x => source.Any(y => predicate(x, y)));
         }

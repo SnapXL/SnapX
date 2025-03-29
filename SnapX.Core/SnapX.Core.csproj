@@ -23,13 +23,24 @@
     <Message Importance="High" Text="Successfully compiled Swift code into $(SwiftOutputDirectory)/$(DylibName)" />
   </Target>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <TargetFrameworks>net9.0-windows10.0.26100;net9.0</TargetFrameworks>
+<!--    <TargetFrameworks>net9.0-windows10.0.26100.48;net9.0</TargetFrameworks>-->
     <!-- Windows 10 22H2 -->
-    <TargetPlatformMinVersion>10.0.19045</TargetPlatformMinVersion>
-    <CsWinRTWindowsMetadata>10.0.26100</CsWinRTWindowsMetadata>
-    <CsWinRTIncludes>Windows;Windows.Graphics;Windows.Graphics.Capture</CsWinRTIncludes>
+<!--    <TargetPlatformMinVersion>10.0.19045</TargetPlatformMinVersion>-->
+    <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref/10.0.26100.48 -->
+    <WindowsSdkPackageVersion>10.0.26100.48</WindowsSdkPackageVersion>
+    <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
+
+    <CsWinRTEnableLogging>true</CsWinRTEnableLogging>
+    <CsWinRTIncludes>Windows.Graphics;Windows.Foundation;Windows.Data;Windows.Devices;Windows.Security;Windows.Storage;Windows.System;Windows.Networking;Windows.Globalization;Windows.ApplicationModel;Windows.Web;Windows.UI;Windows.Perception;Windows.Media;Windows.Gaming;Windows.Services;Windows.Management</CsWinRTIncludes>
+    <CSWinRTExcludes>Windows.Foundation.PropertyType</CSWinRTExcludes>
+    <CsWinRTMessageImportance Condition="'$(CsWinRTMessageImportance)' == ''">normal</CsWinRTMessageImportance>
+    <CsWinRTCommandVerbosity Condition="'$(CsWinRTMessageImportance)' == 'high'">-verbose</CsWinRTCommandVerbosity>
+    <CsWinRTGenerateProjection>true</CsWinRTGenerateProjection>
+    <!-- Debugging source generators -->
+    <CsWinRTAotOptimizerEnabled>true</CsWinRTAotOptimizerEnabled>
+
     <CsWinRTEmbedded>true</CsWinRTEmbedded>
-    <SimulateCsWinRTNugetReference>true</SimulateCsWinRTNugetReference>
+
   </PropertyGroup>
 
   <!-- Feature Flags -->
@@ -68,8 +79,11 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
     <!-- Windows Registry Configuration Support -->
-    <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'" />
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Condition="'$(OS)' == 'Windows_NT'" Version="2.2.0" />
+    <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" Condition="'$(OS)' == 'Windows_NT'" />
     <!-- Source generator dependency. It is just useful for keeping redudant code out of tree  -->
     <PackageReference Include="MimeTypes" Version="2.5.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
