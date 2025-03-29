@@ -27,6 +27,9 @@
   <PropertyGroup Condition="'$(PKGTYPE)' != ''">
     <DefineConstants>$(PKGTYPE)</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
+  </PropertyGroup>
 
   <ItemGroup>
     <!-- Google Photos Library from Microsoft employee -->

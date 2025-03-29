@@ -50,6 +50,7 @@ public class WindowsAPI : NativeAPI
     // Constants for allocating memory and setting data format
     public const uint CF_TEXT = 1;
     private const uint CF_DIB = 8;
+    private const uint CF_HDROP = 15;
 
 
     internal static HICON GetFileIcon(string filePath, bool isSmallIcon)
@@ -274,7 +275,7 @@ public class WindowsAPI : NativeAPI
         PInvoke.GetCursorPos(out LpPoint);
         return new Point(LpPoint.X, LpPoint.Y);
     }
-    public override void CopyImage(Image image)
+    public override void CopyImage(Image image, string? filename = null)
     {
         PInvoke.OpenClipboard(new HWND());
         PInvoke.EmptyClipboard();
@@ -300,9 +301,35 @@ public class WindowsAPI : NativeAPI
             PInvoke.GlobalUnlock(dataPtr);
 
             PInvoke.SetClipboardData(CF_DIB, new HANDLE((IntPtr)dataPtr));
+
+            if (!string.IsNullOrEmpty(filename))
+            {
+                int size = Marshal.SystemDefaultCharSize * (filename.Length + 1);
+                IntPtr filePathPtr = PInvoke.GlobalAlloc(GLOBAL_ALLOC_FLAGS.GHND, (uint)(20 + size));
+
+                if (filePathPtr != IntPtr.Zero)
+                {
+                    var hMem = new HGLOBAL(filePathPtr);
+                    var ptr = (byte*)PInvoke.GlobalLock(hMem);
+                    if (ptr != null)
+                    {
+                        *(int*)ptr = 20; // DROPFILES.pFiles offset
+                        *(int*)(ptr + 4) = 1; // fWide = true (Unicode)
+
+                        var filenamePtr = (IntPtr)(ptr + 20);
+                        Marshal.Copy(filename.ToCharArray(), 0, filenamePtr, filename.Length);
+                        *(short*)(filenamePtr + filename.Length * sizeof(char)) = 0; // Null terminator
+
+                        PInvoke.GlobalUnlock(hMem);
+                        PInvoke.SetClipboardData((uint)CF_HDROP, new HANDLE(filePathPtr));
+                    }
+                }
+            }
+
             PInvoke.CloseClipboard();
         }
     }
+
     public override Rectangle GetWindowRectangle(WindowInfo Window)
     {
         var handle = Window.Handle;

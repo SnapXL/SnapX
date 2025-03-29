@@ -5,80 +5,59 @@
 
 #nullable enable
 
+
+
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-
 namespace uniffi.snapxrust;
+
+
 
 // This is a helper for safely working with byte buffers returned from the Rust code.
 // A rust-owned buffer is represented by its capacity, its current length, and a
 // pointer to the underlying data.
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct RustBuffer
-{
+internal struct RustBuffer {
     public int capacity;
     public int len;
     public IntPtr data;
 
-    public static RustBuffer Alloc(int size)
-    {
-        return _UniffiHelpers.RustCall(
-            (ref RustCallStatus status) =>
-            {
-                var buffer = _UniFFILib.ffi_snapxrust_rustbuffer_alloc(size, ref status);
-                if (buffer.data == IntPtr.Zero)
-                {
-                    throw new AllocationException(
-                        $"RustBuffer.Alloc() returned null data pointer (size={size})"
-                    );
-                }
-                return buffer;
+    public static RustBuffer Alloc(int size) {
+        return _UniffiHelpers.RustCall((ref RustCallStatus status) => {
+            var buffer = _UniFFILib.ffi_snapxrust_rustbuffer_alloc(size, ref status);
+            if (buffer.data == IntPtr.Zero) {
+                throw new AllocationException($"RustBuffer.Alloc() returned null data pointer (size={size})");
             }
-        );
+            return buffer;
+        });
     }
 
-    public static void Free(RustBuffer buffer)
-    {
-        _UniffiHelpers.RustCall(
-            (ref RustCallStatus status) =>
-            {
-                _UniFFILib.ffi_snapxrust_rustbuffer_free(buffer, ref status);
-            }
-        );
+    public static void Free(RustBuffer buffer) {
+        _UniffiHelpers.RustCall((ref RustCallStatus status) => {
+            _UniFFILib.ffi_snapxrust_rustbuffer_free(buffer, ref status);
+        });
     }
 
-    public static BigEndianStream MemoryStream(IntPtr data, int length)
-    {
-        unsafe
-        {
+    public static BigEndianStream MemoryStream(IntPtr data, int length) {
+        unsafe {
             return new BigEndianStream(new UnmanagedMemoryStream((byte*)data.ToPointer(), length));
         }
     }
 
-    public BigEndianStream AsStream()
-    {
-        unsafe
-        {
+    public BigEndianStream AsStream() {
+        unsafe {
             return new BigEndianStream(new UnmanagedMemoryStream((byte*)data.ToPointer(), len));
         }
     }
 
-    public BigEndianStream AsWriteableStream()
-    {
-        unsafe
-        {
-            return new BigEndianStream(
-                new UnmanagedMemoryStream(
-                    (byte*)data.ToPointer(),
-                    capacity,
-                    capacity,
-                    FileAccess.Write
-                )
-            );
+    public BigEndianStream AsWriteableStream() {
+        unsafe {
+            return new BigEndianStream(new UnmanagedMemoryStream((byte*)data.ToPointer(), capacity, capacity, FileAccess.Write));
         }
     }
 }
@@ -90,18 +69,17 @@ internal struct RustBuffer
 // completeness.
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct ForeignBytes
-{
+internal struct ForeignBytes {
     public int length;
     public IntPtr data;
 }
+
 
 // The FfiConverter interface handles converter types to and from the FFI
 //
 // All implementing objects should be public to support external types.  When a
 // type is external we need to import it's FfiConverter.
-internal abstract class FfiConverter<CsType, FfiType>
-{
+internal abstract class FfiConverter<CsType, FfiType> {
     // Convert an FFI type to a C# type
     public abstract CsType Lift(FfiType value);
 
@@ -130,18 +108,14 @@ internal abstract class FfiConverter<CsType, FfiType>
     // FfiType.  It's used by the callback interface code.  Callback interface
     // returns are always serialized into a `RustBuffer` regardless of their
     // normal FFI type.
-    public RustBuffer LowerIntoRustBuffer(CsType value)
-    {
+    public RustBuffer LowerIntoRustBuffer(CsType value) {
         var rbuf = RustBuffer.Alloc(AllocationSize(value));
-        try
-        {
+        try {
             var stream = rbuf.AsWriteableStream();
             Write(value, stream);
             rbuf.len = Convert.ToInt32(stream.Position);
             return rbuf;
-        }
-        catch
-        {
+        } catch {
             RustBuffer.Free(rbuf);
             throw;
         }
@@ -151,385 +125,292 @@ internal abstract class FfiConverter<CsType, FfiType>
     //
     // This here mostly because of the symmetry with `lowerIntoRustBuffer()`.
     // It's currently only used by the `FfiConverterRustBuffer` class below.
-    protected CsType LiftFromRustBuffer(RustBuffer rbuf)
-    {
+    protected CsType LiftFromRustBuffer(RustBuffer rbuf) {
         var stream = rbuf.AsStream();
-        try
-        {
-            var item = Read(stream);
-            if (stream.HasRemaining())
-            {
-                throw new InternalException(
-                    "junk remaining in buffer after lifting, something is very wrong!!"
-                );
-            }
-            return item;
-        }
-        finally
-        {
+        try {
+           var item = Read(stream);
+           if (stream.HasRemaining()) {
+               throw new InternalException("junk remaining in buffer after lifting, something is very wrong!!");
+           }
+           return item;
+        } finally {
             RustBuffer.Free(rbuf);
         }
     }
 }
 
 // FfiConverter that uses `RustBuffer` as the FfiType
-internal abstract class FfiConverterRustBuffer<CsType> : FfiConverter<CsType, RustBuffer>
-{
-    public override CsType Lift(RustBuffer value)
-    {
+internal abstract class FfiConverterRustBuffer<CsType>: FfiConverter<CsType, RustBuffer> {
+    public override CsType Lift(RustBuffer value) {
         return LiftFromRustBuffer(value);
     }
-
-    public override RustBuffer Lower(CsType value)
-    {
+    public override RustBuffer Lower(CsType value) {
         return LowerIntoRustBuffer(value);
     }
 }
+
 
 // A handful of classes and functions to support the generated data structures.
 // This would be a good candidate for isolating in its own ffi-support lib.
 // Error runtime.
 [StructLayout(LayoutKind.Sequential)]
-struct RustCallStatus
-{
+struct RustCallStatus {
     public sbyte code;
     public RustBuffer error_buf;
 
-    public bool IsSuccess()
-    {
+    public bool IsSuccess() {
         return code == 0;
     }
 
-    public bool IsError()
-    {
+    public bool IsError() {
         return code == 1;
     }
 
-    public bool IsPanic()
-    {
+    public bool IsPanic() {
         return code == 2;
     }
 }
 
 // Base class for all uniffi exceptions
-internal class UniffiException : System.Exception
-{
-    public UniffiException()
-        : base() { }
-
-    public UniffiException(string message)
-        : base(message) { }
+internal class UniffiException: System.Exception {
+    public UniffiException(): base() {}
+    public UniffiException(string message): base(message) {}
 }
 
-internal class UndeclaredErrorException : UniffiException
-{
-    public UndeclaredErrorException(string message)
-        : base(message) { }
+internal class UndeclaredErrorException: UniffiException {
+    public UndeclaredErrorException(string message): base(message) {}
 }
 
-internal class PanicException : UniffiException
-{
-    public PanicException(string message)
-        : base(message) { }
+internal class PanicException: UniffiException {
+    public PanicException(string message): base(message) {}
 }
 
-internal class AllocationException : UniffiException
-{
-    public AllocationException(string message)
-        : base(message) { }
+internal class AllocationException: UniffiException {
+    public AllocationException(string message): base(message) {}
 }
 
-internal class InternalException : UniffiException
-{
-    public InternalException(string message)
-        : base(message) { }
+internal class InternalException: UniffiException {
+    public InternalException(string message): base(message) {}
 }
 
-internal class InvalidEnumException : InternalException
-{
-    public InvalidEnumException(string message)
-        : base(message) { }
+internal class InvalidEnumException: InternalException {
+    public InvalidEnumException(string message): base(message) {
+    }
 }
 
-internal class UniffiContractVersionException : UniffiException
-{
-    public UniffiContractVersionException(string message)
-        : base(message) { }
+internal class UniffiContractVersionException: UniffiException {
+    public UniffiContractVersionException(string message): base(message) {
+    }
 }
 
-internal class UniffiContractChecksumException : UniffiException
-{
-    public UniffiContractChecksumException(string message)
-        : base(message) { }
+internal class UniffiContractChecksumException: UniffiException {
+    public UniffiContractChecksumException(string message): base(message) {
+    }
 }
 
 // Each top-level error class has a companion object that can lift the error from the call status's rust buffer
-interface CallStatusErrorHandler<E>
-    where E : System.Exception
-{
+interface CallStatusErrorHandler<E> where E: System.Exception {
     E Lift(RustBuffer error_buf);
 }
 
 // CallStatusErrorHandler implementation for times when we don't expect a CALL_ERROR
-class NullCallStatusErrorHandler : CallStatusErrorHandler<UniffiException>
-{
+class NullCallStatusErrorHandler: CallStatusErrorHandler<UniffiException> {
     public static NullCallStatusErrorHandler INSTANCE = new NullCallStatusErrorHandler();
 
-    public UniffiException Lift(RustBuffer error_buf)
-    {
+    public UniffiException Lift(RustBuffer error_buf) {
         RustBuffer.Free(error_buf);
-        return new UndeclaredErrorException(
-            "library has returned an error not declared in UNIFFI interface file"
-        );
+        return new UndeclaredErrorException("library has returned an error not declared in UNIFFI interface file");
     }
 }
 
 // Helpers for calling Rust
 // In practice we usually need to be synchronized to call this safely, so it doesn't
 // synchronize itself
-class _UniffiHelpers
-{
+class _UniffiHelpers {
     public delegate void RustCallAction(ref RustCallStatus status);
     public delegate U RustCallFunc<out U>(ref RustCallStatus status);
 
     // Call a rust function that returns a Result<>.  Pass in the Error class companion that corresponds to the Err
-    public static U RustCallWithError<U, E>(
-        CallStatusErrorHandler<E> errorHandler,
-        RustCallFunc<U> callback
-    )
-        where E : UniffiException
+    public static U RustCallWithError<U, E>(CallStatusErrorHandler<E> errorHandler, RustCallFunc<U> callback)
+        where E: UniffiException
     {
         var status = new RustCallStatus();
         var return_value = callback(ref status);
-        if (status.IsSuccess())
-        {
+        if (status.IsSuccess()) {
             return return_value;
-        }
-        else if (status.IsError())
-        {
+        } else if (status.IsError()) {
             throw errorHandler.Lift(status.error_buf);
-        }
-        else if (status.IsPanic())
-        {
+        } else if (status.IsPanic()) {
             // when the rust code sees a panic, it tries to construct a rustbuffer
             // with the message.  but if that code panics, then it just sends back
             // an empty buffer.
-            if (status.error_buf.len > 0)
-            {
+            if (status.error_buf.len > 0) {
                 throw new PanicException(FfiConverterString.INSTANCE.Lift(status.error_buf));
-            }
-            else
-            {
+            } else {
                 throw new PanicException("Rust panic");
             }
-        }
-        else
-        {
+        } else {
             throw new InternalException($"Unknown rust call status: {status.code}");
         }
     }
 
     // Call a rust function that returns a Result<>.  Pass in the Error class companion that corresponds to the Err
-    public static void RustCallWithError<E>(
-        CallStatusErrorHandler<E> errorHandler,
-        RustCallAction callback
-    )
-        where E : UniffiException
+    public static void RustCallWithError<E>(CallStatusErrorHandler<E> errorHandler, RustCallAction callback)
+        where E: UniffiException
     {
-        _UniffiHelpers.RustCallWithError(
-            errorHandler,
-            (ref RustCallStatus status) =>
-            {
-                callback(ref status);
-                return 0;
-            }
-        );
+        _UniffiHelpers.RustCallWithError(errorHandler, (ref RustCallStatus status) => {
+            callback(ref status);
+            return 0;
+        });
     }
 
     // Call a rust function that returns a plain value
-    public static U RustCall<U>(RustCallFunc<U> callback)
-    {
+    public static U RustCall<U>(RustCallFunc<U> callback) {
         return _UniffiHelpers.RustCallWithError(NullCallStatusErrorHandler.INSTANCE, callback);
     }
 
     // Call a rust function that returns a plain value
-    public static void RustCall(RustCallAction callback)
-    {
-        _UniffiHelpers.RustCall(
-            (ref RustCallStatus status) =>
-            {
-                callback(ref status);
-                return 0;
-            }
-        );
+    public static void RustCall(RustCallAction callback) {
+        _UniffiHelpers.RustCall((ref RustCallStatus status) => {
+            callback(ref status);
+            return 0;
+        });
     }
 }
+
 
 // Big endian streams are not yet available in dotnet :'(
 // https://github.com/dotnet/runtime/issues/26904
 
-class StreamUnderflowException : System.Exception
-{
-    public StreamUnderflowException() { }
+class StreamUnderflowException: System.Exception {
+    public StreamUnderflowException() {
+    }
 }
 
-class BigEndianStream
-{
+class BigEndianStream {
     Stream stream;
-
-    public BigEndianStream(Stream stream)
-    {
+    public BigEndianStream(Stream stream) {
         this.stream = stream;
     }
 
-    public bool HasRemaining()
-    {
+    public bool HasRemaining() {
         return (stream.Length - stream.Position) > 0;
     }
 
-    public long Position
-    {
+    public long Position {
         get => stream.Position;
         set => stream.Position = value;
     }
 
-    public void WriteBytes(byte[] value)
-    {
+    public void WriteBytes(byte[] value) {
         stream.Write(value, 0, value.Length);
     }
 
-    public void WriteByte(byte value)
-    {
+    public void WriteByte(byte value) {
         stream.WriteByte(value);
     }
 
-    public void WriteUShort(ushort value)
-    {
+    public void WriteUShort(ushort value) {
         stream.WriteByte((byte)(value >> 8));
         stream.WriteByte((byte)value);
     }
 
-    public void WriteUInt(uint value)
-    {
+    public void WriteUInt(uint value) {
         stream.WriteByte((byte)(value >> 24));
         stream.WriteByte((byte)(value >> 16));
         stream.WriteByte((byte)(value >> 8));
         stream.WriteByte((byte)value);
     }
 
-    public void WriteULong(ulong value)
-    {
+    public void WriteULong(ulong value) {
         WriteUInt((uint)(value >> 32));
         WriteUInt((uint)value);
     }
 
-    public void WriteSByte(sbyte value)
-    {
+    public void WriteSByte(sbyte value) {
         stream.WriteByte((byte)value);
     }
 
-    public void WriteShort(short value)
-    {
+    public void WriteShort(short value) {
         WriteUShort((ushort)value);
     }
 
-    public void WriteInt(int value)
-    {
+    public void WriteInt(int value) {
         WriteUInt((uint)value);
     }
 
-    public void WriteFloat(float value)
-    {
-        unsafe
-        {
+    public void WriteFloat(float value) {
+        unsafe {
             WriteInt(*((int*)&value));
         }
     }
 
-    public void WriteLong(long value)
-    {
+    public void WriteLong(long value) {
         WriteULong((ulong)value);
     }
 
-    public void WriteDouble(double value)
-    {
+    public void WriteDouble(double value) {
         WriteLong(BitConverter.DoubleToInt64Bits(value));
     }
 
-    public byte[] ReadBytes(int length)
-    {
+    public byte[] ReadBytes(int length) {
         CheckRemaining(length);
         byte[] result = new byte[length];
         stream.Read(result, 0, length);
         return result;
     }
 
-    public byte ReadByte()
-    {
+    public byte ReadByte() {
         CheckRemaining(1);
         return Convert.ToByte(stream.ReadByte());
     }
 
-    public ushort ReadUShort()
-    {
+    public ushort ReadUShort() {
         CheckRemaining(2);
         return (ushort)(stream.ReadByte() << 8 | stream.ReadByte());
     }
 
-    public uint ReadUInt()
-    {
+    public uint ReadUInt() {
         CheckRemaining(4);
-        return (uint)(
-            stream.ReadByte() << 24
+        return (uint)(stream.ReadByte() << 24
             | stream.ReadByte() << 16
             | stream.ReadByte() << 8
-            | stream.ReadByte()
-        );
+            | stream.ReadByte());
     }
 
-    public ulong ReadULong()
-    {
+    public ulong ReadULong() {
         return (ulong)ReadUInt() << 32 | (ulong)ReadUInt();
     }
 
-    public sbyte ReadSByte()
-    {
+    public sbyte ReadSByte() {
         return (sbyte)ReadByte();
     }
 
-    public short ReadShort()
-    {
+    public short ReadShort() {
         return (short)ReadUShort();
     }
 
-    public int ReadInt()
-    {
+    public int ReadInt() {
         return (int)ReadUInt();
     }
 
-    public float ReadFloat()
-    {
-        unsafe
-        {
+    public float ReadFloat() {
+        unsafe {
             int value = ReadInt();
             return *((float*)&value);
         }
     }
 
-    public long ReadLong()
-    {
+    public long ReadLong() {
         return (long)ReadULong();
     }
 
-    public double ReadDouble()
-    {
+    public double ReadDouble() {
         return BitConverter.Int64BitsToDouble(ReadLong());
     }
 
-    private void CheckRemaining(int length)
-    {
-        if (stream.Length - stream.Position < length)
-        {
+    private void CheckRemaining(int length) {
+        if (stream.Length - stream.Position < length) {
             throw new StreamUnderflowException();
         }
     }
@@ -540,436 +421,365 @@ class BigEndianStream
 
 
 // This is an implementation detail which will be called internally by the public API.
-static class _UniFFILib
-{
-    static _UniFFILib()
-    {
+static class _UniFFILib {
+    static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
         _UniFFILib.uniffiCheckApiChecksums();
-    }
+        
+        }
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer uniffi_snapxrust_fn_func_capture_fullscreen(
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer uniffi_snapxrust_fn_func_capture_fullscreen(ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer uniffi_snapxrust_fn_func_capture_monitor(
-        RustBuffer @name,
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer uniffi_snapxrust_fn_func_capture_monitor(RustBuffer @name,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer uniffi_snapxrust_fn_func_capture_rect(
-        uint @x,
-        uint @y,
-        uint @width,
-        uint @height,
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer uniffi_snapxrust_fn_func_capture_rect(uint @x,uint @y,uint @width,uint @height,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer uniffi_snapxrust_fn_func_capture_window(
-        uint @x,
-        uint @y,
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer uniffi_snapxrust_fn_func_capture_window(uint @x,uint @y,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer uniffi_snapxrust_fn_func_get_monitor(
-        uint @x,
-        uint @y,
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer uniffi_snapxrust_fn_func_get_monitor(uint @x,uint @y,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer uniffi_snapxrust_fn_func_get_primary_monitor(
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer uniffi_snapxrust_fn_func_get_primary_monitor(ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer uniffi_snapxrust_fn_func_get_screen_dimensions(
-        RustBuffer @name,
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer uniffi_snapxrust_fn_func_get_screen_dimensions(RustBuffer @name,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer uniffi_snapxrust_fn_func_get_working_area(
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer uniffi_snapxrust_fn_func_get_working_area(ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer ffi_snapxrust_rustbuffer_alloc(
-        int @size,
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer ffi_snapxrust_rustbuffer_alloc(int @size,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer ffi_snapxrust_rustbuffer_from_bytes(
-        ForeignBytes @bytes,
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer ffi_snapxrust_rustbuffer_from_bytes(ForeignBytes @bytes,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rustbuffer_free(
-        RustBuffer @buf,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rustbuffer_free(RustBuffer @buf,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern RustBuffer ffi_snapxrust_rustbuffer_reserve(
-        RustBuffer @buf,
-        int @additional,
-        ref RustCallStatus _uniffi_out_err
+    public static extern RustBuffer ffi_snapxrust_rustbuffer_reserve(RustBuffer @buf,int @additional,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_continuation_callback_set(IntPtr @callback);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_u8(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern void ffi_snapxrust_rust_future_continuation_callback_set(IntPtr @callback
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_u8(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_u8(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern byte ffi_snapxrust_rust_future_complete_u8(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_poll_u8(IntPtr @handle,IntPtr @uniffiCallback
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_i8(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern void ffi_snapxrust_rust_future_cancel_u8(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_i8(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_i8(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern sbyte ffi_snapxrust_rust_future_complete_i8(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_free_u8(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_u16(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern byte ffi_snapxrust_rust_future_complete_u8(IntPtr @handle,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_u16(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_u16(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern ushort ffi_snapxrust_rust_future_complete_u16(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_poll_i8(IntPtr @handle,IntPtr @uniffiCallback
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_i16(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern void ffi_snapxrust_rust_future_cancel_i8(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_i16(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_i16(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern short ffi_snapxrust_rust_future_complete_i16(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_free_i8(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_u32(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern sbyte ffi_snapxrust_rust_future_complete_i8(IntPtr @handle,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_u32(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_u32(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern uint ffi_snapxrust_rust_future_complete_u32(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_poll_u16(IntPtr @handle,IntPtr @uniffiCallback
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_i32(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern void ffi_snapxrust_rust_future_cancel_u16(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_i32(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_i32(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern int ffi_snapxrust_rust_future_complete_i32(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_free_u16(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_u64(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern ushort ffi_snapxrust_rust_future_complete_u16(IntPtr @handle,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_u64(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_u64(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern ulong ffi_snapxrust_rust_future_complete_u64(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_poll_i16(IntPtr @handle,IntPtr @uniffiCallback
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_i64(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern void ffi_snapxrust_rust_future_cancel_i16(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_i64(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_i64(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern long ffi_snapxrust_rust_future_complete_i64(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_free_i16(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_f32(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern short ffi_snapxrust_rust_future_complete_i16(IntPtr @handle,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_f32(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_f32(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern float ffi_snapxrust_rust_future_complete_f32(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_poll_u32(IntPtr @handle,IntPtr @uniffiCallback
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_f64(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern void ffi_snapxrust_rust_future_cancel_u32(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_f64(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_f64(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern double ffi_snapxrust_rust_future_complete_f64(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_free_u32(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_pointer(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern uint ffi_snapxrust_rust_future_complete_u32(IntPtr @handle,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_pointer(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_pointer(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern SafeHandle ffi_snapxrust_rust_future_complete_pointer(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_poll_i32(IntPtr @handle,IntPtr @uniffiCallback
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_rust_buffer(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern void ffi_snapxrust_rust_future_cancel_i32(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_rust_buffer(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_rust_buffer(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern RustBuffer ffi_snapxrust_rust_future_complete_rust_buffer(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_free_i32(IntPtr @handle
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_poll_void(
-        IntPtr @handle,
-        IntPtr @uniffiCallback
+    public static extern int ffi_snapxrust_rust_future_complete_i32(IntPtr @handle,ref RustCallStatus _uniffi_out_err
     );
 
     [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_cancel_void(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_free_void(IntPtr @handle);
-
-    [DllImport("snapxrust")]
-    public static extern void ffi_snapxrust_rust_future_complete_void(
-        IntPtr @handle,
-        ref RustCallStatus _uniffi_out_err
+    public static extern void ffi_snapxrust_rust_future_poll_u64(IntPtr @handle,IntPtr @uniffiCallback
     );
 
     [DllImport("snapxrust")]
-    public static extern ushort uniffi_snapxrust_checksum_func_capture_fullscreen();
+    public static extern void ffi_snapxrust_rust_future_cancel_u64(IntPtr @handle
+    );
 
     [DllImport("snapxrust")]
-    public static extern ushort uniffi_snapxrust_checksum_func_capture_monitor();
+    public static extern void ffi_snapxrust_rust_future_free_u64(IntPtr @handle
+    );
 
     [DllImport("snapxrust")]
-    public static extern ushort uniffi_snapxrust_checksum_func_capture_rect();
+    public static extern ulong ffi_snapxrust_rust_future_complete_u64(IntPtr @handle,ref RustCallStatus _uniffi_out_err
+    );
 
     [DllImport("snapxrust")]
-    public static extern ushort uniffi_snapxrust_checksum_func_capture_window();
+    public static extern void ffi_snapxrust_rust_future_poll_i64(IntPtr @handle,IntPtr @uniffiCallback
+    );
 
     [DllImport("snapxrust")]
-    public static extern ushort uniffi_snapxrust_checksum_func_get_monitor();
+    public static extern void ffi_snapxrust_rust_future_cancel_i64(IntPtr @handle
+    );
 
     [DllImport("snapxrust")]
-    public static extern ushort uniffi_snapxrust_checksum_func_get_primary_monitor();
+    public static extern void ffi_snapxrust_rust_future_free_i64(IntPtr @handle
+    );
 
     [DllImport("snapxrust")]
-    public static extern ushort uniffi_snapxrust_checksum_func_get_screen_dimensions();
+    public static extern long ffi_snapxrust_rust_future_complete_i64(IntPtr @handle,ref RustCallStatus _uniffi_out_err
+    );
 
     [DllImport("snapxrust")]
-    public static extern ushort uniffi_snapxrust_checksum_func_get_working_area();
+    public static extern void ffi_snapxrust_rust_future_poll_f32(IntPtr @handle,IntPtr @uniffiCallback
+    );
 
     [DllImport("snapxrust")]
-    public static extern uint ffi_snapxrust_uniffi_contract_version();
+    public static extern void ffi_snapxrust_rust_future_cancel_f32(IntPtr @handle
+    );
 
-    static void uniffiCheckContractApiVersion()
-    {
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_free_f32(IntPtr @handle
+    );
+
+    [DllImport("snapxrust")]
+    public static extern float ffi_snapxrust_rust_future_complete_f32(IntPtr @handle,ref RustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_poll_f64(IntPtr @handle,IntPtr @uniffiCallback
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_cancel_f64(IntPtr @handle
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_free_f64(IntPtr @handle
+    );
+
+    [DllImport("snapxrust")]
+    public static extern double ffi_snapxrust_rust_future_complete_f64(IntPtr @handle,ref RustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_poll_pointer(IntPtr @handle,IntPtr @uniffiCallback
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_cancel_pointer(IntPtr @handle
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_free_pointer(IntPtr @handle
+    );
+
+    [DllImport("snapxrust")]
+    public static extern SafeHandle ffi_snapxrust_rust_future_complete_pointer(IntPtr @handle,ref RustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_poll_rust_buffer(IntPtr @handle,IntPtr @uniffiCallback
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_cancel_rust_buffer(IntPtr @handle
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_free_rust_buffer(IntPtr @handle
+    );
+
+    [DllImport("snapxrust")]
+    public static extern RustBuffer ffi_snapxrust_rust_future_complete_rust_buffer(IntPtr @handle,ref RustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_poll_void(IntPtr @handle,IntPtr @uniffiCallback
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_cancel_void(IntPtr @handle
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_free_void(IntPtr @handle
+    );
+
+    [DllImport("snapxrust")]
+    public static extern void ffi_snapxrust_rust_future_complete_void(IntPtr @handle,ref RustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("snapxrust")]
+    public static extern ushort uniffi_snapxrust_checksum_func_capture_fullscreen(
+    );
+
+    [DllImport("snapxrust")]
+    public static extern ushort uniffi_snapxrust_checksum_func_capture_monitor(
+    );
+
+    [DllImport("snapxrust")]
+    public static extern ushort uniffi_snapxrust_checksum_func_capture_rect(
+    );
+
+    [DllImport("snapxrust")]
+    public static extern ushort uniffi_snapxrust_checksum_func_capture_window(
+    );
+
+    [DllImport("snapxrust")]
+    public static extern ushort uniffi_snapxrust_checksum_func_get_monitor(
+    );
+
+    [DllImport("snapxrust")]
+    public static extern ushort uniffi_snapxrust_checksum_func_get_primary_monitor(
+    );
+
+    [DllImport("snapxrust")]
+    public static extern ushort uniffi_snapxrust_checksum_func_get_screen_dimensions(
+    );
+
+    [DllImport("snapxrust")]
+    public static extern ushort uniffi_snapxrust_checksum_func_get_working_area(
+    );
+
+    [DllImport("snapxrust")]
+    public static extern uint ffi_snapxrust_uniffi_contract_version(
+    );
+
+    
+
+    static void uniffiCheckContractApiVersion() {
         var scaffolding_contract_version = _UniFFILib.ffi_snapxrust_uniffi_contract_version();
-        if (24 != scaffolding_contract_version)
-        {
-            throw new UniffiContractVersionException(
-                $"uniffi.snapxrust: uniffi bindings expected version `24`, library returned `{scaffolding_contract_version}`"
-            );
+        if (24 != scaffolding_contract_version) {
+            throw new UniffiContractVersionException($"uniffi.snapxrust: uniffi bindings expected version `24`, library returned `{scaffolding_contract_version}`");
         }
     }
 
-    static void uniffiCheckApiChecksums()
-    {
+    static void uniffiCheckApiChecksums() {
         {
             var checksum = _UniFFILib.uniffi_snapxrust_checksum_func_capture_fullscreen();
-            if (checksum != 6651)
-            {
-                throw new UniffiContractChecksumException(
-                    $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_fullscreen` checksum `6651`, library returned `{checksum}`"
-                );
+            if (checksum != 6651) {
+                throw new UniffiContractChecksumException($"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_fullscreen` checksum `6651`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_snapxrust_checksum_func_capture_monitor();
-            if (checksum != 61593)
-            {
-                throw new UniffiContractChecksumException(
-                    $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_monitor` checksum `61593`, library returned `{checksum}`"
-                );
+            if (checksum != 61593) {
+                throw new UniffiContractChecksumException($"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_monitor` checksum `61593`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_snapxrust_checksum_func_capture_rect();
-            if (checksum != 15851)
-            {
-                throw new UniffiContractChecksumException(
-                    $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_rect` checksum `15851`, library returned `{checksum}`"
-                );
+            if (checksum != 15851) {
+                throw new UniffiContractChecksumException($"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_rect` checksum `15851`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_snapxrust_checksum_func_capture_window();
-            if (checksum != 52724)
-            {
-                throw new UniffiContractChecksumException(
-                    $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_window` checksum `52724`, library returned `{checksum}`"
-                );
+            if (checksum != 52724) {
+                throw new UniffiContractChecksumException($"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_window` checksum `52724`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_snapxrust_checksum_func_get_monitor();
-            if (checksum != 61273)
-            {
-                throw new UniffiContractChecksumException(
-                    $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_get_monitor` checksum `61273`, library returned `{checksum}`"
-                );
+            if (checksum != 61273) {
+                throw new UniffiContractChecksumException($"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_get_monitor` checksum `61273`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_snapxrust_checksum_func_get_primary_monitor();
-            if (checksum != 12932)
-            {
-                throw new UniffiContractChecksumException(
-                    $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_get_primary_monitor` checksum `12932`, library returned `{checksum}`"
-                );
+            if (checksum != 12932) {
+                throw new UniffiContractChecksumException($"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_get_primary_monitor` checksum `12932`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_snapxrust_checksum_func_get_screen_dimensions();
-            if (checksum != 25884)
-            {
-                throw new UniffiContractChecksumException(
-                    $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_get_screen_dimensions` checksum `25884`, library returned `{checksum}`"
-                );
+            if (checksum != 25884) {
+                throw new UniffiContractChecksumException($"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_get_screen_dimensions` checksum `25884`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_snapxrust_checksum_func_get_working_area();
-            if (checksum != 60391)
-            {
-                throw new UniffiContractChecksumException(
-                    $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_get_working_area` checksum `60391`, library returned `{checksum}`"
-                );
+            if (checksum != 60391) {
+                throw new UniffiContractChecksumException($"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_get_working_area` checksum `60391`, library returned `{checksum}`");
             }
         }
     }
@@ -982,95 +792,80 @@ static class _UniFFILib
 
 
 
-class FfiConverterUInt32 : FfiConverter<uint, uint>
-{
+class FfiConverterUInt32: FfiConverter<uint, uint> {
     public static FfiConverterUInt32 INSTANCE = new FfiConverterUInt32();
 
-    public override uint Lift(uint value)
-    {
+    public override uint Lift(uint value) {
         return value;
     }
 
-    public override uint Read(BigEndianStream stream)
-    {
+    public override uint Read(BigEndianStream stream) {
         return stream.ReadUInt();
     }
 
-    public override uint Lower(uint value)
-    {
+    public override uint Lower(uint value) {
         return value;
     }
 
-    public override int AllocationSize(uint value)
-    {
+    public override int AllocationSize(uint value) {
         return 4;
     }
 
-    public override void Write(uint value, BigEndianStream stream)
-    {
+    public override void Write(uint value, BigEndianStream stream) {
         stream.WriteUInt(value);
     }
 }
 
-class FfiConverterInt32 : FfiConverter<int, int>
-{
+
+
+class FfiConverterInt32: FfiConverter<int, int> {
     public static FfiConverterInt32 INSTANCE = new FfiConverterInt32();
 
-    public override int Lift(int value)
-    {
+    public override int Lift(int value) {
         return value;
     }
 
-    public override int Read(BigEndianStream stream)
-    {
+    public override int Read(BigEndianStream stream) {
         return stream.ReadInt();
     }
 
-    public override int Lower(int value)
-    {
+    public override int Lower(int value) {
         return value;
     }
 
-    public override int AllocationSize(int value)
-    {
+    public override int AllocationSize(int value) {
         return 4;
     }
 
-    public override void Write(int value, BigEndianStream stream)
-    {
+    public override void Write(int value, BigEndianStream stream) {
         stream.WriteInt(value);
     }
 }
 
-class FfiConverterString : FfiConverter<string, RustBuffer>
-{
+
+
+class FfiConverterString: FfiConverter<string, RustBuffer> {
     public static FfiConverterString INSTANCE = new FfiConverterString();
 
     // Note: we don't inherit from FfiConverterRustBuffer, because we use a
     // special encoding when lowering/lifting.  We can use `RustBuffer.len` to
     // store our length and avoid writing it out to the buffer.
-    public override string Lift(RustBuffer value)
-    {
-        try
-        {
+    public override string Lift(RustBuffer value) {
+        try {
             var bytes = value.AsStream().ReadBytes(value.len);
             return System.Text.Encoding.UTF8.GetString(bytes);
-        }
-        finally
-        {
+        } finally {
             RustBuffer.Free(value);
         }
     }
 
-    public override string Read(BigEndianStream stream)
-    {
+    public override string Read(BigEndianStream stream) {
         var length = stream.ReadInt();
         var bytes = stream.ReadBytes(length);
         return System.Text.Encoding.UTF8.GetString(bytes);
     }
 
-    public override RustBuffer Lower(string value)
-    {
+    public override RustBuffer Lower(string value) {
         var bytes = System.Text.Encoding.UTF8.GetBytes(value);
         var rbuf = RustBuffer.Alloc(bytes.Length);
         rbuf.AsWriteableStream().WriteBytes(bytes);
@@ -1081,51 +876,53 @@ class FfiConverterString : FfiConverter<string, RustBuffer>
     // We aren't sure exactly how many bytes our string will be once it's UTF-8
     // encoded.  Allocate 3 bytes per unicode codepoint which will always be
     // enough.
-    public override int AllocationSize(string value)
-    {
+    public override int AllocationSize(string value) {
         const int sizeForLength = 4;
         var sizeForString = value.Length * 3;
         return sizeForLength + sizeForString;
     }
 
-    public override void Write(string value, BigEndianStream stream)
-    {
+    public override void Write(string value, BigEndianStream stream) {
         var bytes = System.Text.Encoding.UTF8.GetBytes(value);
         stream.WriteInt(bytes.Length);
         stream.WriteBytes(bytes);
     }
 }
 
-class FfiConverterByteArray : FfiConverterRustBuffer<byte[]>
-{
+
+
+
+class FfiConverterByteArray: FfiConverterRustBuffer<byte[]> {
     public static FfiConverterByteArray INSTANCE = new FfiConverterByteArray();
 
-    public override byte[] Read(BigEndianStream stream)
-    {
+    public override byte[] Read(BigEndianStream stream) {
         var length = stream.ReadInt();
         return stream.ReadBytes(length);
     }
 
-    public override int AllocationSize(byte[] value)
-    {
+    public override int AllocationSize(byte[] value) {
         return 4 + value.Length;
     }
 
-    public override void Write(byte[] value, BigEndianStream stream)
-    {
+    public override void Write(byte[] value, BigEndianStream stream) {
         stream.WriteInt(value.Length);
         stream.WriteBytes(value);
     }
 }
 
-internal record ImageData(byte[] @image, uint @width, uint @height) { }
 
-class FfiConverterTypeImageData : FfiConverterRustBuffer<ImageData>
-{
+
+internal record ImageData (
+    byte[] @image, 
+    uint @width, 
+    uint @height
+) {
+}
+
+class FfiConverterTypeImageData: FfiConverterRustBuffer<ImageData> {
     public static FfiConverterTypeImageData INSTANCE = new FfiConverterTypeImageData();
 
-    public override ImageData Read(BigEndianStream stream)
-    {
+    public override ImageData Read(BigEndianStream stream) {
         return new ImageData(
             @image: FfiConverterByteArray.INSTANCE.Read(stream),
             @width: FfiConverterUInt32.INSTANCE.Read(stream),
@@ -1133,30 +930,35 @@ class FfiConverterTypeImageData : FfiConverterRustBuffer<ImageData>
         );
     }
 
-    public override int AllocationSize(ImageData value)
-    {
+    public override int AllocationSize(ImageData value) {
         return 0
             + FfiConverterByteArray.INSTANCE.AllocationSize(value.@image)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.@width)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.@height);
     }
 
-    public override void Write(ImageData value, BigEndianStream stream)
-    {
-        FfiConverterByteArray.INSTANCE.Write(value.@image, stream);
-        FfiConverterUInt32.INSTANCE.Write(value.@width, stream);
-        FfiConverterUInt32.INSTANCE.Write(value.@height, stream);
+    public override void Write(ImageData value, BigEndianStream stream) {
+            FfiConverterByteArray.INSTANCE.Write(value.@image, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.@width, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.@height, stream);
     }
 }
 
-internal record MonitorData(uint @width, uint @height, int @x, int @y, String @name) { }
 
-class FfiConverterTypeMonitorData : FfiConverterRustBuffer<MonitorData>
-{
+
+internal record MonitorData (
+    uint @width, 
+    uint @height, 
+    int @x, 
+    int @y, 
+    String @name
+) {
+}
+
+class FfiConverterTypeMonitorData: FfiConverterRustBuffer<MonitorData> {
     public static FfiConverterTypeMonitorData INSTANCE = new FfiConverterTypeMonitorData();
 
-    public override MonitorData Read(BigEndianStream stream)
-    {
+    public override MonitorData Read(BigEndianStream stream) {
         return new MonitorData(
             @width: FfiConverterUInt32.INSTANCE.Read(stream),
             @height: FfiConverterUInt32.INSTANCE.Read(stream),
@@ -1166,8 +968,7 @@ class FfiConverterTypeMonitorData : FfiConverterRustBuffer<MonitorData>
         );
     }
 
-    public override int AllocationSize(MonitorData value)
-    {
+    public override int AllocationSize(MonitorData value) {
         return 0
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.@width)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.@height)
@@ -1176,115 +977,71 @@ class FfiConverterTypeMonitorData : FfiConverterRustBuffer<MonitorData>
             + FfiConverterString.INSTANCE.AllocationSize(value.@name);
     }
 
-    public override void Write(MonitorData value, BigEndianStream stream)
-    {
-        FfiConverterUInt32.INSTANCE.Write(value.@width, stream);
-        FfiConverterUInt32.INSTANCE.Write(value.@height, stream);
-        FfiConverterInt32.INSTANCE.Write(value.@x, stream);
-        FfiConverterInt32.INSTANCE.Write(value.@y, stream);
-        FfiConverterString.INSTANCE.Write(value.@name, stream);
+    public override void Write(MonitorData value, BigEndianStream stream) {
+            FfiConverterUInt32.INSTANCE.Write(value.@width, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.@height, stream);
+            FfiConverterInt32.INSTANCE.Write(value.@x, stream);
+            FfiConverterInt32.INSTANCE.Write(value.@y, stream);
+            FfiConverterString.INSTANCE.Write(value.@name, stream);
     }
 }
 #pragma warning restore 8625
-internal static class SnapxrustMethods
-{
-    public static ImageData CaptureFullscreen()
-    {
+internal static class SnapxrustMethods {
+    public static ImageData CaptureFullscreen() {
         return FfiConverterTypeImageData.INSTANCE.Lift(
-            _UniffiHelpers.RustCall(
-                (ref RustCallStatus _status) =>
-                    _UniFFILib.uniffi_snapxrust_fn_func_capture_fullscreen(ref _status)
-            )
-        );
+    _UniffiHelpers.RustCall( (ref RustCallStatus _status) =>
+    _UniFFILib.uniffi_snapxrust_fn_func_capture_fullscreen( ref _status)
+));
     }
 
-    public static ImageData CaptureMonitor(String @name)
-    {
+    public static ImageData CaptureMonitor(String @name) {
         return FfiConverterTypeImageData.INSTANCE.Lift(
-            _UniffiHelpers.RustCall(
-                (ref RustCallStatus _status) =>
-                    _UniFFILib.uniffi_snapxrust_fn_func_capture_monitor(
-                        FfiConverterString.INSTANCE.Lower(@name),
-                        ref _status
-                    )
-            )
-        );
+    _UniffiHelpers.RustCall( (ref RustCallStatus _status) =>
+    _UniFFILib.uniffi_snapxrust_fn_func_capture_monitor(FfiConverterString.INSTANCE.Lower(@name), ref _status)
+));
     }
 
-    public static ImageData CaptureRect(uint @x, uint @y, uint @width, uint @height)
-    {
+    public static ImageData CaptureRect(uint @x, uint @y, uint @width, uint @height) {
         return FfiConverterTypeImageData.INSTANCE.Lift(
-            _UniffiHelpers.RustCall(
-                (ref RustCallStatus _status) =>
-                    _UniFFILib.uniffi_snapxrust_fn_func_capture_rect(
-                        FfiConverterUInt32.INSTANCE.Lower(@x),
-                        FfiConverterUInt32.INSTANCE.Lower(@y),
-                        FfiConverterUInt32.INSTANCE.Lower(@width),
-                        FfiConverterUInt32.INSTANCE.Lower(@height),
-                        ref _status
-                    )
-            )
-        );
+    _UniffiHelpers.RustCall( (ref RustCallStatus _status) =>
+    _UniFFILib.uniffi_snapxrust_fn_func_capture_rect(FfiConverterUInt32.INSTANCE.Lower(@x), FfiConverterUInt32.INSTANCE.Lower(@y), FfiConverterUInt32.INSTANCE.Lower(@width), FfiConverterUInt32.INSTANCE.Lower(@height), ref _status)
+));
     }
 
-    public static ImageData CaptureWindow(uint @x, uint @y)
-    {
+    public static ImageData CaptureWindow(uint @x, uint @y) {
         return FfiConverterTypeImageData.INSTANCE.Lift(
-            _UniffiHelpers.RustCall(
-                (ref RustCallStatus _status) =>
-                    _UniFFILib.uniffi_snapxrust_fn_func_capture_window(
-                        FfiConverterUInt32.INSTANCE.Lower(@x),
-                        FfiConverterUInt32.INSTANCE.Lower(@y),
-                        ref _status
-                    )
-            )
-        );
+    _UniffiHelpers.RustCall( (ref RustCallStatus _status) =>
+    _UniFFILib.uniffi_snapxrust_fn_func_capture_window(FfiConverterUInt32.INSTANCE.Lower(@x), FfiConverterUInt32.INSTANCE.Lower(@y), ref _status)
+));
     }
 
-    public static MonitorData GetMonitor(uint @x, uint @y)
-    {
+    public static MonitorData GetMonitor(uint @x, uint @y) {
         return FfiConverterTypeMonitorData.INSTANCE.Lift(
-            _UniffiHelpers.RustCall(
-                (ref RustCallStatus _status) =>
-                    _UniFFILib.uniffi_snapxrust_fn_func_get_monitor(
-                        FfiConverterUInt32.INSTANCE.Lower(@x),
-                        FfiConverterUInt32.INSTANCE.Lower(@y),
-                        ref _status
-                    )
-            )
-        );
+    _UniffiHelpers.RustCall( (ref RustCallStatus _status) =>
+    _UniFFILib.uniffi_snapxrust_fn_func_get_monitor(FfiConverterUInt32.INSTANCE.Lower(@x), FfiConverterUInt32.INSTANCE.Lower(@y), ref _status)
+));
     }
 
-    public static MonitorData GetPrimaryMonitor()
-    {
+    public static MonitorData GetPrimaryMonitor() {
         return FfiConverterTypeMonitorData.INSTANCE.Lift(
-            _UniffiHelpers.RustCall(
-                (ref RustCallStatus _status) =>
-                    _UniFFILib.uniffi_snapxrust_fn_func_get_primary_monitor(ref _status)
-            )
-        );
+    _UniffiHelpers.RustCall( (ref RustCallStatus _status) =>
+    _UniFFILib.uniffi_snapxrust_fn_func_get_primary_monitor( ref _status)
+));
     }
 
-    public static MonitorData GetScreenDimensions(String @name)
-    {
+    public static MonitorData GetScreenDimensions(String @name) {
         return FfiConverterTypeMonitorData.INSTANCE.Lift(
-            _UniffiHelpers.RustCall(
-                (ref RustCallStatus _status) =>
-                    _UniFFILib.uniffi_snapxrust_fn_func_get_screen_dimensions(
-                        FfiConverterString.INSTANCE.Lower(@name),
-                        ref _status
-                    )
-            )
-        );
+    _UniffiHelpers.RustCall( (ref RustCallStatus _status) =>
+    _UniFFILib.uniffi_snapxrust_fn_func_get_screen_dimensions(FfiConverterString.INSTANCE.Lower(@name), ref _status)
+));
     }
 
-    public static MonitorData GetWorkingArea()
-    {
+    public static MonitorData GetWorkingArea() {
         return FfiConverterTypeMonitorData.INSTANCE.Lift(
-            _UniffiHelpers.RustCall(
-                (ref RustCallStatus _status) =>
-                    _UniFFILib.uniffi_snapxrust_fn_func_get_working_area(ref _status)
-            )
-        );
+    _UniffiHelpers.RustCall( (ref RustCallStatus _status) =>
+    _UniFFILib.uniffi_snapxrust_fn_func_get_working_area( ref _status)
+));
     }
+
 }
+

@@ -64,7 +64,7 @@ jobs:
       - name: Publish Windows ARM64 (CLI)
         if: matrix.os == 'windows-2025'
         working-directory: SnapX.CLI
-        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
+        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64 -p:UseCurrentRuntimeIdentifier=true
       - name: Publish Windows ARM64 (Avalonia)
         if: matrix.os == 'windows-2025'
         working-directory: SnapX.Avalonia

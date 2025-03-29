@@ -9,7 +9,6 @@ public class ImageData : IDisposable
 
     public void Write(string filePath)
     {
-        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
         ImageStream.WriteToFile(filePath);
     }
     public void Dispose()

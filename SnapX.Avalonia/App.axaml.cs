@@ -17,9 +17,7 @@ using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
-#if DEBUG
-using HotAvalonia;
-#endif
+
 
 namespace SnapX.Avalonia;
 
@@ -46,9 +44,6 @@ public class App : Application
 
         SnapX = new SnapXAvalonia();
         // SnapX.setQualifier(" UI");
-#if DEBUG
-        this.EnableHotReload();
-#endif
         AvaloniaXamlLoader.Load(this);
         AppDomain.CurrentDomain.UnhandledException += (Sender, Args) =>
         {

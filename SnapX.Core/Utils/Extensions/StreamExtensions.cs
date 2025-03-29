@@ -87,10 +87,29 @@ public static class StreamExtensions
 
         FileHelpers.CreateDirectoryFromFilePath(filePath);
 
-        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
-        stream.CopyStreamTo(fileStream);
+        const int retryCount = 3;
 
-        return true;
+        for (var attempt = 1; attempt <= retryCount; attempt++)
+        {
+            try
+            {
+                using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+                stream.CopyStreamTo(fileStream);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (attempt == retryCount)
+                {
+                    return false;
+                }
+
+                DebugHelper.WriteLine($"Warning: Attempt {attempt} failed to write to {filePath}.");
+                DebugHelper.WriteException(ex);
+            }
+        }
+
+        return false;
     }
     public static byte[] GetBytes(this Stream stream)
     {
