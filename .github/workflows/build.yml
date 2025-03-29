@@ -68,7 +68,7 @@ jobs:
       - name: Publish Windows ARM64 (Avalonia)
         if: matrix.os == 'windows-2025'
         working-directory: SnapX.Avalonia
-        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
+        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64 -p:UseCurrentRuntimeIdentifier=true
       - name: Upload ARM64 Publish artifact (CLI)
         if: matrix.os == 'windows-2025'
         uses: actions/upload-artifact@v4
