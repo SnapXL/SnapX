@@ -9,7 +9,6 @@
     <Optimize>true</Optimize>
     <PublishTrimmed>true</PublishTrimmed>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
 
   </PropertyGroup>
 

@@ -115,7 +115,7 @@ sudo dnf in -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-devel
 sudo apt update && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports -y # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev
+sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev zlib1g-dev libcurl4-openssl-dev
 ```
 
 ### Windows 10 22H2+ 🪟

@@ -129,6 +129,10 @@
           "type": "string",
           "description": "PREFIX"
         },
+        "Runtime": {
+          "type": "string",
+          "description": "Runtime you're compiling for"
+        },
         "Solution": {
           "type": "string",
           "description": "Path to a solution file that is automatically loaded"

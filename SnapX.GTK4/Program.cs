@@ -18,7 +18,8 @@ var snapx = new SnapXGTK4();
 snapx.setQualifier(" GTK4");
 
 
-var application = Gtk.Application.New("io.github.brycensranch.SnapX", ApplicationFlags.NonUnique);
+
+using var application = Gtk.Application.New("io.github.BrycensRanch.SnapX", ApplicationFlags.NonUnique);
 var sigintReceived = false;
 
 Console.CancelKeyPress += (_, ea) =>
@@ -73,7 +74,7 @@ application.OnActivate += (sender, eventArgs) =>
         var mainWindow = new ApplicationWindow();
         mainWindow.SetApplication(application);
         mainWindow.SetName("SnapX");
-        mainWindow.SetIconName("io.github.brycensranch.SnapX");
+        mainWindow.SetIconName("io.github.BrycensRanch.SnapX");
         void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
         {
             var dialog = new FileChooserDialog()
