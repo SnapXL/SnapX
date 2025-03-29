@@ -39,7 +39,7 @@ BuildRequires:  dotnet-sdk-9.0
 BuildRequires:  clang
 BuildRequires:  zlib-devel
 
-Requires:       /usr/bin/ffmpeg
+Recommends:       /usr/bin/ffmpeg
 Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
 
 

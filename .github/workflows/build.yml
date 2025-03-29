@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-latest ]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-2025 ]
         configuration:
           - Release
           - Debug
@@ -61,16 +61,39 @@ jobs:
           path: .
           include-hidden-files: false
           compression-level: 9
-
+      - name: Publish Windows ARM64 (CLI)
+        if: matrix.os == 'windows-2025'
+        working-directory: SnapX.CLI
+        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
+      - name: Publish Windows ARM64 (Avalonia)
+        if: matrix.os == 'windows-2025'
+        working-directory: SnapX.Avalonia
+        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
+      - name: Upload ARM64 Publish artifact (CLI)
+        if: matrix.os == 'windows-2025'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-ARM64
+          path: "SnapX.CLI/bin/${{ matrix.configuration }}/net9.0/win-arm64/publish"
+          compression-level: 9
+          if-no-files-found: error
+      - name: Upload ARM64 Publish artifact (Avalonia)
+        if: matrix.os == 'windows-2025'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-ARM64
+          path: "SnapX.Avalonia/bin/${{ matrix.configuration }}/net9.0/win-arm64/publish"
+          compression-level: 9
+          if-no-files-found: error
       - name: Publish
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2025'
         run: |
           ./build.ps1 --configuration ${{ matrix.configuration }}
       - name: Install NativeAOT Linux Deps
         if: runner.os == 'Linux'
         run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
       - name: Publish
-        if: matrix.os != 'windows-latest'
+        if: matrix.os != 'windows-2025'
         run: ./build.sh --configuration ${{ matrix.configuration }}
 
       - name: Upload Publish artifact (CLI)

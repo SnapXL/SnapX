@@ -86,6 +86,9 @@ class Build : NukeBuild
     [Parameter("Path to NativeMessagingHost for web extension support")]
     string NMHostPath => !OperatingSystem.IsWindows() ? Path.Join(LibDir, "snapx", NMHassemblyName) : null;
 
+    [Parameter("Runtime you're compiling for")]
+    string Runtime = RuntimeInformation.RuntimeIdentifier;
+
     [NerdbankGitVersioning][CanBeNull] readonly NerdbankGitVersioning NerdbankVersioning;
 
     string SnapXVersion =>
@@ -131,6 +134,7 @@ class Build : NukeBuild
                     .SetConfiguration(Configuration)
                     .SetOutput(projectOutput)
                     .SetAssemblyVersion(SnapXVersion)
+                    .SetRuntime(Runtime)
                     .EnableNoLogo()
                     .EnableNoRestore());
                 Information($"Artifacts for {projectName} output to {OutputDirectory}");
