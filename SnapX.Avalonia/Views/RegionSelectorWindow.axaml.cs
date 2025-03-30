@@ -72,9 +72,9 @@ public partial class RegionSelectorWindow : Window
     private void OnPointerReleased(object? Sender, PointerReleasedEventArgs E)
     {
         _isSelecting = false;
-        _selectionRect.Opacity = 0;
-        _dimmingOverlay.Opacity = 0;
-        _infoBox.Opacity = 0;
+        _selectionRect.IsVisible = false;
+        _dimmingOverlay.IsVisible = false;
+        _infoBox.IsVisible = false;
         _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
         DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {_selectionRect.Bounds}");
         var img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureRectangle(new SixLabors.ImageSharp.Rectangle((int)_selectionRect.Bounds.X, (int)_selectionRect.Bounds.Y, (int)_selectionRect.Bounds.Width, (int)_selectionRect.Bounds.Height));
