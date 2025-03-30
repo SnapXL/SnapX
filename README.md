@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="./Linux.png" alt="SnapX Banner"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="https://github.com/BrycensRanch/SnapX/blob/6b74876359b8bc217cf165e3f0a22cdf39f8c407/.github/Linux.png" alt="SnapX Banner"/></a></p>
 <h1 align="center">SnapX</h1>
 <h3 align="center">Capture, share, and boost productivity. All in one.</h3>
 <br>
