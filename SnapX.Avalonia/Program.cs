@@ -16,7 +16,7 @@ AppBuilder BuildAvaloniaApp()
         .With(new X11PlatformOptions()
         {
             // Fixes poor performance on my NVIDIA RTX 3060 Laptop GPU using Region Selector on Fedora KDE Wayland
-            RenderingMode = [X11RenderingMode.Vulkan, X11RenderingMode.Glx, X11RenderingMode.Egl, X11RenderingMode.Software],
+            RenderingMode = [X11RenderingMode.Vulkan, X11RenderingMode.Egl, X11RenderingMode.Glx, X11RenderingMode.Software],
             UseRetainedFramebuffer = true,
             // I see white rectangle when using CommandBar on Fedora KDE Wayland. Maybe this will fix it?
             OverlayPopups = true,
