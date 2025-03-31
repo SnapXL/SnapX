@@ -27,8 +27,8 @@ public class App : Application
     {
         DataContext = this;
     }
-    public static SnapXAvalonia SnapX { get; set; }
-    public static MainWindow? MyMainWindow { get; set; }
+    public static SnapXAvalonia SnapX { get; private set; }
+    public static MainWindow? MyMainWindow { get; private set; }
 
     private static string SimpleVersion()
     {
@@ -224,107 +224,114 @@ public class App : Application
         Ioc.Default.AddStaticLogging();
         var vm = Ioc.Default.GetRequiredService<MainViewModel>();
 
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        switch (ApplicationLifetime)
         {
-            var sigintReceived = false;
-            desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            desktop.ShutdownRequested += (_, _) =>
+            case IClassicDesktopStyleApplicationLifetime desktop:
             {
-                DebugHelper.WriteLine("Received Shutdown from Avalonia");
-                if (!sigintReceived)
+                var sigintReceived = false;
+                desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                desktop.ShutdownRequested += (_, _) =>
                 {
+                    DebugHelper.WriteLine("Received Shutdown from Avalonia");
+                    if (sigintReceived) return;
                     sigintReceived = true;
                     SnapX.shutdown();
-                }
 
-                // desktop.Shutdown();
-            };
+                    // desktop.Shutdown();
+                };
 
-            Console.CancelKeyPress += (_, ea) =>
-            {
-
-                DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
-                if (!sigintReceived)
+                Console.CancelKeyPress += (_, ea) =>
                 {
+
+                    DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
+                    if (sigintReceived) return;
                     ea.Cancel = true;
                     sigintReceived = true;
                     SnapX.shutdown();
                     desktop.Shutdown();
-                }
-            };
-            // AppDomain.CurrentDomain.ProcessExit += (o, _) =>
-            // {
-            //     if (!sigintReceived)
-            //     {
-            //         sigintReceived = true;
-            //         DebugHelper.WriteLine("Received SIGTERM");
-            //         SnapX.shutdown();
-            //     }
-            //     else
-            //     {
-            //         DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
-            //     }
-            // };
-            var errorStarting = false;
-            // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
-            try
-            {
-                Task.Run(() => SnapX.start(desktop.Args ?? [])).GetAwaiter().GetResult();
-                var CLIManager = SnapX.GetCLIManager();
-                Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult()).ConfigureAwait(false).GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                errorStarting = true;
-                DebugHelper.WriteException(ex);
-                ShowErrorDialog(Lang.SnapXFailedToStart, ex);
-            }
-            if (errorStarting) return;
-            DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
-            if (SnapX.isSilent()) return;
-            if (SnapX.GetCLIManager().IsCommandExist("video"))
-            {
-                var vlc = new LibVLC(enableDebugLogs: false);
-                DebugHelper.WriteLine($"VLC Version: {vlc.Version}");
-                var MediaPlayer = new MediaPlayer(vlc);
-                var input = new Uri("https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
-
-                var media = new Media(vlc, input);
-                MediaPlayer.EnableHardwareDecoding = true;
-                MediaPlayer.Play(media);
-                MediaPlayer.Stopped += async (Sender, Args) =>
-                {
-                    media.Dispose();
-                    vlc.Dispose();
                 };
+                // AppDomain.CurrentDomain.ProcessExit += (o, _) =>
+                // {
+                //     if (!sigintReceived)
+                //     {
+                //         sigintReceived = true;
+                //         DebugHelper.WriteLine("Received SIGTERM");
+                //         SnapX.shutdown();
+                //     }
+                //     else
+                //     {
+                //         DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
+                //     }
+                // };
+                var errorStarting = false;
+                // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
+                try
+                {
+                    Task.Run(() => SnapX.start(desktop.Args ?? [])).GetAwaiter().GetResult();
+                    var CLIManager = SnapX.GetCLIManager();
+                    Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult()).ConfigureAwait(false).GetAwaiter().GetResult();
+                }
+                catch (Exception ex)
+                {
+                    errorStarting = true;
+                    DebugHelper.WriteException(ex);
+                    ShowErrorDialog(Lang.SnapXFailedToStart, ex);
+                }
+                if (errorStarting) return;
+                DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
+                if (SnapX.isSilent()) return;
+                if (SnapX.GetCLIManager().IsCommandExist("video"))
+                {
+                    var vlc = new LibVLC(enableDebugLogs: false);
+                    DebugHelper.WriteLine($"VLC Version: {vlc.Version}");
+                    var MediaPlayer = new MediaPlayer(vlc);
+                    var input = new Uri("https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
+
+                    var media = new Media(vlc, input);
+                    MediaPlayer.EnableHardwareDecoding = true;
+                    MediaPlayer.Play(media);
+                    MediaPlayer.Stopped += async (Sender, Args) =>
+                    {
+                        media.Dispose();
+                        vlc.Dispose();
+                    };
+                }
+                var Window = new MainWindow(vm);
+
+                Window.Show();
+                DebugHelper.WriteLine("MainWindow startup time: {0} ms", SnapX.getStartupTime());
+
+                MyMainWindow = Window;
+                desktop.MainWindow = Window;
+                break;
             }
-            var Window = new MainWindow(vm);
-
-            Window.Show();
-            DebugHelper.WriteLine("MainWindow startup time: {0} ms", SnapX.getStartupTime());
-
-            MyMainWindow = Window;
-            desktop.MainWindow = Window;
-        }
-        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
-        {
-            if (SnapX.isSilent()) return;
-            var mv = new MainWindow(vm);
-            mv.Show();
-            singleView.MainView = mv;
+            case ISingleViewApplicationLifetime singleView when SnapX.isSilent():
+                return;
+            case ISingleViewApplicationLifetime singleView:
+            {
+                var mv = new MainWindow(vm);
+                mv.Show();
+                MyMainWindow = mv;
+                singleView.MainView = mv;
+                break;
+            }
         }
     }
 
     public static void CreateAboutWindowStatic()
     {
-        if (Design.IsDesignMode)
+        var aboutWindow = Design.IsDesignMode ? Activator.CreateInstance<AboutWindow>() : Ioc.Default.GetService<AboutWindow>();
+        if (aboutWindow is null)
         {
-            Activator.CreateInstance<AboutWindow>().Show();
+            DebugHelper.WriteLine("Failed to create about window, got null back from IoC");
             return;
         }
-
-        Ioc.Default.GetService<AboutWindow>()?.Show();
-
+        if (MyMainWindow is not null) aboutWindow.Show(MyMainWindow);
+        else
+        {
+            aboutWindow.ShowAsDialog = false;
+            aboutWindow.Show();
+        }
     }
 
 
@@ -335,12 +342,13 @@ public class App : Application
             loggingBuilder.AddSerilog(dispose: true));
 
 
-        services.AddSingleton<MainViewModel>();
-        services.AddSingleton<HomePageViewModel>();
+        services.AddTransient<MainViewModel>();
         services.AddSingleton<MainWindow>();
         services.AddTransient<AboutWindow>();
 
-        services.AddSingleton<HomePageView>();
+        services.AddTransient<HomePageView>();
+        services.AddTransient<HomePageViewModel>();
+
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
 
     }
@@ -369,6 +377,7 @@ public class App : Application
             MyMainWindow = new MainWindow(vm);
             MyMainWindow.Show();
         }
+        if (!MyMainWindow?.IsVisible ?? true) MyMainWindow?.Show();
         MyMainWindow?.Focus();
     }
 }
