@@ -36,12 +36,26 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
     <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
     <PackageReference Include="GirCore.GstVideo-1.0" Version="$(GirCoreVersion)" />
-    <PackageReference Include="GirCore.Gst-1.0" Version="$(GirCoreVersion)" />
     <PackageReference Include="GirCore.Gtk-4.0" Version="$(GirCoreVersion)" />
-    <PackageReference Include="GirCore.Gio-2.0" Version="$(GirCoreVersion)" />
-    <PackageReference Include="GirCore.Gdk-4.0" Version="$(GirCoreVersion)" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="ui\*.ui" />
+    <EmbeddedResource Include="ui\*.ui">
+      <LogicalName>%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="data\*.xml">
+      <LogicalName>%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Target Name="GTKXAML" BeforeTargets="PrepareForBuild;Restore">
+    <Exec
+      Command="dotnet run $(MSBuildProjectDirectory)/Views/*.xaml $(MSBuildProjectDirectory)/ui/"
+      WorkingDirectory="$(MSBuildProjectDirectory)/../XAML/" />
+  </Target>
 </Project>

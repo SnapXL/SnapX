@@ -33,7 +33,7 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows ap
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
 - Dependency on Newtonsoft.JSON dropped, traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
 - And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet [~~keeping JSON as an option~~](https://github.com/BrycensRanch/SnapX/issues/28#issuecomment-2764614506).
-- The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach. For SnapX.GTK4, it uses [BindingSharp](https://github.com/BrycensRanch/BindingSharp)
+- The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach. For SnapX.GTK4, it uses [BindingSharp](https://github.com/BrycensRanch/BindingSharp) & GXAML
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/) and uses [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
@@ -97,8 +97,8 @@ Instructions for other projects within the SnapX solution are not provided yet.
 JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. It's free for noncommercial use.
 
 <a href="https://www.jetbrains.com/rider/" target="_blank">
-  <img 
-    src="https://github.com/user-attachments/assets/96b8e44e-47b3-4850-b4f3-c4e7ed8dd385" 
+  <img
+    src="https://github.com/user-attachments/assets/96b8e44e-47b3-4850-b4f3-c4e7ed8dd385"
     alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
     style="width: 400px; height: auto;" />
 </a>
@@ -129,7 +129,7 @@ End of life Windows versions are not supported. For example, Windows 11 22H2 is 
 winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
 winget install -e --id Git.Git
 # Install Rider (optional)
-winget install -e --id JetBrains.Rider  
+winget install -e --id JetBrains.Rider
 ```
 
 ## macOS Ventura+ (13) 🍎

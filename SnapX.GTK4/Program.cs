@@ -11,16 +11,19 @@ using SnapX.Core.Utils;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Native;
 using SnapX.GTK4;
+using SnapX.GTK4.Views;
 using AboutDialog = SnapX.GTK4.AboutDialog;
 using MessageType = Gst.MessageType;
+using Task = System.Threading.Tasks.Task;
 
 var snapx = new SnapXGTK4();
 snapx.setQualifier(" GTK4");
 
 
 
-using var application = Gtk.Application.New("io.github.BrycensRanch.SnapX", ApplicationFlags.NonUnique);
+using var application = Gtk.Application.New("io.github.BrycensRanch.SnapX", ApplicationFlags.DefaultFlags);
 var sigintReceived = false;
+var RESOURCES_PATH = "/app/share/GTK4Blueprint/io.github.BrycensRanch.SnapX.gresource";
 
 Console.CancelKeyPress += (_, ea) =>
 {
@@ -45,137 +48,144 @@ application.OnActivate += (sender, eventArgs) =>
         ShowErrorDialog(e, application);
     }
 
-    if (!errorStarting)
+    if (errorStarting) return;
+    DebugHelper.WriteLine("Internal Startup time: {0} ms", snapx.getStartupTime());
+    if (snapx.isSilent()) return;
+    Gio.Module.Initialize();
+    Gst.Module.Initialize();
+    Gst.Application.Init();
+    GstVideo.Module.Initialize();
+    if (Environment.GetEnvironmentVariable("FLATPAK_ID") != null)
     {
-        DebugHelper.WriteLine("Internal Startup time: {0} ms", snapx.getStartupTime());
-        if (snapx.isSilent()) return;
-        Gst.Module.Initialize();
-        Gst.Application.Init();
-        GstVideo.Module.Initialize();
-
-        if (SnapX.Core.SnapX.CLIManager.IsCommandExist("video"))
+        var resource = Gio.Resource.Load(RESOURCES_PATH);
+        resource.Register();
+    }
+    if (SnapX.Core.SnapX.CLIManager.IsCommandExist("video"))
+    {
+        Task.Run(() =>
         {
             using var ret = Gst.Functions.ParseLaunch(
                 "playbin uri=playbin uri=https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
             ret.SetState(Gst.State.Playing);
-            using var bus = ret.GetBus();
+            using var bus = ret.GetBus()!;
             bus.TimedPopFiltered(Gst.Constants.CLOCK_TIME_NONE, MessageType.Eos | MessageType.Error);
             ret.SetState(Gst.State.Null);
-            ret.Unref();
-        }
-        if (SnapX.Core.SnapX.CLIManager.IsCommandExist("sound"))
-        {
-            snapx.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
-        }
-
-
-        var mainWindow = new ApplicationWindow();
-        mainWindow.SetApplication(application);
-        mainWindow.SetName("SnapX");
-        mainWindow.SetIconName("io.github.BrycensRanch.SnapX");
-        void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
-        {
-            var dialog = new FileChooserDialog()
-            {
-                Title = @event.Title,
-                Application = application,
-            };
-            if (@event.FileName != null) dialog.SetCurrentName(@event.FileName);
-            dialog.SetCurrentFolder(Gio.Functions.FileNewForPath(@event.Directory));
-            if (@event.Multiselect)
-            {
-                dialog.SetSelectMultiple(true);
-                dialog.Show();
-
-                UploadManager.UploadFile(dialog.GetFile()?.GetPath()!);
-            }
-            else
-            {
-                dialog.Show();
-                var file = dialog.GetFile();
-                if (file == null)
-                {
-                    mainWindow.Title = "SnapX | File upload cancelled";
-                    return;
-                }
-                UploadManager.UploadFile(file.GetPath()!);
-            }
-        }
-        var eventAggregator = snapx.getEventAggregator();
-        eventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
-
-        var box = new Gtk.Box();
-        box.SetOrientation(Orientation.Vertical);
-        var imageURLTextBox = new Entry();
-        imageURLTextBox.PlaceholderText =
-            "https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg";
-
-        var demoTestButton = new Button();
-        demoTestButton.Label = "Upload Remote Image";
-        demoTestButton.OnClicked += (_, __) =>
-        {
-            DebugHelper.WriteLine("Upload Demo Image triggered");
-
-            try
-            {
-                UploadManager.DownloadAndUploadFile(imageURLTextBox.GetText());
-            }
-            catch (Exception ex)
-            {
-                DebugHelper.Logger.Error(ex.ToString());
-                ShowErrorDialog(ex, application);
-            }
-        };
-        box.Append(imageURLTextBox);
-        box.Append(demoTestButton);
-        mainWindow.SetChild(box);
-        mainWindow.SetVisible(true);
-        using var dialog = new AboutDialog();
-        dialog.SetName(Lang.AboutSnapX);
-        dialog.SetApplication(application);
-        dialog.AddCreditSection("ShareX Team", [Links.Jaex, Links.McoreD]);
-        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-        dialog.AddCreditSection("Mentions", ["benbryant0 for .NET 8 PR"]);
-        dialog.AddCreditSection("Dependencies",
-            loadedAssemblies
-                .Where(a => a.GetName().Name != null)
-                .Where(a => !a.GetName().Name.StartsWith("System") && !a.GetName().Name.StartsWith("SnapX", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.Contains("netstandard", StringComparison.OrdinalIgnoreCase))
-                .Select(a => $"{a.GetName().Name} {a.GetName().Version}")
-                .OrderBy(name => name)
-                .ToArray());
-        var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";
-        var osInfo = OsInfo.GetFancyOSNameAndVersion();
-        var assembly = Assembly.GetExecutingAssembly();
-        foreach (var resourceName in assembly.GetManifestResourceNames())
-        {
-            Console.WriteLine(resourceName);
-        }
-        var bytes = assembly.ReadResourceAsByteArray("SnapX.GTK4.SnapX_Logo.png");
-
-        using var pixbuf = PixbufLoader.New();
-        pixbuf.Write(bytes);
-        pixbuf.Close();
-        using var logo = Gdk.Texture.NewForPixbuf(pixbuf.GetPixbuf()!);
-        // dialog.SetDecorated(false);
-        // dialog.SetFocusable(false);
-        // dialog.SetOpacity(0.8);
-        // dialog.SetResizable(false);
-        // dialog.SetCanTarget(false);
-        // dialog.SetCanFocus(false);
-        // dialog.SetDeletable(false);
-        // dialog.SetSensitive(false);
-        // dialog.SetFocusVisible(false);
-        dialog.SetModal(true);
-        dialog.SetLogo(logo);
-
-        dialog.SystemInformation = $"OS: {osInfo}\nGTK Version: {gtkVersion}\n.NET Version: {dialog.internalAboutDialog.GetRuntime()}\nPlatform: {dialog.internalAboutDialog.GetOsPlatform()}";
-
-        dialog.Show();
-        // var window = Gtk.ApplicationWindow.New((Gtk.Application) sender);
-        // window.Title = "Gtk4 Window";
-        // window.SetDefaultSize(300, 300);
-        // window.Show();
+        });
     }
+
+    if (SnapX.Core.SnapX.CLIManager.IsCommandExist("sound"))
+    {
+        Task.Run(() => snapx.PlayNotificationSoundAsync(NotificationSound.ActionCompleted));
+    }
+
+
+    var mainWindow = new MainWindow(application);
+    mainWindow.SetApplication(application);
+    mainWindow.SetName(SnapX.Core.SnapX.AppName);
+    mainWindow.SetTitle(SnapX.Core.SnapX.Title + " " + SnapX.Core.SnapX.VersionText);
+    mainWindow.SetIconName(Links.APP_ID);
+    void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
+    {
+        var dialog = new FileChooserDialog()
+        {
+            Title = @event.Title,
+            Application = application,
+        };
+        if (@event.FileName != null) dialog.SetCurrentName(@event.FileName);
+        dialog.SetCurrentFolder(Gio.Functions.FileNewForPath(@event.Directory));
+        if (@event.Multiselect)
+        {
+            dialog.SetSelectMultiple(true);
+            dialog.Show();
+
+            UploadManager.UploadFile(dialog.GetFile()?.GetPath()!);
+        }
+        else
+        {
+            dialog.Show();
+            var file = dialog.GetFile();
+            if (file == null)
+            {
+                mainWindow.Title = "SnapX | File upload cancelled";
+                return;
+            }
+            UploadManager.UploadFile(file.GetPath()!);
+        }
+    }
+    var eventAggregator = snapx.getEventAggregator();
+    eventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
+
+    var box = new Gtk.Box();
+    box.SetOrientation(Orientation.Vertical);
+    var imageURLTextBox = new Entry();
+    imageURLTextBox.PlaceholderText =
+        "https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg";
+
+    var demoTestButton = new Button();
+    demoTestButton.Label = "Upload Remote Image";
+    demoTestButton.OnClicked += (_, __) =>
+    {
+        DebugHelper.WriteLine("Upload Demo Image triggered");
+
+        try
+        {
+            UploadManager.DownloadAndUploadFile(imageURLTextBox.GetText());
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.Logger.Error(ex.ToString());
+            ShowErrorDialog(ex, application);
+        }
+    };
+    box.Append(imageURLTextBox);
+    box.Append(demoTestButton);
+    // mainWindow.SetChild(box);
+    mainWindow.SetVisible(true);
+    using var dialog = new AboutDialog();
+    dialog.SetName(Lang.AboutSnapX);
+    dialog.SetApplication(application);
+    dialog.AddCreditSection("ShareX Team", [Links.Jaex, Links.McoreD]);
+    var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+    dialog.AddCreditSection("Mentions", ["benbryant0 for .NET 8 PR"]);
+    dialog.AddCreditSection("Dependencies",
+        loadedAssemblies
+            .Where(a => a.GetName().Name != null)
+            .Where(a => !a.GetName().Name.StartsWith("System") && !a.GetName().Name.StartsWith("SnapX", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) && !a.GetName().Name.Contains("netstandard", StringComparison.OrdinalIgnoreCase))
+            .Select(a => $"{a.GetName().Name} {a.GetName().Version}")
+            .OrderBy(name => name)
+            .ToArray());
+    var gtkVersion = $"{Gtk.Functions.GetMajorVersion()}.{Gtk.Functions.GetMinorVersion()}.{Gtk.Functions.GetMicroVersion()}";
+    var osInfo = OsInfo.GetFancyOSNameAndVersion();
+    var assembly = Assembly.GetExecutingAssembly();
+    foreach (var resourceName in assembly.GetManifestResourceNames())
+    {
+        Console.WriteLine(resourceName);
+    }
+    var bytes = assembly.ReadResourceAsByteArray("SnapX.GTK4.SnapX_Logo.png");
+
+    using var pixbuf = PixbufLoader.New();
+    pixbuf.Write(bytes);
+    pixbuf.Close();
+    using var logo = Gdk.Texture.NewForPixbuf(pixbuf.GetPixbuf()!);
+    // dialog.SetDecorated(false);
+    // dialog.SetFocusable(false);
+    // dialog.SetOpacity(0.8);
+    // dialog.SetResizable(false);
+    // dialog.SetCanTarget(false);
+    // dialog.SetCanFocus(false);
+    // dialog.SetDeletable(false);
+    // dialog.SetSensitive(false);
+    // dialog.SetFocusVisible(false);
+    dialog.SetModal(true);
+    dialog.SetLogo(logo);
+
+    dialog.SystemInformation = $"OS: {osInfo}\nGTK Version: {gtkVersion}\n.NET Version: {dialog.internalAboutDialog.GetRuntime()}\nPlatform: {dialog.internalAboutDialog.GetOsPlatform()}";
+
+    dialog.Show();
+    // var window = Gtk.ApplicationWindow.New((Gtk.Application) sender);
+    // window.Title = "Gtk4 Window";
+    // window.SetDefaultSize(300, 300);
+    // window.Show();
 };
 static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
 {
@@ -200,8 +210,8 @@ static void ShowErrorDialog(Exception ex, Gtk.Application application = null)
     messageBuilder.AppendLine(ex.StackTrace);
     var innerException = ex.InnerException;
     if (innerException != null) {
-    messageBuilder.AppendLine(innerException.GetType() + ": " + innerException.Message);
-    messageBuilder.AppendLine(innerException.StackTrace);
+        messageBuilder.AppendLine(innerException.GetType() + ": " + innerException.Message);
+        messageBuilder.AppendLine(innerException.StackTrace);
     }
     messageBuilder.AppendLine(Assembly.GetExecutingAssembly().GetName().Name + ": " + Assembly.GetExecutingAssembly().GetName().Version);
 
