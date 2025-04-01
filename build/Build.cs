@@ -61,7 +61,7 @@ class Build : NukeBuild
         set => _destdir = value;
     }
 
-    string Bindir => Path.Join(DestDir, Prefix, "bin");
+    string BinDir => Path.Join(DestDir, Prefix, "bin");
     string Datadir => Path.Join(DestDir, Prefix, "share");
     string Docdir => Path.Join(Datadir, "doc", "snapx");
     string Licensedir => Path.Join(Datadir, "licenses", "snapx");
@@ -188,7 +188,7 @@ class Build : NukeBuild
             Information($"Prefix: {Prefix}");
             Information($"Installing to {Path.Join(DestDir, Prefix)}");
             Information($"Data directory: {Datadir}");
-            Information($"Bin directory: {Bindir}");
+            Information($"Bin directory: {BinDir}");
             Information($"Documentation directory: {Docdir}");
             Information($"License directory: {Licensedir}");
             Information($"Metainfo directory: {Metainfodir}");
@@ -247,7 +247,7 @@ class Build : NukeBuild
             foreach (var outputFile in outputFiles)
             {
                 var permissions = "0755";
-                var destinationFile = Path.Join(Bindir, Path.GetFileName(outputFile));
+                var destinationFile = Path.Join(BinDir, Path.GetFileName(outputFile));
                 var AvaloniaAssemblyName = "snapx-ui" + (OperatingSystem.IsWindows() ? ".exe" : "");
 
                 switch (Path.GetFileNameWithoutExtension(destinationFile))
@@ -259,11 +259,11 @@ class Build : NukeBuild
                         Information($"Installing NMH Binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                         break;
                     case var name when destinationFile.Contains(AvaloniaAssemblyName):
-                        destinationFile = Path.Join(LibDir, "snapx", Path.GetFileName(destinationFile));
+                        destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
                         Information($"Installing AVALONIABINARY: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                         break;
                     case var name when (destinationFile.Contains(".dll") || destinationFile.Contains(".so") || destinationFile.Contains(".dylib")) && !destinationFile.Contains(AvaloniaAssemblyName):
-                        destinationFile = Path.Join(LibDir, "snapx", Path.GetFileName(destinationFile));
+                        destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
                         Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                         break;
                     case var name when destinationFile.Contains(".json"):
@@ -276,29 +276,6 @@ class Build : NukeBuild
                 }
                 InstallFile(outputFile, destinationFile, permissions);
             }
-
-            var localAvaloniaWrapperScript = Path.Join(RootDirectory, "snapx-ui");
-
-            var avaloniaPath = Path.Join(Prefix, "lib", "snapx", "snapx-ui");
-            var fallbackPath = Path.Join(LibDir, "snapx", "snapx-ui");
-            using (var writer = new StreamWriter(localAvaloniaWrapperScript))
-            {
-                writer.WriteLine("#!/bin/sh");
-                writer.WriteLine("# Wrapper script provided by SnapX to invoke the true Avalonia binary.");
-                writer.WriteLine($"# NMH Path: {NMHostPath}");
-                writer.WriteLine($"# Version: {SnapXVersion}");
-                writer.WriteLine(@$"
-if [ -f ""{avaloniaPath}"" ]; then
-    exec {avaloniaPath} ""$@""
-else
-    exec {fallbackPath} ""$@""
-fi
-");
-            }
-
-            InstallFile(localAvaloniaWrapperScript, Path.Join(Bindir, "snapx-ui"), "0755");
-            RunInstallCommand($"+x {Path.Join(Bindir, "snapx-ui")}", "chmod");
-            File.Delete(localAvaloniaWrapperScript);
         });
     void InstallFile(string source, string destination, string permissions)
     {

@@ -1,5 +1,5 @@
 #
-# spec file for package snapx, snapx-gtk, and snapx-ui
+# spec file for package snapx, and snapx-ui
 #
 # Copyright (c) 2024 Brycen Granville <brycengranville@outlook.com>
 #
@@ -17,13 +17,8 @@
 
 # This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
 
-
 %global version         0.1.0
 %bcond check 0
-
-
-
-
 
 
 Name:           snapx
@@ -35,11 +30,9 @@ License:        GPL-3.0-or-later
 URL:            https://github.com/BrycensRanch/SnapX
 Source:         %{url}/archive/refs/heads/develop.tar.gz
 
-BuildRequires:  dotnet-sdk-9.0
-BuildRequires:  clang
-BuildRequires:  zlib-devel
+BuildRequires:  dotnet-sdk-aot-9.0
 
-Recommends:       /usr/bin/ffmpeg
+Recommends:     /usr/bin/ffmpeg
 Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
 
 
@@ -54,14 +47,6 @@ ExclusiveArch:  x86_64 aarch64
 This is a port of the original ShareX application to Linux.
 It is not an official release and is not affiliated with the original ShareX project.
 Specifically, it is the CLI tool.
-
-%package gtk
-Summary:        SnapX GTK4 UI
-Requires:       gtk4
-Requires:       snapx
-BuildRequires:  gtk4
-%description gtk
-SnapX but gtk4
 
 %package ui
 Summary:        SnapX Avalonia-based UI
@@ -100,10 +85,6 @@ Output/snapx/snapx --version
 %{_bindir}/%{name}
 %{_libdir}/%{name}
 %{_datadir}/SnapX
-%license LICENSE.md
-
-%files gtk
-%{_bindir}/%{name}-gtk
 %license LICENSE.md
 
 %files ui
