@@ -88,7 +88,7 @@ jobs:
           compression-level: 9
           if-no-files-found: error
       - name: Start building on other arches
-        if: always()
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && always()
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: build-on-other-arches.yml
