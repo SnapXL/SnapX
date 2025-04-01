@@ -1,6 +1,6 @@
 # Maintainer: Brycen Granville <brycengranville@outlook.com>
 pkgbase=snapx
-pkgname=(snapx snapx-gtk snapx-ui)
+pkgname=(snapx snapx-ui)
 pkgver=0.1.0
 pkgrel=1
 pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX)"
@@ -12,6 +12,7 @@ makedepends=(
     'dotnet-sdk>=9.0'
     'clang'
     'zlib'
+    'curl'
 )
 
 source=("$pkgbase::git+https://github.com/BrycensRanch/SnapX.git")
@@ -42,26 +43,12 @@ package_snapx() {
         'libxrandr'
         'libxcb'
         'dbus'
+        'vlc'
     )
 
-    cd "$pkgbase"
-    ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
-}
-
-# This is a temporary solution until packaging allows you to install files specific to snapx-ui.
-# For now, we delete files we don't want.
-package_snapx-gtk() {
-    pkgdesc="SnapX GTK4 UI"
-    depends=('snapx' 'gtk4')
-
-    cd "$pkgbase"
-    ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
-
-    # Leave only files for GTK UI
-    rm -rf "${pkgdir}/usr/lib"
-    rm -rf "${pkgdir}/usr/share"
-    rm -f "${pkgdir}/usr/bin/snapx"
-    rm -f "${pkgdir}/usr/bin/snapx-ui"
+     cd "$pkgbase"
+     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
+     rm -f "${pkgdir}/usr/bin/snapx-ui"
 }
 
 package_snapx-ui() {
@@ -74,6 +61,4 @@ package_snapx-ui() {
     # Keep the files only for Avalonia UI
     rm -rf "${pkgdir}/usr/share"
     rm -f "${pkgdir}/usr/bin/snapx"
-    rm -f "${pkgdir}/usr/bin/snapx-gtk"
-
 }

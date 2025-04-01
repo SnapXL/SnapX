@@ -206,6 +206,5 @@ public abstract class Changelog
 
         return commitMessages;
     }
-    // Must be implemented by child classes to display the changelog ie (SnapX.GTK4)
     public abstract void Display();
 }

@@ -81,7 +81,6 @@ public static class UploadManager
         };
         DebugHelper.WriteLine("Need file to upload. Asking UI for file.");
         // The UI will now do the rest.
-        // ie SnapX.GTK4, SnapX.Avalonia
         SnapX.EventAggregator.Publish(data);
     }
 

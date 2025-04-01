@@ -8,6 +8,5 @@
   <Project Path="SnapX.CLI\SnapX.CLI.csproj" Type="Classic C#" />
   <Project Path="SnapX.CommonUI\SnapX.CommonUI.csproj" Type="Classic C#" />
   <Project Path="SnapX.Core\SnapX.Core.csproj" Type="Classic C#" />
-  <Project Path="SnapX.GTK4\SnapX.GTK4.csproj" Type="Classic C#" />
   <Project Path="SnapX.NativeMessagingHost\SnapX.NativeMessagingHost.csproj" Type="Classic C#" />
 </Solution>
