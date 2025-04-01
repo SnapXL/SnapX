@@ -89,6 +89,7 @@ jobs:
           if-no-files-found: error
       - name: Start building on other arches
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && always()
+        continue-on-error: true
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: build-on-other-arches.yml
