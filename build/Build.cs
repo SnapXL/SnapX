@@ -35,7 +35,7 @@ class Build : NukeBuild
     readonly AbsolutePath PackagingDirectory = RootDirectory / "packaging";
     const string Namespace = "SnapX.";
 
-    static string[] ProjectNames = ["GTK4", "Avalonia", "CLI", "NativeMessagingHost"];
+    static readonly string[] ProjectNames = ["Avalonia", "CLI", "NativeMessagingHost"];
     readonly string[] ProjectsToBuild = ProjectNames
         .Where(projectName => OperatingSystem.IsLinux() || projectName != "GTK4")
         .Select(projectName => Path.Combine(RootDirectory, Namespace + projectName, Namespace + projectName + ".csproj"))

@@ -110,11 +110,3 @@ jobs:
           path: "Output/snapx-ui"
           compression-level: 9
           if-no-files-found: error
-      - name: Upload Publish artifact (GTK4)
-        uses: actions/upload-artifact@v4
-        if: runner.os == 'Linux'
-        with:
-          name: SnapX-GTK4-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
-          path: "Output/snapx-gtk"
-          compression-level: 9
-          if-no-files-found: error
