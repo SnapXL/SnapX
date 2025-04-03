@@ -17,6 +17,7 @@ public static class Links
     public const string PrivacyPolicy = Website + "/privacy-policy";
     public const string ImageEffects = Website + "/image-effects";
     public const string Actions = Website + "/actions";
+    public const string APP_ID = "io.github.BrycensRanch.SnapX";
     public const string Jaex = "https://github.com/Jaex";
     public const string McoreD = "https://github.com/McoreD";
     public const string BrycensRanch = "https://github.com/BrycensRanch";

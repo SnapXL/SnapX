@@ -32,14 +32,14 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows ap
 
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
 - Dependency on Newtonsoft.JSON dropped, traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
-- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet keeping JSON as an option.
-- The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach. For SnapX.GTK4, it uses [BindingSharp](https://github.com/BrycensRanch/BindingSharp)
+- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet [~~keeping JSON as an option~~](https://github.com/BrycensRanch/SnapX/issues/28#issuecomment-2764614506).
+- The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
-- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS, and uses [XDG portals](https://flatpak.github.io/xdg-desktop-portal/)
+- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
 - Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [ScreenCaptureKit](https://developer.apple.com/documentation/screencapturekit/) on macOS, and [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!!)
-- Uses the power of [VLC](https://wiki.videolan.org/LibVLC/) to playback video on Avalonia & uses [Gstreamer](https://gstreamer.freedesktop.org/) on GTK4
+- Uses the power of [VLC](https://wiki.videolan.org/LibVLC/) to playback video/audio
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* use TLS 1.3 out of the box.
@@ -82,16 +82,13 @@ For screenshots, it uses your operating system's respective APIs. On Linux Wayla
 
 Instructions for other projects within the SnapX solution are not provided yet.
 
-> SnapX.GTK4 does not use header files and only requires the binary GTK4 package at runtime.
-
 - `git`
-- `gtk4` & `gstreamer` (and respective plugins) (Installed by default on Ubuntu & Fedora)
 - `dotnet-sdk-9.0`
 - `ffmpeg` (7)
 - `clang`
 - `zlib-devel`
 - `curl-devel`
-- `vlc-libs` (libvlc)
+- `vlc-libs` (libvlc, Runtime dependency)
 
 #### IDE of Choice
 
@@ -107,7 +104,7 @@ JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. I
 ### Fedora 41+ 🌟
 
 ```bash
-sudo dnf in -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-development @development-libs vlc-devel
+sudo dnf in -y git dotnet-sdk-aot-9.0 /usr/bin/ffmpeg vlc-devel
 ```
 
 ### Ubuntu 24.04+ ⚡
@@ -116,7 +113,7 @@ sudo dnf in -y git gtk4 dotnet-sdk-9.0 /usr/bin/ffmpeg clang zlib-devel @c-devel
 sudo apt update && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports -y # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git libgtk-4-1 dotnet-sdk-9.0 ffmpeg clang libvlc-dev zlib1g-dev libcurl4-openssl-dev
+sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang libvlc-dev zlib1g-dev libcurl4-openssl-dev
 ```
 
 ### Windows 10 22H2+ 🪟
@@ -131,7 +128,7 @@ It works on Windows 10, too.
 # Installing Visual Studio Community
 # You cannot build with NativeAOT without it on Windows. It has the linker program. However, you can compile on Rider or whatever your favorite IDE is after you've installed Visual Studio.
 # See https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot
-winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Component.Windows11SDK.26100	--includeRecommended"
+winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Component.Windows11SDK.26100 --includeRecommended"
 winget install -e --id Git.Git
 # Install Rider (optional)
 winget install -e --id JetBrains.Rider
@@ -171,8 +168,7 @@ cd SnapX
 ./build.sh # Calls NUKE (https://nuke.build) (Linux/macOS)
 .\build.ps1 # If on Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
-Output/snapx-gtk/snapx-gtk # Run SnapX.GTK4
-# nothing is stopping you from using regular .NET building tools
+# Nothing is stopping you from using regular .NET building tools
 # dotnet publish -c Release
 # SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
 ```

@@ -3,13 +3,6 @@
 # Checklist
 
 - [x] Port `NativeMessagingHost` to .NET 9 (It was literally a few lines of code...)
-- [x] Replace Windows specific code in ShareX.HelpersLib
-- [x] Port `UploadersLib` to .NET 9 and remove UI code
-- [x] Port `ScreenCaptureLib` to .NET 9 and GTK and unknown dependencies (Requires investigation)
-- [x] Investigate `UploadersLib` (What is it? What does it do?)
-- It's where the uploaders are located and apply their own variables like %host%. This is a obvious code design flaw as you'll find time and time again, the functions are producing side effects everywhere that makes ShareX impossible to test.
-- [x] Investigate `IndexerLib` (What is it? What does it do?)
-- [x] Investigate `HistoryLib` (What is it? What does it do?)
 - [ ] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://github.com/dotnet/efcore>
 - [x] Log files should be a daily log file, not a whole MONTH (wtf?)
 - [x] Symlink ~/Documents/SnapX to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
@@ -18,10 +11,10 @@
 - [ ] Add charts for statistics like uploading, avg image size, most used image extension, and error rate for uploading
 - [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation.
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
-- [ ] Add back OCR with [TesseractOCR](https://github.com/Sicos1977/TesseractOCR) and train with [tessdata_best](https://github.com/tesseract-ocr/tessdata_best)
-- [ ] Expose entire Core in UI (Avalonia, GTK4)
+- [ ] Expose entire Core in UI (Avalonia)
 - [x] Add telemetry & Aptabase is a work in progress, PR pending https://github.com/aptabase/aptabase-maui/pull/12
-- [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp) and use it to create a MSIX bundle
+- [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp)
+- [ ] Use Microsoft's [MSIX Packaging tool](https://github.com/microsoft/msix-packaging) for MSIXBundles for Windows.
 - [ ] Integrate with Windows Share https://discussions.unity.com/t/calling-windows-shareui-dialog-from-unity-on-windows-10-11-on-non-uwp-build-target/1586504
 - [ ] Add to Microsoft Store
 - [ ] Add to Winget
@@ -47,14 +40,6 @@ which will allow for the possibility of using [Avalonia](https://github.com/Aval
 While GTK4 does "work" on these platforms, it's significantly handicapped or unstable (on macOS)
 
 Worst case scenario, I may need to introduce C++ code to interact directly with Linux. I haven't tried [xcap](https://github.com/nashaofu/xcap) yet but since it's in Rust, I'd have to make it produce .a and .so files.
-
-## Why I choose GTK4
-
-Although GTK4 is not a full replacement for Windows Forms, it is a step in the right direction. GTK4 is a modern toolkit that is actively developed and maintained. It is also the toolkit used by GNOME, which is the most popular desktop environment on Linux. By using GTK4, we can ensure that the application will be compatible with the latest versions of GNOME and other desktop environments that use GTK4.
-
-Truth be told, I really wanted this to be QT6, but there are no C# bindings for QT6 yet. I'm not going to write a C++ application. The project would **never** be done.
-
-To accomplish this goal, <https://github.com/gircore/gir.core> is called upon.
 
 ### SemVer & New Commit Message Standard
 
@@ -97,10 +82,6 @@ I am also just not interested in Mono.
 #### How are screenshots going to work?
 
 I am going to use a library I have decided to do it. I might keep the Windows code and investigate adding HDR support to it.
-
-### GTK on Windows sucks
-
-I agree! That's what SnapX.Avalonia is for.
 
 <https://sixlabors.com/products/imagesharp/> This library is a cross-platform library that can be used to manipulate images. This library will be used to handle images in this project.
 
