@@ -20,6 +20,7 @@
     <!-- After investigation, this needs to be an absolute path. It should be set by our build script later down the road. -->
     <!-- That way, you hopefully wouldn't need to have the snapx-ui executable right alongside it's .so/.dll/.dylib -->
     <AvaloniaNativeLibraryPath>/usr/local/lib/snapx</AvaloniaNativeLibraryPath>
+
     <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called snapx-ui. Instead create a executable shell script that calls snapx-ui -->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -60,6 +61,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\" />
+    <VlcWindowsX86ExcludeFiles Condition="$([MSBuild]::IsOsPlatform('Windows'))" Include="%2A%2A" />
+
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="Views\About\AboutWindow.axaml" />

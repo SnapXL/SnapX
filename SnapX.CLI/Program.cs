@@ -1,4 +1,4 @@
-﻿using SnapX.CLI;
+using SnapX.CLI;
 using SnapX.Core;
 using SnapX.Core.Utils;
 
@@ -28,7 +28,7 @@ about.Show();
 
 Console.WriteLine();
 Console.WriteLine("SnapX.CLI is an empty project to dedicated to the developer feedback loop.");
-Console.WriteLine("It makes running SnapX's CLI faster than running Avalonia or GTK and it's more simple & universal. ");
+Console.WriteLine("It makes running SnapX's CLI faster than running Avalonia and it's more simple & universal.");
 Console.WriteLine("You can use ShareX's documentation found here. https://getsharex.com/docs/command-line-arguments to test SnapX.Core");
 var sigintReceived = false;
 
