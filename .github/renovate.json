@@ -1,6 +1,21 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ]
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:recommended", ":semanticCommitTypeAll(build)"],
+	"prCreation": "not-pending",
+	"semanticCommits": "enabled",
+	"automerge": true,
+	"labels": ["dependencies"],
+	"automergeSchedule": ["after 10pm every weekday", "before 5am every weekday", "every weekend"],
+	"prConcurrentLimit": 0,
+	"prHourlyLimit": 0,
+	"branchConcurrentLimit": 20,
+	"branchPrefix": "dep/",
+	"branchPrefixOld": "renovate/",
+	"timezone": "America/New_York",
+	"packageRules": [
+		{
+			"matchDepTypes": ["action"],
+			"labels": ["actions"]
+		}
+	]
 }
