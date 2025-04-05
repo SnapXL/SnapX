@@ -120,7 +120,6 @@ class Build : NukeBuild
         .Executes(() =>
         {
             var projectsThatWereBuilt = new Collection<Project>();
-            // Build each project and copy the artifacts to Output
             foreach (var project in ProjectsToBuild)
             {
                 var projectName = Path.GetFileNameWithoutExtension(project);
@@ -167,7 +166,6 @@ class Build : NukeBuild
             var manifestFiles = Directory.GetFiles(OutputDirectory, "host-manifest-*.json", SearchOption.AllDirectories);
             foreach (var manifestFile in manifestFiles)
             {
-                // Pump the brakes, is that Newtonsoft.JSON in disguise?!?!
                 var json = JObject.Parse(File.ReadAllText(manifestFile));
                 if (string.IsNullOrWhiteSpace(NMHostPath))
                 {
@@ -233,7 +231,6 @@ class Build : NukeBuild
 
                 InstallFile(sourceFile, destinationFile, permissions);
             }
-            // Install License
             InstallFile(Path.Join(RootDirectory, "LICENSE.md"), Path.Join(Licensedir, "LICENSE.md"), "0755");
             var documentation = Directory.GetFiles(RootDirectory, "*.md", SearchOption.TopDirectoryOnly);
 
@@ -322,7 +319,6 @@ class Build : NukeBuild
                 var errorOutput = process.StandardError.ReadToEnd();
                 Error($"Install command failed: {errorOutput}");
 
-                // Check if permission denied and elevation wasn't already attempted
                 if (!requiresElevationLikely && errorOutput.Contains("Permission denied"))
                 {
                     Error("Retrying with elevated privileges (sudo)...");
@@ -359,7 +355,7 @@ class Build : NukeBuild
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return false; // No elevation (sudo) on Windows
+            return false;
         }
 
         // Split arguments and check for paths starting with commonly protected directories
@@ -370,11 +366,11 @@ class Build : NukeBuild
             var arg = argument.Trim();
             if (arg.StartsWith("/usr") || arg.StartsWith("/opt") || arg.StartsWith("/etc") || arg.StartsWith("/var") || arg.StartsWith("/bin") || arg.StartsWith("/sbin"))
             {
-                return true; // Likely requires elevation
+                return true;
             }
         }
 
-        return false; // Probably doesn't require elevation
+        return false;
     }
 
     void EnsureDirectoryExists(string directory)
