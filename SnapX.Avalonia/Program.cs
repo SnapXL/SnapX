@@ -21,4 +21,13 @@ AppBuilder BuildAvaloniaApp()
             // I see white rectangle when using CommandBar on Fedora KDE Wayland. Maybe this will fix it?
             OverlayPopups = true,
         })
+        .With(new AvaloniaNativePlatformOptions
+        {
+            // I see a big white rectangle on macOS when the CommandBar is first opened. Perhaps this will fix it?
+            OverlayPopups = true
+        })
+        .With(new Win32PlatformOptions()
+        {
+            OverlayPopups = true,
+        })
         .LogToTrace();
