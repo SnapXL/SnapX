@@ -30,7 +30,7 @@ License:        GPL-3.0-or-later
 URL:            https://github.com/BrycensRanch/SnapX
 Source:         %{url}/archive/refs/heads/develop.tar.gz
 
-BuildRequires:  dotnet-sdk-aot-9.0
+BuildRequires:  (dotnet-sdk-aot-9.0 OR dotnet-sdk-9.0)
 
 Recommends:     /usr/bin/ffmpeg
 Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
