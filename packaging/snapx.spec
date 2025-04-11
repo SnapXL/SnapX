@@ -23,7 +23,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
@@ -51,7 +51,7 @@ Specifically, it is the CLI tool.
 %package ui
 Summary:        SnapX Avalonia-based UI
 Requires:       snapx
-Requires:       (vlc-libs OR pkgconfig(libvlc) OR vlc-devel)
+Requires:       (vlc-libs or pkgconfig(libvlc) or vlc-devel)
 
 
 %description ui
