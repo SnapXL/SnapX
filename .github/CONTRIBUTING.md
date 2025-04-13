@@ -43,7 +43,7 @@ If a maintainer asks you to "rebase" your PR, they're saying that a lot of code 
 
 ## Getting started
 
-1. Fork the repo and create your branch from `develop`.
+1. Fork the repo and create your branch from `develop`. Name it accordingly using the [Conventional branch standard](https://conventional-branch.github.io/).
 2. If you've added code that should be tested, add tests.
 3. If you've changed APIs or added new features, update the documentation.
 4. Ensure the test suite passes.
