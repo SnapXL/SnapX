@@ -75,8 +75,6 @@ That's why SnapX.Avalonia was created.
 Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *should* look something like this.
 Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
 
-For screenshots, it uses your operating system's respective APIs. On Linux Wayland, it uses portals. This is a less performant implementation as it has to delete the requested screenshot file after reading it into memory.
-
 ## Development Dependencies
 
 Instructions for other projects within the SnapX solution are not provided yet.
