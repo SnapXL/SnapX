@@ -58,6 +58,8 @@ Requires:       (vlc-libs or pkgconfig(libvlc) or vlc-devel)
 
 
 %description ui
+This is a port of the original ShareX application to Linux.
+It is not an official release and is not affiliated with the original ShareX project.
 SnapX but with Avalonia. Works best on X11.
 
 %prep
