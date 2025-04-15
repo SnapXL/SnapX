@@ -33,7 +33,10 @@ Source:         %{url}/archive/refs/heads/develop.tar.gz
 BuildRequires:  (dotnet-sdk-aot-9.0 OR dotnet-sdk-9.0)
 
 Recommends:     /usr/bin/ffmpeg
+# Generic Avalonia Dependencies
 Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
+# Required for opening browser tabs across Linux desktops
+Requires:       xdg-utils
 
 
 # .NET architecture support is rather lacking.
