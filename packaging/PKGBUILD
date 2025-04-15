@@ -40,8 +40,9 @@ package_snapx() {
         'sudo'
         'libxrandr'
         'libxcb'
-        'dbus',
+        'dbus'
         'vlc'
+        'xdg-utils'
     )
 
     cd "$pkgbase"
