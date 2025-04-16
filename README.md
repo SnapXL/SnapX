@@ -18,7 +18,7 @@
 
 SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows application [ShareX](https://github.com/ShareX/ShareX).
 
-## Feature wise
+## Feature-wise
 
 - SnapX is a cross-platform application.
 - Elegance in user interfaces by separating essential settings from advanced or intermediate functionality
@@ -26,7 +26,7 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows ap
 - Screenshots on an HDR monitor aren't blown out*
 - Cross-platform OCR powered by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR/blob/main/README_en.md) that [rivals PowerToys OCR, ShareX OCR, & Windows 10 built in OCR in accuracy](https://toon-beerten.medium.com/ocr-comparison-tesseract-versus-easyocr-vs-paddleocr-vs-mmocr-a362d9c79e66)
 
-[1]: When tested on KDE Plasma Wayland 6.2.90 with HDR the resulting screenshot's colors were not blown out. Your mileage may vary.
+[1] When tested on KDE Plasma Wayland 6.2.90 with HDR, the resulting screenshots' colors were not blown out. Your mileage may vary.
 
 ## Technical Details
 
@@ -50,8 +50,8 @@ What does this all mean? It means you'll be able to have a more **performant**, 
 You will *not* receive any support from the ShareX project for this software.
 If you have any issues with this project, please **open an issue** in this repository.
 
-However, it's important to note that this project is maintained by volunteers,
-and we may not be able to provide support for all issues.
+However, it's important to note that this project is maintained by volunteers. 
+We may not be able to provide support for all issues.
 We will do our best to help you, but we cannot guarantee that we will be able to resolve your issue.
 
 <p align="center"> For further information, please check the source code.</p>
@@ -67,7 +67,7 @@ If you're using a different distribution, there will be a Flatpak package availa
 
 ## Other platforms
 
-When I initially started this port, I only came with one main goal: ShareX on Modern Linux on native Wayland.
+When I initially started this project, with one main goal: ShareX on Linux on Wayland.
 I realized my work could be used on other platforms such as macOS or Windows...
 
 That's why SnapX.Avalonia was created.
@@ -76,8 +76,6 @@ Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *should*
 Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
 
 ## Development Dependencies
-
-Instructions for other projects within the SnapX solution are not provided yet.
 
 - `git`
 - `dotnet-sdk-9.0`
@@ -144,10 +142,10 @@ exec $SHELL -l
 ## Building from Source
 
 Only do this if you're a developer; you should have a backup of all your ShareX/SnapX data.
-I do, in fact, mean it when I say the project isn't ready for use.
+I do mean it when I say the project isn't ready for use.
 
 Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
-I've been testing with my ShareX configuration. You should place it in the configuration directory it expects.
+I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
 
 On Linux, its `~/.config/SnapX`
 
@@ -161,7 +159,7 @@ cd SnapX
 ./build.sh # Calls NUKE (https://nuke.build) (Linux/macOS)
 .\build.ps1 # If on Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
-# nothing is stopping you from using regular .NET building tools
+# Nothing is stopping you from using regular .NET building tools
 # dotnet publish -c Release
 # SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
 ```
