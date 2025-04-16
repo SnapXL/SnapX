@@ -981,7 +981,7 @@ public class WorkerTask : IDisposable
     {
         UploadResult ur = new UploadResult();
 
-        string message = string.Format("{{0}} configuration is invalid or missing. Please check \"Destination settings\" window to configure it.",
+        string message = string.Format("{0} configuration is invalid or missing. Please check \"Destination settings\" window to configure it.",
             uploaderService.ServiceName);
         DebugHelper.WriteLine(message);
         ur.Errors.Add(message);
