@@ -1,4 +1,4 @@
-Listen, I'm only creating these files because I have to and I don't wanna get sued for violating license for ubuntu & fedora logo and tux penguin
+Listen, I'm only creating these files because I have to and I don't wanna get sued for violating license for the Ubuntu & Fedora logo and the Tux penguin.
 
 
 All logos are property of their respective owners. I'm just using them for uhh... purposes. Yeah, that's it. Purposes.
@@ -15,3 +15,5 @@ https://commons.wikimedia.org/wiki/File:Tux.svg
 I'm not responsible for any legal issues that may arise from using these logos. You've been warned.
 
 - Unsued programmer
+
+SNAPX IS NOT AFFILIATED WITH UBUNTU, FEDORA OR TUX. ALL LOGOS BELONG TO THEIR RESPECTIVE OWNERS.
