@@ -24,7 +24,7 @@ SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows ap
 - SnapX is a cross-platform application.
 - Elegance in user interfaces by separating essential settings from advanced or intermediate functionality
 - Supporting high DPI screens
-- Screenshots on an HDR monitor aren't blown out*
+- Screenshots on an HDR monitor aren't blown out[*](https://github.com/BrycensRanch/SnapX/tree/develop#:~:text=OCR%20in%20accuracy-,*,-When%20tested%20on)
 - Cross-platform OCR powered by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR/blob/main/README_en.md) that [rivals PowerToys OCR, ShareX OCR, & Windows 10 built in OCR in accuracy](https://toon-beerten.medium.com/ocr-comparison-tesseract-versus-easyocr-vs-paddleocr-vs-mmocr-a362d9c79e66)
 
 > *When tested on KDE Plasma Wayland 6.2.90 with HDR, the resulting screenshots' colors were not blown out. Your mileage may vary.
