@@ -12,7 +12,8 @@
 <br>
 <p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="https://getsharex.com/img/ShareX_Screenshot.png" alt="Repo"/></a></p>
 
-# :construction: This project is under development and is not ready for use. :construction:
+> [!CAUTION]
+> **This project is _under development_ and is _not_ ready for use.**
 
 ## :warning: Disclaimer
 
