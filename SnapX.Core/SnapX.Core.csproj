@@ -79,7 +79,7 @@
     <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.17" />
     <PackageReference Include="FluentFTP" Version="52.1.0" />
     <PackageReference Include="MegaApiClient" Version="1.10.4" />
-    <PackageReference Include="SSH.NET" Version="2024.2.0" />
+    <PackageReference Include="SSH.NET" Version="2025.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Resources\host-manifest-chrome.json">
