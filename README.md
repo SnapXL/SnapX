@@ -15,9 +15,8 @@
 > [!CAUTION]
 > **This project is _under development_ and is _not_ ready for use.**
 
-## :warning: Disclaimer
-
-SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows application [ShareX](https://github.com/ShareX/ShareX).
+> [!NOTE]
+> **DISCLAIMER:** SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows application [ShareX](https://github.com/ShareX/ShareX).
 
 ## Feature-wise
 
