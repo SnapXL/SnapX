@@ -141,17 +141,19 @@ exec $SHELL -l
 
 ## Building from Source
 
-Only do this if you're a developer; you should have a backup of all your ShareX/SnapX data.
-I do mean it when I say the project isn't ready for use.
+> [!CAUTION]
+> **Only do this if you're a developer**; you should have a backup of all your ShareX/SnapX data.
+> I do mean it when I say the project isn't ready for use.
 
-Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
-I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
-
-On Linux, its `~/.config/SnapX`
-
-On Windows, its `%USERPROFILE%\Documents\SnapX`
-
-On macOS, its `~/Library/Application Support/SnapX`
+> [!NOTE]
+> Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
+> I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
+> 
+> On **Linux**, it's `~/.config/SnapX`
+> 
+> On **Windows**, it's `%USERPROFILE%\Documents\SnapX`
+> 
+> On **macOS**, it's `~/Library/Application Support/SnapX`
 
 ```bash
 git clone https://github.com/BrycensRanch/SnapX
