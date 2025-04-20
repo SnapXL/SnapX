@@ -145,7 +145,7 @@ exec $SHELL -l
 > **Only do this if you're a developer**; you should have a backup of all your ShareX/SnapX data.
 > I do mean it when I say the project isn't ready for use.
 
-> [!NOTE]
+> [!IMPORTANT]
 > Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
 > I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
 > 
