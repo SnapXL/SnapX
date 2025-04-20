@@ -1,0 +1,14 @@
+documentation:
+- changed-files:
+  - any-glob-to-any-file: '**/*.md'
+
+Avalonia:
+- changed-files:
+  - any-glob-to-any-file: SnapX.Avalonia/**
+
+Core:
+- changed-files:
+  - any-glob-to-any-file: SnapX.Core/**
+
+enhancement:
+ - head-branch: ['^feat']
