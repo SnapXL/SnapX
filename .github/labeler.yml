@@ -12,3 +12,7 @@ Core:
 
 enhancement:
  - head-branch: ['^feat']
+
+actions:
+- changed-files:
+  - any-glob-to-any-file: .github/workflows/**
