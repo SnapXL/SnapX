@@ -18,12 +18,12 @@
     <p>Upload images, videos, text, and more to multiple supported destinations—all with ease.</p>
     <p>It is a hard fork of the Windows application ShareX.</p>
   </description>
-  <screenshots>
+<!--   <screenshots>
     <screenshot type="default">
       <caption>The home screen</caption>
       <image type="source">https://raw.githubusercontent.com/BrycensRanch/Rokon/master/screenshots/desktop.png</image>
     </screenshot>
-  </screenshots>
+  </screenshots> -->
   <url type="homepage">https://github.com/BrycensRanch/SnapX</url>
   <url type="bugtracker">https://github.com/BrycensRanch/SnapX/issues</url>
   <url type="faq">https://github.com/BrycensRanch/SnapX/wiki/FAQ</url>
