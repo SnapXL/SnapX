@@ -42,7 +42,6 @@
   </recommends>
   <supports>
     <control>console</control>
-    <control>gamepad</control>
     <control>voice</control>
   </supports>
   <content_rating type="oars-1.1">
