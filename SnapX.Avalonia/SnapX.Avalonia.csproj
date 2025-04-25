@@ -37,7 +37,6 @@
     <AvaloniaResource Include="..\SnapX.Core\Resources\SnapX_Logo.png">
       <Link>SnapX_Logo.png</Link>
     </AvaloniaResource>
-    <TrimmerRootDescriptor Include="Roots.xml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
