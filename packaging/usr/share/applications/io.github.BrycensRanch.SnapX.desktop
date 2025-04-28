@@ -15,6 +15,7 @@ Keywords=ShareX;sharenix;sharexen;share;imgur;ocr;ftp;gif;screenshot
 MimeType=image/png;image/jpeg;image/jpg;image/gif;image/tiff;image/bmp;image/x-raw;video/mp4;video/x-msvideo;video/x-flv;video/webm;application/zip;application/x-7z-compressed;application/x-sxcu;video/x-matroska;
 Actions=uploadWithSnapX
 X-KDE-Priority=TopLevel
+X-KDE-DBUS-Restricted-Interfaces=org.kde.KWin.ScreenShot2
 
 [Desktop Action uploadWithSnapX]
 Name=Upload with SnapX
