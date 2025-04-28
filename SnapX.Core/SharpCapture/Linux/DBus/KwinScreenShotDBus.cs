@@ -1,10 +1,6 @@
-using System;
 using Tmds.DBus.Protocol;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using SnapX.Core.SharpCapture.Linux.DBus;
 
-namespace SnapX.Core.SharpCapture.Linux;
+namespace SnapX.Core.SharpCapture.Linux.DBus;
 
 record ScreenShot2Properties
 {

@@ -1,5 +1,6 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SnapX.Core.SharpCapture.Linux.DBus;
 
 namespace SnapX.Core.SharpCapture.Linux;
 

@@ -1,5 +1,6 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using SnapX.Core.SharpCapture.Linux.DBus;
 using Tmds.DBus;
 using Tmds.DBus.Protocol;
 
