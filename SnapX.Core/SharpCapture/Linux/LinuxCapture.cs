@@ -12,18 +12,15 @@ public class LinuxCapture : BaseCapture
     {
         // if (LinuxAPI.IsWayland()) return await TakeScreenshotWithPortal();
 
-        if (IsCompositorKwin)
+        if (!IsCompositorKwin) return await TakeScreenshotWithPortal();
+        // Todo: replace try catch with method that checks for valid kwin permissions.
+        try
         {
-            // Todo: replace try catch with method that checks for valid kwin permissions.
-            try
-            {
-                return await TakeScreenshotWithKwin();
-            }
-            catch
-            {
-                // Catch all exceptions here.
-                // Fallback to portal method.
-            }
+            return await TakeScreenshotWithKwin();
+        }
+        catch (Exception e)
+        {
+            // Fallback to portal method.
         }
 
         return await TakeScreenshotWithPortal();
