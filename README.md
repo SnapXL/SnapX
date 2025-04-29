@@ -125,13 +125,15 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-## macOS Ventura+ (13) 🍎
+### macOS Ventura+ (13) 🍎
 
 End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
 #### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
 
 ```zsh
+xcode-select --install
+brew install git ffmpeg@7 llvm curl vlc # This also installs VLC media player!
 curl -O https://dot.net/v1/dotnet-install.sh # Official installation script from .NET team
 chmod +x dotnet-install.sh
 ./dotnet-install.sh -Channel current
