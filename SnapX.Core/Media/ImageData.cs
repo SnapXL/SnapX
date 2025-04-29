@@ -8,7 +8,7 @@ public class ImageData : IDisposable
     public void Write(string filePath)
     {
         const int maxRetries = 5;
-        const int retryDelayMilliseconds = 1000; // 1 second
+        const int retryDelayMilliseconds = 1000;
         int retryCount = 0;
         bool fileSaved = false;
 
@@ -16,6 +16,10 @@ public class ImageData : IDisposable
         {
             try
             {
+                if (ImageStream.CanSeek)
+                {
+                    ImageStream.Position = 0;
+                }
                 using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
                 ImageStream.CopyTo(fileStream);
                 fileSaved = true;
