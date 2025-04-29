@@ -1,5 +1,6 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using SnapX.Core.SharpCapture.Linux.DBus;
 using Tmds.DBus;
 using Tmds.DBus.Protocol;
 
@@ -10,6 +11,18 @@ public class LinuxCapture : BaseCapture
     public override async Task<Image?> CaptureFullscreen()
     {
         // if (LinuxAPI.IsWayland()) return await TakeScreenshotWithPortal();
+
+        if (!IsCompositorKwin) return await TakeScreenshotWithPortal();
+        // Todo: replace try catch with method that checks for valid kwin permissions.
+        try
+        {
+            return await TakeScreenshotWithKwin();
+        }
+        catch (Exception e)
+        {
+            // Fallback to portal method.
+        }
+
         return await TakeScreenshotWithPortal();
     }
 
@@ -41,6 +54,57 @@ public class LinuxCapture : BaseCapture
 
         return img;
     }
+
+    // A significantly faster solution for screen capturing on KDE Wayland over FreeDesktop Portals.
+    //
+    // Instead of creating/contributing a new wayland protocol or using an existing wayland protocol for screen capturing,
+    // KWin provides a special dbus interface `org.kde.KWin.ScreenShot2` for taking screenshots without prompting the user. This is meant for their in-house screenshot app `Spectacle`.
+    // However, this interface *can* be used by other apps, as long as you follow a few rules:
+    //   1. There must be a .desktop file in a privileged location e.g., /usr/share/applications/
+    //   2. The .desktop entry `Exec` *must* point to a bin located in a privileged location e.g., `Exec=/usr/bin/snapx`
+    //   3. The .desktop file *must* contain the following entry: `X-KDE-DBUS-Restricted-Interfaces=org.kde.KWin.ScreenShot2`
+    //
+    // If all these rules are followed, KWin will allow SnapX to take privileged, unprompted screenshots on wayland.
+    // Interface Documentation: https://github.com/KDE/kwin/blob/master/src/plugins/screenshot/org.kde.KWin.ScreenShot2.xml
+    private static async Task<Image> TakeScreenshotWithKwin()
+    {
+        var connection = new Connection(Address.Session!);
+        await connection.ConnectAsync().ConfigureAwait(false);
+        var screenShotService = new ScreenShot2Service(connection, "org.kde.KWin.ScreenShot2");
+        var screenshot = screenShotService.CreateScreenShot2("/org/kde/KWin/ScreenShot2");
+        var options = new Dictionary<string, VariantValue>()
+        {
+            // { "include-cursor", false },
+            // { "native-resolution", false },
+        };
+
+        var tempFile = Path.GetTempFileName();
+        var fileHandle = File.OpenHandle(tempFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+
+        var timeoutTask = Task.Delay(10000);
+        var kwinResponse = screenshot.CaptureWorkspaceAsync(options, fileHandle);
+
+        var completedTask = await Task.WhenAny(kwinResponse, timeoutTask);
+        if (completedTask == timeoutTask)
+        {
+            throw new TimeoutException("Call to org.kde.KWin.ScreenShot2 Screenshot timed out. Please try again.");
+        }
+
+        var result = await kwinResponse;
+        var expectedSize = result.Stride * (long)result.Height;
+
+        while (new FileInfo(tempFile).Length < expectedSize)
+        {
+            await Task.Delay(100);
+            // Todo Timeout
+        }
+
+        var image = await QImage.LoadAsync(tempFile, result);
+        _ = Task.Run(() => File.Delete(tempFile));
+
+        return image;
+    }
+
     private static Image CropFullscreenScreenshotToBounds(Rectangle bounds, Image img)
     {
         var cropRectangle = new Rectangle(
@@ -63,7 +127,7 @@ public class LinuxCapture : BaseCapture
         SynchronizationContext.SetSynchronizationContext(null);
 
 
-        var fullscreenImage = await TakeScreenshotWithPortal().ConfigureAwait(false);
+        var fullscreenImage = await CaptureFullscreen().ConfigureAwait(false);
         Console.WriteLine($"{fullscreenImage.Width}x{fullscreenImage.Height} {fullscreenImage.Configuration.ImageFormats}");
         var croppedImage = CropFullscreenScreenshotToBounds(bounds, fullscreenImage);
         Console.WriteLine($"{croppedImage.Width}x{croppedImage.Height} {croppedImage.Configuration.ImageFormats}");
@@ -73,4 +137,6 @@ public class LinuxCapture : BaseCapture
 
         // return LinuxAPI.TakeScreenshotWithX11(screen);
     }
+
+    private static bool IsCompositorKwin => Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland" && Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") == "KDE";
 }

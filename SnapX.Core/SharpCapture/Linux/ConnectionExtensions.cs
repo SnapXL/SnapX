@@ -1,4 +1,6 @@
 using SnapX.Core.SharpCapture.Linux;
+using SnapX.Core.SharpCapture.Linux.DBus;
+
 namespace Tmds.DBus;
 
 static class ConnectionExtensions
