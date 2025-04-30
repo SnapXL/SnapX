@@ -133,7 +133,7 @@ End of life macOS versions are not supported. For example, macOS Monterey is at 
 
 ```zsh
 xcode-select --install
-brew install git ffmpeg@7 llvm curl vlc # This also installs VLC media player!
+brew install ffmpeg@7
 curl -O https://dot.net/v1/dotnet-install.sh # Official installation script from .NET team
 chmod +x dotnet-install.sh
 ./dotnet-install.sh -Channel current
