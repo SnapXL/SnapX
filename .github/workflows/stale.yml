@@ -26,5 +26,4 @@ jobs:
           close-issue-message: "This issue has automatically been closed due to inactivity."
           close-pr-message: "This PR has automatically been closed due to inactivity."
           exempt-issue-labels: "bug,enhancement"
-          exempt-pr-labels: "release"
           operations-per-run: 100
