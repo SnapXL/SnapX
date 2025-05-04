@@ -1,0 +1,24 @@
+name: Waiting on OP labeler
+
+on:
+  schedule:
+    - cron: "30 1 * * *"
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 3
+          days-before-close: -1
+          stale-issue-label: "waiting-on-op"
+          stale-pr-label: "waiting-on-op"
+          stale-issue-message: "This issue is waiting on OP."
+          stale-pr-message: "This PR is waiting on OP."
+          operations-per-run: 100
