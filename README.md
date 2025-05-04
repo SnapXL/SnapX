@@ -67,7 +67,7 @@ If you're using a different distribution, there will be a Flatpak package availa
 
 ## Other platforms
 
-When I initially started this project, with one main goal: ShareX on Linux on Wayland.
+I initially started this project with one main goal: ShareX on Linux on Wayland.
 I realized my work could be used on other platforms such as macOS or Windows...
 
 That's why SnapX.Avalonia was created.
