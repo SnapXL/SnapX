@@ -129,7 +129,7 @@ winget install -e --id JetBrains.Rider
 
 End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
-#### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
+#### Using the script to install the .NET SDK from the .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
 
 ```zsh
 xcode-select --install
@@ -140,6 +140,12 @@ chmod +x dotnet-install.sh
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
+> [!NOTE]
+> If using MacPorts, run this instead of `brew install ffmpeg@7`:
+> ```zsh
+> sudo port selfupdate
+> sudo port install ffmpeg7
+> ```
 
 ## Building from Source
 
