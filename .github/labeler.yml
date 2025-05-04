@@ -22,3 +22,6 @@ actions:
 packaging:
   - changed-files:
     - any-glob-to-any-file: packaging/**
+
+dependencies:
+  - head-branch: ['^dep', '^depend', 'depend', 'dependency', 'dependencies']
