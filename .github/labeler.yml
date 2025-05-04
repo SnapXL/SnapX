@@ -1,6 +1,7 @@
 documentation:
 - changed-files:
   - any-glob-to-any-file: '**/*.md'
+  - any-glob-to-any-file: '**/README.txt'
 
 Avalonia:
 - changed-files:
@@ -11,8 +12,13 @@ Core:
   - any-glob-to-any-file: SnapX.Core/**
 
 enhancement:
- - head-branch: ['^feat']
+ - head-branch: ['^feat', 'feat', 'feature']
 
 actions:
 - changed-files:
   - any-glob-to-any-file: .github/workflows/**
+  - any-glob-to-any-file: .github/labeler.yml
+
+packaging:
+  - changed-files:
+    - any-glob-to-any-file: packaging/**
