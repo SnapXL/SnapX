@@ -344,3 +344,6 @@ ASALocalRun/
 # SnapX
 Output/
 APIKeysLocal.cs
+
+# macOS specific files
+.DS_Store
