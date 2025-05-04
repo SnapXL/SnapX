@@ -445,6 +445,7 @@ NSIS/Plugins/x86-unicode/
 *.cab
 *.msi
 *.msix
+*.msixbundle
 *.msm
 *.msp
 
