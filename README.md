@@ -64,7 +64,7 @@ This project is built on Ubuntu 24.04 and is tested on the following distributio
 - **U**buntu 24.04+
 
 > [!NOTE]
-> If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](https://github.com/BrycensRanch/SnapX?tab=readme-ov-file#building-from-source).
+> If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
 
 ## Other platforms
 
