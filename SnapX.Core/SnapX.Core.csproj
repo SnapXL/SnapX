@@ -54,7 +54,7 @@
     <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="2.7.0" />
     <!-- Please send help the application binaries are so huge & bloated AHHHHHH -->
     <PackageReference Include="OpenCvSharp4.runtime.osx_arm64" Version="4.8.1-rc" />
-    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
     <!-- Crash forensics & performance analytics -->
     <PackageReference Include="Sentry.Profiling" Version="5.6.0" />
     <!-- Next generation logging -->
