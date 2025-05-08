@@ -1,11 +1,13 @@
 <Application
     x:Class="SnapX.Avalonia.App"
     x:DataType="avalonia:App"
+    Name="{x:Static core:SnapX.AppName}"
     xmlns="https://github.com/avaloniaui"
     xmlns:avalonia="clr-namespace:SnapX.Avalonia"
     xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
     xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="clr-namespace:SnapX.Core;assembly=SnapX.Core">
     <Application.Styles>
         <styling:FluentAvaloniaTheme
             PreferSystemTheme="True"
@@ -13,7 +15,7 @@
             UseSystemFontOnWindows="True" />
         <Style Selector="TextBlock.h1">
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontSize" Value="24" />
             <Setter Property="Margin" Value="5" />
         </Style>
     </Application.Styles>
@@ -33,67 +35,4 @@
             <NativeMenuItem Click="NativeMenuAboutSnapXClick" Header="{x:Static utils:Lang.AboutSnapX}" />
         </NativeMenu>
     </NativeMenu.Menu>
-    <TrayIcon.Icons>
-        <TrayIcons>
-            <TrayIcon
-                Clicked="TrayIcon_OnClicked"
-                Icon="avares://snapx-ui/SnapX_Logo.png"
-                ToolTipText="SnapX">
-                <TrayIcon.Menu>
-                  <NativeMenu>
-                        <NativeMenuItem
-                            Click="NativeMenuItem_SnapX_OnClick"
-                            Header="{Binding TrayTitle}"
-                            Icon="avares://snapx-ui/SnapX_Logo.png"
-                            ToolTip="{x:Static utils:Lang.AboutSnapX}" />
-                        <NativeMenuItemSeparator />
-                        <NativeMenuItem Header="Capture">
-                            <NativeMenu>
-                                <NativeMenuItem Click="NativeMenuItem_Capture_Fullscreen_OnClick" Header="Fullscreen" />
-                                <NativeMenuItem Header="Window">
-                                    <NativeMenu>
-                                        <NativeMenuItem Header="SnapX UI" Icon="avares://snapx-ui/SnapX_Logo.png" />
-                                        <NativeMenuItem Header="Marvel Rivals" Icon="avares://snapx-ui/SnapX_Logo.png" />
-                                        <NativeMenuItem Header="Man of Steel (2013)" Icon="avares://snapx-ui/SnapX_Logo.png" />
-
-                                    </NativeMenu>
-                                </NativeMenuItem>
-                                <NativeMenuItem Header="Monitor">
-                                    <NativeMenu>
-                                        <NativeMenuItem Header="LG ULTRAGEAR: 2 (1920x1080)" />
-                                        <NativeMenuItem Header="E23: 3 (1920x1080)" />
-                                        <NativeMenuItem Header="Internal Display: 1 (1920x1080)" />
-                                    </NativeMenu>
-                                </NativeMenuItem>
-                                <NativeMenuItem Header="Region" />
-                                <NativeMenuItem Header="Region (Light)" />
-                                <NativeMenuItem Header="Region (Transparent)" />
-                            </NativeMenu>
-                        </NativeMenuItem>
-                        <NativeMenuItem Header="Upload">
-                            <NativeMenu>
-                                <NativeMenuItem Header="Upload File..." />
-                                <NativeMenuItem Header="Upload Folder..." />
-                                <NativeMenuItem Header="Upload from clipboard..." />
-                                <NativeMenuItem Header="Upload text..." />
-                                <NativeMenuItem Header="Drag and drop upload..." />
-                                <NativeMenuItem Header="Shorten URL..." />
-                                <NativeMenuItem Header="Tweet message..." />
-                            </NativeMenu>
-                        </NativeMenuItem>
-                        <NativeMenuItem Header="Workflows">
-                            <NativeMenu>
-                                <NativeMenuItem Click="NativeMenuItem_Capture_Fullscreen_OnClick" Header="Capture entire screen" />
-                                <NativeMenuItem Click="NativeMenuItem_Workflows_CaptureActiveScreen_OnClick" Header="Capture active screen" />
-                                <NativeMenuItem Click="NativeMenuItem_Workflows_CaptureActiveWindow_OnClick" Header="Capture active window" />
-                            </NativeMenu>
-                        </NativeMenuItem>
-                        <NativeMenuItemSeparator />
-                        <NativeMenuItem Click="NativeMenuItem_Open_OnClick" Header="Open" />
-                        <NativeMenuItem Click="NativeMenuItem_Quit_OnClick" Header="Quit" />
-                    </NativeMenu>
-                </TrayIcon.Menu>
-            </TrayIcon>
-        </TrayIcons>
-    </TrayIcon.Icons>
 </Application>
