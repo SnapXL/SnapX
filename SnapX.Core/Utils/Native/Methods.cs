@@ -7,7 +7,7 @@ public static class Methods
 {
     private static bool IsMacOS => OperatingSystem.IsMacOS();
     private static bool IsLinux => OperatingSystem.IsLinux();
-
+    private static bool IsFreeBSD => OperatingSystem.IsFreeBSD();
 
     private static NativeAPI NativeAPI
     {
@@ -17,7 +17,7 @@ public static class Methods
             return new WindowsAPI();
 #else
             if (IsMacOS) return new MacOSAPI();
-            if (IsLinux) return new LinuxAPI();
+            if (IsLinux || IsFreeBSD) return new LinuxAPI();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
 #endif
         }
