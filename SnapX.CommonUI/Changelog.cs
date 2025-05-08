@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using SnapX.CommonUI.Types;
 using SnapX.Core;
-using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.CommonUI;
@@ -40,7 +40,11 @@ public abstract class Changelog
         patch = versionSemver.Build;
     }
 
-
+    public record ChangelogVersion
+    {
+        public string Version { get; set; }
+        public string Content { get; set; }
+    }
     public virtual async Task<string> GetChangeSummary()
     {
         DebugHelper.WriteLine("GetChangeSummary called.");
@@ -152,7 +156,11 @@ public abstract class Changelog
                 return int.TryParse(tagParts[3], out var tagBuildNumber) &&
                        tagBuildNumber > patch;
             })
-            .Select(tag => $"Tag: {tag.Name} - {tag.Commit.Message}")
+            .Select(tag =>
+            {
+                var firstLineOfMessage = tag.Commit?.Message?.Split('\n').FirstOrDefault()?.Trim();
+                return $"Tag: {tag.Name} - {firstLineOfMessage}";
+            })
             .ToList();
         DebugHelper.WriteLine($"Tags since version: {tagSummaries}");
 
@@ -172,8 +180,8 @@ public abstract class Changelog
                 return string.Empty;
 
             var buildSummaries = actions.WorkflowRuns
-                .Where(run => (run?.RunNumber > patch) && (run.Name.Contains("build", StringComparison.OrdinalIgnoreCase)))
-                .Select(run => $"{run.Name} #{run.RunNumber}:  {run.DisplayTitle} - {run.Status}")
+                .Where(run => (run?.RunNumber > patch) && (run.Name.Contains("build", StringComparison.OrdinalIgnoreCase)) && run.Status.Contains("success", StringComparison.InvariantCultureIgnoreCase))
+                .Select(run => $"{run.Name} #{run.RunNumber}:  {run.DisplayTitle} - {run.Actor.Login}")
                 .ToList();
 
             return buildSummaries.Count != 0 ? string.Join("\n", buildSummaries) : string.Empty;
@@ -201,10 +209,113 @@ public abstract class Changelog
         if (commits?.Any() != true)
             return "No commit history available.";
 
-        var commitMessages = string.Join("\n", commits.Select(commit =>
-            $"- {commit.Commit.Message} by {commit.Commit.Author.Name}"));
+        var commitMessages = string.Join("\n\n", commits
+            // .Where(commit =>
+            // {
+            //     return commit.Author?.Date > ThisAssembly.GitCommitAuthorDate;
+            // })
+            .Select(commit =>
+            {
+                var firstLine = commit.Commit.Message.Split('\n')[0].Trim();
+                var escapedMessage = firstLine.Replace("-", "\\-");
 
+                return $"- {escapedMessage} by [{commit.Author?.Login ?? commit.Committer.Login}]({commit.Author?.HtmlUrl ?? commit.Committer.HtmlUrl})";
+            }));
         return commitMessages;
     }
     public abstract void Display();
+    /// <summary>
+    /// Separates a list of changelog texts into individual entries using a regular expression.
+    /// Each changelog text is split using the provided regex pattern.
+    /// </summary>
+    /// <param name="changelogs">An enumerable of changelog texts.</param>
+    /// <param name="pattern">
+    /// A regex pattern to use for splitting entries.
+    /// Defaults to splitting on two or more consecutive newline sequences.
+    /// </param>
+    /// <returns>An enumerable of individual changelog entries.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if changelogs is null.</exception>
+    public static IEnumerable<string> SeparateChangelogEntries(
+        IEnumerable<string> changelogs,
+        string? pattern = null)
+    {
+        if (changelogs == null)
+            throw new ArgumentNullException(nameof(changelogs));
+
+        // Default pattern for separating traditional multi-line changelog entries
+        pattern ??= @"(?:\r?\n){2,}";
+
+        foreach (var rawChangelog in changelogs)
+        {
+            if (string.IsNullOrWhiteSpace(rawChangelog))
+                continue;
+
+            // First, try splitting by the traditional multi-line pattern
+            var traditionalEntries = Regex.Split(rawChangelog, pattern, RegexOptions.Multiline | RegexOptions.Compiled)
+                .Select(entry => entry.Trim())
+                .Where(entry => !string.IsNullOrWhiteSpace(entry));
+
+            foreach (var entry in traditionalEntries)
+            {
+                yield return entry;
+            }
+        }
+    }
+    public static IEnumerable<ChangelogVersion> ParseChangelogEntries(
+        IEnumerable<string> changelogs,
+        string? pattern = null)
+    {
+        ArgumentNullException.ThrowIfNull(changelogs);
+
+        // Default pattern for separating traditional changelog entries
+        pattern ??= @"(?:\r?\n){2,}";
+
+        foreach (var rawChangelog in changelogs)
+        {
+            if (string.IsNullOrWhiteSpace(rawChangelog))
+                continue;
+
+            if (rawChangelog.StartsWith("Build ", StringComparison.Ordinal) && rawChangelog.Contains(':'))
+            {
+                var parts = rawChangelog.Split(':');
+                if (parts.Length != 0)
+                {
+                    var buildInfo = parts[0].Trim();
+                    var description = string.Join(" ", parts.Skip(1));
+
+                    yield return new ChangelogVersion
+                    {
+                        Version = buildInfo,
+                        Content = description
+                    };
+                    continue;
+                }
+            }
+
+            var rawEntries = Regex.Split(rawChangelog, pattern, RegexOptions.Multiline | RegexOptions.Compiled)
+                .Select(entry => entry.Trim())
+                .Where(entry => !string.IsNullOrWhiteSpace(entry));
+
+            foreach (var entry in rawEntries)
+            {
+                var lines = entry.Split(["\r\n", "\n"], StringSplitOptions.None)
+                    .Where(line => !string.IsNullOrWhiteSpace(line))
+                    .ToList();
+
+                if (lines.Count == 0)
+                    continue;
+
+                var header = lines.First().Trim();
+                var content = lines.Skip(1).Any()
+                    ? string.Join(Environment.NewLine, lines.Skip(1)).Trim()
+                    : string.Empty;
+
+                yield return new ChangelogVersion
+                {
+                    Version = header,
+                    Content = content
+                };
+            }
+        }
+    }
 }

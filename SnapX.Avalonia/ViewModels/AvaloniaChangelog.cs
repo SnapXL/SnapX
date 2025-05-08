@@ -11,4 +11,5 @@ public class AvaloniaChangelog : SnapX.CommonUI.Changelog
     {
         throw new NotImplementedException("AvaloniaChangelog.Display is not implemented");
     }
+
 }

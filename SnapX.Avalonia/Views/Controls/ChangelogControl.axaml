@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:fa="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:markdown="clr-namespace:Markdown.Avalonia;assembly=Markdown.Avalonia"
+             xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+             xmlns:commonUi="clr-namespace:SnapX.CommonUI;assembly=SnapX.CommonUI"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SnapX.Avalonia.Views.Controls.ChangelogControl"
+             x:DataType="viewModels:ChangelogViewModel"
+             Loaded="Control_OnLoaded">
+    <Design.DataContext>
+        <viewModels:ChangelogViewModel />
+    </Design.DataContext>
+    <Grid RowDefinitions="Auto,*">
+
+        <TextBlock Text="Changelog" Classes="h1" Margin="10" Grid.Row="0" />
+
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
+
+            <Border Grid.Column="0" Margin="10" Background="{DynamicResource ThemeBackgroundBrush}">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Versions}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type commonUi:Changelog+ChangelogVersion}">
+                                <Expander HorizontalAlignment="Stretch">
+                                  <ToolTip.Tip>
+                                    <markdown:MarkdownScrollViewer Markdown="{Binding Content}" />
+                                  </ToolTip.Tip>
+                                  <Expander.Header>
+                                    <markdown:MarkdownScrollViewer Markdown="{Binding Version}"/>
+                                  </Expander.Header>
+                                  <markdown:MarkdownScrollViewer Markdown="{Binding Content}" />
+                                </Expander>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+
+            <Border Grid.Column="1" Margin="10" Background="{DynamicResource ThemeBackgroundBrush}">
+                <markdown:MarkdownScrollViewer Markdown="{Binding SelectedChangelogVersion.Content}" />
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -36,7 +36,7 @@ public record Commit(
     [property: JsonPropertyName("committer")] Committer Committer,
     [property: JsonPropertyName("message")] string Message,
     [property: JsonPropertyName("tree")] Tree Tree,
-    [property: JsonPropertyName("url")] string Url,
+    [property: JsonPropertyName("html_url")] string Url,
     [property: JsonPropertyName("comment_count")] int? CommentCount,
     [property: JsonPropertyName("verification")] Verification Verification
 );
