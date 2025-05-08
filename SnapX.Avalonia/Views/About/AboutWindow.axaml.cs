@@ -5,9 +5,13 @@ using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Styling;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.Styling;
 using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
+using SnapX.Avalonia.ViewModels;
+using SnapX.CommonUI;
 using SnapX.Core;
 using SnapX.Core.Utils;
 
@@ -15,73 +19,20 @@ namespace SnapX.Avalonia;
 
 public partial class AboutWindow : AppWindow
 {
-    // Internal instance of the base class (SnapX.CommonUI.AboutDialog)
-    private readonly SnapX.CommonUI.AboutDialog _commonAboutDialog;
+    internal AboutWindowViewModel ViewModel;
 
-    // ViewModel properties to bind to the AXAML file
-    public string DialogTitle => Lang.AboutSnapX;  // Renamed to avoid conflict
-    public string Description { get; set; }
-    public string BuildInformation { get; set; }
-    public string Version { get; set; }
-    public string Copyright { get; set; }
-    public string License { get; set; }
-    public string Website { get; set; }
-    public string SystemInfo { get; set; }
-    public string OsArchitecture { get; set; }
-    public string Runtime { get; set; }
-    public string OsPlatform { get; set; }
-    public string Documentation { get; set; }
-    public string Issues { get; set; }
-    public string Discord { get; set; }
-
-    public string LoadedAssemblies { get; set; }
-
-    public string SystemInformationText =>
-        $"{SystemInfo} ({OsArchitecture}, {OsPlatform}) powered by {Runtime}!";
-
-    public AboutWindow()
+    public AboutWindow() : this(new AboutWindowViewModel())
     {
-        _commonAboutDialog = new CommonUI.AboutDialog();
-        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies()
-            .Concat(App.SnapX.GetAssemblies())
-            .Distinct();
-        LoadedAssemblies = string.Join(Environment.NewLine, loadedAssemblies
-            .Where(a => a.GetName().Name != null)
-            .Where(a =>
-                !a.GetName().Name.StartsWith("System") &&
-                !a.GetName().Name.StartsWith("SnapX", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.StartsWith("Anonymous", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) &&
-                // A dependency on Avalonia is self-explanatory.
-                !a.GetName().Name.StartsWith("SkiaSharp", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.StartsWith("Harfbuzz", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.Contains("mscorlib", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.Contains("Mono", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.StartsWith("Microcom", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.Contains("netstandard", StringComparison.OrdinalIgnoreCase))
-            .Select(a => new { a.GetName().Name, a.GetName().Version })
-            .GroupBy(a => a.Name.Split('.')[0])
-            .Select(g => g.Count() > 1
-                ? $"{g.Key} {g.First().Version.Major}.{g.First().Version.Minor}.{g.First().Version.Build}"
-                : $"{g.First().Name} {g.First().Version.Major}.{g.First().Version.Minor}.{g.First().Version.Build}")
-            .OrderBy(name => name));
-        Description = _commonAboutDialog.GetDescription();
-        Version = _commonAboutDialog.GetVersion();
-        Copyright = _commonAboutDialog.GetCopyright();
-        License = _commonAboutDialog.GetLicenseURL();
-        Documentation = _commonAboutDialog.GetDocumentation();
-        Issues = _commonAboutDialog.GetIssues();
-        Discord = _commonAboutDialog.GetDiscord();
-        Website = _commonAboutDialog.GetWebsite();
-        SystemInfo = _commonAboutDialog.GetSystemInfo();
-        OsArchitecture = _commonAboutDialog.GetOsArchitecture();
-        Runtime = _commonAboutDialog.GetRuntime();
-        OsPlatform = _commonAboutDialog.GetOsPlatform();
-        BuildInformation = _commonAboutDialog.GetBuildInformation();
-        DataContext = this;
-        InitializeComponent();
+
     }
 
+    public AboutWindow(AboutWindowViewModel vm)
+    {
+        ViewModel = vm;
+        DataContext = ViewModel;
+        InitializeComponent();
+
+    }
     private void FindURLOnDescendant(ILogical control)
     {
         foreach (var child in control.GetLogicalChildren())
@@ -91,6 +42,7 @@ public partial class AboutWindow : AppWindow
             {
                 FindURLOnDescendant(child);
             }
+
             var url = toolTip?.Content as string ?? string.Empty;
             if (!string.IsNullOrEmpty(url)) URLHelpers.OpenURL(url);
         }
@@ -112,9 +64,11 @@ public partial class AboutWindow : AppWindow
         }
         else
         {
-            DebugHelper.WriteLine($"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!");
+            DebugHelper.WriteLine(
+                $"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!");
         }
     }
+
     private void ApplicationActualThemeVariantChanged(object? sender, EventArgs e)
     {
         if (!OperatingSystem.IsWindows()) return;
@@ -127,6 +81,7 @@ public partial class AboutWindow : AppWindow
             SetValue(BackgroundProperty, AvaloniaProperty.UnsetValue);
         }
     }
+
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
@@ -140,6 +95,7 @@ public partial class AboutWindow : AppWindow
 
         TryEnableMicaEffect();
     }
+
     private void TryEnableMicaEffect()
     {
         if (ActualThemeVariant == ThemeVariant.Dark)
@@ -166,5 +122,9 @@ public partial class AboutWindow : AppWindow
             Background = new ImmutableSolidColorBrush(color, 0.9);
         }
     }
-}
 
+    private async void Control_OnLoaded(object? Sender, RoutedEventArgs E)
+    {
+        await ViewModel.InitDataCommand.ExecuteAsync(this);
+    }
+}

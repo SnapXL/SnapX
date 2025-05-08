@@ -1,21 +1,26 @@
 <windowing:AppWindow
   Height="600"
-  ShowAsDialog="True"
   Title="{Binding DialogTitle}"
   Width="1100"
-  WindowStartupLocation="CenterScreen"
+  MinWidth="500"
+  MinHeight="560"
+  Loaded="Control_OnLoaded"
   d:DesignHeight="450"
   d:DesignWidth="800"
   mc:Ignorable="d"
   x:Class="SnapX.Avalonia.AboutWindow"
-  x:DataType="local:AboutWindow"
+  x:DataType="viewModels:AboutWindowViewModel"
   xmlns="https://github.com/avaloniaui"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-  xmlns:local="clr-namespace:SnapX.Avalonia"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
   xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:avalonia="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia"
+  xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels">
+  <Design.DataContext>
+    <viewModels:AboutWindowViewModel />
+  </Design.DataContext>
   <ScrollViewer>
     <StackPanel Orientation="Vertical">
       <Grid RowDefinitions="Auto,*">
@@ -54,7 +59,7 @@
                     Foreground="{DynamicResource AccentFillColorDefaultBrush}"
                     Grid.Column="1"
                     Margin="4,0,0,2"
-                    Text="{Binding Version, Mode=OneTime}"
+                    Text="{Binding Version}"
                     ToolTip.Tip="{Binding BuildInformation}"
                     VerticalAlignment="Bottom" />
                 </Grid>
@@ -63,39 +68,61 @@
                 <SelectableTextBlock Text="{Binding SystemInformationText}" />
               </StackPanel>
             </Grid>
-            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal">
-              <StackPanel>
-                <Button Click="DynamicURL_OnPointerPressed" Margin="0,0,8,8">
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,8,8">
+              <Button Click="DynamicURL_OnPointerPressed" Margin="0,0,8,8" ToolTip.Tip="{Binding Website}"
+                      Cursor="Hand">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <avalonia:FluentIcon Icon="Code" IconVariant="Regular" IconSize="Resizable" />
                   <TextBlock
-                    Cursor="Hand"
                     HorizontalAlignment="Center"
-                    Text="GitHub Repository"
-                    ToolTip.Tip="{Binding Website}" />
-                </Button>
-              </StackPanel>
-              <Button Click="DynamicURL_OnPointerPressed" Margin="0,0,8,8">
-                <TextBlock
-                  Cursor="Hand"
-                  HorizontalAlignment="Center"
-                  Text="Help &amp; Information"
-                  ToolTip.Tip="{Binding Documentation}" />
+                    Text="GitHub Repository" />
+                </StackPanel>
               </Button>
-              <Button Click="DynamicURL_OnPointerPressed" Margin="0,0,8,8">
-                <TextBlock
-                  Cursor="Hand"
-                  HorizontalAlignment="Center"
-                  Text="License"
-                  ToolTip.Tip="{Binding License}" />
+              <Button Click="DynamicURL_OnPointerPressed" Margin="0,0,8,8" ToolTip.Tip="{Binding Documentation}"
+                      Cursor="Hand">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <avalonia:FluentIcon Icon="Info" IconVariant="Regular" IconSize="Resizable" />
+
+                  <TextBlock
+                    HorizontalAlignment="Center"
+                    Text="Help &amp; Information" />
+                </StackPanel>
+              </Button>
+              <Button Click="DynamicURL_OnPointerPressed" Margin="0,0,8,8" ToolTip.Tip="{Binding License}"
+                      Cursor="Hand">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <avalonia:FluentIcon Icon="MoneyOff" IconVariant="Regular" IconSize="Resizable" />
+
+                  <TextBlock
+                    HorizontalAlignment="Center"
+                    Text="License" />
+                </StackPanel>
               </Button>
               <Button
                 Click="DynamicURL_OnPointerPressed"
                 ClickMode="Press"
-                Margin="0,0,0,8">
-                <TextBlock
-                  Cursor="Hand"
-                  HorizontalAlignment="Center"
-                  Text="Discord Server"
-                  ToolTip.Tip="{Binding Discord}" />
+                ToolTip.Tip="{Binding Discord}"
+                Margin="0,0,8,8"
+                Cursor="Hand">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <avalonia:FluentIcon Icon="PeopleCommunity" IconVariant="Regular" IconSize="Resizable" />
+                  <TextBlock
+                    HorizontalAlignment="Center"
+                    Text="Discord Server" />
+                </StackPanel>
+              </Button>
+              <Button
+                Click="DynamicURL_OnPointerPressed"
+                ClickMode="Press"
+                ToolTip.Tip="{Binding Donate}"
+                Margin="0,0,0,8"
+                Cursor="Hand">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                  <avalonia:FluentIcon Icon="MoneyHand" IconVariant="Regular" IconSize="Resizable" />
+                  <TextBlock
+                    HorizontalAlignment="Center"
+                    Text="Support SnapX" />
+                </StackPanel>
               </Button>
             </WrapPanel>
             <TextBlock
@@ -117,6 +144,7 @@
                 Margin="0,0,4,0">
                 <StackPanel>
                   <mdxaml:MarkdownScrollViewer>[BrycensRanch (Lead)](https://github.com/BrycensRanch)</mdxaml:MarkdownScrollViewer>
+                  <mdxaml:MarkdownScrollViewer>[Rune580 (KWin Screenshotting)](https://github.com/Rune580)</mdxaml:MarkdownScrollViewer>
                   <mdxaml:MarkdownScrollViewer>[ok-coder1 (Documentation)](https://github.com/ok-coder1)</mdxaml:MarkdownScrollViewer>
                   <mdxaml:MarkdownScrollViewer>[norz3n (Initial AUR package)](https://github.com/norz3n)</mdxaml:MarkdownScrollViewer>
                 </StackPanel>
