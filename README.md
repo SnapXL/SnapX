@@ -141,8 +141,8 @@ chmod +x dotnet-install.sh
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
-> [!NOTE]
-> If using MacPorts, run this instead of `brew install ffmpeg@7`:
+> [!TIP]
+> If you're using MacPorts, run this instead of `brew install ffmpeg@7`:
 > ```zsh
 > sudo port selfupdate
 > sudo port install ffmpeg7
