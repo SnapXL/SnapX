@@ -25,5 +25,5 @@ jobs:
           stale-pr-message: "This PR is being marked as stale due to inactivity."
           close-issue-message: "This issue has automatically been closed due to inactivity."
           close-pr-message: "This PR has automatically been closed due to inactivity."
-          exempt-issue-labels: "bug,enhancement"
+          exempt-issue-labels: "bug,enhancement,todo"
           operations-per-run: 100
