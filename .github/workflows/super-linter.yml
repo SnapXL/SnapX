@@ -1,5 +1,5 @@
 ---
-name: Super Linter
+name: Super-Linter
 
 on: # yamllint disable-line rule:truthy
   push: null
@@ -27,3 +27,5 @@ jobs:
         uses: super-linter/super-linter@v7.3.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SAVE_SUPER_LINTER_OUTPUT: true
+          LINTER_RULES_PATH: .github/linter-configs
