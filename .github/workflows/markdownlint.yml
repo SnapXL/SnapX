@@ -9,7 +9,13 @@ jobs:
   markdownlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: DavidAnson/markdownlint-cli2-action@v19
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v19
         with:
           fix: true
           globs: '**/*.md'
