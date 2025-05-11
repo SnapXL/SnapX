@@ -23,4 +23,4 @@ jobs:
       - name: Run dotnet format
         uses: xt0rted/dotnet-format@v1
         with:
-          version: 5
+          version: 4
