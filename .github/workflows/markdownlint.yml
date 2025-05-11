@@ -1,0 +1,15 @@
+name: Lint Markdown Files
+on: [push, pull_request]
+  
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  markdownlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          fix: true
+          globs: '**/*.md'
