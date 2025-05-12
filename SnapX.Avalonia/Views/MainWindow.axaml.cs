@@ -10,6 +10,7 @@ using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp;
 using SnapX.Avalonia.ViewModels;
+using SnapX.Avalonia.Views.Controls;
 using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
@@ -123,12 +124,13 @@ public partial class MainWindow : AppWindow
 
             TryEnableMicaEffect();
         }
-        TaskManager.RecentManager.InitItems();
-        TaskManager.RecentManager.MaxCount = SnapX.Core.SnapX.Settings.RecentTasksMaxCount;
-        if (SnapX.Core.SnapX.Settings.RecentTasksSave && SnapX.Core.SnapX.Settings.RecentTasksShowInMainWindow && SnapX.Core.SnapX.Settings.RecentTasks.Count > 0)
-        {
-            TaskManager.AddRecentTasksToMainWindow();
-        }
+        // TaskManager.RecentManager.InitItems();
+        // TaskManager.RecentManager.MaxCount = SnapX.Core.SnapX.Settings.RecentTasksMaxCount;
+        // if (SnapX.Core.SnapX.Settings.RecentTasksSave && SnapX.Core.SnapX.Settings.RecentTasksShowInMainWindow && SnapX.Core.SnapX.Settings.RecentTasks.Count > 0)
+        // {
+        //     TaskManager.AddRecentTasksToMainWindow();
+        // }
+        TaskManager.InitHistoryManager();
     }
 
     protected override void OnClosed(EventArgs e)
@@ -161,5 +163,10 @@ public partial class MainWindow : AppWindow
 
             Background = new ImmutableSolidColorBrush(color, 0.9);
         }
+    }
+
+    private void TopLevel_OnOpened(object? Sender, EventArgs E)
+    {
+        DebugHelper.WriteLine("MainWindow Opened");
     }
 }

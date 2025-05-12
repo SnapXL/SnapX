@@ -3,7 +3,7 @@
     MinHeight="200"
     MinWidth="512"
     Title="{Binding MainWindowName}"
-    WindowStartupLocation="CenterScreen"
+    Opened="TopLevel_OnOpened"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
@@ -15,7 +15,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="clr-namespace:SnapX.Avalonia.Views"
     xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:SnapX.Avalonia.Views.Controls">
     <views:MainView />
 
 </windowing:AppWindow>
