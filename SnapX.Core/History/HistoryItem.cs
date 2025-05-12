@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -68,5 +67,10 @@ public class HistoryItem
     }
     public override bool Equals(object? obj) =>
         obj is HistoryItem other && Id == other.Id;
+
+    public override int GetHashCode()
+    {
+        throw new NotImplementedException();
+    }
 }
 

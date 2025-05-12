@@ -1,4 +1,3 @@
-using System.Data.Common;
 using Microsoft.Data.Sqlite;
 
 namespace SnapX.Core;

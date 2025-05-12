@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
 using SnapX.Core.Media;
 

@@ -242,109 +242,109 @@ public partial class App : Application
         switch (ApplicationLifetime)
         {
             case IClassicDesktopStyleApplicationLifetime desktop:
-            {
-                var sigintReceived = false;
-                desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-                desktop.ShutdownRequested += (_, _) =>
                 {
-                    DebugHelper.WriteLine("Received Shutdown from Avalonia");
-                    if (sigintReceived) return;
-                    sigintReceived = true;
-                    SnapX.shutdown();
+                    var sigintReceived = false;
+                    desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                    desktop.ShutdownRequested += (_, _) =>
+                    {
+                        DebugHelper.WriteLine("Received Shutdown from Avalonia");
+                        if (sigintReceived) return;
+                        sigintReceived = true;
+                        SnapX.shutdown();
 
-                    // desktop.Shutdown();
-                };
+                        // desktop.Shutdown();
+                    };
 
-                Console.CancelKeyPress += (_, ea) =>
-                {
-                    DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
-                    if (sigintReceived) return;
-                    ea.Cancel = true;
-                    sigintReceived = true;
-                    SnapX.shutdown();
-                    desktop.Shutdown();
-                };
-                // AppDomain.CurrentDomain.ProcessExit += (o, _) =>
-                // {
-                //     if (!sigintReceived)
-                //     {
-                //         sigintReceived = true;
-                //         DebugHelper.WriteLine("Received SIGTERM");
-                //         SnapX.shutdown();
-                //     }
-                //     else
-                //     {
-                //         DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
-                //     }
-                // };
-                var errorStarting = false;
-                // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
-                try
-                {
-                    Task.Run(() => SnapX.start(desktop.Args ?? [])).GetAwaiter().GetResult();
-                    var CLIManager = SnapX.GetCLIManager();
-                    Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult()).ConfigureAwait(false)
-                        .GetAwaiter().GetResult();
-                }
-                catch (Exception ex)
-                {
-                    errorStarting = true;
-                    DebugHelper.WriteException(ex);
-                    ShowErrorDialog(Lang.SnapXFailedToStart, ex);
-                }
+                    Console.CancelKeyPress += (_, ea) =>
+                    {
+                        DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
+                        if (sigintReceived) return;
+                        ea.Cancel = true;
+                        sigintReceived = true;
+                        SnapX.shutdown();
+                        desktop.Shutdown();
+                    };
+                    // AppDomain.CurrentDomain.ProcessExit += (o, _) =>
+                    // {
+                    //     if (!sigintReceived)
+                    //     {
+                    //         sigintReceived = true;
+                    //         DebugHelper.WriteLine("Received SIGTERM");
+                    //         SnapX.shutdown();
+                    //     }
+                    //     else
+                    //     {
+                    //         DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
+                    //     }
+                    // };
+                    var errorStarting = false;
+                    // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
+                    try
+                    {
+                        Task.Run(() => SnapX.start(desktop.Args ?? [])).GetAwaiter().GetResult();
+                        var CLIManager = SnapX.GetCLIManager();
+                        Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult()).ConfigureAwait(false)
+                            .GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        errorStarting = true;
+                        DebugHelper.WriteException(ex);
+                        ShowErrorDialog(Lang.SnapXFailedToStart, ex);
+                    }
 
-                if (errorStarting) return;
-                DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
+                    if (errorStarting) return;
+                    DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
 
-                var logoBitmap = new Bitmap(AssetLoader.Open(new Uri("avares://snapx-ui/SnapX_Logo.png")));
-                var trayIcon = new TrayIcon
-                {
-                    Icon = new WindowIcon(logoBitmap),
-                    ToolTipText = Core.SnapX.AppName,
-                    Command = OpenSnapXCommand
-                };
+                    var logoBitmap = new Bitmap(AssetLoader.Open(new Uri("avares://snapx-ui/SnapX_Logo.png")));
+                    var trayIcon = new TrayIcon
+                    {
+                        Icon = new WindowIcon(logoBitmap),
+                        ToolTipText = Core.SnapX.AppName,
+                        Command = OpenSnapXCommand
+                    };
 
-                var menu = new NativeMenu();
-                menu.Opening += NativeMenu_OnOpening;
-                menu.NeedsUpdate += NativeMenu_OnNeedsUpdate;
+                    var menu = new NativeMenu();
+                    menu.Opening += NativeMenu_OnOpening;
+                    menu.NeedsUpdate += NativeMenu_OnNeedsUpdate;
 
-                var about = new NativeMenuItem(TrayTitle)
-                {
-                    Icon = logoBitmap,
-                    ToolTip = Lang.AboutSnapX
-                };
-                about.Click += NativeMenuItem_SnapX_OnClick;
-                menu.Items.Add(about);
-                menu.Items.Add(new NativeMenuItemSeparator());
+                    var about = new NativeMenuItem(TrayTitle)
+                    {
+                        Icon = logoBitmap,
+                        ToolTip = Lang.AboutSnapX
+                    };
+                    about.Click += NativeMenuItem_SnapX_OnClick;
+                    menu.Items.Add(about);
+                    menu.Items.Add(new NativeMenuItemSeparator());
 
-                var capture = new NativeMenuItem("Capture") { Menu = new NativeMenu() };
-                var full = new NativeMenuItem(Lang.UI_Capture_Fullscreen);
-                full.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
-                capture.Menu.Items.Add(full);
+                    var capture = new NativeMenuItem("Capture") { Menu = new NativeMenu() };
+                    var full = new NativeMenuItem(Lang.UI_Capture_Fullscreen);
+                    full.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
+                    capture.Menu.Items.Add(full);
 
-                var windowPicker = new NativeMenuItem(Lang.UI_Dropdown_Window)
-                {
-                    Menu = new NativeMenu
+                    var windowPicker = new NativeMenuItem(Lang.UI_Dropdown_Window)
+                    {
+                        Menu = new NativeMenu
                     {
                         new NativeMenuItem("SnapX UI") { Icon = logoBitmap },
                         new NativeMenuItem("Marvel Rivals") { Icon = logoBitmap },
                         new NativeMenuItem("Man of Steel (2013)") { Icon = logoBitmap }
                     }
-                };
-                capture.Menu.Items.Add(windowPicker);
+                    };
+                    capture.Menu.Items.Add(windowPicker);
 
-                var monitorPicker = new NativeMenuItem(Lang.UI_Dropdown_Monitor) { Menu = [] };
-                monitorPicker.Menu.NeedsUpdate += NativeMenu_OnNeedsUpdate;
-                capture.Menu.Items.Add(monitorPicker);
+                    var monitorPicker = new NativeMenuItem(Lang.UI_Dropdown_Monitor) { Menu = [] };
+                    monitorPicker.Menu.NeedsUpdate += NativeMenu_OnNeedsUpdate;
+                    capture.Menu.Items.Add(monitorPicker);
 
-                capture.Menu.Items.Add(new NativeMenuItem("Region"));
-                capture.Menu.Items.Add(new NativeMenuItem("Region (Light)"));
-                capture.Menu.Items.Add(new NativeMenuItem("Region (Transparent)"));
-                menu.Items.Add(capture);
+                    capture.Menu.Items.Add(new NativeMenuItem("Region"));
+                    capture.Menu.Items.Add(new NativeMenuItem("Region (Light)"));
+                    capture.Menu.Items.Add(new NativeMenuItem("Region (Transparent)"));
+                    menu.Items.Add(capture);
 
-                menu.Items.Add(new NativeMenuItem("Upload")
-                {
-                    Menu = new NativeMenu
+                    menu.Items.Add(new NativeMenuItem("Upload")
+                    {
+                        Menu = new NativeMenu
                     {
                         new NativeMenuItem("Upload File..."),
                         new NativeMenuItem("Upload Folder..."),
@@ -354,76 +354,76 @@ public partial class App : Application
                         new NativeMenuItem("Shorten URL..."),
                         new NativeMenuItem("Tweet message...")
                     }
-                });
-                var captureFullscreenMenuItem = new NativeMenuItem("Capture entire screen");
-                captureFullscreenMenuItem.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
-                var captureActiveWindowMenuItem = new NativeMenuItem("Capture active window");
-                captureActiveWindowMenuItem.Click += NativeMenuItem_Workflows_CaptureActiveWindow_OnClick;
-                var captureActiveScreenMenuItem = new NativeMenuItem("Capture active screen");
-                captureActiveScreenMenuItem.Click += NativeMenuItem_Workflows_CaptureActiveScreen_OnClick;
-                var workflows = new NativeMenuItem("Workflows")
-                {
-                    Menu =
-                    [
-                        captureFullscreenMenuItem,
+                    });
+                    var captureFullscreenMenuItem = new NativeMenuItem("Capture entire screen");
+                    captureFullscreenMenuItem.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
+                    var captureActiveWindowMenuItem = new NativeMenuItem("Capture active window");
+                    captureActiveWindowMenuItem.Click += NativeMenuItem_Workflows_CaptureActiveWindow_OnClick;
+                    var captureActiveScreenMenuItem = new NativeMenuItem("Capture active screen");
+                    captureActiveScreenMenuItem.Click += NativeMenuItem_Workflows_CaptureActiveScreen_OnClick;
+                    var workflows = new NativeMenuItem("Workflows")
+                    {
+                        Menu =
+                        [
+                            captureFullscreenMenuItem,
                         captureActiveScreenMenuItem,
                         captureActiveWindowMenuItem,
                     ]
-                };
-
-                menu.Items.Add(workflows);
-
-                menu.Items.Add(new NativeMenuItemSeparator());
-
-                var open = new NativeMenuItem("Open");
-                open.Command = OpenSnapXCommand;
-                menu.Items.Add(open);
-
-                var quit = new NativeMenuItem("Quit");
-                quit.Click += NativeMenuItem_Quit_OnClick;
-                menu.Items.Add(quit);
-
-                trayIcon.Menu = menu;
-
-                TrayIcon.SetIcons(Current, [trayIcon]);
-
-                if (SnapX.isSilent()) return;
-                if (SnapX.GetCLIManager().IsCommandExist("video"))
-                {
-                    var vlc = new LibVLC(false);
-                    DebugHelper.WriteLine($"VLC Version: {vlc.Version}");
-                    var MediaPlayer = new MediaPlayer(vlc);
-                    var input = new Uri("https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
-
-                    var media = new Media(vlc, input);
-                    MediaPlayer.EnableHardwareDecoding = true;
-                    MediaPlayer.Play(media);
-                    MediaPlayer.Stopped += async (Sender, Args) =>
-                    {
-                        media.Dispose();
-                        vlc.Dispose();
                     };
+
+                    menu.Items.Add(workflows);
+
+                    menu.Items.Add(new NativeMenuItemSeparator());
+
+                    var open = new NativeMenuItem("Open");
+                    open.Command = OpenSnapXCommand;
+                    menu.Items.Add(open);
+
+                    var quit = new NativeMenuItem("Quit");
+                    quit.Click += NativeMenuItem_Quit_OnClick;
+                    menu.Items.Add(quit);
+
+                    trayIcon.Menu = menu;
+
+                    TrayIcon.SetIcons(Current, [trayIcon]);
+
+                    if (SnapX.isSilent()) return;
+                    if (SnapX.GetCLIManager().IsCommandExist("video"))
+                    {
+                        var vlc = new LibVLC(false);
+                        DebugHelper.WriteLine($"VLC Version: {vlc.Version}");
+                        var MediaPlayer = new MediaPlayer(vlc);
+                        var input = new Uri("https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
+
+                        var media = new Media(vlc, input);
+                        MediaPlayer.EnableHardwareDecoding = true;
+                        MediaPlayer.Play(media);
+                        MediaPlayer.Stopped += async (Sender, Args) =>
+                        {
+                            media.Dispose();
+                            vlc.Dispose();
+                        };
+                    }
+
+                    var Window = new MainWindow(vm);
+
+                    Window.Show();
+                    DebugHelper.WriteLine("MainWindow startup time: {0} ms", SnapX.getStartupTime());
+
+                    MyMainWindow = Window;
+                    desktop.MainWindow = Window;
+                    break;
                 }
-
-                var Window = new MainWindow(vm);
-
-                Window.Show();
-                DebugHelper.WriteLine("MainWindow startup time: {0} ms", SnapX.getStartupTime());
-
-                MyMainWindow = Window;
-                desktop.MainWindow = Window;
-                break;
-            }
             case ISingleViewApplicationLifetime singleView when SnapX.isSilent():
                 return;
             case ISingleViewApplicationLifetime singleView:
-            {
-                var mv = new MainWindow(vm);
-                mv.Show();
-                MyMainWindow = mv;
-                singleView.MainView = mv;
-                break;
-            }
+                {
+                    var mv = new MainWindow(vm);
+                    mv.Show();
+                    MyMainWindow = mv;
+                    singleView.MainView = mv;
+                    break;
+                }
         }
     }
 

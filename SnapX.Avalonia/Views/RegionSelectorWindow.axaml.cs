@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using SixLabors.ImageSharp;
 using SnapX.Avalonia.ViewModels;
@@ -28,7 +27,7 @@ public partial class RegionSelectorWindow : Window
     // private readonly SixLabors.ImageSharp.Image _image;
     private Stream? _imageStream;
     private Rect _imageBounds;
-    private List<Window> windowsHiddenByUs = new ();
+    private List<Window> windowsHiddenByUs = new();
     public RegionSelectorWindow(RegionSelectorViewModel vm)
     {
         DataContext = vm;
@@ -86,15 +85,15 @@ public partial class RegionSelectorWindow : Window
         var endPoint = E.GetPosition(this);
         var x = Math.Min(_startPoint.X, endPoint.X);
         var y = Math.Min(_startPoint.Y, endPoint.Y);
-        var width =  Math.Abs(_startPoint.X - endPoint.X);
-        var height =  Math.Abs(_startPoint.Y - endPoint.Y);
+        var width = Math.Abs(_startPoint.X - endPoint.X);
+        var height = Math.Abs(_startPoint.Y - endPoint.Y);
         _selectionRect.Width = width;
         _selectionRect.Height = height;
         _selectionRect.Margin = new Thickness(x, y, 0, 0);
         // UpdateDimmingOverlay(x, y, width, height);
 
         _infoBox.Text = $"X: {x}, Y: {y}, Width: {width}, Height: {height}";
-        _infoBox.Margin = new Thickness(x, y-30, 0, 0);
+        _infoBox.Margin = new Thickness(x, y - 30, 0, 0);
 
     }
     private void UpdateDimmingOverlay(double x, double y, double width, double height)
@@ -172,7 +171,7 @@ public partial class RegionSelectorWindow : Window
     {
         _imageStream?.Dispose();
         _imageStream = null;
-        foreach (var win in windowsHiddenByUs) { win.Show();}
+        foreach (var win in windowsHiddenByUs) { win.Show(); }
         windowsHiddenByUs.Clear();
     }
     private void OnLostFocus(object? Sender, RoutedEventArgs E)

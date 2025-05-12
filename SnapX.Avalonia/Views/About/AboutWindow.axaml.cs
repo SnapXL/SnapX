@@ -5,13 +5,10 @@ using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Styling;
-using Avalonia.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.Styling;
 using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
 using SnapX.Avalonia.ViewModels;
-using SnapX.CommonUI;
 using SnapX.Core;
 using SnapX.Core.Utils;
 

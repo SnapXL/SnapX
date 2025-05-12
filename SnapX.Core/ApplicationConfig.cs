@@ -1,11 +1,7 @@
 using System.ComponentModel;
-using System.Reflection;
 using SixLabors.ImageSharp;
 using SnapX.Core.History;
-using SnapX.Core.Indexer;
 using SnapX.Core.Job;
-using SnapX.Core.ScreenCapture;
-using SnapX.Core.ScreenCapture.ScreenRecording;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Miscellaneous;
 

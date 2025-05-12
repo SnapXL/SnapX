@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using SnapX.Core.CLI;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Job;
-using SnapX.Core.Models;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
@@ -436,11 +435,11 @@ public class SnapX
                 // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
                 options.Debug = Environment.GetEnvironmentVariable("SENTRY_DEBUG") == "1";
 
-                #if DEBUG
+#if DEBUG
                 options.Environment = "development";
-                #else
+#else
                 options.Environment = "production";
-                #endif
+#endif
 
                 // VLCException includes multiple paths with username
                 // For full transparency, I discovered this issue on my computer.
@@ -575,7 +574,7 @@ public class SnapX
     private static void RegisterIntegrations()
     {
         if (Portable || Sandbox) return;
-        #if WINDOWS
+#if WINDOWS
         if (OperatingSystem.IsWindows())
         {
             // TODO: Reimplement FirstTimeForm to give users chance to consent
@@ -588,7 +587,7 @@ public class SnapX
             if (!WindowsAPI.CheckFirefoxAddonSupport())
                 WindowsAPI.CreateFirefoxAddonSupport(true);
         }
-        #endif
+#endif
     }
 
     private static void MigratePersonalPathConfig()

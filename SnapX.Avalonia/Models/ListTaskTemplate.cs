@@ -1,5 +1,4 @@
 ﻿using SnapX.Core.History;
-using SnapX.Core.Job;
 
 namespace SnapX.Avalonia.Models;
 

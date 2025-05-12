@@ -10,7 +10,6 @@ using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp;
 using SnapX.Avalonia.ViewModels;
-using SnapX.Avalonia.Views.Controls;
 using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;

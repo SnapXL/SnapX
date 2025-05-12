@@ -1,13 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.Models;
-using SnapX.Avalonia.Views;
 
 namespace SnapX.Avalonia.ViewModels;
 

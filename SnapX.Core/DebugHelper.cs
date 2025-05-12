@@ -2,7 +2,6 @@
 
 
 using Serilog;
-using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace SnapX.Core;
@@ -16,9 +15,9 @@ public static class DebugHelper
     {
         if (string.IsNullOrEmpty(logFilePath)) return;
         var loggerConfig = new LoggerConfiguration()
-            #if DEBUG
+#if DEBUG
             .MinimumLevel.Debug()
-            #endif
+#endif
             // If you run multiple SnapX instances, this will be the first to break. :)
             .WriteTo.Async(a => a.File(logFilePath, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]: {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day, buffered: true));
         if (SnapX.LogToConsole)

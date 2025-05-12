@@ -1,8 +1,6 @@
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnapX.CommonUI;
-using SnapX.Core;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Miscellaneous;
 
@@ -45,64 +43,64 @@ public partial class AboutWindowViewModel : ViewModelBase
                 : $"{g.First().Name} {g.First().Version.Major}.{g.First().Version.Minor}.{g.First().Version.Build}")
             .Append($"SQLite {Core.SnapX.DbConnection.ServerVersion}")
             .OrderBy(name => name));
-            Description = _commonAboutDialog.GetDescription();
-            Version = _commonAboutDialog.GetVersion();
-            Copyright = _commonAboutDialog.GetCopyright();
-            License = _commonAboutDialog.GetLicenseURL();
-            Documentation = _commonAboutDialog.GetDocumentation();
-            Issues = _commonAboutDialog.GetIssues();
-            Discord = _commonAboutDialog.GetDiscord();
-            Donate = Links.Donate;
-            Website = _commonAboutDialog.GetWebsite();
-            SystemInfo = _commonAboutDialog.GetSystemInfo();
-            OsArchitecture = _commonAboutDialog.GetOsArchitecture();
-            Runtime = _commonAboutDialog.GetRuntime();
-            OsPlatform = _commonAboutDialog.GetOsPlatform();
-            BuildInformation = _commonAboutDialog.GetBuildInformation();
-            SystemInformationText = $"{SystemInfo} ({OsArchitecture}, {OsPlatform}) powered by {Runtime}!";
-            return Task.CompletedTask;
+        Description = _commonAboutDialog.GetDescription();
+        Version = _commonAboutDialog.GetVersion();
+        Copyright = _commonAboutDialog.GetCopyright();
+        License = _commonAboutDialog.GetLicenseURL();
+        Documentation = _commonAboutDialog.GetDocumentation();
+        Issues = _commonAboutDialog.GetIssues();
+        Discord = _commonAboutDialog.GetDiscord();
+        Donate = Links.Donate;
+        Website = _commonAboutDialog.GetWebsite();
+        SystemInfo = _commonAboutDialog.GetSystemInfo();
+        OsArchitecture = _commonAboutDialog.GetOsArchitecture();
+        Runtime = _commonAboutDialog.GetRuntime();
+        OsPlatform = _commonAboutDialog.GetOsPlatform();
+        BuildInformation = _commonAboutDialog.GetBuildInformation();
+        SystemInformationText = $"{SystemInfo} ({OsArchitecture}, {OsPlatform}) powered by {Runtime}!";
+        return Task.CompletedTask;
     }
     [ObservableProperty]
     public string dialogTitle = Lang.AboutSnapX;
     [ObservableProperty]
-    private string? description ;
+    private string? description;
     [ObservableProperty]
-    public string? buildInformation ;
+    public string? buildInformation;
     [ObservableProperty]
 
     public string? version;
     [ObservableProperty]
-    public string? copyright ;
+    public string? copyright;
     [ObservableProperty]
 
-    public string? license ;
+    public string? license;
     [ObservableProperty]
 
-    public string? website ;
+    public string? website;
     [ObservableProperty]
 
-    public string? systemInfo ;
+    public string? systemInfo;
     [ObservableProperty]
 
-    public string? osArchitecture ;
+    public string? osArchitecture;
     [ObservableProperty]
 
-    public string? runtime ;
+    public string? runtime;
     [ObservableProperty]
 
-    public string? osPlatform ;
+    public string? osPlatform;
     [ObservableProperty]
 
-    public string? documentation ;
+    public string? documentation;
     [ObservableProperty]
 
-    public string? issues ;
+    public string? issues;
     [ObservableProperty]
-    public string? discord ;
+    public string? discord;
     [ObservableProperty]
-    public string? donate ;
+    public string? donate;
     [ObservableProperty]
-    public string? loadedAssemblies ;
+    public string? loadedAssemblies;
 
     [ObservableProperty]
     public string? systemInformationText;

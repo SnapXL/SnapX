@@ -51,7 +51,8 @@ public class HistoryManagerSQLite : HistoryManager
 
             var allTags = historyItems
                 .SelectMany(h => h.Tags ?? Enumerable.Empty<HistoryItem.Tag>(),
-                    (h, t) => new {
+                    (h, t) => new
+                    {
                         HistoryItemId = h.Id,
                         t.Text,
                         t.WindowTitle,

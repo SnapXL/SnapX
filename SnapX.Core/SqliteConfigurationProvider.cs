@@ -18,12 +18,12 @@ public class SqliteConfigurationProvider : ConfigurationProvider
     [DapperAot]
     public override void Load()
     {
-    var SavedConfigurationSql =
-        @"SELECT ConfigSection, SettingKey, SettingValue
+        var SavedConfigurationSql =
+            @"SELECT ConfigSection, SettingKey, SettingValue
       FROM ApplicationConfig";
-    var settings = _dbConnection.Query<SavedConfiguration>(
-        SavedConfigurationSql
-    ); // :contentReference[oaicite:0]{index=0}
+        var settings = _dbConnection.Query<SavedConfiguration>(
+            SavedConfigurationSql
+        ); // :contentReference[oaicite:0]{index=0}
         foreach (var setting in settings)
         {
             var key = setting.ConfigSection != null
