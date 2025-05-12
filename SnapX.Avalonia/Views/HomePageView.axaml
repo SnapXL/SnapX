@@ -113,14 +113,6 @@
                   ToolTip.Tip="{x:Static core:Lang.UI_AddImageEffects_ToolTip}" />
                 <controls:MenuFlyoutSeparator />
                 <controls:MenuFlyoutItem
-                  IconSource="Remove"
-                  Text="{x:Static core:Lang.UI_RemoveRecentTask}"
-                  ToolTip.Tip="{x:Static core:Lang.UI_RemoveRecentTask_ToolTip}" />
-                <controls:MenuFlyoutItem
-                  IconSource="Dismiss"
-                  Text="{x:Static core:Lang.UI_ClearTaskList}"
-                  ToolTip.Tip="{x:Static core:Lang.UI_ClearTaskList_ToolTip}" />
-                <controls:MenuFlyoutItem
                   HotKey="Shift+Delete"
                   IconSource="Delete"
                   Text="{x:Static core:Lang.UI_DeleteFileLocally}"

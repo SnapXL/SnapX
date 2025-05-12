@@ -1,10 +1,12 @@
 using System.ComponentModel;
 using System.Reflection;
 using SixLabors.ImageSharp;
+using SnapX.Core.History;
 using SnapX.Core.Indexer;
 using SnapX.Core.Job;
 using SnapX.Core.ScreenCapture;
 using SnapX.Core.ScreenCapture.ScreenRecording;
+using SnapX.Core.Utils;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core;
@@ -151,15 +153,6 @@ public class ProxySettings
     public string Password { get; set; }
 }
 
-public class HistorySettings
-{
-    public bool RememberWindowState { get; set; }
-    public WindowState WindowState { get; set; }
-    public int SplitterDistance { get; set; }
-    public bool RememberSearchText { get; set; }
-    public string SearchText { get; set; }
-}
-
 public class WindowState
 {
     public string Location { get; set; }
@@ -235,7 +228,7 @@ public class RootConfiguration
     public List<Upload.FileDestination> SecondaryFileUploaders = [];
     public bool HistorySaveTasks = true;
     public bool HistoryCheckURL = false;
-    public List<RecentTask> RecentTasks { get; set; }
+    public List<HistoryItem> RecentTasks { get; set; }
     public bool RecentTasksSave = false;
     public int RecentTasksMaxCount = 10;
     public bool RecentTasksShowInMainWindow = true;
@@ -375,6 +368,8 @@ public class RootConfiguration
     public int DropHoverOpacity { get; set; }
     // [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
     // public ContentAlignment DropAlignment { get; set; }
-    public string ApplicationVersion => Assembly.GetExecutingAssembly().GetName().Version!.ToString();
+    public string ApplicationVersion { get; set; } = Helpers.GetApplicationVersion();
+
+    public string? SQLitePath { get; set; }
 }
 

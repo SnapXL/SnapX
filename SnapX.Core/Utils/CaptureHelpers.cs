@@ -22,7 +22,6 @@ public static class CaptureHelpers
         var ScreenDimensions = SnapxrustMethods.GetWorkingArea();
         return new Rectangle(ScreenDimensions.x, ScreenDimensions.y, (int)ScreenDimensions.width, (int)ScreenDimensions.height);
     }
-
     public static Rectangle GetActiveScreenBounds()
     {
         return GetActiveScreenWorkingArea();

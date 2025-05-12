@@ -9,6 +9,7 @@
     <Optimize>true</Optimize>
     <PublishTrimmed>true</PublishTrimmed>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Dapper.AOT</InterceptorsPreviewNamespaces>
 
   </PropertyGroup>
 
@@ -35,15 +36,20 @@
   <ItemGroup>
     <!-- Google Photos Library from Microsoft employee -->
     <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Dapper.AOT" Version="1.0.48" />
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
     <PackageReference Include="JsonPath.Net" Version="2.1.1" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.4" />
+    <!-- Builds are notably not provided for FreeBSD. Dynamic loading of normal system sqlite3 supported. -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
+    <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="2.1.11" />
+
     <!-- Configuration has never been so intuitive -->
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
     <!-- Windows Registry Configuration Support -->
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" Condition="'$(OS)' == 'Windows_NT'">
@@ -80,6 +86,10 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
     <!-- Wayland support -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
+    <PackageReference Include="waylandsharper" Version="0.1.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <!-- Blazingly fast screen captures on Windows, hopefully even compatible with video games that have weird quirks. -->
     <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" Condition="'$(OS)' == 'Windows_NT'" />
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
@@ -120,8 +130,8 @@
     <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Model\" />
     <Folder Include="ViewModels\" />
+
   </ItemGroup>
 <ItemGroup>
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />

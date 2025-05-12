@@ -524,9 +524,10 @@ public static class FileHelpers
         {
             fi = new FileInfo(filePath);
         }
-        catch (ArgumentException) { }
-        catch (PathTooLongException) { }
-        catch (NotSupportedException) { }
+        catch (Exception)
+        {
+            //
+        }
 
         return fi != null;
     }

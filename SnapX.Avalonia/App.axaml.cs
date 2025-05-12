@@ -212,7 +212,20 @@ public partial class App : Application
         Console.WriteLine("Report Error button clicked. No action yet.");
     }
 
-    private void Shutdown() => Environment.Exit(0);
+    private void Shutdown()
+    {
+        try
+        {
+            SnapX?.shutdown();
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine(e);
+            Console.Error.WriteLine($"Error shutting down SnapX.Core, continuing shut down.");
+        }
+        Environment.Exit(0);
+    }
+
     public override void OnFrameworkInitializationCompleted()
     {
         var locator = new ViewLocator();

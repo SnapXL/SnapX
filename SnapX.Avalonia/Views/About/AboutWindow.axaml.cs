@@ -47,6 +47,7 @@ public partial class AboutWindow : AppWindow
             if (!string.IsNullOrEmpty(url)) URLHelpers.OpenURL(url);
         }
     }
+
     private void DynamicURL_OnPointerPressed(object? Sender, RoutedEventArgs E)
     {
         DebugHelper.WriteLine($"{nameof(DynamicURL_OnPointerPressed)}: {Sender} {E.Source}");

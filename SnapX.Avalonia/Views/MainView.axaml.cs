@@ -1,26 +1,28 @@
-﻿using System.Windows.Input;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Job;
-using SnapX.Core.Media;
 using SnapX.Core.Upload;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace SnapX.Avalonia.Views;
 
 public partial class MainView : UserControl
 {
+    private readonly FAMenuFlyout _flyout;
+    private readonly SplitButton _splitButton;
+    private readonly Label _captureRegionLabel;
+    private string? selectedAction;
 
     public MainView()
     {
         InitializeComponent();
         _splitButton = this.FindControl<SplitButton>("CaptureSplitButton");
+        _captureRegionLabel = this.FindControl<Label>("RegionCaptureLabel");
         _splitButton.Command = ExecuteSelectedCaptureActionCommand;
-        selectedAction = _splitButton?.Content as string;
+        selectedAction = _captureRegionLabel?.Content as string;
         _flyout = _splitButton.Flyout as FAMenuFlyout;
         if (_flyout != null)
         {
@@ -30,22 +32,17 @@ public partial class MainView : UserControl
                 {
                     menuItem.Command = SelectCaptureActionCommand;
                     menuItem.CommandParameter = menuItem.Text;
-
                 }
             }
         }
-
     }
-    private SplitButton _splitButton;
-    private FAMenuFlyout _flyout;
-    private string? selectedAction;
 
     [RelayCommand]
     private void ExecuteSelectedCaptureAction()
     {
-        var action = selectedAction ?? _splitButton.Content as string;
+        var action = selectedAction ?? _captureRegionLabel.Content as string;
         DebugHelper.WriteLine($"Executing: {action}");
-        SixLabors.ImageSharp.Image? img = null;
+        Image? img = null;
         switch (action)
         {
             case "Region":
@@ -64,6 +61,7 @@ public partial class MainView : UserControl
                 img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor();
                 break;
         }
+
         if (img != null) UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
     }
     [RelayCommand]
@@ -71,8 +69,8 @@ public partial class MainView : UserControl
     {
         DebugHelper.WriteLine($"Selecting: {action}");
         selectedAction = action;
-        _splitButton.Content = action;
-            if (_flyout != null)
+        _captureRegionLabel.Content = action;
+        if (_flyout != null)
         {
             foreach (var item in _flyout.Items)
             {
@@ -82,6 +80,7 @@ public partial class MainView : UserControl
                 }
             }
         }
+
         ExecuteSelectedCaptureActionCommand.Execute(this);
     }
 }

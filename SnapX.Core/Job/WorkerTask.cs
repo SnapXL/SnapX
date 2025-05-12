@@ -57,21 +57,6 @@ public class WorkerTask : IDisposable
         Info = new TaskInfo(taskSettings);
     }
 
-    public static WorkerTask CreateHistoryTask(RecentTask recentTask)
-    {
-        var task = new WorkerTask(null);
-        task.Status = TaskStatus.History;
-        task.Info.FilePath = recentTask.FilePath;
-        task.Info.FileName = recentTask.FileName;
-        task.Info.Result.URL = recentTask.URL;
-        task.Info.Result.ThumbnailURL = recentTask.ThumbnailURL;
-        task.Info.Result.DeletionURL = recentTask.DeletionURL;
-        task.Info.Result.ShortenedURL = recentTask.ShortenedURL;
-        task.Info.TaskEndTime = recentTask.Time;
-
-        return task;
-    }
-
     public static WorkerTask CreateDataUploaderTask(EDataType dataType, Stream stream, string fileName, TaskSettings taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
@@ -981,7 +966,7 @@ public class WorkerTask : IDisposable
     {
         UploadResult ur = new UploadResult();
 
-        string message = string.Format("{{0}} configuration is invalid or missing. Please check \"Destination settings\" window to configure it.",
+        string message = string.Format("{0} configuration is invalid or missing. Please check \"Destination settings\" window to configure it.",
             uploaderService.ServiceName);
         DebugHelper.WriteLine(message);
         ur.Errors.Add(message);

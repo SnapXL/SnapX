@@ -15,6 +15,7 @@ public interface Screen
     string Resolution { get; }
 
     double RefreshRate { get; }
+    string Index { get; }
 
     // The physical dimensions of the screen (e.g., diagonal size in inches)
     double DiagonalSizeInches { get; }

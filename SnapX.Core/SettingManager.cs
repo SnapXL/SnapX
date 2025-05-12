@@ -4,6 +4,9 @@
 
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Dapper;
 #if WINDOWS
 using Esatto.Win32.Registry;
 #endif
@@ -11,13 +14,13 @@ using Microsoft.Extensions.Configuration;
 using SnapX.Core.History;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Job;
+using SnapX.Core.Models;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.Zip;
 using SnapX.Core.Utils;
 
 namespace SnapX.Core;
-
 internal static class SettingManager
 {
     private const string ApplicationConfigFileName = "ApplicationConfig.json";
@@ -89,18 +92,11 @@ internal static class SettingManager
     private static ManualResetEvent hotkeysConfigResetEvent = new(false);
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public static void LoadInitialSettings()
+    public static void LoadSettings()
     {
         LoadApplicationConfig();
-
-        Task.Run(() =>
-        {
-            LoadUploadersConfig();
-            uploadersConfigResetEvent.Set();
-
-            LoadHotkeysConfig();
-            hotkeysConfigResetEvent.Set();
-        });
+        LoadUploadersConfig();
+        LoadHotkeysConfig();
     }
 
     public static void WaitUploadersConfig()
@@ -123,23 +119,33 @@ internal static class SettingManager
     [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
     public static void LoadApplicationConfig(bool fallbackSupport = true)
     {
-        var configurationBuilder = new ConfigurationBuilder()
+        var configurationBuilder = new ConfigurationBuilder();
+        if (!SnapX.Sandbox)
+        {
+            // configurationBuilder.AddJsonFile(ApplicationConfigFilePath, optional: true, reloadOnChange: true);
+            configurationBuilder.AddSqliteSettings(SnapX.DbConnection);
+        }
+
+            configurationBuilder
+            .AddCommandLine(Environment.GetCommandLineArgs())
             // .AddInMemoryCollection()
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
+            .AddEnvironmentVariables(prefix: "SNAPX_");
 #if WINDOWS
-            .AddRegistry(@"Software\BrycensRanch\SnapX")
+            configurationBuilder.AddRegistry(@"Software\BrycensRanch\SnapX")
 #endif
-            .AddEnvironmentVariables(prefix: "SNAPX_")
-            .AddCommandLine(Environment.GetCommandLineArgs());
-        if (!SnapX.Sandbox)
-        {
-            configurationBuilder.AddJsonFile(ApplicationConfigFilePath, optional: true, reloadOnChange: true);
-        }
+
         SnapX.Configuration = configurationBuilder.Build();
+        foreach (var kv in  SnapX.Configuration.AsEnumerable())
+        {
+            DebugHelper.WriteLine($"{kv.Key} = {kv.Value}");
+        }
         var settings = new RootConfiguration();
         SnapX.Configuration.Bind(settings);
         Settings = settings;
+        if (string.IsNullOrWhiteSpace(Settings.SQLitePath))
+            Settings.SQLitePath = Path.Combine(SnapX.DefaultPersonalFolder, "SnapX.db");
         ApplicationConfigBackwardCompatibilityTasks();
         MigrateHistoryFile();
     }
@@ -159,7 +165,7 @@ internal static class SettingManager
             .AddCommandLine(Environment.GetCommandLineArgs());
         if (!SnapX.Sandbox)
         {
-            configurationBuilder.AddJsonFile(UploadersConfigFilePath, optional: true, reloadOnChange: true);
+            // configurationBuilder.AddJsonFile(UploadersConfigFilePath, optional: true, reloadOnChange: true);
         }
         var BuiltConfig = configurationBuilder.Build();
         UploadersConfig = new UploadersConfig();
@@ -181,20 +187,12 @@ internal static class SettingManager
             .AddCommandLine(Environment.GetCommandLineArgs());
         if (!SnapX.Sandbox)
         {
-            configurationBuilder.AddJsonFile(HotkeysConfigFilePath, optional: true, reloadOnChange: true);
+            // configurationBuilder.AddJsonFile(HotkeysConfigFilePath, optional: true, reloadOnChange: true);
         }
         var BuiltConfig = configurationBuilder.Build();
         HotkeysConfig = new HotkeysConfig();
         BuiltConfig.Bind(HotkeysConfig);
         HotkeysConfigBackwardCompatibilityTasks();
-    }
-
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public static void LoadAllSettings()
-    {
-        LoadApplicationConfig();
-        LoadUploadersConfig();
-        LoadHotkeysConfig();
     }
 
     private static void ApplicationConfigBackwardCompatibilityTasks()
@@ -207,26 +205,63 @@ internal static class SettingManager
         //     }
         // }
     }
-
-    private static void MigrateHistoryFile()
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+    private static async Task MigrateHistoryFile()
     {
-        if (File.Exists(SnapX.HistoryFilePathOld))
+        if (!File.Exists(SnapX.HistoryFilePathOld)) return;
+
+        TaskManager.InitHistoryManager();
+        DebugHelper.WriteLine($"JSON -> SQLite Migration: Migrating history ({FileHelpers.GetFileSizeReadable(SnapX.HistoryFilePathOld)})");
+
+        FileHelpers.BackupFileMonthly(SnapX.HistoryFilePathOld, SnapshotFolder);
+
+        try
         {
-            if (!File.Exists(SnapX.HistoryFilePath))
+            var json = await File.ReadAllTextAsync(SnapX.HistoryFilePathOld);
+            if (!json.StartsWith('[')) json = "[" + json + "]";
+
+            if (string.IsNullOrEmpty(json) || json == "{}" || json == "[{}]")
             {
-                DebugHelper.WriteLine($"Migrating XML history file \"{SnapX.HistoryFilePathOld}\" to JSON history file \"{SnapX.HistoryFilePath}\"");
-
-                var historyManagerXML = new HistoryManagerXML(SnapX.HistoryFilePathOld);
-                var historyItems = historyManagerXML.GetHistoryItems();
-
-                if (historyItems.Count > 0)
-                {
-                    var historyManagerJSON = new HistoryManagerJSON(SnapX.HistoryFilePath);
-                    historyManagerJSON.AppendHistoryItems(historyItems);
-                }
+                DebugHelper.WriteLine("JSON -> SQLite Migration: Old history file is empty. Deleting it to prevent the migration running again.");
+                File.Delete(SnapX.HistoryFilePathOld);
             }
 
-            FileHelpers.MoveFile(SnapX.HistoryFilePathOld, SnapshotFolder);
+            var historyItems = JsonSerializer.Deserialize<List<HistoryItem>>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                TypeInfoResolver = HistoryContext.Default,
+            });
+            var shouldRenameFile = true;
+            if (historyItems?.Count > 0)
+            {
+                DebugHelper.WriteLine($"JSON -> SQLite Migration: Found {historyItems.Count:N0} history items. First one is {historyItems[0].FilePath} and the last one is {historyItems[^1].FilePath}");
+                if (!TaskManager.History.AppendHistoryItems(historyItems))
+                {
+                    DebugHelper.WriteLine("JSON -> SQLite Migration: Failed to migrate history items.");
+                    shouldRenameFile = false;
+                }
+                else
+                {
+                    DebugHelper.WriteLine("JSON -> SQLite Migration: Migration complete! Welcome to the future! 🚀");
+                }
+            }
+            else
+            {
+                DebugHelper.WriteLine("JSON -> SQLite Migration: No history items found");
+            }
+
+            if (shouldRenameFile)
+            {
+                var migratedPath = SnapX.HistoryFilePathOld + ".migrated";
+                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                migratedPath = SnapX.HistoryFilePathOld + $"{timestamp}.migrated";
+                File.Move(SnapX.HistoryFilePathOld, migratedPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine($"JSON -> SQLite Migration: Migration failed!!!");
+            DebugHelper.WriteException(ex);
         }
     }
 
@@ -234,7 +269,7 @@ internal static class SettingManager
     {
         if (UploadersConfig.CustomUploadersList != null)
         {
-            foreach (CustomUploaderItem cui in UploadersConfig.CustomUploadersList)
+            foreach (var cui in UploadersConfig.CustomUploadersList)
             {
                 cui.CheckBackwardCompatibility();
             }
@@ -334,7 +369,7 @@ internal static class SettingManager
 
             if (history)
             {
-                entries.Add(new ZipEntryInfo(SnapX.HistoryFilePath));
+                entries.Add(new ZipEntryInfo(SnapX.DBPath));
             }
 
             ZipManager.Compress(archivePath, entries);
@@ -360,7 +395,7 @@ internal static class SettingManager
         {
             ZipManager.Extract(archivePath, SnapX.ConfigFolder, true, entry =>
             {
-                return FileHelpers.CheckExtension(entry.Name, new[] { "json", "xml" });
+                return FileHelpers.CheckExtension(entry.Name, new[] { "db" });
             }, 1_000_000_000);
 
             return true;
@@ -371,6 +406,28 @@ internal static class SettingManager
         }
 
         return false;
+    }
+
+    // This method validates the setting before restoration to ensure it fits the defined type
+    private static  bool IsValidValue(string value, string dataType)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false; // Prevent null or empty values.
+
+        switch (dataType)
+        {
+            case "int":
+                return int.TryParse(value, out _);
+            case "double":
+                return double.TryParse(value, out _);
+            case "bool":
+                return bool.TryParse(value, out _);
+            case "string":
+                return true;
+            default:
+                DebugHelper.WriteLine($"Unknown data type: {dataType}");
+                return false;
+        }
     }
 }
 

@@ -12,8 +12,7 @@
   xmlns:models="clr-namespace:SnapX.Avalonia.Models"
   xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
   xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:local="clr-namespace:SnapX.Avalonia.Views">
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Design.DataContext>
     <viewModels:MainViewModel />
   </Design.DataContext>
@@ -36,12 +35,13 @@
             <controls:CommandBarButton Command="{Binding TriggerPaneCommand}" IconSource="GlobalNavigationButton" />
 
             <controls:CommandBarElementContainer>
+
               <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedListItem}">
                 <ListBox.ItemTemplate>
                   <DataTemplate DataType="{x:Type models:ListItemTemplate}">
                     <StackPanel Orientation="Horizontal" Spacing="17">
                       <PathIcon Data="{Binding IconKey, Converter={x:Static converters:TypeConverters.IconConverter}}"
-                                Width="14" />
+                                Width="16" />
                       <TextBlock
                         Text="{Binding Label}"
                         TextTrimming="WordEllipsis"
@@ -55,21 +55,29 @@
           <controls:CommandBar.SecondaryCommands>
             <controls:CommandBarElementContainer>
               <WrapPanel Orientation="Horizontal">
-                <TextBox Text="Capture" IsReadOnly="True" ClearSelectionOnLostFocus="True" SelectionBrush="Transparent" />
                 <SplitButton x:Name="CaptureSplitButton">
-                <Label Content="Region"/>
-                <SplitButton.Flyout>
-                  <controls:FAMenuFlyout>
-                    <controls:ToggleMenuFlyoutItem Text="Region" />
-                    <controls:ToggleMenuFlyoutItem Text="Region (Light)" />
-                    <controls:ToggleMenuFlyoutItem Text="Region (Transparent)" />
+                  <WrapPanel Orientation="Horizontal">
+                    <controls:SymbolIcon Symbol="Camera" FontSize="20" />
+                    <Label Content="Region" Name="RegionCaptureLabel" />
+                  </WrapPanel>
+                  <SplitButton.Flyout>
+                    <controls:FAMenuFlyout>
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_Region}"
+                        IconSource="Camera" />
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_RegionLight}" />
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" />
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_Window}" />
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_Monitor}" />
 
-                    <controls:ToggleMenuFlyoutItem Text="Window" />
-                    <controls:ToggleMenuFlyoutItem Text="Monitor" />
 
-                  </controls:FAMenuFlyout>
-                </SplitButton.Flyout>
-              </SplitButton>
+                    </controls:FAMenuFlyout>
+                  </SplitButton.Flyout>
+                </SplitButton>
               </WrapPanel>
             </controls:CommandBarElementContainer>
             <controls:CommandBarButton

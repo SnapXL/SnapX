@@ -18,7 +18,7 @@ public abstract class HistoryManager
         FilePath = filePath;
     }
 
-    public List<HistoryItem> GetHistoryItems()
+    public virtual List<HistoryItem> GetHistoryItems()
     {
         try
         {
@@ -32,14 +32,14 @@ public abstract class HistoryManager
         return [];
     }
 
-    public async Task<List<HistoryItem>> GetHistoryItemsAsync()
+    public virtual async Task<List<HistoryItem>> GetHistoryItemsAsync()
     {
         return await Task.Run(() => GetHistoryItems());
     }
 
-    public bool AppendHistoryItem(HistoryItem historyItem)
+    public virtual bool AppendHistoryItem(HistoryItem historyItem)
     {
-        return AppendHistoryItems(new HistoryItem[] { historyItem });
+        return AppendHistoryItems([historyItem]);
     }
 
     public bool AppendHistoryItems(IEnumerable<HistoryItem> historyItems)

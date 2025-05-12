@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace SnapX.Core.History;
 
-public class HistoryFilter
+public record HistoryFilter
 {
     public string Filename { get; set; }
     public string URL { get; set; }
@@ -42,7 +42,7 @@ public class HistoryFilter
             string pattern = Regex.Escape(Filename).Replace("\\?", ".").Replace("\\*", ".*");
             Regex regex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             historyItems = historyItems.Where(x => (x.FileName != null && regex.IsMatch(x.FileName)) ||
-                (SearchInTags && x.Tags != null && x.Tags.Any(tag => regex.IsMatch(tag.Value))));
+                (SearchInTags && x.Tags != null && x.Tags.Any(tag => regex.IsMatch(tag.Text))));
         }
 
         if (!string.IsNullOrEmpty(URL))

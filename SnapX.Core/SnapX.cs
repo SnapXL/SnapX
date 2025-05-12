@@ -2,19 +2,21 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Dapper;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using SnapX.Core.CLI;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Job;
+using SnapX.Core.Models;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
-using SnapX.Core.Utils.Native;
 using SnapX.Core.Watch;
+using SQLitePCL;
 using Xdg.Directories;
 
 namespace SnapX.Core;
-
 public class SnapX
 {
     public const string AppName = "SnapX";
@@ -154,6 +156,7 @@ public class SnapX
     private static string CustomPersonalPath { get; set; }
 
     private static string CustomConfigPath { get; set; }
+    public static SqliteConnection DbConnection { get; set; }
     public static string ShortenPath(string path) => path.Replace(Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE") ?? "", "~");
 
     public static string PersonalFolder =>
@@ -168,29 +171,6 @@ public class SnapX
                 : BaseDirectory.ConfigHome,
             AppName)
         : CustomConfigPath;
-    public const string HistoryFileName = "History.json";
-
-    public static string HistoryFilePath
-    {
-        get
-        {
-            if (Sandbox) return null;
-
-            return Path.Combine(PersonalFolder, HistoryFileName);
-        }
-    }
-
-    public const string HistoryFileNameOld = "History.xml";
-
-    public static string HistoryFilePathOld
-    {
-        get
-        {
-            if (Sandbox) return null;
-
-            return Path.Combine(PersonalFolder, HistoryFileNameOld);
-        }
-    }
 
     public const string LogsFolderName = "Logs";
     // On Linux, strictly adhere to XDG BaseDirectory spec.
@@ -244,9 +224,23 @@ public class SnapX
         }
     }
 
+    public static readonly string DBPath = Path.Combine(PersonalFolder, "SnapX.db");
+
     public static string ImageEffectsFolder => Path.Combine(PersonalFolder, "ImageEffects");
 
     private static string PersonalPathDetectionMethod;
+
+    public const string HistoryFileNameOld = "History.json";
+
+    public static string HistoryFilePathOld
+    {
+        get
+        {
+            if (Sandbox) return null;
+
+            return Path.Combine(PersonalFolder, HistoryFileNameOld);
+        }
+    }
 
     #endregion Paths
 
@@ -286,7 +280,7 @@ public class SnapX
         MultiInstance = CLIManager.IsCommandExist("multi", "m");
         if (CLIManager.IsCommandExist("sound", "s"))
         {
-            DebugHelper.WriteLine("Running Sound Command");
+            DebugHelper.WriteLine("Playing Notification Sound");
             PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
         }
         Run();
@@ -361,6 +355,7 @@ public class SnapX
                 break;
         }
     }
+    [DapperAot]
     private static void Run()
     {
         DebugHelper.WriteLine("SnapX starting.");
@@ -385,6 +380,7 @@ public class SnapX
         DebugHelper.WriteLine($"Platform: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
         if (OperatingSystem.IsLinux() && OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
         DebugHelper.WriteLine(".NET: " + RuntimeInformation.FrameworkDescription);
+        Settings.ApplicationVersion = Helpers.GetApplicationVersion();
 
         _ = Task.Run(() =>
         {
@@ -407,8 +403,29 @@ public class SnapX
         RegisterIntegrations();
         CheckPuushMode();
         DebugWriteFlags();
-        // SettingManager.LoadInitialSettings();
-        SettingManager.LoadAllSettings();
+        if (OperatingSystem.IsFreeBSD() || Environment.GetEnvironmentVariable("SNAPX_USE_SYSTEM_SQLITE3") != null)
+        {
+            // There are no provided bundles for FreeBSD, must use system SQLite for now.
+            // If it fails to load libsqlite3.so, ensure that you have the sqlite package installed. If that doesn't work, try
+            // LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib snapx-ui
+            SQLitePCL.raw.SetProvider(new SQLite3Provider_sqlite3());
+        }
+        SQLitePCL.Batteries_V2.Init();
+
+        var connectionString = new SqliteConnectionStringBuilder { DataSource = DBPath, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true }.ToString();
+        DbConnection = new SqliteConnection(connectionString);
+        DbConnection.OpenAsync().GetAwaiter().GetResult();
+        using var command = DbConnection.CreateCommand();
+        command.CommandText = "PRAGMA journal_mode=WAL;";
+        command.ExecuteScalarAsync().GetAwaiter().GetResult();
+        DebugHelper.WriteLine($"DB: SQLite {DbConnection.ServerVersion}");
+        DebugHelper.WriteLine($"DB Path: {DbConnection.ConnectionString}");
+
+        DbConnection.StateChange += (_, Args) =>
+        {
+            DebugHelper.WriteLine($"DB: {Args.CurrentState}");
+        };
+        SettingManager.LoadSettings();
         if (TelemetryEnabled())
             SentrySdk.Init(options =>
             {
@@ -475,10 +492,12 @@ public class SnapX
         if (closeSequenceStarted) return;
         closeSequenceStarted = true;
 
-        DebugHelper.WriteLine("SnapX closing.");
+        DebugHelper.WriteLine("SnapX closing!");
 
         WatchFolderManager?.Dispose();
         SettingManager.SaveAllSettings();
+        DbConnection.CloseAsync().GetAwaiter().GetResult();
+        DbConnection.Dispose();
         if (TelemetryEnabled()) SentrySdk.Close();
 
         DebugHelper.WriteLine("SnapX closed.");
@@ -489,7 +508,7 @@ public class SnapX
     private static void UpdatePersonalPath()
     {
         if (Sandbox) return;
-        Sandbox = CLIManager.IsCommandExist("sandbox");
+        Sandbox = CLIManager.IsCommandExist("sandbox") || Environment.GetEnvironmentVariable("SNAPX_SANDBOX") != null;
 
         if (CLIManager.IsCommandExist("portable", "p"))
         {

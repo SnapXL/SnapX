@@ -15,7 +15,8 @@ namespace SnapX.Core.Job;
 public static class TaskManager
 {
     public static List<WorkerTask> Tasks { get; } = [];
-    public static RecentTaskManager RecentManager { get; } = new RecentTaskManager();
+
+    public static HistoryManager History { get; set; }
     public static bool IsBusy => Tasks.Count > 0 && Tasks.Any(task => task.IsBusy);
 
     private static int lastIconStatus = -1;
@@ -57,6 +58,7 @@ public static class TaskManager
 
     private static void StartTasks()
     {
+        InitHistoryManager();
         var workingTasksCount = Tasks.Count(x => x.IsWorking);
         var inQueueTasks = Tasks.Where(x => x.Status == TaskStatus.InQueue).ToArray();
 
@@ -188,7 +190,6 @@ public static class TaskManager
                                 AppendHistoryItemAsync(historyItem);
                             }
 
-                            RecentManager.Add(task);
 
                             if (info.Job != TaskJob.ShareURL)
                             {
@@ -234,21 +235,20 @@ public static class TaskManager
         DebugHelper.Logger.Debug("Appending history item {historyItem} to task list", historyItem.FilePath);
         Task.Run(() =>
         {
-            HistoryManager history = new HistoryManagerJSON(SnapX.HistoryFilePath)
-            {
-                BackupFolder = SettingManager.SnapshotFolder,
-                CreateBackup = false,
-                CreateWeeklyBackup = true
-            };
-
-            history.AppendHistoryItem(historyItem);
+            History.AppendHistoryItem(historyItem);
         });
     }
-    public static void AddRecentTasksToMainWindow()
+
+    public static void InitHistoryManager()
     {
-        foreach (var task in RecentManager.Tasks.Select(recentTask => WorkerTask.CreateHistoryTask(recentTask)))
-        {
-            Start(task);
-        }
+        if (History == null)
+            History = new HistoryManagerSQLite(SnapX.DbConnection)
+            {
+                BackupFolder = SettingManager.SnapshotFolder,
+                CreateBackup = true,
+                CreateWeeklyBackup = true
+            };
     }
+
+    public static IEnumerable<HistoryItem> GetRecentHistoryItems(int MaxCount) => History?.GetHistoryItems().Take(MaxCount) ?? [];
 }
