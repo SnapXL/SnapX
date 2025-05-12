@@ -3,6 +3,7 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SnapX.Core.Media;
+using WaylandSharp;
 
 namespace SnapX.Core.Utils.Native;
 
@@ -11,6 +12,15 @@ public class LinuxAPI : NativeAPI
     private static bool IsWayland()
     {
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
+        using var wlDisplay = WlDisplay.Connect();
+        using var wlRegistry = wlDisplay.GetRegistry();
+
+        wlRegistry.Global += (_, e) =>
+        {
+            DebugHelper.WriteLine($"{e.Name}:{e.Interface}:{e.Version}");
+        };
+
+        wlDisplay.Roundtrip();
         return !string.IsNullOrEmpty(display);
     }
 
@@ -174,36 +184,96 @@ public class LinuxAPI : NativeAPI
 
     [DllImport("libX11.so.6")]
     private static extern void XCloseDisplay(IntPtr display);
+    [DllImport("libX11.so.6")]
+    private static extern IntPtr XCreateSimpleWindow(IntPtr display, IntPtr parent, int x, int y, uint width, uint height, uint border_width, ulong border, ulong background);
+    [DllImport("libX11.so.6")]
+    private static extern int XSendEvent(IntPtr display, IntPtr window, bool propagate, int event_mask, ref XEvent xevent);
+    [DllImport("libX11.so.6")]
+    private static extern int XNextEvent(IntPtr display, out XEvent xevent);
+    [DllImport("libX11.so.6")]
+    private static extern int XChangeProperty(IntPtr display, IntPtr window, IntPtr property, IntPtr type, int format, int mode, byte[] data, int nelements);
 
+
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XEvent
+    {
+        public int type;
+        public XSelectionRequestEvent xselectionrequest;
+    }
+    private const int SelectionRequest = 30;
+    private const int SelectionNotify = 31;
+    private const int PropModeReplace = 0;
+    private const int CurrentTime = 0;
+    private static readonly IntPtr XA_STRING = new IntPtr(31);
+
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XSelectionRequestEvent
+    {
+        public int type;
+        public IntPtr display;
+        public IntPtr requestor;
+        public IntPtr selection;
+        public IntPtr target;
+        public IntPtr property;
+        public int time;
+    }
     // X11 Constants
     private static readonly IntPtr XA_PRIMARY = 1;
     private static readonly IntPtr XA_CLIPBOARD = 2;
+
 
     public override void CopyText(string text)
     {
         if (IsWayland())
         {
-            // call dbus to copy text to clipboard
-
+            DebugHelper.WriteLine("X11 code running on XWayland may crash SnapX.");
+            return;
         }
         IntPtr display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
-            DebugHelper.WriteLine("Unable to open X11 display.");
+            DebugHelper.WriteLine("Could not open X11 display.");
             return;
         }
-
-        IntPtr rootWindow = XRootWindow(display, 0);  // Get the root window for the default screen
-        IntPtr selection = XA_CLIPBOARD;
-
+        IntPtr root = XDefaultRootWindow(display);
+        IntPtr window = XCreateSimpleWindow(display, root, 0, 0, 1, 1, 0, 0, 0);
+        IntPtr clipboard = XInternAtom(display, "CLIPBOARD", false);
+        XSetSelectionOwner(display, clipboard, window, CurrentTime);
+        if (XGetSelectionOwner(display, clipboard) != window)
+        {
+            DebugHelper.WriteLine($"Failed to set X11 selection owner... :(");
+            return;
+        }
         byte[] textBytes = Encoding.UTF8.GetBytes(text);
-
-        // Set the clipboard content by sending the data to the X server
-        XSetSelectionOwner(display, selection, rootWindow, 0);
-        XStoreBytes(display, selection, textBytes, textBytes.Length);
-        XFlush(display);  // Ensure the data is written to the clipboard
-
-        DebugHelper.WriteLine("Text copied to clipboard.");
+        IntPtr utf8 = XInternAtom(display, "UTF8_STRING", false);
+        while (true)
+        {
+            XEvent ev;
+            XNextEvent(display, out ev);
+            if (ev.type == SelectionRequest)
+            {
+                XSelectionRequestEvent req = ev.xselectionrequest;
+                XEvent response = new XEvent();
+                response.type = SelectionNotify;
+                response.xselectionrequest.display = req.display;
+                response.xselectionrequest.requestor = req.requestor;
+                response.xselectionrequest.selection = req.selection;
+                response.xselectionrequest.target = req.target;
+                response.xselectionrequest.property = req.property;
+                if (req.target == utf8 || req.target == XA_STRING)
+                {
+                    XChangeProperty(display, req.requestor, req.property, req.target, 8, PropModeReplace, textBytes, textBytes.Length);
+                }
+                else
+                {
+                    response.xselectionrequest.property = IntPtr.Zero;
+                }
+                XSendEvent(display, req.requestor, false, 0, ref response);
+                XFlush(display);
+            }
+        }
     }
 
     public override void CopyImage(Image image, string filename = null)
