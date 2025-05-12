@@ -11,9 +11,13 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
+#if WINDOWS
+using SnapX.Core.Utils.Native;
+#endif
 using SnapX.Core.Watch;
 using SQLitePCL;
 using Xdg.Directories;
+
 
 namespace SnapX.Core;
 public class SnapX
