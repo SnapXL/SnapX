@@ -5,8 +5,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using Dapper;
 #if WINDOWS
 using Esatto.Win32.Registry;
 #endif
@@ -14,9 +12,7 @@ using Microsoft.Extensions.Configuration;
 using SnapX.Core.History;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Job;
-using SnapX.Core.Models;
 using SnapX.Core.Upload;
-using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.Zip;
 using SnapX.Core.Utils;
 
@@ -126,18 +122,18 @@ internal static class SettingManager
             configurationBuilder.AddSqliteSettings(SnapX.DbConnection);
         }
 
-            configurationBuilder
-            .AddCommandLine(Environment.GetCommandLineArgs())
-            // .AddInMemoryCollection()
-            // Allows ALL settings to be managed via the Windows Registry.
-            // This call does nothing on non-Windows Operating Systems
-            .AddEnvironmentVariables(prefix: "SNAPX_");
+        configurationBuilder
 #if WINDOWS
-            configurationBuilder.AddRegistry(@"Software\BrycensRanch\SnapX");
+        .AddRegistry(@"Software\BrycensRanch\SnapX")
 #endif
+        .AddCommandLine(Environment.GetCommandLineArgs())
 
+        // .AddInMemoryCollection()
+        // Allows ALL settings to be managed via the Windows Registry.
+        // This call does nothing on non-Windows Operating Systems
+        .AddEnvironmentVariables(prefix: "SNAPX_");
         SnapX.Configuration = configurationBuilder.Build();
-        foreach (var kv in  SnapX.Configuration.AsEnumerable())
+        foreach (var kv in SnapX.Configuration.AsEnumerable())
         {
             DebugHelper.WriteLine($"{kv.Key} = {kv.Value}");
         }
@@ -159,7 +155,7 @@ internal static class SettingManager
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
 #if WINDOWS
-            .AddRegistry(@"Software\BrycensRanch\SnapX");
+            .AddRegistry(@"Software\BrycensRanch\SnapX")
 #endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
@@ -181,7 +177,7 @@ internal static class SettingManager
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
 #if WINDOWS
-            .AddRegistry(@"Software\BrycensRanch\SnapX");
+            .AddRegistry(@"Software\BrycensRanch\SnapX")
 #endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
@@ -409,7 +405,7 @@ internal static class SettingManager
     }
 
     // This method validates the setting before restoration to ensure it fits the defined type
-    private static  bool IsValidValue(string value, string dataType)
+    private static bool IsValidValue(string value, string dataType)
     {
         if (string.IsNullOrWhiteSpace(value))
             return false; // Prevent null or empty values.
