@@ -16,15 +16,14 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <TrimMode>link</TrimMode>
+    <PublishTrimmed>true</PublishTrimmed>
+    <Optimize>true</Optimize>
     <AvaloniaVersion>11.3.0</AvaloniaVersion>
     <!-- After investigation, this needs to be an absolute path. It should be set by our build script later down the road. -->
     <!-- That way, you hopefully wouldn't need to have the snapx-ui executable right alongside it's .so/.dll/.dylib -->
     <AvaloniaNativeLibraryPath>/usr/local/lib/snapx</AvaloniaNativeLibraryPath>
 
     <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called snapx-ui. Instead create a executable shell script that calls snapx-ui -->
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DefineConstants>$(DefineConstants);ENABLE_XAML_HOT_RELOAD</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugSymbols>false</DebugSymbols>
@@ -51,7 +50,7 @@
     <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="1.1.293" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="LibVLCSharp.Avalonia" Version="3.9.2" />
+    <PackageReference Include="LibVLCSharp.Avalonia" Version="3.9.3" />
     <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
     <PackageReference Condition="$([MSBuild]::IsOsPlatform('OSX'))" Include="VideoLAN.LibVLC.Mac" Version="3.1.3.1" />
     <PackageReference Condition="$([MSBuild]::IsOsPlatform('Windows'))" Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />

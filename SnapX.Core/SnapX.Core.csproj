@@ -6,8 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyTitle>SnapX Core</AssemblyTitle>
-    <Optimize>true</Optimize>
-    <PublishTrimmed>true</PublishTrimmed>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Dapper.AOT</InterceptorsPreviewNamespaces>
 
@@ -48,8 +46,8 @@
     <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="2.1.11" />
 
     <!-- Configuration has never been so intuitive -->
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.4" />
     <!-- Windows Registry Configuration Support -->
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" Condition="'$(OS)' == 'Windows_NT'">
@@ -70,20 +68,20 @@
     <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="2.7.0" />
     <!-- Please send help the application binaries are so huge & bloated AHHHHHH -->
     <PackageReference Include="OpenCvSharp4.runtime.osx_arm64" Version="4.8.1-rc" />
-    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
     <!-- Crash forensics & performance analytics -->
-    <PackageReference Include="Sentry.Profiling" Version="5.5.0" />
+    <PackageReference Include="Sentry.Profiling" Version="5.6.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <!-- Cross platform image library -->
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
     <!-- Helpers for drawing -->
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
     <!-- Wayland support -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
     <PackageReference Include="waylandsharper" Version="0.1.1">
@@ -98,7 +96,7 @@
     <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.17" />
     <PackageReference Include="FluentFTP" Version="52.1.0" />
     <PackageReference Include="MegaApiClient" Version="1.10.4" />
-    <PackageReference Include="SSH.NET" Version="2024.2.0" />
+    <PackageReference Include="SSH.NET" Version="2025.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Resources\host-manifest-chrome.json">
@@ -128,10 +126,6 @@
   <ItemGroup>
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="WaylandProtocol" />
     <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModels\" />
-
   </ItemGroup>
 <ItemGroup>
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />

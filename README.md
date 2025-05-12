@@ -12,21 +12,21 @@
 <br>
 <p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="https://getsharex.com/img/ShareX_Screenshot.png" alt="Repo"/></a></p>
 
-# :construction: This project is under development and is not ready for use. :construction:
+> [!CAUTION]
+> **This project is _under development_ and is _not_ ready for use.**
 
-## :warning: Disclaimer
+> [!NOTE]
+> **DISCLAIMER:** SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows application [ShareX](https://github.com/ShareX/ShareX).
 
-SnapX is a [hard fork](https://producingoss.com/en/forks.html) of the Windows application [ShareX](https://github.com/ShareX/ShareX).
-
-## Feature wise
+## Feature-wise
 
 - SnapX is a cross-platform application.
 - Elegance in user interfaces by separating essential settings from advanced or intermediate functionality
 - Supporting high DPI screens
-- Screenshots on an HDR monitor aren't blown out*
+- Screenshots on an HDR monitor aren't blown out<sup>[1]</sup>
 - Cross-platform OCR powered by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR/blob/main/README_en.md) that [rivals PowerToys OCR, ShareX OCR, & Windows 10 built in OCR in accuracy](https://toon-beerten.medium.com/ocr-comparison-tesseract-versus-easyocr-vs-paddleocr-vs-mmocr-a362d9c79e66)
 
-[1]: When tested on KDE Plasma Wayland 6.2.90 with HDR the resulting screenshot's colors were not blown out. Your mileage may vary.
+> [1] When tested on KDE Plasma Wayland 6.2.90 with HDR, the resulting screenshots' colors were not blown out. Your mileage may vary.
 
 ## Technical Details
 
@@ -50,8 +50,8 @@ What does this all mean? It means you'll be able to have a more **performant**, 
 You will *not* receive any support from the ShareX project for this software.
 If you have any issues with this project, please **open an issue** in this repository.
 
-However, it's important to note that this project is maintained by volunteers,
-and we may not be able to provide support for all issues.
+However, it's important to note that this project is maintained by volunteers. 
+We may not be able to provide support for all issues.
 We will do our best to help you, but we cannot guarantee that we will be able to resolve your issue.
 
 <p align="center"> For further information, please check the source code.</p>
@@ -63,11 +63,12 @@ This project is built on Ubuntu 24.04 and is tested on the following distributio
 - **F**edora 41+
 - **U**buntu 24.04+
 
-If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can build the project from source.
+> [!NOTE]
+> If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
 
 ## Other platforms
 
-When I initially started this port, I only came with one main goal: ShareX on Modern Linux on native Wayland.
+I initially started this project with one main goal: ShareX on Linux on Wayland.
 I realized my work could be used on other platforms such as macOS or Windows...
 
 That's why SnapX.Avalonia was created.
@@ -75,11 +76,7 @@ That's why SnapX.Avalonia was created.
 Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *should* look something like this.
 Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
 
-For screenshots, it uses your operating system's respective APIs. On Linux Wayland, it uses portals. This is a less performant implementation as it has to delete the requested screenshot file after reading it into memory.
-
 ## Development Dependencies
-
-Instructions for other projects within the SnapX solution are not provided yet.
 
 - `git`
 - `dotnet-sdk-9.0`
@@ -129,33 +126,43 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-## macOS Ventura+ (13) 🍎
+### macOS Ventura+ (13) 🍎
 
 End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
-#### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
+#### Using the script to install the .NET SDK from the .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
 
 ```zsh
+xcode-select --install
+brew install ffmpeg@7
 curl -O https://dot.net/v1/dotnet-install.sh # Official installation script from .NET team
 chmod +x dotnet-install.sh
 ./dotnet-install.sh -Channel current
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
+> [!TIP]
+> If you're using MacPorts, run this instead of `brew install ffmpeg@7`:
+> ```zsh
+> sudo port selfupdate
+> sudo port install ffmpeg7
+> ```
 
 ## Building from Source
 
-Only do this if you're a developer; you should have a backup of all your ShareX/SnapX data.
-I do, in fact, mean it when I say the project isn't ready for use.
+> [!CAUTION]
+> **Only do this if you're a developer**; you should have a backup of all your ShareX/SnapX data.
+> I do mean it when I say the project isn't ready for use.
 
-Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
-I've been testing with my ShareX configuration. You should place it in the configuration directory it expects.
-
-On Linux, its `~/.config/SnapX`
-
-On Windows, its `%USERPROFILE%\Documents\SnapX`
-
-On macOS, its `~/Library/Application Support/SnapX`
+> [!IMPORTANT]
+> Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
+> I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
+> 
+> On **Linux**, it's `~/.config/SnapX`
+> 
+> On **Windows**, it's `%USERPROFILE%\Documents\SnapX`
+> 
+> On **macOS**, it's `~/Library/Application Support/SnapX`
 
 ```bash
 git clone https://github.com/BrycensRanch/SnapX
@@ -163,7 +170,7 @@ cd SnapX
 ./build.sh # Calls NUKE (https://nuke.build) (Linux/macOS)
 .\build.ps1 # If on Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
-# nothing is stopping you from using regular .NET building tools
+# Nothing is stopping you from using regular .NET building tools
 # dotnet publish -c Release
 # SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
 ```

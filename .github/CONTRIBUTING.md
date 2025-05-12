@@ -43,7 +43,7 @@ If a maintainer asks you to "rebase" your PR, they're saying that a lot of code 
 
 ## Getting started
 
-1. Fork the repo and create your branch from `develop`.
+1. Fork the repo and create your branch from `develop`. Name it accordingly using the [Conventional Branch standard](https://conventional-branch.github.io/).
 2. If you've added code that should be tested, add tests.
 3. If you've changed APIs or added new features, update the documentation.
 4. Ensure the test suite passes.
@@ -57,9 +57,9 @@ The core team will look at your change as soon as possible and review it. Howeve
 
 ### Code, commit message and labeling conventions
 
-We have very precise rules over how our git commit messages can be formatted. This leads to **more readable messages** that are easy to follow when looking through the **commit history**.
+We have very precise rules over how our Git commit messages can be formatted. This leads to **more readable messages** that are easy to follow when looking through the **commit history**.
 
-It is important to note that we use the git commit messages to **generate** the [CHANGELOG](./CHANGELOG.md) document. Improperly formatted commit messages may result in your change not appearing in the CHANGELOG of the next release.
+It is important to note that we use the Git commit messages to **generate** the [CHANGELOG](./CHANGELOG.md) document. Improperly formatted commit messages may result in your change not appearing in the CHANGELOG of the next release.
 
 ### <a name="commit-message-format"></a> Commit Message Format
 

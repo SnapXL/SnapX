@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # User-specific files
+*.rsuser
 *.suo
 *.user
 *.userosscache
@@ -11,6 +12,9 @@
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+
+# Mono auto generated files
+mono_crash.*
 
 # Build results
 [Dd]ebug/
@@ -20,10 +24,14 @@
 [Tt]arget/
 x64/
 x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
 bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+[Ll]ogs/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -42,6 +50,7 @@ Generated\ Files/
 # NUNIT
 *.VisualState.xml
 TestResult.xml
+nunit-*.xml
 
 # Build Results of an ATL Project
 [Dd]ebugPS/
@@ -56,12 +65,16 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
 # StyleCop
 StyleCopReport.xml
 
 # Files built by Visual Studio
 *_i.c
 *_p.c
+*_h.h
 *_i.h
 *.ilk
 *.meta
@@ -75,13 +88,17 @@ StyleCopReport.xml
 *.pgc
 *.pgd
 *.rsp
+# but not Directory.Build.rsp, as it configures directory-level build defaults
+!Directory.Build.rsp
 *.sbr
 *.tlb
 *.tli
 *.tlh
 *.tmp
 *.tmp_proj
+*_wpftmp.csproj
 *.log
+*.tlog
 *.vspscc
 *.vssscc
 .builds
@@ -140,12 +157,18 @@ _TeamCity*
 .axoCover/*
 !.axoCover/settings.json
 
+# Coverlet is a free, cross platform Code Coverage Tool
+coverage*.json
+coverage*.xml
+coverage*.info
+
 # Visual Studio code coverage results
 *.coverage
 *.coveragexml
 
 # NCrunch
 _NCrunch_*
+.NCrunch_*
 .*crunch*.local.xml
 nCrunchTemp_*
 
@@ -187,6 +210,8 @@ PublishScripts/
 
 # NuGet Packages
 *.nupkg
+# NuGet Symbol Packages
+*.snupkg
 # The packages folder can be ignored because of Package Restore
 **/[Pp]ackages/*
 # except build/, which is used as an MSBuild target.
@@ -198,7 +223,6 @@ PublishScripts/
 *.nuget.targets
 
 # Avalonia
-
 *.dxvk-cache
 
 # Microsoft Azure Build Output
@@ -215,12 +239,14 @@ BundleArtifacts/
 Package.StoreAssociation.xml
 _pkginfo.txt
 *.appx
+*.appxbundle
+*.appxupload
 
 # Visual Studio cache files
 # files ending in .cache can be ignored
 *.[Cc]ache
 # but keep track of directories ending in .cache
-!*.[Cc]ache/
+!?*.[Cc]ache/
 
 # Others
 ClientBin/
@@ -264,6 +290,9 @@ ServiceFabricBackup/
 *.bim.layout
 *.bim_*.settings
 *.rptproj.rsuser
+*- [Bb]ackup.rdl
+*- [Bb]ackup ([0-9]).rdl
+*- [Bb]ackup ([0-9][0-9]).rdl
 
 # Microsoft Fakes
 FakesAssemblies/
@@ -283,6 +312,17 @@ node_modules/
 
 # Visual Studio 6 auto-generated workspace file (contains which files were open etc.)
 *.vbw
+
+# Visual Studio 6 auto-generated project file (contains which files were open etc.)
+*.vbp
+
+# Visual Studio 6 workspace and project file (working project files containing files to include in project)
+*.dsw
+*.dsp
+
+# Visual Studio 6 technical files
+*.ncb
+*.aps
 
 # Visual Studio LightSwitch build output
 **/*.HTMLClient/GeneratedArtifacts
@@ -305,6 +345,9 @@ paket-files/
 
 # CodeRush
 .cr/
+
+# CodeRush personal settings
+.cr/personal
 
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
@@ -341,6 +384,74 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder
 .mfractor/
 
+# Local History for Visual Studio
+.localhistory/
+
+# Visual Studio History (VSHistory) files
+.vshistory/
+
+# BeatPulse healthcheck temp database
+healthchecksdb
+
+# Backup folder for Package Reference Convert tool in Visual Studio 2017
+MigrationBackup/
+
+# Ionide (cross platform F# VS Code tools) working folder
+.ionide/
+
+# Fody - auto-generated XML schema
+FodyWeavers.xsd
+
+# VS Code files for those working on multiple tools
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# NSIS
+## Examples, docs
+NSIS/Docs/
+NSIS/Examples/
+
+## Unused exes
+# Windowed NSIS
+NSIS/makensisw.exe
+# NSIS application
+NSIS/NSIS.exe
+NSIS/Bin/GenPat.exe
+# zip2exe extra tool
+NSIS/Bin/zip2exe.exe
+NSIS/Contrib/zip2exe/
+# NVDA uses the Modern UI
+NSIS/Contrib/UIs/default.exe
+NSIS/Contrib/UIs/sdbarker_tiny.exe
+
+## Plugins
+# Remove all plugins by default
+NSIS/Plugins/x86-ansi/
+NSIS/Plugins/x86-unicode/
+# Plugins used by NVDA the NVDA installer
+!NSIS/Plugins/x86-unicode/Banner.dll
+!NSIS/Plugins/x86-unicode/nsDialogs.dll
+!NSIS/Plugins/x86-unicode/System.dll
+!NSIS/Plugins/x86-unicode/TypeLib.dll
+
+# Local History for Visual Studio Code
+.history/
+
+# Windows Installer files from build outputs
+*.cab
+*.msi
+*.msix
+*.msixbundle
+*.msm
+*.msp
+
 # SnapX
 Output/
 APIKeysLocal.cs
+
+# macOS specific files
+.DS_Store

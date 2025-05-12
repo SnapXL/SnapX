@@ -23,17 +23,20 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
 URL:            https://github.com/BrycensRanch/SnapX
 Source:         %{url}/archive/refs/heads/develop.tar.gz
 
-BuildRequires:  dotnet-sdk-aot-9.0
+BuildRequires:  (dotnet-sdk-aot-9.0 OR dotnet-sdk-9.0)
 
 Recommends:     /usr/bin/ffmpeg
+# Generic Avalonia Dependencies
 Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
+# Required for opening browser tabs across Linux desktops
+Requires:       xdg-utils
 
 
 # .NET architecture support is rather lacking.
@@ -51,10 +54,12 @@ Specifically, it is the CLI tool.
 %package ui
 Summary:        SnapX Avalonia-based UI
 Requires:       snapx
-Requires:       (vlc-libs OR pkgconfig(libvlc) OR vlc-devel)
+Requires:       (vlc-libs or pkgconfig(libvlc) or vlc-devel)
 
 
 %description ui
+This is a port of the original ShareX application to Linux.
+It is not an official release and is not affiliated with the original ShareX project.
 SnapX but with Avalonia. Works best on X11.
 
 %prep

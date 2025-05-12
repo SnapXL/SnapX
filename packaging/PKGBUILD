@@ -44,6 +44,7 @@ package_snapx() {
         'libxcb'
         'dbus'
         'vlc'
+        'xdg-utils'
     )
 
      cd "$pkgbase"
@@ -52,7 +53,7 @@ package_snapx() {
 }
 
 package_snapx-ui() {
-    pkgdesc="SnapX Avalonia-based UI (works best on X11)"
+    pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX). SnapX Avalonia-based UI (works best on X11)"
     depends=('snapx')
 
     cd "$pkgbase"
