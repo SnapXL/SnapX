@@ -187,7 +187,4 @@
  <data name="UI_DeleteFileLocally_ToolTip">
   <value>Deletes it from your computer, not any configured destinations or uploaders.</value>
  </data>
-  <data name="ReportErrorToDeveloper">
-    <value>Report Error to Developer</value>
-  </data>
 </root>
