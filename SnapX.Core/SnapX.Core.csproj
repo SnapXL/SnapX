@@ -84,7 +84,7 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
     <!-- Wayland support -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
-    <PackageReference Include="waylandsharper" Version="0.1.1">
+    <PackageReference Include="WaylandSharper" Version="0.1.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
