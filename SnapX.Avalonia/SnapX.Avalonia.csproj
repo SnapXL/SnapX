@@ -16,7 +16,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <TrimMode>link</TrimMode>
-    <AvaloniaVersion>11.2.6</AvaloniaVersion>
+    <AvaloniaVersion>11.3.0</AvaloniaVersion>
     <!-- After investigation, this needs to be an absolute path. It should be set by our build script later down the road. -->
     <!-- That way, you hopefully wouldn't need to have the snapx-ui executable right alongside it's .so/.dll/.dylib -->
     <AvaloniaNativeLibraryPath>/usr/local/lib/snapx</AvaloniaNativeLibraryPath>
@@ -49,6 +49,7 @@
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
     <PackageReference Include="FluentAvaloniaUI" Version="2.3.0" />
+    <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="1.1.293" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
     <PackageReference Include="LibVLCSharp.Avalonia" Version="3.9.2" />
@@ -63,14 +64,5 @@
     <Folder Include="Controls\" />
     <VlcWindowsX86ExcludeFiles Condition="$([MSBuild]::IsOsPlatform('Windows'))" Include="%2A%2A" />
 
-  </ItemGroup>
-  <ItemGroup>
-    <AdditionalFiles Include="Views\About\AboutWindow.axaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Views\About\AboutWindow.axaml.cs">
-      <DependentUpon>AboutWindow.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
 </Project>
