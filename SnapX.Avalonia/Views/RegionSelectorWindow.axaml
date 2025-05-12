@@ -20,18 +20,19 @@
         LostFocus="OnLostFocus"
         Closed="OnClosed"
         Opened="OnOpened"
+        KeyDown="OnKeyDown" KeyUp="OnKeyDown"
         Title="RegionSelectorWindow">
   <Design.DataContext>
     <viewModels:RegionSelectorViewModel />
   </Design.DataContext>
   <Viewbox Stretch="UniformToFill">
 
-  <Canvas KeyDown="OnKeyDown" KeyUp="OnKeyDown" x:Name="Canvas">
+  <Canvas x:Name="Canvas">
     <Rectangle
       x:Name="DimmingOverlay"
       Stretch="UniformToFill"
       Fill="Black"
-      Opacity="0.7" />
+      IsVisible="False"/>
     <Rectangle x:Name="SelectionRect"
                StrokeThickness="2"
                Stroke="{DynamicResource SystemAccentColorDark1}"

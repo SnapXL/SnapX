@@ -31,12 +31,6 @@ public partial class RegionSelectorWindow : Window
     private List<Window> windowsHiddenByUs = new ();
     public RegionSelectorWindow(RegionSelectorViewModel vm)
     {
-        App.MyMainWindow?.Hide();
-        foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != null && w != this && w.IsVisible))
-        {
-            win.Hide();
-            windowsHiddenByUs.Add(win);
-        }
         DataContext = vm;
         InitializeComponent();
         _selectionRect = this.FindControl<Rectangle>("SelectionRect");
@@ -105,6 +99,7 @@ public partial class RegionSelectorWindow : Window
     }
     private void UpdateDimmingOverlay(double x, double y, double width, double height)
     {
+        return;
         var overlay = new DrawingGroup();
         using (var context = overlay.Open())
         {
@@ -117,7 +112,7 @@ public partial class RegionSelectorWindow : Window
     }
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
-        DebugHelper.WriteLine($"RegionSelectorWindow.OnKeyDown: Key: {e.Key}");
+        DebugHelper.WriteLine($"{sender}.OnKeyDown: Key: {e.Key}");
         switch (e.Key)
         {
             case Key.Enter:
@@ -131,6 +126,16 @@ public partial class RegionSelectorWindow : Window
 
     private void OnOpened(object? Sender, EventArgs EventArgs)
     {
+        if (App.MyMainWindow != null && App.MyMainWindow.IsVisible)
+        {
+            App.MyMainWindow.Hide();
+            windowsHiddenByUs.Add(App.MyMainWindow);
+        }
+        foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != null && w != this && w.IsVisible))
+        {
+            win.Hide();
+            windowsHiddenByUs.Add(win);
+        }
         // Screenshotting is synchronous that blocks the UI thread. FUCK YOU
         var image = Task.Factory.StartNew(() =>
                 TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings())
@@ -143,7 +148,7 @@ public partial class RegionSelectorWindow : Window
         image.SaveAsPng(_imageStream);
         _imageBounds = new Rect(image.Bounds.X, image.Bounds.Y, image.Bounds.Width, image.Bounds.Height);
         image.Dispose();
-        DebugHelper.WriteLine($"_imageStream {_imageStream.Length} bytes");
+        DebugHelper.WriteLine($"_imageStream {_imageStream.Length} (Readable? {_imageStream.CanRead}) bytes raw image bounds {image.Bounds}");
         // Take a fullscreen screenshot then use it as background instead of transparency if light taskSetting is set.
         // If the application has already taken the fullscreen screenshot, crop it with the region captured.
         // Screenshotting is an expensive operation!
