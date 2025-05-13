@@ -43,6 +43,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+      - name: Restore
+        run: dotnet restore SnapX.sln
       - name: Cache .NET NuGet packages
         uses: actions/cache@v4
         with:
@@ -62,11 +64,14 @@ jobs:
           include-hidden-files: false
           compression-level: 9
       - name: Ensure commit message is compliant (conventional commits via commitlint)
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         uses: wagoid/commitlint-github-action@v6
       - name: Enforce code style using dotnet format
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         run: dotnet format --verify-no-changes -v diagnostic SnapX.sln
       - name: Markdownlint
         uses: DavidAnson/markdownlint-cli2-action@v19
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         with:
           #fix: true
           globs: '**/*.md'
