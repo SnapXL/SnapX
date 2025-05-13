@@ -74,7 +74,9 @@ jobs:
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         with:
           #fix: true
-          globs: '**/*.md'
+          globs: |
+            **/*.md
+            !LICENSE.md
       - name: Publish Windows ARM64 (CLI)
         if: matrix.os == 'windows-2025'
         working-directory: SnapX.CLI
