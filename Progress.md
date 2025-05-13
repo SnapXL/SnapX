@@ -2,7 +2,7 @@
 
 # Checklist
 
-- [x] Port `NativeMessagingHost` to .NET 9 (It was literally a few lines of code...)
+- [x] Port `NativeMessagingHost` to .NET 9 (It was a few lines of code...)
 - [ ] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://github.com/dotnet/efcore>
 - [x] Log files should be a daily log file, not a whole MONTH (wtf?)
 - [x] Symlink ~/Documents/SnapX to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
@@ -11,34 +11,42 @@
 - [ ] Add charts for statistics like uploading, avg image size, most used image extension, and error rate for uploading
 - [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation.
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
-- [ ] Expose entire Core in UI (Avalonia)
+- [ ] Expose the entire Core in UI (Avalonia)
 - [x] Add telemetry & Aptabase is a work in progress, PR pending https://github.com/aptabase/aptabase-maui/pull/12
 - [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp)
 - [ ] Use Microsoft's [MSIX Packaging tool](https://github.com/microsoft/msix-packaging) for MSIXBundles for Windows.
 - [ ] Integrate with Windows Share https://discussions.unity.com/t/calling-windows-shareui-dialog-from-unity-on-windows-10-11-on-non-uwp-build-target/1586504
 - [ ] Add to Microsoft Store
-- [ ] Add to Winget
+- [ ] Add to Winget, Chocolately, and Scoop
 - [ ] Add to COPR
+- [ ] Add to Homebrew
 - [ ] Add to AUR see PR #56 for the initial PKGBUILD
+- [ ] Add to FOSS Torrents
+- [ ] Add to PortableApps.com
+- [ ] Add to AppImageHub
+- [ ] Add [Jump list](https://github.com/ShareX/ShareX/issues/1106#issuecomment-596048694)
 - [ ] Port `go-keyring` to C# (Needed for not saving auth creds in plaintext, big no no )
+- [ ] Search for missing files button in main window and locate missing file to allow users to fix broken entries.
 - [x] Bring in XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
 - [x] Remove SnapX as a fork of ShareX that can be merged into upstream. *Completed at 233 commits ahead of upstream*
+- [ ] Add Tools from ShareX to SnapX. Notably, upgrade [ExifTool](https://exiftool.org/) from a "Tool" to an optional feature that shows more information, like a properties button on a screenshot's flyout menu.
+- [ ] Add a New Tool that will transcode/reencode videos/images to a certain size based off of the options Discord provides. I believe this can be done with LibVLC or FFMPEG.
+- [ ] Add first-class support for [ImgBB](https://imgbb.com/), [Mastodon](https://mastodon.social/explore), [Bluesky](https://bsky.app/), [Pcloud](https://www.pcloud.com/), [SourceBin](https://sourceb.in/), [PrivateBin](https://github.com/PrivateBin/PrivateBin/wiki/API),  and [Pixeldrain](https://pixeldrain.com/) 
+- [ ] Add Custom Uploader List to SnapX via a build-time HTTP Fetch, or if the file is there already, use that. Can be disabled by packagers as they need offline builds. Or they could fetch the list, or rather, JSON, as part of their build script that isn't done during packaging time. That list is then embedded into the binary and then at runtime it is checked *again* for any new entries to said list. Thus, the functionality keeps working even in an environment where SnapX cannot access the internet.
 
 ## Studying ShareX's behavior on Windows 11 24H2
 
 It's important to know how the program *should* behave in accordance with user expectations. As such, I've done a little recording of it.
-
-With GTK4, this is going to be an interesting endeavor.
 
 ## Rewrite
 
 ShareX's internal code needs major refactoring and decoupling to be ready to work on Linux natively. For example, most cross platform screen capture libraries only work on X11 or hardly work at all. Hopefully, screenshotting on [Wayland](https://wayland.freedesktop.org/) can be done with Dbus on Dotnet. <https://github.com/tmds/Tmds.DBus>
 
 I also want to decouple *away* from a specific UI framework
-which will allow for the possibility of using [Avalonia](https://github.com/AvaloniaUI/Avalonia) for Windows and macOS.
 While GTK4 does "work" on these platforms, it's significantly handicapped or unstable (on macOS)
+Keeping flexibility will be advantageous in the future, I imagine.
 
-Worst case scenario, I may need to introduce C++ code to interact directly with Linux. I haven't tried [xcap](https://github.com/nashaofu/xcap) yet but since it's in Rust, I'd have to make it produce .a and .so files.
+For screen capture, we currently use [xcap](https://github.com/nashaofu/xcap)
 
 ### SemVer & New Commit Message Standard
 
@@ -74,7 +82,7 @@ Telemetry is best when it represents the majority of the user base. I kindly ask
 
 #### Why are you doing this?
 
-WINE is not a solution. Wine is a compatibility layer. It is not a replacement for native applications. I enjoyed using ShareX. Previous attempts to have always been to try and negate the fact that ultimately a Windows application. I hope to reuse ShareX's code with the introduction of .NET 9 and GTK4, but with this port, it should become a cross platform application
+WINE is not a solution. Wine is a compatibility layer. It is not a replacement for native applications. I enjoyed using ShareX. Previous attempts to have always been to try and negate the fact that ultimately a Windows application. I hope to reuse ShareX's code with the introduction of .NET 9 and Avalonia, but with this port, it should become a cross platform application
 
 I am also just not interested in Mono.
 
