@@ -61,6 +61,15 @@ jobs:
           path: .
           include-hidden-files: false
           compression-level: 9
+      - name: Ensure commit message is compliant (conventional commits via commitlint)
+        uses: wagoid/commitlint-github-action@v6
+      - name: Enforce code style using dotnet format
+        run: dotnet format --verify-no-changes -v diagnostic SnapX.sln
+      - name: Markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          #fix: true
+          globs: '**/*.md'
       - name: Publish Windows ARM64 (CLI)
         if: matrix.os == 'windows-2025'
         working-directory: SnapX.CLI
