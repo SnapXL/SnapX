@@ -383,8 +383,8 @@ public static partial class OsInfo
     {
         try
         {
-// PowerShell script to get GPU info and format driver version for NVIDIA GPUs
-var command = @"
+            // PowerShell script to get GPU info and format driver version for NVIDIA GPUs
+            var command = @"
 $gpuInfo = Get-WmiObject Win32_VideoController | Select-Object Description, DriverVersion
 foreach ($gpu in $gpuInfo) {
     $description = $gpu.Description

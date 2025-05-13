@@ -6,7 +6,6 @@ using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.Versioning;
 using System.Text;
 using OpenCvSharp;
 using Sdcb.PaddleInference;
@@ -689,7 +688,8 @@ public static class TaskHelpers
         }
         var config = PaddleDevice.Onnx();
 
-        using var all = new PaddleOcrAll(model, config) {
+        using var all = new PaddleOcrAll(model, config)
+        {
             AllowRotateDetection = false,
             Enable180Classification = false,
         };

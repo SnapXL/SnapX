@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Principal;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using Nuke.Common;
@@ -13,10 +12,8 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.NerdbankGitVersioning;
 using SnapX.Core.Utils;
-using YamlDotNet.Core.Tokens;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Serilog.Log;
-using Information = Microsoft.VisualBasic.Information;
 
 class Build : NukeBuild
 {
