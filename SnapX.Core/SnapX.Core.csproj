@@ -40,14 +40,14 @@
     <!-- Newtonsoft.Json is not AOT friendly -->
     <PackageReference Include="JsonPath.Net" Version="2.1.1" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.5" />
     <!-- Builds are notably not provided for FreeBSD. Dynamic loading of normal system sqlite3 supported. -->
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
     <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="2.1.11" />
 
     <!-- Configuration has never been so intuitive -->
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.5" />
     <!-- Windows Registry Configuration Support -->
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" Condition="'$(OS)' == 'Windows_NT'">
@@ -70,7 +70,7 @@
     <PackageReference Include="OpenCvSharp4.runtime.osx_arm64" Version="4.8.1-rc" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
     <!-- Crash forensics & performance analytics -->
-    <PackageReference Include="Sentry.Profiling" Version="5.6.0" />
+    <PackageReference Include="Sentry.Profiling" Version="5.7.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
