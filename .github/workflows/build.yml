@@ -61,15 +61,15 @@ jobs:
       - name: 🛠 Generate NuGet.config and Directory.Build.props
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: |
-          cat > NuGet.config <<EOF
-              <?xml version="1.0" encoding="utf-8"?>
-              <configuration>
-                <packageSources>
-                  <clear />
-                  <add key="Local" value="vendor" />
-                </packageSources>
-              </configuration>
-          EOF
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="utf-8"?>' \
+            '<configuration>' \
+            '  <packageSources>' \
+            '    <clear />' \
+            '    <add key="Local" value="vendor" />' \
+            '  </packageSources>' \
+            '</configuration>' > NuGet.config
+
       - name: 🛠 Ensure RestorePackagesPath in Directory.Build.props
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: |
