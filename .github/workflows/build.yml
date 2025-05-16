@@ -96,7 +96,7 @@ jobs:
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         run: dotnet format --exclude build --verify-no-changes -v diagnostic --exclude build SnapX.sln
       - name: Markdownlint
-        uses: DavidAnson/markdownlint-cli2-action@v19
+        uses: DavidAnson/markdownlint-cli2-action@v20
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         with:
           #fix: true
