@@ -52,7 +52,14 @@ jobs:
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
+      - name: Install NativeAOT Linux Deps
+        if: runner.os == 'Linux'
+        run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
+      - name: Install xmlstarlet
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux'
+        run: sudo apt install -y xmlstarlet
       - name: 🛠 Generate NuGet.config and Directory.Build.props
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: |
           cat > NuGet.config <<EOF
               <?xml version="1.0" encoding="utf-8"?>
@@ -64,10 +71,12 @@ jobs:
               </configuration>
           EOF
       - name: 🛠 Ensure RestorePackagesPath in Directory.Build.props
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: |
           FILE="Directory.Build.props"
           PATH_NODE="//Project/PropertyGroup/RestorePackagesPath"
-
+          sudo apt update
+          sudo apt install xmlstarlet
           # If file exists and node is missing, insert it
           if [ -f "$FILE" ]; then
             if ! xmlstarlet sel -t -v "$PATH_NODE" "$FILE" 2>/dev/null | grep -q .; then
@@ -131,9 +140,6 @@ jobs:
         if: matrix.os == 'windows-2025'
         run: |
           ./build.ps1 --configuration ${{ matrix.configuration }}
-      - name: Install NativeAOT Linux Deps
-        if: runner.os == 'Linux'
-        run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
       - name: Publish
         if: matrix.os != 'windows-2025'
         run: ./build.sh --configuration ${{ matrix.configuration }}
