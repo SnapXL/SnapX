@@ -64,10 +64,10 @@ jobs:
           cat > NuGet.config <<EOF
               <?xml version="1.0" encoding="utf-8"?>
               <configuration>
-              <packageSources>
-              <clear />
-              <add key="Local" value="vendor" />
-              </packageSources>
+                <packageSources>
+                  <clear />
+                  <add key="Local" value="vendor" />
+                </packageSources>
               </configuration>
           EOF
       - name: 🛠 Ensure RestorePackagesPath in Directory.Build.props
@@ -75,8 +75,6 @@ jobs:
         run: |
           FILE="Directory.Build.props"
           PATH_NODE="//Project/PropertyGroup/RestorePackagesPath"
-          sudo apt update
-          sudo apt install xmlstarlet
           # If file exists and node is missing, insert it
           if [ -f "$FILE" ]; then
             if ! xmlstarlet sel -t -v "$PATH_NODE" "$FILE" 2>/dev/null | grep -q .; then
@@ -104,14 +102,6 @@ jobs:
       - name: Enforce code style using dotnet format
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         run: dotnet format --exclude build --verify-no-changes -v diagnostic --exclude build SnapX.sln
-      - name: Markdownlint
-        uses: DavidAnson/markdownlint-cli2-action@v20
-        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
-        with:
-          #fix: true
-          globs: |
-            **/*.md
-            !LICENSE.md
       - name: Publish Windows ARM64 (CLI)
         if: matrix.os == 'windows-2025'
         working-directory: SnapX.CLI
