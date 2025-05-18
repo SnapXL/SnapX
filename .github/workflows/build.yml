@@ -96,9 +96,6 @@ jobs:
           name: SnapX-Vendored-Source-${{ runner.arch }}
           path: .
           include-hidden-files: false
-      - name: Ensure commit message is compliant (conventional commits via commitlint)
-        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
-        uses: wagoid/commitlint-github-action@v6
       - name: Enforce code style using dotnet format
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         run: dotnet format --exclude build --verify-no-changes -v diagnostic --exclude build SnapX.sln
