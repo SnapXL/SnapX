@@ -16,13 +16,13 @@ public class HistoryManagerSQLite : HistoryManager
     protected override List<HistoryItem> Load(string filePath)
     {
         const string sql = "SELECT * FROM HistoryItems";
-        return _connection.Query<HistoryItem>(sql).ToList();
+        return _connection.Query<HistoryItem>(sql).AsList();
     }
     [DapperAot]
     public override List<HistoryItem> GetHistoryItems()
     {
         const string sql = "SELECT * FROM HistoryItems";
-        return _connection.Query<HistoryItem>(sql).ToList();
+        return _connection.Query<HistoryItem>(sql).AsList();
     }
     [DapperAot]
     public override async Task<List<HistoryItem>> GetHistoryItemsAsync()
