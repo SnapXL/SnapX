@@ -23,10 +23,10 @@
 - SnapX is a cross-platform application.
 - Elegance in user interfaces by separating essential settings from advanced or intermediate functionality
 - Supporting high DPI screens
-- Screenshots on an HDR monitor aren't blown out*
+- Screenshots on an HDR monitor aren't blown out<sup>[1]</sup>
 - Cross-platform OCR powered by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR/blob/main/README_en.md) that [rivals PowerToys OCR, ShareX OCR, & Windows 10 built in OCR in accuracy](https://toon-beerten.medium.com/ocr-comparison-tesseract-versus-easyocr-vs-paddleocr-vs-mmocr-a362d9c79e66)
 
-> *When tested on KDE Plasma Wayland 6.2.90 with HDR, the resulting screenshots' colors were not blown out. Your mileage may vary.
+> [1] When tested on KDE Plasma Wayland 6.2.90 with HDR, the resulting screenshots' colors were not blown out. Your mileage may vary.
 
 ## Technical Details
 
@@ -63,11 +63,12 @@ This project is built on Ubuntu 24.04 and is tested on the following distributio
 - **F**edora 41+
 - **U**buntu 24.04+
 
-If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can build the project from source.
+> [!NOTE]
+> If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
 
 ## Other platforms
 
-When I initially started this project, with one main goal: ShareX on Linux on Wayland.
+I initially started this project with one main goal: ShareX on Linux on Wayland.
 I realized my work could be used on other platforms such as macOS or Windows...
 
 That's why SnapX.Avalonia was created.
@@ -125,19 +126,27 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-## macOS Ventura+ (13) 🍎
+### macOS Ventura+ (13) 🍎
 
 End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
-#### Using this script from .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
+#### Using the script to install the .NET SDK from the .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
 
 ```zsh
+xcode-select --install
+brew install ffmpeg@7
 curl -O https://dot.net/v1/dotnet-install.sh # Official installation script from .NET team
 chmod +x dotnet-install.sh
 ./dotnet-install.sh -Channel current
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
+> [!TIP]
+> If you're using MacPorts, run this instead of `brew install ffmpeg@7`:
+> ```zsh
+> sudo port selfupdate
+> sudo port install ffmpeg7
+> ```
 
 ## Building from Source
 

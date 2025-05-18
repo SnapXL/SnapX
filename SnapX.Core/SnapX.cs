@@ -572,9 +572,10 @@ public class SnapX
                     return;
                 }
                 if (e.HResult == -2147024816 ||
-                    e.HResult == -2147024713) {
+                    e.HResult == -2147024713)
+                {
                     // The file already exists, ignore.
-                   return;
+                    return;
                 }
                 DebugHelper.WriteLine("Failed to symbolic link typical SnapX path. You can safely ignore this.");
                 DebugHelper.WriteException(e);

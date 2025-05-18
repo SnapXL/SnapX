@@ -1,0 +1,41 @@
+name: Feature Request
+description: Want a new feature? We got you covered.
+labels: "enhancement"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping SnapX get better!
+    validations:
+      required: false
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the feature you want.
+      options:
+      - label: I have searched the existing issues
+        required: true
+  - type: textarea
+    id: feature
+    attributes:
+      label: What is the feature you want?
+      description: What is the feature that you want us to add?
+      placeholder: Tell us what you want!
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What does it solve?
+      description: What problem does it solve?
+      placeholder: It solves ...
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](../CODE_OF_CONDUCT.md). 
+      options:
+        - label: I agree to follow this project's [Code of Conduct](../CODE_OF_CONDUCT.md)
+          required: true
