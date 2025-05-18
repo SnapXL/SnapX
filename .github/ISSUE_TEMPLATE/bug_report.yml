@@ -30,6 +30,8 @@ body:
       label: What did you expect?
       description: What did you expect to happen?
       placeholder: I expected ...
+    validations:
+      required: true
   - type: dropdown
     id: version
     attributes:
