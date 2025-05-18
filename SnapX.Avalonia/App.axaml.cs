@@ -247,7 +247,7 @@ public class App : Application
                 var media = new Media(vlc, input);
                 MediaPlayer.EnableHardwareDecoding = true;
                 MediaPlayer.Play(media);
-                MediaPlayer.Stopped += async(Sender, Args) =>
+                MediaPlayer.Stopped += async (Sender, Args) =>
                 {
                     media.Dispose();
                     vlc.Dispose();

@@ -18,7 +18,7 @@ public class SnapXAvalonia : Core.SnapX
         media.AddOption(":input-title-format=flac");
         MediaPlayer.EnableHardwareDecoding = true;
         MediaPlayer.Play(media);
-        MediaPlayer.Stopped += async(Sender, Args) =>
+        MediaPlayer.Stopped += async (Sender, Args) =>
         {
             await stream.DisposeAsync();
             media.Dispose();
