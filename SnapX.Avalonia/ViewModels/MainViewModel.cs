@@ -44,11 +44,11 @@ public partial class MainViewModel : ViewModelBase
     partial void OnSelectedListItemChanged(ListItemTemplate? value)
     {
         if (value is null) return;
-        #pragma warning disable IL2072 // The code works, leave me alone
+#pragma warning disable IL2072 // The code works, leave me alone
         var vm = Design.IsDesignMode
             ? Activator.CreateInstance(value.ModelType)
             : Ioc.Default.GetService(value.ModelType);
-        #pragma warning restore IL2072
+#pragma warning restore IL2072
 
         if (vm is not ViewModelBase vmb) return;
 
