@@ -77,9 +77,9 @@ public abstract class Changelog
 #endif
             return false;
         }
-        #if DEBUG
+#if DEBUG
         DebugHelper.WriteLine($"Validating changelog: {changelog?.Substring(0, Math.Min(100, changelog.Length))}...");
-        #endif
+#endif
         return changelog!.Length > 4;
     }
 
