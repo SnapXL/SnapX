@@ -45,6 +45,8 @@ jobs:
           global-json-file: global.json
       - name: Restore
         run: dotnet restore --packages ./vendor SnapX.sln
+      - name: Restore build project
+        run: dotnet restore --packages ./vendor build/_build.csproj
       - name: Cache .NET NuGet packages
         uses: actions/cache@v4
         with:
