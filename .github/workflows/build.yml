@@ -101,7 +101,7 @@ jobs:
           include-hidden-files: false
       - name: Enforce code style using dotnet format
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
-        run: dotnet format --exclude build --verify-no-changes -v diagnostic --exclude build SnapX.slnx
+        run: dotnet format --exclude build --verify-no-changes -v diagnostic SnapX.slnx
       - name: Publish
         if: runner.os == 'Windows'
         run: ./build.ps1 --configuration ${{ matrix.configuration }}
