@@ -43,7 +43,6 @@ public class WindowsAPI : NativeAPI
         }
 
         ShowWindow(handle, SW_SHOW);
-
     }
 
     public override void ShowWindow(IntPtr handle)
@@ -54,7 +53,6 @@ public class WindowsAPI : NativeAPI
         }
 
         ShowWindow(handle, SW_SHOW);
-
     }
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
@@ -186,7 +184,6 @@ public class WindowsAPI : NativeAPI
 
         // Close the clipboard
         CloseClipboard();
-
     }
 
     [DllImport("user32.dll", SetLastError = true)]
