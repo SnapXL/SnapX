@@ -12,5 +12,5 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Commitlint
+      - name: Ensure commit message(s) is/are compliant (conventional commits via commitlint)
         uses: wagoid/commitlint-github-action@v6
