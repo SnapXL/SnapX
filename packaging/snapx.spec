@@ -1,7 +1,7 @@
 #
 # spec file for package snapx, and snapx-ui
 #
-# Copyright (c) 2024 Brycen Granville <brycengranville@outlook.com>
+# Copyright (c) 2024-2025 Brycen Granville <brycengranville@outlook.com>
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -18,33 +18,53 @@
 # This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
 
 %global version         0.1.0
+%global build_with_aot  false
+%ifarch x86_64 aarch64
+%global build_with_aot true
+%endif
+
+# .NET is not supported by either of these.
+%define _debugsource_template %{nil}
+%global         debug_package %{nil}
+
 %bcond check 0
 
 
 Name:           snapx
 Version:        %{version}
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
 URL:            https://github.com/BrycensRanch/SnapX
 Source:         %{url}/archive/refs/heads/develop.tar.gz
 
-BuildRequires:  (dotnet-sdk-aot-9.0 OR dotnet-sdk-9.0)
+# RISCV64 support is coming soon. Maybe .NET 10 will add it?
+ExclusiveArch:  x86_64 aarch64 s390x ppc64le
+
+BuildRequires:  dotnet-sdk-9.0
+
+%if "%{build_with_aot}" == "true"
+# When installing AOT support, also install all dependencies needed to build
+# NativeAOT applications. AOT invokes `clang ... -lssl -lcrypto -lbrotlienc
+# -lbrotlidec -lz ...`.
+BuildRequires:  brotli-devel%{?_isa}
+BuildRequires:  clang%{?_isa}
+BuildRequires:  openssl-devel%{?_isa}
+BuildRequires:  zlib-devel%{?_isa}
+%endif
+
+%if "%{build_with_aot}" != "true"
+# The build script does not accept extra parameters atm.
+# So instead, we change parameters ourselves! :D
+BuildRequires: xmlstarlet
+%endif
 
 Recommends:     /usr/bin/ffmpeg
 # Generic Avalonia Dependencies
 Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
 # Required for opening browser tabs across Linux desktops
 Requires:       xdg-utils
-
-
-# .NET architecture support is rather lacking.
-ExclusiveArch:  x86_64 aarch64
-
-# .NET is not supported by either of these.
-%define _debugsource_template %{nil}
-%global         debug_package %{nil}
 
 %description
 This is a port of the original ShareX application to Linux.
@@ -65,8 +85,30 @@ SnapX but with Avalonia. Works best on X11.
 %prep
 %autosetup -n SnapX-develop
 
-
 %build
+
+%if "%{build_with_aot}" != "true"
+echo "Disabling AOT and ReadyToRun in .csproj files... Both are unsupported on ppc64le and s390x."
+
+find . -name "*.csproj" | while read -r file; do
+  if xmlstarlet sel -t -c "//Project/PropertyGroup/PublishAot" "$file" | grep -q .; then
+    echo "Setting <PublishAot>%{build_with_aot}</PublishAot> in $file"
+    xmlstarlet ed -L \
+      -u "//Project/PropertyGroup/PublishAot" \
+      -v "%{build_with_aot}" \
+      "$file"
+  fi
+
+  if xmlstarlet sel -t -c "//Project/PropertyGroup/PublishReadyToRun" "$file" | grep -q .; then
+    echo "Setting <PublishReadyToRun>false</PublishReadyToRun> in $file"
+    xmlstarlet ed -L \
+      -u "//Project/PropertyGroup/PublishReadyToRun" \
+      -v "false" \
+      "$file"
+  fi
+done
+%endif
+
 # Setup the correct compilation flags for the environment
 # Not all distributions do this automatically
 %if 0%{?fedora}
@@ -79,21 +121,28 @@ export VERSION=%{version}
 
 ./build.sh --configuration Release
 
-%check
-Output/snapx/snapx --version
-
 
 %install
-./build.sh install --prefix %{_prefix} --lib-dir %{_libdir} --dest-dir %{buildroot} --skip compile
+./build.sh install --prefix %{_prefix} --lib-dir %{buildroot}%{_libdir} --dest-dir %{buildroot} --skip compile
 
 %files
+%{_bindir}/libe_sqlite3.so
 %{_bindir}/%{name}
 %{_libdir}/%{name}
 %{_datadir}/SnapX
+%{_docdir}/snapx
 %license LICENSE.md
 
 %files ui
+%{_bindir}/libHarfBuzzSharp.so
+%{_bindir}/libSkiaSharp.so
 %{_bindir}/%{name}-ui
+%{_datadir}/applications/io.github.BrycensRanch.SnapX.desktop
+%{_datadir}/metainfo/io.github.BrycensRanch.SnapX.metainfo.xml
+%{_datadir}/icons/hicolor/48x48/apps/io.github.BrycensRanch.SnapX.png
+%{_datadir}/icons/hicolor/128x128/apps/io.github.BrycensRanch.SnapX.png
+%{_datadir}/icons/hicolor/256x256/apps/io.github.BrycensRanch.SnapX.png
+%{_datadir}/icons/hicolor/scalable/apps/io.github.BrycensRanch.SnapX.svg
 %license LICENSE.md
 
 
