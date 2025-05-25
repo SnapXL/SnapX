@@ -1,15 +1,15 @@
 # SnapX's Privacy Policy
 
-> Authored on 2/8/2025
-> Last updated on 2/14/2025 3:37 PM EST
+> Authored on 2/8/2025 \
+> Last updated on 5/25/2025 3:37 PM EST
 
 By default, SnapX collects telemetry data about how the application is performing in two ways:
 
 - Application usage data (Tells us how many people are using my application on what systems)
-- What Operating System you're running and which version you're using. ie `Windows 11 24H2 Home` or `macOS Sequoia` or `Fedora Linux 43 (KDE Plasma) x86_64 Linux 6.13.2`
+- What Operating System you're running and which version you're using, i.e. `Windows 11 24H2 Home` or `macOS Sequoia` or `Fedora Linux 43 (KDE Plasma) x86_64 Linux 6.13.2`
 - Application version ie `1.0.0+44e1612` and the assembly you're using `snapx-ui`
-- What CPU your computer has ie `i7-11800H`
-- What GPU your computer has ie `RTX 3060 Laptop GPU`
+- What CPU your computer has i.e. `i7-11800H`
+- What GPU your computer has i.e. `RTX 3060 Laptop GPU`
 - How much memory the application is using (Helps to identify memory leaks)
 - How much overall memory your computer has to better understand the "headroom space" left.
 - Application environment ie running it on Linux with AppImage, Flatpak, Snap. Or running the portable version of my application on Windows.
