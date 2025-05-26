@@ -1,7 +1,7 @@
 # SnapX's Privacy Policy
 
 > Authored on 2/8/2025 \
-> Last updated on 5/25/2025 5:46 PM EST
+> Last updated on 5/26/2025 10:26 AM EST
 
 By default, SnapX collects telemetry data about how the application is performing in two ways:
 
@@ -75,9 +75,9 @@ You should be adding a key that looks like this:
 Ensure there are no extra commas at the end of the last item. Do not add the beginning & ending curly braces if the config file already has them.
 
 
-You can disable it with an environment variable additionally. With `SNAPX_DISABLETELEMETRY=true` or the [failed standard](https://consoledonottrack.com/) `DO_NOT_TRACK=1`
+You can additionally disable it with an environment variable. With `SNAPX_DISABLETELEMETRY=true` or the [failed standard](https://consoledonottrack.com/) `DO_NOT_TRACK=1`
 
-You can also set a registry key for those using SnapX in organizations that use Windows. `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\BrycensRanch\SnapX\DisableTelemetry` with the value of `1`
+You can also set a registry key for those using SnapX in Windows organizations. `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\BrycensRanch\SnapX\DisableTelemetry` with the value of `1`
 
 
 Settings are pulled in via the first match from:
