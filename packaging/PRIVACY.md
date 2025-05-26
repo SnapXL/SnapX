@@ -97,9 +97,9 @@ All data collected is anonymous. So I can't exactly fulfill requests to remove y
 
 ## Final notes
 
-I made SnapX because I have a point to prove. I have not sold my soul to the devil. 
-I doubt I'll even get any donations for my work. This is not a transaction, though.
-The data is only useful for development. 
+I made SnapX because I have a point to prove. I have not sold my soul to the devil. \
+I doubt I'll even get any donations for my work. This is not a transaction, though. \
+The data is only useful for development. \
 This is all I ask, **keep telemetry on**. Help me ***improve*** SnapX.
 
 The data that I collect is not valuable to anyone else besides me and the community for cool graphs to look at & drive decisions for the project as well.
