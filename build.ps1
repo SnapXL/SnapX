@@ -1,3 +1,5 @@
+#!/usr/bin/env powershell
+
 [CmdletBinding()]
 Param(
     [Parameter(Position=0,Mandatory=$false,ValueFromRemainingArguments=$true)]
@@ -45,13 +47,7 @@ else {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13
     (New-Object System.Net.WebClient).DownloadFile($DotNetInstallUrl, $DotNetInstallFile)
 
-    # If global.json exists, load expected version
-    if (Test-Path $DotNetGlobalFile) {
-        $DotNetGlobal = $(Get-Content $DotNetGlobalFile | Out-String | ConvertFrom-Json)
-        if ($DotNetGlobal.PSObject.Properties["sdk"] -and $DotNetGlobal.sdk.PSObject.Properties["version"]) {
-            $DotNetVersion = $DotNetGlobal.sdk.version
-        }
-    }
+
 
     # Install by channel or version
     $DotNetDirectory = "$TempDirectory\dotnet-win"
@@ -66,5 +62,5 @@ else {
 
 Write-Output "Microsoft (R) .NET SDK version $(& $env:DOTNET_EXE --version)"
 
-ExecSafe { & $env:DOTNET_EXE build $BuildProjectFile /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet }
+ExecSafe { & $env:DOTNET_EXE build $BuildProjectFile -nodeReuse:false -p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet }
 ExecSafe { & $env:DOTNET_EXE run --project $BuildProjectFile --no-build -- $BuildArguments }
