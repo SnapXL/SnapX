@@ -1,23 +1,23 @@
 documentation:
-- changed-files:
-  - any-glob-to-any-file: '**/*.md'
-  - any-glob-to-any-file: '**/README.txt'
+  - changed-files:
+    - any-glob-to-any-file: '**/*.md'
+    - any-glob-to-any-file: '**/README.txt'
 
 Avalonia:
-- changed-files:
-  - any-glob-to-any-file: SnapX.Avalonia/**
+  - changed-files:
+    - any-glob-to-any-file: SnapX.Avalonia/**
 
 Core:
-- changed-files:
-  - any-glob-to-any-file: SnapX.Core/**
+  - changed-files:
+    - any-glob-to-any-file: SnapX.Core/**
 
 enhancement:
- - head-branch: ['^feat', 'feat', 'feature']
+  - head-branch: ['^feat', 'feat', 'feature']
 
 actions:
-- changed-files:
-  - any-glob-to-any-file: .github/workflows/**
-  - any-glob-to-any-file: .github/labeler.yml
+  - changed-files:
+    - any-glob-to-any-file: .github/workflows/**
+    - any-glob-to-any-file: .github/labeler.yml
 
 packaging:
   - changed-files:
@@ -25,3 +25,7 @@ packaging:
 
 dependencies:
   - head-branch: ['^dep', '^depend', 'depend', 'dependency', 'dependencies']
+
+build:
+  - changed-files:
+    - any-glob-to-any-file: build/**

@@ -9,9 +9,6 @@
     <Company>BrycensRanch and ShareX Team</Company>
     <Product>SnapX</Product>
     <Title>SnapX</Title>
-    <!-- Set automatically -->
-    <Version>0.0.0</Version>
-    <ApplicationVersion>0.0.0</ApplicationVersion>
     <Description>Capture, share, and boost productivity. All in one.</Description>
     <Copyright>Copyright (c) 2025 BrycensRanch and ShareX Team</Copyright>
     <!-- Breaks builds on my computer -->
