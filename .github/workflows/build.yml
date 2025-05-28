@@ -46,7 +46,7 @@ jobs:
       - name: Restore
         run: dotnet restore --packages ./vendor SnapX.slnx
       - name: Restore build project
-        run: dotnet restore --packages ./vendor build/_build.csproj
+        run: dotnet restore --packages ./vendor build/build.csproj
       - name: Cache .NET NuGet packages
         uses: actions/cache@v4
         with:
