@@ -48,10 +48,10 @@ BuildRequires:  dotnet-sdk-9.0
 # When installing AOT support, also install all dependencies needed to build
 # NativeAOT applications. AOT invokes `clang ... -lssl -lcrypto -lbrotlienc
 # -lbrotlidec -lz ...`.
-BuildRequires:  brotli-devel%{?_isa}
-BuildRequires:  clang%{?_isa}
-BuildRequires:  openssl-devel%{?_isa}
-BuildRequires:  zlib-devel%{?_isa}
+BuildRequires:  brotli-devel
+BuildRequires:  clang
+BuildRequires:  openssl-devel
+BuildRequires:  zlib-devel
 %endif
 
 %if "%{build_with_aot}" != "true"
