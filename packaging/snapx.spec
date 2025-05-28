@@ -153,6 +153,6 @@ export VERSION=%{version}
 
 
 %changelog
-* Thu Nov 18 2024 Brycen G <brycengranville@outlook.com> 0.0.0-1
+* Mon Nov 18 2024 Brycen G <brycengranville@outlook.com> - 0.0.0-1
 - Initial package
 %endif
