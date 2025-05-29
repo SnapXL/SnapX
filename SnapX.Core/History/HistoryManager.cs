@@ -117,7 +117,7 @@ public abstract class HistoryManager
         {
             historyItems[i] = historyItem;
         }
-        
+
         Thread.Sleep(1000);
 
         Append(filePath, historyItems);
