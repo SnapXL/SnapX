@@ -1,10 +1,13 @@
 using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using static Bullseye.Targets;
 using static SimpleExec.Command;
 using System.Diagnostics;
 using System.Security.Principal;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Bullseye;
 
 // I am on a limited timeframe for NUKING `NUKE.Build`
@@ -12,7 +15,89 @@ using Bullseye;
 
 internal class Program
 {
-    private static async Task ExecuteBuildAsync(
+    // When I used MAKEFILES on Windows, I was using MSYS2 that gave me an acceptable UNIX like path
+    // Now, I have no idea what to default to on Windows. Good luck.
+    string _destdir = ""; // Initialize directly
+    public string DestDir
+    {
+        get => _destdir;
+        set => _destdir = value ?? ""; // Ensure it's not set to null
+    }
+
+    private string _prefix = "/usr/local"; // Initialize directly
+    public string Prefix
+    {
+        get => _prefix;
+        set => _prefix = value ?? "/usr/local"; // Ensure it's not set to null, fallback to default
+    }
+
+    string BinDir => Path.Join(DestDir, Prefix, "bin");
+    string Datadir => Path.Join(DestDir, Prefix, "share");
+    string Docdir => Path.Join(Datadir, "doc", "snapx");
+    string Licensedir => Path.Join(Datadir, "licenses", "snapx");
+    string Applicationsdir => Path.Join(Datadir, "applications");
+    string Icondir => Path.Join(Datadir, "icons", "hicolor");
+    string Runtime { get; set; } = RuntimeInformation.RuntimeIdentifier;
+    string Metainfodir => Path.Join(Datadir, "metainfo");
+    public static readonly string RootDirectory = FindRoot();
+    readonly string PackagingDirectory = Path.Combine(RootDirectory, "packaging");
+    string Tarballdir => Path.Combine(PackagingDirectory, "tarball");
+    string PackagingUsrDir => Path.Combine(PackagingDirectory, "usr");
+    private string NMHassemblyName => GetAssemblyNameFromProject(projectsToBuild[^1]);
+    private string NMHostPath => !OperatingSystem.IsWindows() ? Path.Join(LibDir, "snapx", NMHassemblyName) : null;
+
+    private string? _libdir; // Nullable backing field
+    const string Namespace = "SnapX.";
+
+    // SnapX.NativeMessagingHost must be compiled *last*
+    static readonly string[] ProjectNames = ["Avalonia", "CLI", "NativeMessagingHost"];
+    readonly string[] projectsToBuild = ProjectNames
+        .Where(projectName => OperatingSystem.IsLinux() || projectName != "GTK4")
+        .Select(projectName => Path.Combine(Path.GetRelativePath(Directory.GetCurrentDirectory() ,RootDirectory), Namespace + projectName))
+        .ToArray();
+    public string LibDir
+    {
+        get => _libdir ?? Path.Join(DestDir, Prefix, "lib");
+        set => _libdir = value;
+    }
+    private static string FindRoot()
+    {
+        var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+        while (dir != null)
+        {
+            var buildScript = Path.Combine(dir.FullName, "build.sh"); // Assuming build.sh marks the root
+            if (File.Exists(buildScript))
+                return dir.FullName;
+
+            dir = dir.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate root directory (no build.sh found in any parent directory).");
+    }
+    private static string GetAssemblyNameFromProject(string projectPath)
+    {
+        var csprojFiles = Directory.GetFiles(projectPath, "*.csproj");
+        if (csprojFiles.Length != 1)
+        {
+            throw new FileNotFoundException(
+                $"ERROR: Expected exactly one .csproj in '{projectPath}' but found {csprojFiles.Length}. Searched in: {Path.GetFullPath(projectPath)}");
+        }
+
+        var csprojPath = csprojFiles[0];
+        var xml = XDocument.Load(csprojPath);
+
+        var assemblyNameElement = xml
+            .Descendants("PropertyGroup")
+            .Elements("AssemblyName")
+            .FirstOrDefault();
+
+        var csprojFileName = Path.GetFileNameWithoutExtension(csprojPath);
+        return assemblyNameElement?.Value?.Trim() ?? csprojFileName.Replace('.', '_');
+    }
+
+    // This method is now an instance method and will be called on an instance of Program
+    private async Task ExecuteBuildAsync(
         string[] targets,
         bool clear,
         bool dryRun,
@@ -31,6 +116,10 @@ internal class Program
         string extraArgs)
     {
         var targetsToRun = targets;
+        if (targetsToRun == null || targetsToRun.Length == 0)
+        {
+            targetsToRun = ["default"]; // Default target if none specified
+        }
 
         var snapXVersion = ThisAssembly.AssemblyInformationalVersion;
         var hasLoggedInfo = false;
@@ -56,63 +145,166 @@ internal class Program
         {
             try
             {
+                Information($"Cleaning output directory: {outputDir}");
                 if (Directory.Exists(outputDir))
                 {
                     Directory.Delete(outputDir, true);
                 }
                 Directory.CreateDirectory(outputDir);
+                Information($"Output directory cleaned and recreated: {outputDir}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Warning: Could not clean and recreate output directory '{outputDir}'. Error: {ex.Message}");
+                Warning($"Warning: Could not clean and recreate output directory '{outputDir}'. Error: {ex.Message}");
             }
         });
 
         Target("build",
             dependsOn: ["clean"],
-            forEach: ["./SnapX.Avalonia", "./SnapX.CLI", "./SnapX.NativeMessagingHost"],
+            forEach: projectsToBuild,
             async (project) =>
             {
                 if (!hasLoggedInfo)
                 {
-                    Console.WriteLine($"Operating System: {RuntimeInformation.OSDescription}");
-                    Console.WriteLine($"SnapX Version: {snapXVersion}");
-                    Console.WriteLine($"Architecture: {RuntimeInformation.OSArchitecture} {RuntimeInformation.RuntimeIdentifier}");
+                    Information($"Operating System: {RuntimeInformation.OSDescription}");
+                    Information($"SnapX Version: {snapXVersion}");
+                    Information($"Architecture: {RuntimeInformation.OSArchitecture}");
+                    Information($"Runtime Identifier: {RuntimeInformation.RuntimeIdentifier}");
                     hasLoggedInfo = true;
                 }
 
-                var csprojFiles = Directory.GetFiles(project, "*.csproj");
-                if (csprojFiles.Length != 1)
-                {
-                    throw new FileNotFoundException($"ERROR: Expected exactly one .csproj in '{project}' but found {csprojFiles.Length}.");
-                }
-
-                var csprojPath = csprojFiles[0];
-                var xml = XDocument.Load(csprojPath);
-
-                var assemblyNameElement = xml.Descendants("PropertyGroup").Elements("AssemblyName").FirstOrDefault();
-                var csprojFileName = Path.GetFileNameWithoutExtension(csprojPath);
-                var assemblyName = assemblyNameElement?.Value?.Trim() ?? csprojFileName.Replace('.', '_');
+                var assemblyName = GetAssemblyNameFromProject(project);
 
                 await RunAsync("dotnet", $"publish \"{project}\" --configuration {configuration} --nologo -o \"{Path.Combine(outputDir, assemblyName)}\" -r {RuntimeInformation.RuntimeIdentifier} {extraArgs}");
+                if (project.Contains("NativeMessagingHost"))
+                {
+                    foreach (var builtProject in projectsToBuild.Where(p => !p.Contains("NativeMessagingHost")))
+                    {
+                        var finalAssemblyName = assemblyName;
+                        if (OperatingSystem.IsWindows()) finalAssemblyName += ".exe";
+                        var sourceNMHOutputPath = Path.Combine(outputDir, assemblyName, finalAssemblyName);
+                        var builtAssemblyName = GetAssemblyNameFromProject(builtProject);
+                        File.Copy(sourceNMHOutputPath, Path.Combine(outputDir, builtAssemblyName, finalAssemblyName), overwrite: true);
+                    }
+                    Directory.Delete(Path.Combine(outputDir, assemblyName), true);
+                    var manifestFiles = Directory.GetFiles(outputDir, "host-manifest-*.json", SearchOption.AllDirectories);
+                    foreach (var manifestFile in manifestFiles)
+                    {
+                        var json = JsonNode.Parse(await File.ReadAllTextAsync(manifestFile))?.AsObject();
+                        var NMHostPath = !OperatingSystem.IsWindows() ? Path.Join(LibDir, "snapx", assemblyName) : null;
+
+                        if (string.IsNullOrWhiteSpace(NMHostPath))
+                        {
+                            Information($"Skipping {manifestFile} since NMHostPath was not provided");
+                            continue;
+                        }
+                        json["path"] = NMHostPath;
+
+
+                        await File.WriteAllTextAsync(manifestFile, json.ToJsonString(new JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                        }));
+
+                    }
+                }
             });
+
         Target("install",
             dependsOn: ["build"],
-
             async () =>
             {
-                // Information($"Destination Directory: {DestDir}");
-                // Information($"Prefix: {Prefix}");
-                // Information($"Installing to {Path.Join(DestDir, Prefix)}");
-                // Information($"Data directory: {Datadir}");
-                // Information($"Bin directory: {BinDir}");
-                // Information($"Documentation directory: {Docdir}");
-                // Information($"License directory: {Licensedir}");
-                // Information($"Metainfo directory: {Metainfodir}");
-                // Information($"Tarball directory: {Tarballdir}");
-                // Information($"Application directory: {Applicationsdir}");
-                // Information($"Icon directory: {Icondir}");
-                // Information($"Library directory: {LibDir}");
+                Information($"--- Installation Paths ---");
+                Information($"Destination Directory (DESTDIR): {DestDir}");
+                Information($"Prefix: {Prefix}");
+                Information($"Install Root: {Path.Join(DestDir, Prefix)}");
+                Information($"Data directory: {Datadir}");
+                Information($"Bin directory: {BinDir}");
+                Information($"Documentation directory: {Docdir}");
+                Information($"License directory: {Licensedir}");
+                Information($"Metainfo directory: {Metainfodir}");
+                Information($"Tarball directory: {Tarballdir}"); // Uses instance property
+                Information($"Application directory: {Applicationsdir}");
+                Information($"Icon directory: {Icondir}");
+                Information($"Library directory: {LibDir}"); // Uses instance property
+                Information($"Packaging User Directory: {PackagingUsrDir}"); // Uses instance property
+                var files = Directory.GetFiles(PackagingUsrDir, "*", SearchOption.AllDirectories);
+                foreach (var sourceFile in files)
+                {
+                    var relativePath = Path.GetRelativePath(PackagingUsrDir, sourceFile);
+                    var destinationFile = Path.Join(DestDir, Prefix, relativePath);
+
+                    EnsureDirectoryExists(Path.GetDirectoryName(destinationFile));
+
+                    var permissions = "0644";
+
+                    switch (sourceFile)
+                    {
+                        case var file when file.EndsWith(".desktop"):
+                            permissions = "0755";
+                            destinationFile = Path.Join(Applicationsdir, Path.GetFileName(file));
+                            Information($"Installing desktop file: {relativePath} -> {destinationFile}");
+                            break;
+                        case var file when file.EndsWith(".metainfo.xml"):
+                            destinationFile = Path.Join(Metainfodir, Path.GetFileName(file));
+                            Information($"Installing metainfo file: {relativePath} -> {destinationFile}");
+                            break;
+                        case var file when file.EndsWith(".md", StringComparison.OrdinalIgnoreCase):
+                            destinationFile = Path.Join(Docdir, Path.GetFileName(file));
+                            Information($"Installing documentation file: {relativePath} -> {destinationFile}");
+                            break;
+                        default:
+                            Information($"Installing {Path.GetExtension(sourceFile)} file: {relativePath} -> {destinationFile}");
+                            break;
+                    }
+
+                    InstallFile(sourceFile, destinationFile, permissions);
+                }
+                InstallFile(Path.Join(RootDirectory, "LICENSE.md"), Path.Join(Licensedir, "LICENSE.md"), "0755");
+                var documentation = Directory.GetFiles(RootDirectory, "*.md", SearchOption.TopDirectoryOnly);
+
+                foreach (var docFile in documentation)
+                {
+                    if (docFile.ToLower().Contains("license")) continue;
+                    InstallFile(docFile, Path.Join(Docdir, Path.GetFileName(docFile)), "0755");
+                }
+                var outputFiles = Directory.GetFiles(outputDir, "*", SearchOption.AllDirectories)
+                    .OrderBy(Path.GetFileName)
+                    .ToArray();
+            foreach (var outputFile in outputFiles)
+            {
+                var permissions = "0755";
+                var destinationFile = Path.Join(BinDir, Path.GetFileName(outputFile));
+                var AvaloniaAssemblyName = "snapx-ui" + (OperatingSystem.IsWindows() ? ".exe" : "");
+
+                switch (Path.GetFileNameWithoutExtension(destinationFile))
+                {
+                    case var name when destinationFile.Contains(".dbg") || destinationFile.Contains(".pdb"):
+                        continue;
+                    case var name when destinationFile.Contains(NMHassemblyName):
+                        destinationFile = NMHostPath;
+                        Information($"Installing NMH Binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                    case var name when destinationFile.Contains(AvaloniaAssemblyName):
+                        destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
+                        Information($"Installing AVALONIABINARY: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                    case var name when (destinationFile.Contains(".dll") || destinationFile.Contains(".so") || destinationFile.Contains(".dylib")) && !destinationFile.Contains(AvaloniaAssemblyName):
+                        destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
+                        Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                    case var name when destinationFile.Contains(".json"):
+                        destinationFile = Path.Join(Datadir, "SnapX", Path.GetFileName(destinationFile));
+                        Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                    default:
+                        Information($"Installing binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                        break;
+                }
+                InstallFile(outputFile, destinationFile, permissions);
+            }
+                await Task.CompletedTask; // To satisfy async
             });
         Target("default", dependsOn: ["build"]);
 
@@ -133,7 +325,7 @@ internal class Program
         var clearOption = new Option<bool>(["--clear", "-c"], "Clear the console before execution.");
         rootCommand.AddOption(clearOption);
 
-        var dryRunOption = new Option<bool>(["--dry-run", "-d"], "Do a dry run without executing actions.");
+        var dryRunOption = new Option<bool>(["--dry-run", "-n"], "Do a dry run without executing actions. (Passed to Bullseye)"); // Changed -d to -n to avoid conflict if destdir is added
         rootCommand.AddOption(dryRunOption);
 
         var hostOption = new Option<Host?>(["--host"], "Force the mode for a specific host environment (normally auto-detected). Valid values: AppVeyor, AzurePipelines, GitHubActions, GitLabCI, TeamCity, Travis, etc.");
@@ -182,23 +374,29 @@ internal class Program
         {
             Arity = ArgumentArity.ExactlyOne
         };
-        configurationOption.SetDefaultValue("Debug");
+        configurationOption.SetDefaultValue("Release"); // Changed default to Release, common for builds
+        configurationOption.AddAlias("--config");
         rootCommand.AddOption(configurationOption);
 
         var extraArgsOption = new Option<string>(
             name: "--extra-args",
-            description: "Extra arguments to pass to the build system.")
+            description: "Extra arguments to pass to the dotnet publish command.")
         {
             Arity = ArgumentArity.ExactlyOne,
         };
         extraArgsOption.SetDefaultValue("");
         rootCommand.AddOption(extraArgsOption);
 
-     rootCommand.SetHandler(async (invocationContext) =>
+        rootCommand.SetHandler((Func<InvocationContext, Task>)Handler);
+
+        return await rootCommand.InvokeAsync(args);
+
+        // Define the handler delegate with an explicit type to resolve ambiguity
+        async Task Handler(InvocationContext invocationContext)
         {
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
-            var targets = invocationContext.ParseResult.GetValueForArgument(targetsArgument);
+            var targets = invocationContext.ParseResult.GetValueForArgument(targetsArgument) ?? [];
             var clear = invocationContext.ParseResult.GetValueForOption(clearOption);
             var dryRun = invocationContext.ParseResult.GetValueForOption(dryRunOption);
             var host = invocationContext.ParseResult.GetValueForOption(hostOption);
@@ -211,36 +409,26 @@ internal class Program
             var parallel = invocationContext.ParseResult.GetValueForOption(parallelOption);
             var skipDependencies = invocationContext.ParseResult.GetValueForOption(skipDependenciesOption);
             var verbose = invocationContext.ParseResult.GetValueForOption(verboseOption);
-            var outputDir = invocationContext.ParseResult.GetValueForOption(outputDirOption);
-            var configuration = invocationContext.ParseResult.GetValueForOption(configurationOption);
-            var extraArgs = invocationContext.ParseResult.GetValueForOption(extraArgsOption);
+            var outputDir = invocationContext.ParseResult.GetValueForOption(outputDirOption) ?? "Output";
+            var configuration = invocationContext.ParseResult.GetValueForOption(configurationOption) ?? "Release";
+            var extraArgs = invocationContext.ParseResult.GetValueForOption(extraArgsOption) ?? "";
 
-            await ExecuteBuildAsync(
-                targets!,
-                clear,
-                dryRun,
-                host,
-                listDependencies,
-                listInputs,
-                listTargets,
-                listTree,
-                noColor,
-                noExtendedChars,
-                parallel,
-                skipDependencies,
-                verbose,
-                outputDir!,
-                configuration!,
-                extraArgs!
-            );
-        });
+            var programInstance = new Program();
 
+            // Note: If DestDir, Prefix, LibDir were intended to be configurable via CLI,
+            // you would add options for them and set programInstance properties here.
+            // e.g., programInstance.DestDir = invocationContext.ParseResult.GetValueForOption(destDirOption);
 
-        return await rootCommand.InvokeAsync(args);
+            await programInstance.ExecuteBuildAsync(targets, clear, dryRun, host, listDependencies, listInputs, listTargets, listTree, noColor, noExtendedChars, parallel, skipDependencies, verbose, outputDir, configuration, extraArgs);
+        }
     }
-    void Error(string message) => Console.Error.WriteLine(message);
+
+    // Logging helpers (can be static or instance, kept as instance for now)
+    void Error(string message) => Console.Error.WriteLine($"ERROR: {message}");
+    void Warning(string message) => Console.WriteLine($"WARNING: {message}");
     void Information(string message) => Console.WriteLine(message);
     void Debug(string message) => Console.WriteLine($"DEBUG: {message}");
+
     void InstallFile(string source, string destination, string permissions)
     {
         if (File.Exists(source))
@@ -253,7 +441,6 @@ internal class Program
             Information($"Source file not found: {source}");
         }
     }
-
     void RunInstallCommand(string installArguments, string executionCommand = "install")
     {
         var requiresElevationLikely = !IsAdmin() && RequiresElevationLikely(installArguments);
@@ -312,37 +499,48 @@ internal class Program
             }
         }
     }
-    // Helper function to detect if elevation (sudo) is LIKELY needed based on arguments
+
     bool RequiresElevationLikely(string installArguments)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
+            // On Windows, elevation is handled differently (e.g., run as admin).
+            // This simple check is for Unix-like systems.
             return false;
         }
 
-        // Split arguments and check for paths starting with commonly protected directories
-        var arguments = installArguments.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-
-        foreach (var argument in arguments)
-        {
-            var arg = argument.Trim();
-            if (arg.StartsWith("/usr") || arg.StartsWith("/opt") || arg.StartsWith("/etc") || arg.StartsWith("/var") || arg.StartsWith("/bin") || arg.StartsWith("/sbin"))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        // Common-protected directories on Unix-like systems
+        string[] protectedPaths = ["/usr", "/opt", "/etc", "/var", "/bin", "/sbin"];
+        var arguments = installArguments.Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
+        var hasWarned = false;
+        return arguments.Select(argument => argument.Trim()).Any(arg => protectedPaths.Any(p => arg.StartsWith(p)));
     }
 
     void EnsureDirectoryExists(string directory)
     {
         if (Directory.Exists(directory)) return;
         Information($"Creating directory: {directory}");
-        RunInstallCommand($"-p {directory}", "mkdir");
+        try
+        {
+            // Attempt to create directory directly first.
+            // This might require elevation if it's a protected path.
+            Directory.CreateDirectory(directory);
+            Information($"Successfully created directory: {directory}");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Warning($"Failed to create directory '{directory}' due to permissions. Attempting with install command.");
+            // Fallback to RunInstallCommand which might use sudo
+            // Note: 'mkdir -p' is idempotent and creates parent directories.
+            RunInstallCommand($"-p \"{directory}\"", "mkdir");
+        }
+        catch (Exception ex)
+        {
+            Error($"Failed to create directory '{directory}': {ex.Message}");
+            throw; // Rethrow if it's not an auth issue handled by RunInstallCommand
+        }
     }
-    // This is a direct violation of DRY, but, it saves build time.
-    public static bool IsAdmin()
+    internal static bool IsAdmin()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -354,17 +552,27 @@ internal class Program
             }
             catch
             {
-                return false;
+                return false; // Error occurred, assume not admin
             }
         }
-
-        return GetCurrentUid() == 0;
+        else // Unix-like systems (Linux, macOS)
+        {
+            return GetCurrentUid() == 0;
+        }
     }
 
-    private static int GetCurrentUid()
+    internal static int GetCurrentUid()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return -1; // UID concept is not directly applicable in the same way.
+        }
+
         var uidStr = Environment.GetEnvironmentVariable("UID");
-        if (!string.IsNullOrEmpty(uidStr) && int.TryParse(uidStr, out var uid)) return uid;
+        if (!string.IsNullOrEmpty(uidStr) && int.TryParse(uidStr, out var uidEnv))
+        {
+            return uidEnv;
+        }
 
         try
         {
@@ -378,18 +586,30 @@ internal class Program
             };
 
             using var process = Process.Start(processStartInfo);
-            if (process == null) return 1000;
+            if (process == null) return 1000; // Default to non-root if process fails to start
 
-            process.WaitForExit();
-            if (process.ExitCode != 0) return 1000;
+            process.WaitForExit(5000); // Wait for 5 seconds
+            if (!process.HasExited)
+            {
+                process.Kill(); // Kill if it times out
+                Console.Error.WriteLine("Warning: 'id -u' command timed out.");
+                return 1000;
+            }
+
+            if (process.ExitCode != 0) return 1000; // Default to non-root if command fails
 
             using var reader = process.StandardOutput;
             var output = reader.ReadToEnd();
-            if (int.TryParse(output.Trim(), out uid)) return uid;
-
-            return 1000;
+            if (int.TryParse(output.Trim(), out var uidCmd))
+            {
+                return uidCmd;
+            }
+            return 1000; // Default if parsing fails
         }
-        catch (Exception) { return 1000; }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Warning: Could not get UID using 'id -u': {ex.Message}");
+            return 1000; // Default in case of any exception
+        }
     }
-
 }
