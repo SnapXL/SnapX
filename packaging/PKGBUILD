@@ -47,9 +47,11 @@ package_snapx() {
         'xdg-utils'
     )
 
-     cd "$pkgbase"
-     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
-     rm -f "${pkgdir}/usr/bin/snapx-ui"
+    cd "$pkgbase"
+    ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
+    rm -f "${pkgdir}/usr/bin/snapx-ui"
+    rm -f "${pkgdir}/usr/bin/libSkiaSharp.so"
+    rm -f "${pkgdir}/usr/bin/libHarfBuzzSharp.so"
 }
 
 package_snapx-ui() {
@@ -62,4 +64,6 @@ package_snapx-ui() {
     # Keep the files only for Avalonia UI
     rm -rf "${pkgdir}/usr/share"
     rm -f "${pkgdir}/usr/bin/snapx"
+    rm -f "${pkgdir}/usr/bin/libe_sqlite3.so"
+
 }
