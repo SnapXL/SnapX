@@ -174,7 +174,7 @@ import AppKit
                     // displayForRect.height is in pixels.
                     // The y-coordinate for sourceRect is often from the top.
                     // For ScreenCaptureKit, sourceRect is typically relative to the display's top-left origin.
-                    let localRectOriginYFromTop = displayForRect.height - localRectOriginYFromBottom - pixelHeight
+                    let localRectOriginYFromTop = CGFloat(displayForRect.height) - localRectOriginYFromBottom - pixelHeight
 
                     config.sourceRect = CGRect(x: localRectOriginX, y: localRectOriginYFromTop, width: pixelWidth, height: pixelHeight)
                     config.width = Int(pixelWidth)
