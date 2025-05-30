@@ -137,23 +137,6 @@ import AppKit
     private func startCapture(contentRect: CGRect?, windows: [SCWindow]?, forContinuous: Bool) {
         Task {
             do {
-                let currentStatus = SCShareableContent.current.authorizationStatus
-                if currentStatus == .notDetermined {
-                    let sharableContent = SCShareableContent.shared
-                    try await sharableContent.requestAuthorization()
-                    let currentStatus = sharableContent.authorizationStatus
-                    if SCShareableContent.current.authorizationStatus != .allowed {
-                        print("Authorization not granted after request.")
-                        completeRequestWithError(error: NSError(domain: "ScreenCaptureError", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Screen recording permission not granted."]))
-                        return
-                    }
-                } else if currentStatus == .denied || currentStatus == .restricted {
-                    print("Screen recording permission denied or restricted.")
-                    completeRequestWithError(error: NSError(domain: "ScreenCaptureError", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Screen recording permission denied or restricted."]))
-                    return
-                }
-                // Proceed only if .allowed (implicitly, or explicitly after request)
-
                 let sharableContent = try await SCShareableContent.current
                 let availableDisplays = sharableContent.displays
                 // let availableWindows = sharableContent.windows // If needed for advanced window selection
