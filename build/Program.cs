@@ -510,9 +510,6 @@ internal class Program
 
             programInstance.SetSkippedSteps(invocationContext.ParseResult.GetValueForOption(skipStepOption));
             programInstance.ApplyCLIOverrides(destDir, prefix, libDir, docDir);
-            // Note: If DestDir, Prefix, LibDir were intended to be configurable via CLI,
-            // you would add options for them and set programInstance properties here.
-            // e.g., programInstance.DestDir = invocationContext.ParseResult.GetValueForOption(destDirOption);
 
             await programInstance.ExecuteBuildAsync(targets, clear, dryRun, host, listDependencies, listInputs, listTargets, listTree, noColor, noExtendedChars, parallel, skipDependencies, verbose, outputDir, configuration, extraArgs);
         }
