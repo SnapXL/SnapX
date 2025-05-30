@@ -17,7 +17,9 @@
 
 # This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
 
+
 %global version         0.1.0
+# This build switch is not intended to be used as a method to make s390x and Ppc64le work
 %global build_with_aot  false
 %ifarch x86_64 aarch64
 %global build_with_aot true
@@ -37,7 +39,7 @@ URL:            https://github.com/BrycensRanch/SnapX
 Source:         %{url}/archive/refs/heads/develop.tar.gz
 
 # RISCV64 support is coming soon. Maybe .NET 10 will add it?
-ExclusiveArch:  x86_64 aarch64 s390x ppc64le
+ExclusiveArch:  x86_64 aarch64
 
 BuildRequires:  dotnet-sdk-9.0
 
@@ -50,12 +52,6 @@ BuildRequires:  curl-devel
 BuildRequires:  clang
 BuildRequires:  openssl-devel
 BuildRequires:  zlib-devel
-%endif
-
-%if "%{build_with_aot}" != "true"
-# The build script does not accept extra parameters atm.
-# So instead, we change parameters ourselves! :D
-BuildRequires: xmlstarlet
 %endif
 
 Recommends:     /usr/bin/ffmpeg
@@ -85,49 +81,6 @@ SnapX but with Avalonia. Works best on X11.
 
 %build
 
-%if "%{build_with_aot}" != "true"
-echo "Disabling AOT and ReadyToRun in .csproj files... Both are unsupported on ppc64le and s390x."
-
-find . -name "*.csproj" | while read -r file; do
-  if xmlstarlet sel -t -c "//Project/PropertyGroup/PublishAot" "$file" | grep -q .; then
-    echo "Setting <PublishAot>%{build_with_aot}</PublishAot> in $file"
-    xmlstarlet ed -L \
-      -u "//Project/PropertyGroup/PublishAot" \
-      -v "%{build_with_aot}" \
-      "$file"
-  fi
-
-  if xmlstarlet sel -t -c "//Project/PropertyGroup/PublishReadyToRun" "$file" | grep -q .; then
-    echo "Setting <PublishReadyToRun>false</PublishReadyToRun> in $file"
-    xmlstarlet ed -L \
-      -u "//Project/PropertyGroup/PublishReadyToRun" \
-      -v "false" \
-      "$file"
-  fi
-  if xmlstarlet sel -t -c "//Project/PropertyGroup/Optimize" "$file" | grep -q .; then
-    echo "Setting <Optimize>false</Optimize> in $file"
-    xmlstarlet ed -L \
-      -u "//Project/PropertyGroup/Optimize" \
-      -v "false" \
-      "$file"
-  fi
-  if xmlstarlet sel -t -c "//Project/PropertyGroup/PublishTrimmed" "$file" | grep -q .; then
-    echo "Setting <PublishTrimmed>false</PublishTrimmed> in $file"
-    xmlstarlet ed -L \
-      -u "//Project/PropertyGroup/PublishTrimmed" \
-      -v "false" \
-      "$file"
-  fi
-  if xmlstarlet sel -t -c "//Project/PropertyGroup/PublishSingleFile" "$file" | grep -q .; then
-    echo "Setting <PublishSingleFile>false</PublishSingleFile> in $file"
-    xmlstarlet ed -L \
-      -u "//Project/PropertyGroup/PublishSingleFile" \
-      -v "false" \
-      "$file"
-  fi
-done
-%endif
-
 # Setup the correct compilation flags for the environment
 # Not all distributions do this automatically
 %if 0%{?fedora}
@@ -138,8 +91,12 @@ done
 export PATH=$PATH:/usr/local/bin
 export VERSION=%{version}
 
-./build.sh --configuration Release
+%global build_extra_args %{nil}
+%if "%{build_with_aot}" != "true"
+%global build_extra_args --extra-args="-p:PublishAot=false"
+%endif
 
+./build.sh --configuration Release %{build_extra_args}
 
 %install
 ./build.sh install --prefix %{_prefix} --lib-dir %{buildroot}%{_libdir} --dest-dir %{buildroot} --skip compile
