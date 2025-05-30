@@ -32,9 +32,6 @@ fi
 BUILD_PROJECT_FILE="$SCRIPT_DIR/build/build.csproj"
 TEMP_DIRECTORY="$SCRIPT_DIR/build/temp"
 
-echo "$BUILD_PROJECT_FILE"
-echo "$TEMP_DIRECTORY"
-
 
 DOTNET_GLOBAL_FILE="$SCRIPT_DIR//global.json"
 DOTNET_INSTALL_URL="https://dot.net/v1/dotnet-install.sh"
