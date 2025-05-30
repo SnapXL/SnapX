@@ -218,7 +218,11 @@ internal class Program
 
                 var assemblyName = GetAssemblyNameFromProject(project);
 
-                await RunAsync("dotnet", $"publish \"{project}\" --configuration {configuration} --nologo -o \"{Path.Combine(outputDir, assemblyName)}\" -r {RuntimeInformation.RuntimeIdentifier} {extraArgs}");
+                var ridPart = $"-r {RuntimeInformation.RuntimeIdentifier}";
+
+                var ridArg = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "" : ridPart;
+
+                await RunAsync("dotnet", $"publish \"{project}\" --configuration {configuration} --nologo -o \"{Path.Combine(outputDir, assemblyName)}\" {ridArg} {extraArgs}");
                 if (project.Contains("NativeMessagingHost"))
                 {
                     foreach (var builtProject in projectsToBuild.Where(p => !p.Contains("NativeMessagingHost")))
