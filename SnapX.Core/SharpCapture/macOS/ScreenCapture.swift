@@ -137,10 +137,12 @@ import AppKit
     private func startCapture(contentRect: CGRect?, windows: [SCWindow]?, forContinuous: Bool) {
         Task {
             do {
-                let currentStatus = await SCShareableContent.current.authorizationStatus
+                let currentStatus = SCShareableContent.current.authorizationStatus
                 if currentStatus == .notDetermined {
-                    let granted = try await SCShareableContent.current.requestAuthorization()
-                    if !granted {
+                    let sharableContent = SCShareableContent.shared
+                    try await sharableContent.requestAuthorization()
+                    let currentStatus = sharableContent.authorizationStatus
+                    if SCShareableContent.current.authorizationStatus != .allowed {
                         print("Authorization not granted after request.")
                         completeRequestWithError(error: NSError(domain: "ScreenCaptureError", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Screen recording permission not granted."]))
                         return
@@ -158,7 +160,7 @@ import AppKit
 
                 let filter: SCContentFilter
                 let config = SCStreamConfiguration()
-                config.pixelFormat = kCVPixelFormatType_32BGRA. तब्बाल // 'kCVPixelFormatType_32BGRA'
+                config.pixelFormat = kCVPixelFormatType_32BGRA
                 config.showsCursor = true
                 config.queueDepth = 5 // A reasonable queue depth
 
