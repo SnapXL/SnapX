@@ -132,7 +132,7 @@ import AppKit
                 config.showsCursor = true
                 config.queueDepth = 5
 
-                var filter: SCContentFilter? = nil // Initialize filter as optional
+                var filter: SCContentFilter? // Initialize filter as optional
 
                 if let regionRectPoints = contentRect { // Regional capture
                     guard let displayForRect = availableDisplays.first(where: { $0.frame.intersects(regionRectPoints) }) else {
