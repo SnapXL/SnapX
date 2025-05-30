@@ -10,15 +10,14 @@
 
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
-  <Target Name="CargoBuild" BeforeTargets="BeforeBuild" Condition="'$(nocargobuild)' == '' and $([MSBuild]::IsOsPlatform('OSX'))">
+  <Target Name="CargoBuild" BeforeTargets="BeforeBuild" Condition="'$(nocargobuild)' == ''">
     <Message Text="Compiling Rust intermediary library..." Importance="High" />
     <PropertyGroup>
       <RustLibName Condition="$([MSBuild]::IsOsPlatform('OSX'))">libsnapxrust.dylib</RustLibName>
       <RustLibName Condition="$([MSBuild]::IsOsPlatform('Linux'))">libsnapxrust.so</RustLibName>
     </PropertyGroup>
     <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
-    <Exec Command="cp &quot;ScreenCapture/Rust/target/release/$(RustLibName)&quot; &quot;$(OutputPath)$(RustLibName)&quot;" />
-    <Message Text="Copying native library from '$(NativeLibrary)' to '$(OutDir)'" Importance="High" />
+    <Exec Command="cp &quot;ScreenCapture/Rust/target/release/$(RustLibName)&quot; &quot;bin/$(Configuration)/net9.0/$(RuntimeIdentifier)/$(RustLibName)&quot;" />
   </Target>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
 <!--    <TargetFrameworks>net9.0-windows10.0.26100.48;net9.0</TargetFrameworks>-->

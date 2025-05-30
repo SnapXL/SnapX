@@ -320,7 +320,6 @@ namespace SnapX.Core.SharpCapture.macOS;
 //     }
 // }
 
-[SupportedOSPlatform("macos12.3")]
 public class macOSCapture : BaseCapture
 {
     public override async Task<Image?> CaptureFullscreen()
