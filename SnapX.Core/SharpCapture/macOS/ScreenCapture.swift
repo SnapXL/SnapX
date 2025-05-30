@@ -213,7 +213,7 @@ import AppKit
                 self.stream = SCStream(filter: filter, configuration: config, delegate: self)
                 // Add self as an output handler for the stream.
                 try self.stream?.addStreamOutput(self, type: .screen, sampleHandlerQueue: .main) // Use a background queue if processing is heavy
-                try self.stream?.startCapture()
+                try await self.stream?.startCapture()
 
             } catch {
                 print("Error starting capture stream: \(error.localizedDescription)")
