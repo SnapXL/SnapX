@@ -44,6 +44,13 @@ internal class Program
     string Tarballdir => Path.Combine(PackagingDirectory, "tarball");
     string PackagingUsrDir => Path.Combine(PackagingDirectory, "usr");
     private string NMHassemblyName => GetAssemblyNameFromProject(projectsToBuild[^1]);
+
+    public void ApplyCLIOverrides(string? destDir, string? prefix, string? libDir)
+    {
+        if (destDir is not null) DestDir = destDir;
+        if (prefix is not null) Prefix = prefix;
+        if (libDir is not null) LibDir = libDir;
+    }
     private string NMHostPath => !OperatingSystem.IsWindows() ? Path.Join(LibDir, "snapx", NMHassemblyName) : null;
 
     private string? _libdir; // Nullable backing field
@@ -60,6 +67,36 @@ internal class Program
         get => _libdir ?? Path.Join(DestDir, Prefix, "lib");
         set => _libdir = value;
     }
+    private static readonly Dictionary<string, string> StepAliases = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "compile", "build" }
+    };
+
+    private HashSet<string> _skippedSteps = new(StringComparer.OrdinalIgnoreCase);
+
+    public void SetSkippedSteps(IEnumerable<string>? steps)
+    {
+        _skippedSteps = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (steps is null) return;
+
+        foreach (var step in steps)
+        {
+            var normalized = StepAliases.TryGetValue(step, out var canonical)
+                ? canonical
+                : step;
+
+            _skippedSteps.Add(normalized);
+        }
+    }
+
+    public bool ShouldSkip(string stepName)
+    {
+        var normalized = StepAliases.GetValueOrDefault(stepName, stepName);
+
+        return _skippedSteps.Contains(normalized);
+    }
+
     private static string FindRoot()
     {
         var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
@@ -140,9 +177,14 @@ internal class Program
             Verbose = verbose,
         };
 
-        Target("format", async () => await RunAsync("dotnet", "format --verify-no-changes"));
+        Target("format", async () =>
+        {
+            if (ShouldSkip("format")) return;
+            await RunAsync("dotnet", "format --verify-no-changes");
+        });
         Target("clean", () =>
         {
+            if (ShouldSkip("clean")) return;
             try
             {
                 Information($"Cleaning output directory: {outputDir}");
@@ -160,10 +202,11 @@ internal class Program
         });
 
         Target("build",
-            dependsOn: ["clean"],
+            dependsOn: ShouldSkip("build") ? [] : ["clean"],
             forEach: projectsToBuild,
             async (project) =>
             {
+                if (ShouldSkip("build")) return;
                 if (!hasLoggedInfo)
                 {
                     Information($"Operating System: {RuntimeInformation.OSDescription}");
@@ -356,7 +399,16 @@ internal class Program
         rootCommand.AddOption(skipDependenciesOption);
 
         var verboseOption = new Option<bool>(["--verbose", "-v"], "Enable verbose output.");
+
         rootCommand.AddOption(verboseOption);
+        var skipStepOption = new Option<string[]>(
+            name: "--skip",
+            description: "Comma-separated list of steps to skip (e.g., build,install,compile).")
+        {
+            Arity = ArgumentArity.ZeroOrMore
+        };
+        skipStepOption.AllowMultipleArgumentsPerToken = true;
+        rootCommand.AddOption(skipStepOption);
 
         var outputDirOption = new Option<string>(
             name: "--output-dir",
@@ -386,6 +438,29 @@ internal class Program
         };
         extraArgsOption.SetDefaultValue("");
         rootCommand.AddOption(extraArgsOption);
+        var destDirOption = new Option<string>(
+            name: "--dest-dir",
+            description: "Destination directory for installation output.")
+        {
+            Arity = ArgumentArity.ExactlyOne
+        };
+        rootCommand.AddOption(destDirOption);
+
+        var prefixOption = new Option<string>(
+            name: "--prefix",
+            description: "Installation prefix path (e.g., /usr or /usr/local).")
+        {
+            Arity = ArgumentArity.ExactlyOne
+        };
+        rootCommand.AddOption(prefixOption);
+
+        var libDirOption = new Option<string>(
+            name: "--lib-dir",
+            description: "Library directory relative to the prefix (e.g., lib or lib64).")
+        {
+            Arity = ArgumentArity.ExactlyOne
+        };
+        rootCommand.AddOption(libDirOption);
 
         rootCommand.SetHandler((Func<InvocationContext, Task>)Handler);
 
@@ -412,9 +487,12 @@ internal class Program
             var outputDir = invocationContext.ParseResult.GetValueForOption(outputDirOption) ?? "Output";
             var configuration = invocationContext.ParseResult.GetValueForOption(configurationOption) ?? "Release";
             var extraArgs = invocationContext.ParseResult.GetValueForOption(extraArgsOption) ?? "";
-
             var programInstance = new Program();
-
+            var destDir = invocationContext.ParseResult.GetValueForOption(destDirOption);
+            var prefix = invocationContext.ParseResult.GetValueForOption(prefixOption);
+            var libDir = invocationContext.ParseResult.GetValueForOption(libDirOption);
+            programInstance.SetSkippedSteps(invocationContext.ParseResult.GetValueForOption(skipStepOption));
+            programInstance.ApplyCLIOverrides(destDir, prefix, libDir);
             // Note: If DestDir, Prefix, LibDir were intended to be configurable via CLI,
             // you would add options for them and set programInstance properties here.
             // e.g., programInstance.DestDir = invocationContext.ParseResult.GetValueForOption(destDirOption);
