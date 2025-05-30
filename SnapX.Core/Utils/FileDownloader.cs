@@ -143,9 +143,9 @@ public class FileDownloader
             {
                 try
                 {
-                    if (System.IO.File.Exists(DownloadLocation))
+                    if (File.Exists(DownloadLocation))
                     {
-                        System.IO.File.Delete(DownloadLocation);
+                        File.Delete(DownloadLocation);
                     }
                 }
                 catch

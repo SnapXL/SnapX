@@ -23,7 +23,6 @@ public static class ImageHelpers
         img.Mutate(ctx => ctx.Skew(horizontal, vertical));
         return img;
     }
-
     internal static Image ImageDataToImage(uniffi.snapxrust.ImageData imageData) =>
         Image.LoadPixelData<Rgba32>(imageData.image, (int)imageData.width, (int)imageData.height);
     public static Size ApplyAspectRatio(int width, int height, Image img)

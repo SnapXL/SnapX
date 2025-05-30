@@ -15,6 +15,7 @@
     <!-- Recommended Avalonia trimming settings for Native AOT -->
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TrimMode>link</TrimMode>
     <PublishTrimmed>true</PublishTrimmed>
     <Optimize>true</Optimize>

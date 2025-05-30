@@ -149,7 +149,8 @@ public class SnapX
     private static string CustomPersonalPath { get; set; }
 
     private static string CustomConfigPath { get; set; }
-    public static string ShortenPath(string path) => path.Replace(Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE") ?? "", "~");
+    public static string ShortenPath(string path) =>
+        OperatingSystem.IsWindows() ? path : path.Replace(Environment.GetEnvironmentVariable("HOME") ?? "", "~");
 
     public static string PersonalFolder =>
         !string.IsNullOrEmpty(CustomPersonalPath)

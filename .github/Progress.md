@@ -20,6 +20,7 @@
 - [ ] Add to Winget, Chocolately, and Scoop
 - [ ] Add to COPR
 - [ ] Add to Homebrew
+- [ ] Add to Itch.io
 - [ ] Add to AUR see PR #56 for the initial PKGBUILD
 - [ ] Add to FOSS Torrents
 - [ ] Add to PortableApps.com
@@ -31,7 +32,7 @@
 - [x] Remove SnapX as a fork of ShareX that can be merged into upstream. *Completed at 233 commits ahead of upstream*
 - [ ] Add Tools from ShareX to SnapX. Notably, upgrade [ExifTool](https://exiftool.org/) from a "Tool" to an optional feature that shows more information, like a properties button on a screenshot's flyout menu.
 - [ ] Add a New Tool that will transcode/reencode videos/images to a certain size based off of the options Discord provides. I believe this can be done with LibVLC or FFMPEG.
-- [ ] Add first-class support for [ImgBB](https://imgbb.com/), [Mastodon](https://mastodon.social/explore), [Bluesky](https://bsky.app/), [Pcloud](https://www.pcloud.com/), [SourceBin](https://sourceb.in/), [PrivateBin](https://github.com/PrivateBin/PrivateBin/wiki/API),  and [Pixeldrain](https://pixeldrain.com/) 
+- [ ] Add first-class support for [ImgBB](https://imgbb.com/), [Mastodon](https://mastodon.social/explore), [Bluesky](https://bsky.app/), [Pcloud](https://www.pcloud.com/), [SourceBin](https://sourceb.in/), [PrivateBin](https://github.com/PrivateBin/PrivateBin/wiki/API),  and [Pixeldrain](https://pixeldrain.com/)
 - [ ] Add Custom Uploader List to SnapX via a build-time HTTP Fetch, or if the file is there already, use that. Can be disabled by packagers as they need offline builds. Or they could fetch the list, or rather, JSON, as part of their build script that isn't done during packaging time. That list is then embedded into the binary and then at runtime it is checked *again* for any new entries to said list. Thus, the functionality keeps working even in an environment where SnapX cannot access the internet.
 - [ ] Add automatic region detection that suggests to users in Egypt, Russia, Ukraine, and possibly more to switch their default image uploader from Imgur to ImgBB. According to my tests, ImgBB doesn't have such region blocks for Ukraine & Egypt. Russia is untested because PIA doesn't have any servers there.
 
@@ -51,7 +52,7 @@ For screen capture, we currently use [xcap](https://github.com/nashaofu/xcap)
 
 ### SemVer & New Commit Message Standard
 
-The version for this port has been set to 0.0.0 until the project is in a usable state. The version will be updated to 1.0.0 when the project feature is complete and ready for general use. The project begins with ShareX's version 16 code base.
+The version for this port has been set to 0.1.0 until the project is in a usable state. The version will be updated to 1.0.0 when the project feature is complete and ready for general use. The project begins with ShareX's version 16 code base.
 
 For the commit messages, I will be following the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard. This will allow for automatic versioning and changelog generation. This will also allow for easier tracking of changes and features.
 

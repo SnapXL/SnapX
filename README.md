@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="./Linux.png" alt="SnapX Banner"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="https://github.com/BrycensRanch/SnapX/blob/6b74876359b8bc217cf165e3f0a22cdf39f8c407/.github/Linux.png" alt="SnapX Banner"/></a></p>
 <h1 align="center">SnapX</h1>
 <h3 align="center">Capture, share, and boost productivity. All in one.</h3>
 <br>
@@ -35,10 +35,11 @@
 - And it *will* use [SQLite](https://www.sqlite.org/about.html) to [store settings & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet [~~keeping JSON as an option~~](https://github.com/BrycensRanch/SnapX/issues/28#issuecomment-2764614506).
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
-- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/) and uses [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux
+- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
+- Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [ScreenCaptureKit](https://developer.apple.com/documentation/screencapturekit/) on macOS, and [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!!)
-- Uses the power of VLC to play back video
+- Uses the power of [VLC](https://wiki.videolan.org/LibVLC/) to playback video/audio
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* use TLS 1.3 out of the box.
@@ -81,6 +82,7 @@ Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![scree
 - `git`
 - `dotnet-sdk-9.0`
 - `ffmpeg` (7)
+- `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
 - `clang`
 - `zlib-devel`
 - `curl-devel`
@@ -116,11 +118,15 @@ sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang libvlc-dev zlib1g-dev libcur
 
 End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and, thus, unsupported.
 
+SnapX now uses the Windows SDK to generate C# Windows API binding code.
+You need the Windows 11 SDK `10.0.26100.0`.
+It works on Windows 10, too.
+
 ```shell
 # Installing Visual Studio Community
 # You cannot build with NativeAOT without it on Windows. It has the linker program. However, you can compile on Rider or whatever your favorite IDE is after you've installed Visual Studio.
 # See https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot
-winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
+winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Component.Windows11SDK.26100 --includeRecommended"
 winget install -e --id Git.Git
 # Install Rider (optional)
 winget install -e --id JetBrains.Rider
@@ -134,10 +140,7 @@ End of life macOS versions are not supported. For example, macOS Monterey is at 
 
 ```zsh
 xcode-select --install
-brew install ffmpeg@7
-curl -O https://dot.net/v1/dotnet-install.sh # Official installation script from .NET team
-chmod +x dotnet-install.sh
-./dotnet-install.sh -Channel current
+brew install ffmpeg@7 rust
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
@@ -178,3 +181,7 @@ Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
 ## Contributions
 
 Contributions are welcome. The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
+
+### Roadmap
+
+See [Progress.md](./.github/Progress.md)

@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
@@ -71,6 +72,7 @@ public static class Helpers
             GifFormat => ".gif",
             WebpFormat => ".webp",
             TiffFormat => ".tiff",
+            BmpFormat _ => ".bmp",
             _ => ".png"
         };
     }
@@ -175,7 +177,7 @@ public static class Helpers
 
     public static string GetRandomLineFromFile(string filePath)
     {
-        var text = System.IO.File.ReadAllText(filePath, Encoding.UTF8);
+        var text = File.ReadAllText(filePath, Encoding.UTF8);
         return GetRandomLine(text);
     }
 
@@ -479,7 +481,7 @@ public static class Helpers
         var sb = new StringBuilder();
         foreach (var x in bytes)
         {
-            sb.Append(string.Format("{0:x2}", x));
+            sb.Append($"{x:x2}");
         }
         return sb.ToString();
     }
@@ -658,7 +660,7 @@ public static class Helpers
 
     public static bool IsDefaultSettings<T>(IEnumerable<T> current, IEnumerable<T> source, Func<T, T, bool> predicate)
     {
-        if (current != null && current.Count() > 0)
+        if (current != null && current.Any())
         {
             return current.All(x => source.Any(y => predicate(x, y)));
         }

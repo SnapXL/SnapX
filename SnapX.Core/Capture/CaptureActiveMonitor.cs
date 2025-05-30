@@ -11,7 +11,9 @@ public class CaptureActiveMonitor : CaptureBase
     protected override TaskMetadata Execute(TaskSettings taskSettings)
     {
         DebugHelper.WriteLine("CaptureActiveMonitor started");
-        var img = TaskHelpers.GetScreenshot(taskSettings).CaptureActiveMonitor();
+        var promise = TaskHelpers.GetScreenshot(taskSettings).CaptureActiveMonitor();
+        promise.Wait();
+        var img = promise.Result;
         var metadata = CreateMetadata(img.Bounds);
         metadata.Image = img;
         return metadata;

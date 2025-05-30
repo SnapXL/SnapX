@@ -1,38 +1,72 @@
+using SixLabors.ImageSharp;
+
 namespace SnapX.Core.Media;
 
-public interface Screen
+public class Screen
 {
-    // The screen's unique identifier (e.g., name or ID)
-    string Id { get; }
+    public Rectangle Bounds { get; set; }
 
-    // The screen's width in pixels
-    int Width { get; }
+    public string Name { get; set; }
+    public string Id { get; set; }
 
-    // The screen's height in pixels
-    int Height { get; }
+    public string Resolution => $"{Bounds.Width}x{Bounds.Height}";
 
-    // The screen's resolution (e.g., "1920x1080")
-    string Resolution { get; }
-
-    double RefreshRate { get; }
+    public double RefreshRate { get; set; }
 
     // The physical dimensions of the screen (e.g., diagonal size in inches)
-    double DiagonalSizeInches { get; }
+    public double DiagonalSizeInches { get; set; }
 
-    double DPI { get; }
+    public double DPI { get; set; }
 
-    // Indicates if the screen is currently the primary display
-    bool IsPrimary { get; }
+    public double ScaleFactor { get; set; }
 
-    ScreenOrientation Orientation { get; }
+    public bool IsPrimary { get; set; }
 
-    // The X-coordinate of the screen's top-left corner (relative to the main display)
-    int X { get; }
+    public ScreenOrientation Orientation { get; set; }
 
-    // The Y-coordinate of the screen's top-left corner (relative to the main display)
-    int Y { get; }
+    public SessionType SessionType { get; set; }
+    public Screen()
+    {
+    }
+    public Screen(
+        string id,
+        int width,
+        int height,
+        string name,
+        string resolution,
+        double refreshRate,
+        double diagonalSizeInches,
+        double dpi,
+        bool isPrimary,
+        ScreenOrientation orientation,
+        int x,
+        int y,
+        double scaleFactor,
+        SessionType sessionType)
+    {
+        Id = id;
+        Bounds = new Rectangle(x, y, width, height);
+        Name = name;
+        RefreshRate = refreshRate;
+        DiagonalSizeInches = diagonalSizeInches;
+        DPI = dpi;
+        IsPrimary = isPrimary;
+        Orientation = orientation;
+        ScaleFactor = scaleFactor;
+        SessionType = sessionType;
+    }
+    public override string ToString()
+    {
+        return $"Screen {Name} [Id={Id}, X={Bounds.X}, Y={Bounds.Y}, Width={Bounds.Width}, Height={Bounds.Height}, Orientation={Orientation}]";
+    }
 }
-
+public enum SessionType
+{
+    Wayland,
+    X11,
+    Windows,
+    macOS
+}
 public enum ScreenOrientation
 {
     Landscape,

@@ -8,14 +8,8 @@ public class WindowInfo
     public WindowInfo()
     {
     }
-    public int Width { get; set; } = int.MinValue;
 
-    public int Height { get; set; } = int.MinValue;
     public Rectangle Rectangle { get; set; } = Rectangle.Empty;
-
-    public int X { get; set; } = int.MinValue;
-
-    public int Y { get; set; } = int.MinValue;
 
     public string Title { get; set; } = string.Empty;
     public IntPtr Handle { get; set; } = IntPtr.Zero;

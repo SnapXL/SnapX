@@ -1,5 +1,11 @@
 using SixLabors.ImageSharp;
 using SnapX.Core.Media;
+using SnapX.Core.SharpCapture;
+using SnapX.Core.SharpCapture.Linux;
+using SnapX.Core.SharpCapture.macOS;
+#if TARGET_WINDOWS
+using SnapX.Core.SharpCapture.Windows;
+#endif
 
 namespace SnapX.Core.Utils.Native;
 
@@ -7,6 +13,7 @@ public static class Methods
 {
     private static bool IsMacOS => OperatingSystem.IsMacOS();
     private static bool IsLinux => OperatingSystem.IsLinux();
+    private static bool IsWindows => OperatingSystem.IsWindows();
     private static bool IsFreeBSD => OperatingSystem.IsFreeBSD();
 
     private static NativeAPI NativeAPI
@@ -22,13 +29,38 @@ public static class Methods
 #endif
         }
     }
-
+    private static BaseCapture SharpCapture
+    {
+        get
+        {
+#if WINDOWS
+            return new WindowsCapture();
+#else
+            if (IsMacOS) return new macOSCapture();
+            if (IsLinux) return new LinuxCapture();
+            throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
+#endif
+        }
+    }
     public static List<WindowInfo> GetWindowList() => NativeAPI.GetWindowList();
 
     public static void ShowWindow(WindowInfo window) => NativeAPI.ShowWindow(window);
     public static void RestoreWindow(WindowInfo window) => ShowWindow(window);
     public static void CopyText(string text) => NativeAPI.CopyText(text);
+    public static async Task<Image?> CaptureScreen(Rectangle bounds) => await SharpCapture.CaptureScreen(bounds);
+    public static async Task<Image?> CaptureScreen(Point pos) => await SharpCapture.CaptureScreen(pos);
+
+    public static async Task<Image?> CaptureFullscreen() => await SharpCapture.CaptureFullscreen();
+    public static async Task<Image?> CaptureRectangle(Rectangle rect) => await SharpCapture.CaptureRectangle(rect);
+    public static async Task<Image?> CaptureWindow(Point pos) => await SharpCapture.CaptureWindow(pos);
+    public static async Task<Rectangle> GetWorkingArea() => await SharpCapture.GetWorkingArea();
+    public static async Task<Rectangle> GetPrimaryScreen() => await SharpCapture.GetPrimaryScreen();
+    public static async Task<Rectangle> GetActiveScreen() => await SharpCapture.GetScreen(GetCursorPosition());
+
+    public static Rectangle GetScreen(Point pos) => SharpCapture.GetScreen(pos).GetAwaiter().GetResult();
+
     public static void CopyImage(Image image, string fileName) => NativeAPI.CopyImage(image, fileName);
+
 
     public static Point GetCursorPosition()
     {
@@ -37,10 +69,11 @@ public static class Methods
         {
             point = NativeAPI.GetCursorPosition();
         }
-        catch (Exception ex) when (ex is PlatformNotSupportedException)
+        catch (Exception ex)
         {
             DebugHelper.Logger.Warning(ex.ToString());
         }
+        DebugHelper.WriteLine($"GetCursorPosition returned {point}");
         return point;
     }
 

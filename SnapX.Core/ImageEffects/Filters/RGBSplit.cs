@@ -21,7 +21,7 @@ internal class RGBSplit : ImageEffect
 
     public override Image Apply(Image img)
     {
-        var rgbaImg = img.CloneAs<Rgba32>();
+        using var rgbaImg = img.CloneAs<Rgba32>();
         var resultImage = img.CloneAs<Rgba32>(); // Clone the image to preserve original
 
         var width = img.Width;
