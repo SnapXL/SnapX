@@ -27,9 +27,6 @@
 %define _debugsource_template %{nil}
 %global         debug_package %{nil}
 
-%bcond check 0
-
-
 Name:           snapx
 Version:        %{version}
 Release:        8%{?dist}
@@ -118,6 +115,13 @@ find . -name "*.csproj" | while read -r file; do
     echo "Setting <PublishTrimmed>false</PublishTrimmed> in $file"
     xmlstarlet ed -L \
       -u "//Project/PropertyGroup/PublishTrimmed" \
+      -v "false" \
+      "$file"
+  fi
+  if xmlstarlet sel -t -c "//Project/PropertyGroup/PublishSingleFile" "$file" | grep -q .; then
+    echo "Setting <PublishSingleFile>false</PublishSingleFile> in $file"
+    xmlstarlet ed -L \
+      -u "//Project/PropertyGroup/PublishSingleFile" \
       -v "false" \
       "$file"
   fi
