@@ -15,6 +15,7 @@ fi
 
 set -eu
 if [ -n "${BASH_SOURCE+x}" ]; then
+  # shellcheck disable=SC3054
   SCRIPT_PATH="${BASH_SOURCE[0]}"
 else
   SCRIPT_PATH="$0"
@@ -35,7 +36,6 @@ BUILD_PROJECT_FILE="$SCRIPT_DIR/build/build.csproj"
 TEMP_DIRECTORY="$SCRIPT_DIR/build/temp"
 
 
-DOTNET_GLOBAL_FILE="$SCRIPT_DIR//global.json"
 DOTNET_INSTALL_URL="https://dot.net/v1/dotnet-install.sh"
 DOTNET_CHANNEL="STS"
 
@@ -49,7 +49,7 @@ export DOTNET_NOLOGO=1
 ###########################################################################
 
 
-if [ "$(uname)" = "Darwin" ]; then
+if [ "$os_name" = "Darwin" ]; then
     USER_MACOS_VERSION=$(sw_vers -productVersion)
     USER_MACOS_VERSION_INT=$(echo "$USER_MACOS_VERSION" | awk -F. '{ printf "%d%02d", $1, $2 }')
 
@@ -66,8 +66,9 @@ if [ "$(uname)" = "Darwin" ]; then
 fi
 
 # If dotnet CLI is installed globally and it matches requested version, use for execution
-if [ -x "$(command -v dotnet)" ] && dotnet --version &>/dev/null; then
-    export DOTNET_EXE="$(command -v dotnet)"
+if [ -x "$(command -v dotnet)" ] && dotnet --version >/dev/null 2>&1; then
+    DOTNET_EXE=$(command -v dotnet)
+    export DOTNET_EXE
 else
     # Download install script
     DOTNET_INSTALL_FILE="$TEMP_DIRECTORY/dotnet-install.sh"
@@ -77,7 +78,7 @@ else
 
     # Install by channel or version
     DOTNET_DIRECTORY="$TEMP_DIRECTORY/dotnet-unix"
-    if [[ -z ${DOTNET_VERSION+x} ]]; then
+    if [ -z "${DOTNET_VERSION+x}" ]; then
         "$DOTNET_INSTALL_FILE" --install-dir "$DOTNET_DIRECTORY" --channel "$DOTNET_CHANNEL" --no-path
     else
         "$DOTNET_INSTALL_FILE" --install-dir "$DOTNET_DIRECTORY" --version "$DOTNET_VERSION" --no-path
