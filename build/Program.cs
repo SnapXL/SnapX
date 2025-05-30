@@ -33,7 +33,7 @@ internal class Program
 
     string BinDir => Path.Join(DestDir, Prefix, "bin");
     string Datadir => Path.Join(DestDir, Prefix, "share");
-    string Docdir => Path.Join(Datadir, "doc", "snapx");
+    private string Docdir { get; set; }
     string Licensedir => Path.Join(Datadir, "licenses", "snapx");
     string Applicationsdir => Path.Join(Datadir, "applications");
     string Icondir => Path.Join(Datadir, "icons", "hicolor");
@@ -45,11 +45,12 @@ internal class Program
     string PackagingUsrDir => Path.Combine(PackagingDirectory, "usr");
     private string NMHassemblyName => GetAssemblyNameFromProject(projectsToBuild[^1]);
 
-    public void ApplyCLIOverrides(string? destDir, string? prefix, string? libDir)
+    public void ApplyCLIOverrides(string? destDir, string? prefix, string? libDir, string? docDir)
     {
         if (destDir is not null) DestDir = destDir;
         if (prefix is not null) Prefix = prefix;
         if (libDir is not null) LibDir = libDir;
+        Docdir = docDir;
     }
     private string NMHostPath => !OperatingSystem.IsWindows() ? Path.Join(LibDir, "snapx", NMHassemblyName) : null;
 
@@ -265,6 +266,7 @@ internal class Program
             dependsOn: ["build"],
             async () =>
             {
+                Docdir ??= Path.Join(Datadir, "doc", "snapx");
                 Information($"--- Installation Paths ---");
                 Information($"Destination Directory (DESTDIR): {DestDir}");
                 Information($"Prefix: {Prefix}");
@@ -468,7 +470,13 @@ internal class Program
             Arity = ArgumentArity.ExactlyOne
         };
         rootCommand.AddOption(libDirOption);
-
+        var docDirOption = new Option<string>(
+            name: "--doc-dir",
+            description: "spit out the readme.md somewhere")
+        {
+            Arity = ArgumentArity.ExactlyOne
+        };
+        rootCommand.AddOption(docDirOption);
         rootCommand.SetHandler((Func<InvocationContext, Task>)Handler);
 
         return await rootCommand.InvokeAsync(args);
@@ -498,8 +506,10 @@ internal class Program
             var destDir = invocationContext.ParseResult.GetValueForOption(destDirOption);
             var prefix = invocationContext.ParseResult.GetValueForOption(prefixOption);
             var libDir = invocationContext.ParseResult.GetValueForOption(libDirOption);
+            var docDir = invocationContext.ParseResult.GetValueForOption(docDirOption);
+
             programInstance.SetSkippedSteps(invocationContext.ParseResult.GetValueForOption(skipStepOption));
-            programInstance.ApplyCLIOverrides(destDir, prefix, libDir);
+            programInstance.ApplyCLIOverrides(destDir, prefix, libDir, docDir);
             // Note: If DestDir, Prefix, LibDir were intended to be configurable via CLI,
             // you would add options for them and set programInstance properties here.
             // e.g., programInstance.DestDir = invocationContext.ParseResult.GetValueForOption(destDirOption);
