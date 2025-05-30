@@ -249,7 +249,6 @@ internal class Program
                             WriteIndented = true,
                             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
                         }));
-
                     }
                 }
             });
