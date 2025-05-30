@@ -14,7 +14,11 @@ else
 fi
 
 set -eu
-SCRIPT_PATH="${BASH_SOURCE[0]:-$0}"
+if [ -n "${BASH_SOURCE+x}" ]; then
+  SCRIPT_PATH="${BASH_SOURCE[0]}"
+else
+  SCRIPT_PATH="$0"
+fi
 SCRIPT_DIR=$(cd "$(dirname "$SCRIPT_PATH")" && pwd)
 
 if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
