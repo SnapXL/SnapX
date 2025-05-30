@@ -19,31 +19,48 @@ import AppKit
     // MARK: - SCStreamDelegate
 
     public func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
-        guard type == .screen, let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        guard type == .screen, CMSampleBufferGetNumSamples(sampleBuffer) == 1, CMSampleBufferIsValid(sampleBuffer), CMSampleBufferDataIsReady(sampleBuffer) else { return }
+        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
         latestFrame = convertImageBufferToCGImage(imageBuffer)
 
         if isCapturingContinuously, let frame = latestFrame, let completion = continuousCaptureCompletion {
             completion(convertCGImageToPNG(frame))
         } else if let frame = latestFrame, let completion = singleCaptureCompletion {
-            singleCaptureCompletion = nil
-            stopCapture()
+            singleCaptureCompletion = nil // Clear before calling to prevent re-entrancy issues if stopCapture is slow
+            stopCapture() // Stop after processing this single frame
             completion(convertCGImageToPNG(frame))
         }
     }
 
     public func stream(_ stream: SCStream, didStopWithError error: Error) {
         print("Stream stopped with error: \(error.localizedDescription)")
-        isCapturingContinuously = false
-        continuousCaptureCompletion = nil
-        singleCaptureCompletion = nil
+        DispatchQueue.main.async {
+            self.isCapturingContinuously = false
+            self.continuousCaptureCompletion?(nil) // Notify continuous capture might have failed
+            self.continuousCaptureCompletion = nil
+            self.singleCaptureCompletion?(nil) // Notify single capture might have failed
+            self.singleCaptureCompletion = nil
+            self.stream = nil // Ensure stream is nil'd out
+        }
     }
 
-    // MARK: - SCStreamOutput (Required for SCStream)
-
-    public func didOutput(sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
-        // Delegate method from SCStreamOutput, handled in stream(_:didOutputSampleBuffer:of:)
+    // MARK: - SCStreamOutput (Required for SCStreamDelegate)
+    // This specific method signature is part of SCStreamOutput.
+    // SCStreamDelegate inherits SCStreamOutput, and stream(_:didOutputSampleBuffer:ofType:) is the
+    // primary callback for delegate pattern. This can be left empty if not directly used
+    // or if all handling is in the delegate's specific sample buffer method.
+    public func stream(_ output: SCStreamOutput, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
+        // This is the SCStreamOutput protocol requirement.
+        // If self is added as a direct output via addStreamOutput, and also as a delegate,
+        // ensure there's no double processing. Typically, stream(_:didOutputSampleBuffer:ofType:) from
+        // SCStreamDelegate is sufficient when self is the delegate.
+        // For safety and to adhere to typical usage where delegate handles it:
+        if output as? ScreenCaptureManager === self && stream != nil { // Check if it's this specific instance and relates to our stream
+             // Already handled by SCStreamDelegate's stream(_:didOutputSampleBuffer:ofType:)
+        }
     }
+
 
     // MARK: - Capture Methods
 
@@ -59,33 +76,22 @@ import AppKit
         capture(with: rect, windows: nil, completion: completion)
     }
 
-    // Temporarily removed functionality
-    // @objc public func captureScreen(posX: CGFloat, posY: CGFloat, completion: @escaping (NSData?) -> Void) {
-    //     let rect = CGRect(x: posX - 5, y: posY - 5, width: 10, height: 10) // Capture a small area around the point
-    //     capture(with: rect, windows: nil, completion: completion)
-    // }
-
-    // Temporarily removed functionality
-    // @objc public func captureWindow(posX: CGFloat, posY: CGFloat, completion: @escaping (NSData?) -> Void) {
-    //     guard let window = getWindowAt(point: CGPoint(x: posX, y: posY)) else {
-    //         completion(nil)
-    //         return
-    //     }
-    //     capture(with: nil, windows: [window], completion: completion)
-    // }
-
     // MARK: - Continuous Screen Capture
 
     @objc public func startContinuousCapture(completion: @escaping (NSData?) -> Void) {
-        guard !isCapturingContinuously else { return }
+        guard !isCapturingContinuously else {
+            print("Continuous capture is already in progress.")
+            return
+        }
         isCapturingContinuously = true
-        continuousCaptureCompletion = completion
-
-        startCapture(forContinuous: true)
+        continuousCaptureCompletion = { data in // Wrap to NSData for Obj-C compatibility
+            completion(data as NSData?)
+        }
+        startCapture(contentRect: nil, windows: nil, forContinuous: true)
     }
 
     @objc public func stopContinuousCapture() {
-        stopCapture()
+        stopCapture() // This will also trigger cleanup via didStopWithError or successful stop
         isCapturingContinuously = false
         continuousCaptureCompletion = nil
     }
@@ -101,68 +107,132 @@ import AppKit
     // MARK: - Helper Functions
 
     private func capture(with contentRect: CGRect?, windows: [SCWindow]?, completion: @escaping (NSData?) -> Void) {
-        singleCaptureCompletion = completion
+        singleCaptureCompletion = { data in // Wrap to NSData for Obj-C compatibility
+            completion(data as NSData?)
+        }
         startCapture(contentRect: contentRect, windows: windows, forContinuous: false)
+    }
+
+    private func completeRequestWithError(error: Error? = nil) {
+        DispatchQueue.main.async {
+            if let singleCompletion = self.singleCaptureCompletion {
+                singleCompletion(nil)
+                self.singleCaptureCompletion = nil
+            }
+            if let continuousCompletion = self.continuousCaptureCompletion {
+                // For continuous, we might not want to nil out the completion here,
+                // as it's an ongoing process. didStopWithError will handle it.
+                // However, if setup fails, we call it with nil.
+                continuousCompletion(nil)
+            }
+            // Reset flags if necessary
+            if error != nil && self.isCapturingContinuously {
+                 self.isCapturingContinuously = false
+                 self.continuousCaptureCompletion = nil // Critical if setup failed for continuous
+            }
+            self.stream = nil // Ensure stream is nil if setup failed
+        }
     }
 
     private func startCapture(contentRect: CGRect?, windows: [SCWindow]?, forContinuous: Bool) {
         Task {
             do {
-                let filter: SCContentFilter
-                if let rect = contentRect {
-                    filter = SCContentFilter(desktopIndependentWindows: [], screen: rect)
-                } else if let windowsToCapture = windows {
-                    filter = SCContentFilter(desktopIndependentWindows: windowsToCapture, screen: nil)
-                } else {
-                    guard let mainScreen = NSScreen.main else { return }
-                    filter = SCContentFilter(desktop: mainScreen.screen, excludingApplications: nil) // Use mainScreen.screen
-                }
-
-                let config = SCStreamConfiguration()
-                if let rect = contentRect {
-                    config.width = Int(rect.width)
-                    config.height = Int(rect.height)
-                } else {
-                    guard let mainScreen = NSScreen.main else { return }
-                    let screenSize: CGSize = mainScreen.frame.size
-                    config.width = Int(screenSize.width)
-                    config.height = Int(screenSize.height)
-                }
-                config.pixelFormat = kCVPixelFormatType_32BGRA
-                config.showsCursor = true
-
-                stream = SCStream(filter: filter, configuration: config, delegate: self) // Set delegate
-
-                // Request access if needed
-                switch await SCShareableContent.current.authorizationStatus {
-                case .notDetermined:
-                    do {
-                        try await SCShareableContent.current.requestAuthorization()
-                    } catch {
-                        print("Authorization request failed: \(error)")
-                        singleCaptureCompletion?(nil)
-                        continuousCaptureCompletion?(nil)
+                let currentStatus = await SCShareableContent.current.authorizationStatus
+                if currentStatus == .notDetermined {
+                    let granted = try await SCShareableContent.current.requestAuthorization()
+                    if !granted {
+                        print("Authorization not granted after request.")
+                        completeRequestWithError(error: NSError(domain: "ScreenCaptureError", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Screen recording permission not granted."]))
                         return
                     }
-                case .denied, .restricted:
+                } else if currentStatus == .denied || currentStatus == .restricted {
                     print("Screen recording permission denied or restricted.")
-                    singleCaptureCompletion?(nil)
-                    continuousCaptureCompletion?(nil)
-                    return
-                case .allowed:
-                    break
-                @unknown default:
-                    print("Unknown authorization status.")
-                    singleCaptureCompletion?(nil)
-                    continuousCaptureCompletion?(nil)
+                    completeRequestWithError(error: NSError(domain: "ScreenCaptureError", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Screen recording permission denied or restricted."]))
                     return
                 }
+                // Proceed only if .allowed (implicitly, or explicitly after request)
 
-                try stream?.startCapture()
+                let sharableContent = try await SCShareableContent.current
+                let availableDisplays = sharableContent.displays
+                // let availableWindows = sharableContent.windows // If needed for advanced window selection
+
+                let filter: SCContentFilter
+                let config = SCStreamConfiguration()
+                config.pixelFormat = kCVPixelFormatType_32BGRA. तब्बाल // 'kCVPixelFormatType_32BGRA'
+                config.showsCursor = true
+                config.queueDepth = 5 // A reasonable queue depth
+
+                if let regionRectPoints = contentRect { // Regional capture (regionRectPoints is NSRect, in points)
+                    guard let displayForRect = availableDisplays.first(where: { $0.frame.intersects(regionRectPoints) }) else {
+                        print("Error: No display found containing the specified rectangle for regional capture.")
+                        completeRequestWithError(error: NSError(domain: "ScreenCaptureError", code: 1003, userInfo: [NSLocalizedDescriptionKey: "No display found for specified region."]))
+                        return
+                    }
+
+                    var scaleFactor: CGFloat = 1.0
+                    if let screen = NSScreen.screens.first(where: { ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID) == displayForRect.displayID }) {
+                        scaleFactor = screen.backingScaleFactor
+                    }
+
+                    let displayFramePoints = displayForRect.frame
+
+                    // Convert global regionRectPoints to local coordinates relative to the display's origin.
+                    // SCDisplay.frame origin is bottom-left in global coordinates.
+                    // sourceRect is in pixels, relative to the display's origin (typically top-left for image data).
+                    let localRectOriginX = (regionRectPoints.origin.x - displayFramePoints.origin.x) * scaleFactor
+                    let localRectOriginYFromBottom = (regionRectPoints.origin.y - displayFramePoints.origin.y) * scaleFactor
+
+                    let pixelWidth = regionRectPoints.width * scaleFactor
+                    let pixelHeight = regionRectPoints.height * scaleFactor
+
+                    // Adjust Y for top-left origin if sourceRect expects it.
+                    // displayForRect.height is in pixels.
+                    // The y-coordinate for sourceRect is often from the top.
+                    // For ScreenCaptureKit, sourceRect is typically relative to the display's top-left origin.
+                    let localRectOriginYFromTop = displayForRect.height - localRectOriginYFromBottom - pixelHeight
+
+                    config.sourceRect = CGRect(x: localRectOriginX, y: localRectOriginYFromTop, width: pixelWidth, height: pixelHeight)
+                    config.width = Int(pixelWidth)
+                    config.height = Int(pixelHeight)
+
+                    // Filter for the specific display, the sourceRect will crop it.
+                    filter = SCContentFilter(display: displayForRect, excludingWindows: [])
+
+                } else if let windowsToCapture = windows, !windowsToCapture.isEmpty { // Window capture
+                    filter = SCContentFilter(desktopIndependentWindows: windowsToCapture)
+                    // For window capture, width/height should ideally be derived from the window(s) or let the stream decide.
+                    // If capturing a single window, you might set config dimensions to match it (in pixels).
+                    if windowsToCapture.count == 1, let window = windowsToCapture.first {
+                        var scaleFactor: CGFloat = 1.0
+                        // Find the screen the window is on to get the correct scale factor
+                        if let screen = NSScreen.screens.first(where: { $0.frame.intersects(window.frame) }) {
+                            scaleFactor = screen.backingScaleFactor
+                        } else if let mainScreen = NSScreen.main { // Fallback to main screen's scale factor
+                            scaleFactor = mainScreen.backingScaleFactor
+                        }
+                        config.width = Int(window.frame.width * scaleFactor)
+                        config.height = Int(window.frame.height * scaleFactor)
+                    }
+                    // If multiple windows, it's complex; not setting width/height lets the stream create a composite.
+                } else { // Fullscreen capture (of the first available display or a "main" display)
+                    guard let firstDisplay = availableDisplays.first else {
+                        print("Error: No displays available for fullscreen capture.")
+                        completeRequestWithError(error: NSError(domain: "ScreenCaptureError", code: 1004, userInfo: [NSLocalizedDescriptionKey: "No displays available."]))
+                        return
+                    }
+                    filter = SCContentFilter(display: firstDisplay, excludingWindows: [])
+                    config.width = Int(firstDisplay.width)   // SCDisplay.width is in pixels
+                    config.height = Int(firstDisplay.height) // SCDisplay.height is in pixels
+                }
+
+                self.stream = SCStream(filter: filter, configuration: config, delegate: self)
+                // Add self as an output handler for the stream.
+                try self.stream?.addStreamOutput(self, type: .screen, sampleHandlerQueue: .main) // Use a background queue if processing is heavy
+                try self.stream?.startCapture()
+
             } catch {
                 print("Error starting capture stream: \(error.localizedDescription)")
-                singleCaptureCompletion?(nil)
-                continuousCaptureCompletion?(nil)
+                completeRequestWithError(error: error)
             }
         }
     }
@@ -171,28 +241,31 @@ import AppKit
         Task {
             do {
                 try await stream?.stopCapture()
+                // The SCStreamDelegate method stream(_:didStopWithError:) will handle cleanup.
+                // If it stops without error, that delegate method is NOT called.
+                // So, some cleanup might be needed here if no error.
+                if !isCapturingContinuously { // For single frame, ensure completion is cleared
+                    DispatchQueue.main.async {
+                        self.singleCaptureCompletion = nil
+                    }
+                }
+                // For continuous capture, didStopWithError handles it, or explicit stopContinuousCapture call.
+                // Setting stream to nil here could be premature if didStopWithError is pending.
+                // It's generally safer to nil it out in the delegate callback or when explicitly stopping.
+                 DispatchQueue.main.async {
+                     self.stream = nil
+                 }
+
             } catch {
                 print("Error stopping capture stream: \(error.localizedDescription)")
+                // stream(_:didStopWithError:) should still be called by the system, which handles completions.
             }
         }
     }
 
-    // Temporarily removed functionality
-    // private func getWindowAt(point: CGPoint) -> SCWindow? {
-    //     guard let windows = try? SCShareableContent.current.windows(onScreenOnly: true) else {
-    //         return nil
-    //     }
-    //     for window in windows {
-    //         if window.frame.contains(point) {
-    //             return window
-    //         }
-    //     }
-    //     return nil
-    // }
-
     private func convertImageBufferToCGImage(_ buffer: CVImageBuffer) -> CGImage? {
         let ciImage = CIImage(cvImageBuffer: buffer)
-        let context = CIContext()
+        let context = CIContext(options: nil) // Create a new context each time or reuse one
         return context.createCGImage(ciImage, from: ciImage.extent)
     }
 
