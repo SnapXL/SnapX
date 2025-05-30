@@ -117,8 +117,7 @@ public abstract class HistoryManager
         {
             historyItems[i] = historyItem;
         }
-        // TODO: Investigate this architectural flaw
-        // Should be fixed when ORMLite is brought into the equation
+
         Thread.Sleep(1000);
 
         Append(filePath, historyItems);

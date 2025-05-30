@@ -42,17 +42,55 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
-          global-json-file: global.json
+          dotnet-version: 9.x.x
+      - name: Restore
+        run: dotnet restore --packages ./vendor SnapX.slnx
+      - name: Restore build project
+        run: dotnet restore --packages ./vendor build/build.csproj
       - name: Cache .NET NuGet packages
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.nuget/packages
-            C:\Users\runner\.nuget\packages
+          path: vendor
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-      # Needed for offline building :3
+      - name: Install NativeAOT Linux Deps
+        if: runner.os == 'Linux'
+        run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
+      - name: Install xmlstarlet
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux'
+        run: sudo apt install -y xmlstarlet
+      - name: 🛠 Generate NuGet.config and Directory.Build.props
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux'
+        run: |
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="utf-8"?>' \
+            '<configuration>' \
+            '  <packageSources>' \
+            '    <clear />' \
+            '    <add key="Local" value="vendor" />' \
+            '  </packageSources>' \
+            '</configuration>' > NuGet.config
+
+      - name: 🛠 Ensure RestorePackagesPath in Directory.Build.props
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux'
+        run: |
+          FILE="Directory.Build.props"
+          PATH_NODE="//Project/PropertyGroup/RestorePackagesPath"
+          # If file exists and node is missing, insert it
+          if [ -f "$FILE" ]; then
+            if ! xmlstarlet sel -t -v "$PATH_NODE" "$FILE" 2>/dev/null | grep -q .; then
+              echo "🔧 Inserting <RestorePackagesPath>vendor</RestorePackagesPath>..."
+              xmlstarlet ed --inplace \
+                -s "//Project/PropertyGroup[1]" -t elem -n "RestorePackagesPath" -v "vendor" \
+                "$FILE"
+            else
+              echo "✅ RestorePackagesPath already set."
+            fi
+          else
+            echo "❌ Directory.Build.props does not exist. Cannot insert RestorePackagesPath for Vendored build. Build will FAIL."
+            exit 1
+          fi
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         uses: actions/upload-artifact@v4
@@ -60,7 +98,9 @@ jobs:
           name: SnapX-Vendored-Source-${{ runner.arch }}
           path: .
           include-hidden-files: false
-          compression-level: 9
+      - name: Enforce code style using dotnet format
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
+        run: dotnet format --exclude build --verify-no-changes -v diagnostic SnapX.slnx
       - name: Publish Windows ARM64 (CLI)
         if: matrix.os == 'windows-2025'
         working-directory: SnapX.CLI
@@ -89,9 +129,6 @@ jobs:
         if: matrix.os == 'windows-2025'
         run: |
           ./build.ps1 --configuration ${{ matrix.configuration }}
-      - name: Install NativeAOT Linux Deps
-        if: runner.os == 'Linux'
-        run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
       - name: Publish
         if: matrix.os != 'windows-2025'
         run: ./build.sh --configuration ${{ matrix.configuration }}

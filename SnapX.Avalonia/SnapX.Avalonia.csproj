@@ -17,7 +17,9 @@
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TrimMode>link</TrimMode>
-    <AvaloniaVersion>11.2.6</AvaloniaVersion>
+    <PublishTrimmed>true</PublishTrimmed>
+    <Optimize>true</Optimize>
+    <AvaloniaVersion>11.3.0</AvaloniaVersion>
     <!-- After investigation, this needs to be an absolute path. It should be set by our build script later down the road. -->
     <!-- That way, you hopefully wouldn't need to have the snapx-ui executable right alongside it's .so/.dll/.dylib -->
     <AvaloniaNativeLibraryPath>/usr/local/lib/snapx</AvaloniaNativeLibraryPath>
@@ -38,7 +40,6 @@
     <AvaloniaResource Include="..\SnapX.Core\Resources\SnapX_Logo.png">
       <Link>SnapX_Logo.png</Link>
     </AvaloniaResource>
-    <TrimmerRootDescriptor Include="Roots.xml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
@@ -47,7 +48,7 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
     <PackageReference Include="FluentAvaloniaUI" Version="2.3.0" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="LibVLCSharp.Avalonia" Version="3.9.2" />
+    <PackageReference Include="LibVLCSharp.Avalonia" Version="3.9.3" />
     <PackageReference Condition="$([MSBuild]::IsOsPlatform('OSX'))" Include="VideoLAN.LibVLC.Mac" Version="3.1.3.1" />
     <PackageReference Condition="$([MSBuild]::IsOsPlatform('Windows'))" Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
     <PackageReference Condition="$([MSBuild]::IsOsPlatform('Windows'))" Include="VideoLAN.LibVLC.Windows.GPL" Version="3.0.21" />

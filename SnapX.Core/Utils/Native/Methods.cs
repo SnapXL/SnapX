@@ -14,16 +14,17 @@ public static class Methods
     private static bool IsMacOS => OperatingSystem.IsMacOS();
     private static bool IsLinux => OperatingSystem.IsLinux();
     private static bool IsWindows => OperatingSystem.IsWindows();
+    private static bool IsFreeBSD => OperatingSystem.IsFreeBSD();
 
     private static NativeAPI NativeAPI
     {
         get
         {
-#if TARGET_WINDOWS
-             return new WindowsAPI();
+#if WINDOWS
+            return new WindowsAPI();
 #else
             if (IsMacOS) return new MacOSAPI();
-            if (IsLinux) return new LinuxAPI();
+            if (IsLinux || IsFreeBSD) return new LinuxAPI();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
 #endif
         }
@@ -32,7 +33,7 @@ public static class Methods
     {
         get
         {
-#if TARGET_WINDOWS
+#if WINDOWS
             return new WindowsCapture();
 #else
             if (IsMacOS) return new macOSCapture();

@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "../SnapX.slnx",
+    "projects": [
+      "SnapX.Avalonia/SnapX.Avalonia.csproj",
+      "SnapX.CLI/SnapX.CLI.csproj",
+      "SnapX.NativeMessagingHost/SnapX.NativeMessagingHost.csproj"
+    ]
+  }
+}

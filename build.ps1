@@ -1,3 +1,5 @@
+#!/usr/bin/env powershell
+
 [CmdletBinding()]
 Param(
     [Parameter(Position=0,Mandatory=$false,ValueFromRemainingArguments=$true)]
@@ -13,8 +15,8 @@ $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
 # CONFIGURATION
 ###########################################################################
 
-$BuildProjectFile = "$PSScriptRoot\build\_build.csproj"
-$TempDirectory = "$PSScriptRoot\\.nuke\temp"
+$BuildProjectFile = "$PSScriptRoot\build\build.csproj"
+$TempDirectory = "$PSScriptRoot\build\temp"
 
 $DotNetGlobalFile = "$PSScriptRoot\\global.json"
 $DotNetInstallUrl = "https://dot.net/v1/dotnet-install.ps1"
@@ -23,7 +25,6 @@ $DotNetChannel = "STS"
 $env:AVALONIA_TELEMETRY_OPTOUT = 1
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = 1
 $env:DOTNET_NOLOGO = 1
-$env:NUKE_TELEMETRY_OPTOUT = 1
 
 ###########################################################################
 # EXECUTION
@@ -43,16 +44,10 @@ else {
     # Download install script
     $DotNetInstallFile = "$TempDirectory\dotnet-install.ps1"
     New-Item -ItemType Directory -Path $TempDirectory -Force | Out-Null
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13
     (New-Object System.Net.WebClient).DownloadFile($DotNetInstallUrl, $DotNetInstallFile)
 
-    # If global.json exists, load expected version
-    if (Test-Path $DotNetGlobalFile) {
-        $DotNetGlobal = $(Get-Content $DotNetGlobalFile | Out-String | ConvertFrom-Json)
-        if ($DotNetGlobal.PSObject.Properties["sdk"] -and $DotNetGlobal.sdk.PSObject.Properties["version"]) {
-            $DotNetVersion = $DotNetGlobal.sdk.version
-        }
-    }
+
 
     # Install by channel or version
     $DotNetDirectory = "$TempDirectory\dotnet-win"
@@ -67,10 +62,5 @@ else {
 
 Write-Output "Microsoft (R) .NET SDK version $(& $env:DOTNET_EXE --version)"
 
-if (Test-Path env:NUKE_ENTERPRISE_TOKEN) {
-    & $env:DOTNET_EXE nuget remove source "nuke-enterprise" > $null
-    & $env:DOTNET_EXE nuget add source "https://f.feedz.io/nuke/enterprise/nuget" --name "nuke-enterprise" --username "PAT" --password $env:NUKE_ENTERPRISE_TOKEN > $null
-}
-
-ExecSafe { & $env:DOTNET_EXE build $BuildProjectFile /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet }
+ExecSafe { & $env:DOTNET_EXE build $BuildProjectFile -nodeReuse:false -p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet }
 ExecSafe { & $env:DOTNET_EXE run --project $BuildProjectFile --no-build -- $BuildArguments }

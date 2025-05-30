@@ -40,16 +40,19 @@ package_snapx() {
         'sudo'
         'libxrandr'
         'libxcb'
-        'dbus',
+        'dbus'
         'vlc'
+        'xdg-utils'
     )
 
     cd "$pkgbase"
     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --skip compile
+    rm -rf "${pkgdir}/usr/bin/libSkiaSharp.so"
+    rm -rf "${pkgdir}/usr/bin/libHarfBuzzSharp.so"
 }
 
 package_snapx-ui() {
-    pkgdesc="SnapX Avalonia-based UI (works best on X11)"
+    pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX). SnapX Avalonia-based UI (works best on X11)"
     depends=('snapx')
 
     cd "$pkgbase"
@@ -58,4 +61,6 @@ package_snapx-ui() {
     # Keep the files only for Avalonia UI
     rm -rf "${pkgdir}/usr/share"
     rm -f "${pkgdir}/usr/bin/snapx"
+    rm -rf "${pkgdir}/usr/bin/libe_sqlite3.so"
+
 }

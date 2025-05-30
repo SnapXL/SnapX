@@ -2,22 +2,24 @@
 
 First off, thank you for considering contributing to this project.
 
-Following these guidelines helps to communicate that you respect the time of the developers managing and developing this open source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
+Following these guidelines helps to communicate that you respect the time of the developers managing and developing this open-source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
 
 This is an open source project, and we love to receive contributions from our community — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the SnapX itself.
 
 ## Ground Rules
 
-By contributing to this project you submit to following our [Code of Conduct](./CODE_OF_CONDUCT.md). Please read this next section carefully and check if your contribution meets all requirements in this checklist. This will save you and us a lot of time.
+By contributing to this project, you agree to follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
+Please read this next section carefully and check if your contribution meets all requirements in this checklist.
+This will save you and us a lot of time.
 
 ## Issues: Feature Requests & Bug Reports
 
-Please make sure you checked all the following before submitting a new issue.
+Please make sure you have checked all the following before submitting a new issue.
 
 - Before submitting a new issue, search the existing (including closed) issues for any duplicates.
-- If you found an existing issue - use the react feature to show you have the same problem or need the same feature. Don't post comments like +1.
+- If you found an existing issue, use the react feature to show you have the same problem or need the same feature. Don't post comments like +1.
 - Use the Bug & Feature Issue templates and provide all the required information.
-- Be as detailed as possible and include screenshots wherever possible. This will help reproducing your bug or understanding your feature request.
+- Be as detailed as possible and include screenshots wherever possible. This will help reproduce your bug or understand your feature request.
 - Do not create GitHub issues with AI.
 
 ## Contributing Code
@@ -43,7 +45,7 @@ If a maintainer asks you to "rebase" your PR, they're saying that a lot of code 
 
 ## Getting started
 
-1. Fork the repo and create your branch from `develop`.
+1. Fork the repo and create your branch from `develop`. Name it accordingly using the [Conventional Branch standard](https://conventional-branch.github.io/).
 2. If you've added code that should be tested, add tests.
 3. If you've changed APIs or added new features, update the documentation.
 4. Ensure the test suite passes.
@@ -55,15 +57,15 @@ If a maintainer asks you to "rebase" your PR, they're saying that a lot of code 
 
 The core team will look at your change as soon as possible and review it. However, since this a project that is done in free time, reviewing might sometimes take some time.
 
-### Code, commit message and labeling conventions
+### Code, commit message, and labeling conventions
 
-We have very precise rules over how our git commit messages can be formatted. This leads to **more readable messages** that are easy to follow when looking through the **commit history**.
+We have very precise rules over how our Git commit messages can be formatted. This leads to **more readable messages** that are easy to follow when looking through the **commit history**.
 
-It is important to note that we use the git commit messages to **generate** the [CHANGELOG](./CHANGELOG.md) document. Improperly formatted commit messages may result in your change not appearing in the CHANGELOG of the next release.
+It is important to note that we use the Git commit messages to **generate** the [CHANGELOG](./CHANGELOG.md) document. Improperly formatted commit messages may result in your change not appearing in the CHANGELOG of the next release.
 
 ### <a name="commit-message-format"></a> Commit Message Format
 
-Each commit message consists of a **header**, a **body** and a **footer**. The header has a special format that includes a **type**, a **scope** and a **subject**:
+Each commit message consists of a **header**, a **body**, and a **footer**. The header has a special format that includes a **type**, a **scope** and a **subject**:
 
 ```html
 <type
@@ -76,7 +78,7 @@ Each commit message consists of a **header**, a **body** and a **footer**. The h
 ></type>
 ```
 
-> Any line of the commit message cannot be longer 100 characters!<br/> This allows the message to be easier to read on GitHub as well as in various Git tools.
+> Any line of the commit message cannot be longer than 100 characters!<br/> This allows the message to be easier to read on GitHub as well as in various Git tools.
 
 ##### Type
 
@@ -85,12 +87,12 @@ Must be one of the following:
 - **feat**: A new feature
 - **fix**: A bug fix
 - **docs**: Documentation only changes
-- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semicolons, etc.)
 - **refactor**: A code change that neither fixes a bug nor adds a feature
 - **perf**: A code change that improves performance
 - **test**: Adding missing tests
-- **ci**: Anything related to the CI/CD process ie GitHub Actions
-- **build**: Anything related to the building process including packaging such as RPM
+- **ci**: Anything related to the CI/CD process, i.e., GitHub Actions
+- **build**: Anything related to the building process, including packaging such as RPM
 - **chore**: Everything else
 
 ##### Scope
@@ -119,7 +121,7 @@ The subject contains a succinct description of the change:
 
 ##### Body
 
-Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes" The body should include the motivation for the change and contrast this with previous behavior.
+Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes". The body should include the motivation for the change and contrast this with previous behavior.
 
 ##### Footer
 
@@ -153,12 +155,12 @@ refactor(Core): use asynchronous save instead of sync
 
 ## Releasing a new version of SnapX
 
-One of the major benefits of this approach is the fact that it will **automatically release a new version** on every successful push to either `develop` based on the commit messages. This makes sure SnapX is released following the [semantic versioning](https://semver.org/) guidelines. For this to work you have to follow a few simple rules:
+One of the major benefits of this approach is the fact that it will **automatically release a new version** on every successful push to either `develop` based on the commit messages. This makes sure SnapX is released following the [semantic versioning](https://semver.org/) guidelines. For this to work, you have to follow a few simple rules:
 
 - The master branch should always have working code that is tested. _Use Pull Requests to work on bigger features or bug fixes and merge them when you are ready._
-- Every bugfix, feature and change should have one commit associated with it. _Do not mix multiple bugs, features, etc. into one huge commit message. Keep your commit size small and commit often._
+- Every bugfix, feature, and change should have one commit associated with it. _Do not mix multiple bugs, features, etc., into one huge commit message. Keep your commit size small and commit often._
 - Your commit messages must follow the [conventional commit rules](https://www.conventionalcommits.org/) additionally, the Angular flavor is accepted as well.
 
 ## One More Thing
 
-All commits from humans ie (NOT GitHub Actions) should be signed. Please take some time to learn how to [sign your commits if you haven't already](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
+All commits from humans, i.e., (NOT GitHub Actions), should be signed. Please take some time to learn how to [sign your commits if you haven't already](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).

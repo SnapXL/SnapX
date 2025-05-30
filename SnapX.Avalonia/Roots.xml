@@ -1,4 +1,0 @@
-<linker>
-  <assembly fullname="SnapX.Avalonia" preserve="All" />
-  <assembly fullname="Avalonia.Themes.Fluent" preserve="All" />
-</linker>
