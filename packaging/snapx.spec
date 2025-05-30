@@ -113,6 +113,13 @@ find . -name "*.csproj" | while read -r file; do
       -v "false" \
       "$file"
   fi
+  if xmlstarlet sel -t -c "//Project/PropertyGroup/PublishTrimmed" "$file" | grep -q .; then
+    echo "Setting <PublishTrimmed>false</PublishTrimmed> in $file"
+    xmlstarlet ed -L \
+      -u "//Project/PropertyGroup/PublishTrimmed" \
+      -v "false" \
+      "$file"
+  fi
 done
 %endif
 
