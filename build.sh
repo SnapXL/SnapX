@@ -70,9 +70,15 @@ if [ "$os_name" = "Darwin" ]; then
 fi
 
 # If dotnet CLI is installed globally and it matches requested version, use for execution
+IS_CI="${CI:-}"
+IS_COPR="${COPR_PROJECT:-}${COPR_USERNAME:-}${COPR_CHROOT:-}"
+
 if [ -x "$(command -v dotnet)" ] && dotnet --version >/dev/null 2>&1; then
     DOTNET_EXE=$(command -v dotnet)
     export DOTNET_EXE
+elif { [ "$IS_CI" = "true" ] || [ -n "$IS_COPR" ]; } && [ "${ALLOW_DOTNET_DOWNLOAD:-0}" != "1" ]; then
+    echo "Error: CI or COPR builds are not allowed to download dotnet by default. Set ALLOW_DOTNET_DOWNLOAD=1 to override." >&2
+    exit 1
 else
     # Download install script
     DOTNET_INSTALL_FILE="$TEMP_DIRECTORY/dotnet-install.sh"
