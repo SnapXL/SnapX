@@ -21,7 +21,9 @@ else
 fi
 SCRIPT_DIR=$(cd "$(dirname "$SCRIPT_PATH")" && pwd)
 
-if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+os_name=$(uname -o 2>/dev/null || echo "unknown")
+
+if [ "$os_name" = "Msys" ] || [ "$os_name" = "Cygwin" ]; then
     SCRIPT_DIR=$(cygpath "$SCRIPT_DIR")
 fi
 
