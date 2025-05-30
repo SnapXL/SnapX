@@ -13,7 +13,7 @@ else
     fi
 fi
 
-set -eo pipefail
+set -eu
 SCRIPT_PATH="${BASH_SOURCE[0]:-$0}"
 SCRIPT_DIR=$(cd "$(dirname "$SCRIPT_PATH")" && pwd)
 
