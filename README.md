@@ -50,7 +50,7 @@ What does this all mean? It means you'll be able to have a more **performant**, 
 You will *not* receive any support from the ShareX project for this software.
 If you have any issues with this project, please **open an issue** in this repository.
 
-However, it's important to note that this project is maintained by volunteers. 
+However, it's important to note that this project is maintained by volunteers.
 We may not be able to provide support for all issues.
 We will do our best to help you, but we cannot guarantee that we will be able to resolve your issue.
 
@@ -157,17 +157,17 @@ exec $SHELL -l
 > [!IMPORTANT]
 > Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
 > I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
-> 
+>
 > On **Linux**, it's `~/.config/SnapX`
-> 
+>
 > On **Windows**, it's `%USERPROFILE%\Documents\SnapX`
-> 
+>
 > On **macOS**, it's `~/Library/Application Support/SnapX`
 
 ```bash
 git clone https://github.com/BrycensRanch/SnapX
 cd SnapX
-./build.sh # Calls NUKE (https://nuke.build) (Linux/macOS)
+./build.sh # Linux/macOS
 .\build.ps1 # If on Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
 # Nothing is stopping you from using regular .NET building tools

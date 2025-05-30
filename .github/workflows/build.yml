@@ -42,11 +42,11 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
-          global-json-file: global.json
+          dotnet-version: 9.x.x
       - name: Restore
-        run: dotnet restore --packages ./vendor SnapX.sln
+        run: dotnet restore --packages ./vendor SnapX.slnx
       - name: Restore build project
-        run: dotnet restore --packages ./vendor build/_build.csproj
+        run: dotnet restore --packages ./vendor build/build.csproj
       - name: Cache .NET NuGet packages
         uses: actions/cache@v4
         with:
@@ -100,7 +100,7 @@ jobs:
           include-hidden-files: false
       - name: Enforce code style using dotnet format
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
-        run: dotnet format --exclude build --verify-no-changes -v diagnostic --exclude build SnapX.sln
+        run: dotnet format --exclude build --verify-no-changes -v diagnostic SnapX.slnx
       - name: Publish Windows ARM64 (CLI)
         if: matrix.os == 'windows-2025'
         working-directory: SnapX.CLI

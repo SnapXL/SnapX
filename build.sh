@@ -1,16 +1,40 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-bash --version 2>&1 | head -n 1
+if [ -n "$BASH_VERSION" ]; then
+    bash --version | head -n1
+elif [ -n "$ZSH_VERSION" ]; then
+    zsh --version
+else
+    shell=$(ps -p $$ -o comm= 2>/dev/null | awk -F/ '{print $NF}')
+    if command -v "$shell" >/dev/null 2>&1 && "$shell" --version >/dev/null 2>&1; then
+        "$shell" --version | head -n1
+    else
+        echo "$shell (version unknown)"
+    fi
+fi
 
-set -eo pipefail
-SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
+set -eu
+if [ -n "${BASH_SOURCE+x}" ]; then
+  SCRIPT_PATH="${BASH_SOURCE[0]}"
+else
+  SCRIPT_PATH="$0"
+fi
+SCRIPT_DIR=$(cd "$(dirname "$SCRIPT_PATH")" && pwd)
+
+if [[ "$(uname -o 2>/dev/null)" == "Msys" || "$(uname -o 2>/dev/null)" == "Cygwin" ]]; then
+    SCRIPT_DIR=$(cygpath "$SCRIPT_DIR")
+fi
 
 ###########################################################################
 # CONFIGURATION
 ###########################################################################
 
-BUILD_PROJECT_FILE="$SCRIPT_DIR/build/_build.csproj"
-TEMP_DIRECTORY="$SCRIPT_DIR//.nuke/temp"
+BUILD_PROJECT_FILE="$SCRIPT_DIR/build/build.csproj"
+TEMP_DIRECTORY="$SCRIPT_DIR/build/temp"
+
+echo "$BUILD_PROJECT_FILE"
+echo "$TEMP_DIRECTORY"
+
 
 DOTNET_GLOBAL_FILE="$SCRIPT_DIR//global.json"
 DOTNET_INSTALL_URL="https://dot.net/v1/dotnet-install.sh"
@@ -20,7 +44,6 @@ export AVALONIA_TELEMETRY_OPTOUT=1
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 export DOTNET_NOLOGO=1
-export NUKE_TELEMETRY_OPTOUT=1
 
 ###########################################################################
 # EXECUTION
@@ -43,10 +66,6 @@ if [ "$(uname)" = "Darwin" ]; then
     fi
 fi
 
-function FirstJsonValue {
-    perl -nle 'print $1 if m{"'"$1"'": "([^"]+)",?}' <<< "${@:2}"
-}
-
 # If dotnet CLI is installed globally and it matches requested version, use for execution
 if [ -x "$(command -v dotnet)" ] && dotnet --version &>/dev/null; then
     export DOTNET_EXE="$(command -v dotnet)"
@@ -56,14 +75,6 @@ else
     mkdir -p "$TEMP_DIRECTORY"
     curl -Lsfo "$DOTNET_INSTALL_FILE" "$DOTNET_INSTALL_URL"
     chmod +x "$DOTNET_INSTALL_FILE"
-
-    # If global.json exists, load expected version
-    if [[ -f "$DOTNET_GLOBAL_FILE" ]]; then
-        DOTNET_VERSION=$(FirstJsonValue "version" "$(cat "$DOTNET_GLOBAL_FILE")")
-        if [[ "$DOTNET_VERSION" == ""  ]]; then
-            unset DOTNET_VERSION
-        fi
-    fi
 
     # Install by channel or version
     DOTNET_DIRECTORY="$TEMP_DIRECTORY/dotnet-unix"
@@ -78,10 +89,5 @@ fi
 
 echo "Microsoft (R) .NET SDK version $("$DOTNET_EXE" --version)"
 
-if [[ ! -z ${NUKE_ENTERPRISE_TOKEN+x} && "$NUKE_ENTERPRISE_TOKEN" != "" ]]; then
-    "$DOTNET_EXE" nuget remove source "nuke-enterprise" &>/dev/null || true
-    "$DOTNET_EXE" nuget add source "https://f.feedz.io/nuke/enterprise/nuget" --name "nuke-enterprise" --username "PAT" --password "$NUKE_ENTERPRISE_TOKEN" --store-password-in-clear-text &>/dev/null || true
-fi
-
-"$DOTNET_EXE" build "$BUILD_PROJECT_FILE" /nodeReuse:false /p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet
+"$DOTNET_EXE" build "$BUILD_PROJECT_FILE" -nodeReuse:false -p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet
 "$DOTNET_EXE" run --project "$BUILD_PROJECT_FILE" --no-build -- "$@"

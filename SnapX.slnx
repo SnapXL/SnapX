@@ -3,7 +3,9 @@
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
   </Folder>
-  <Project Path="build\_build.csproj" Type="Classic C#" />
+  <Project Path="build\build.csproj" Type="Classic C#">
+    <Configuration Solution="Release|*" Project="*|*|NoBuild"/>
+  </Project>
   <Project Path="SnapX.Avalonia\SnapX.Avalonia.csproj" Type="Classic C#" />
   <Project Path="SnapX.CLI\SnapX.CLI.csproj" Type="Classic C#" />
   <Project Path="SnapX.CommonUI\SnapX.CommonUI.csproj" Type="Classic C#" />
