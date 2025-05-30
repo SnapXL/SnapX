@@ -1,4 +1,3 @@
-using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
