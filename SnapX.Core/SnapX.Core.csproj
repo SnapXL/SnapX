@@ -17,7 +17,7 @@
       <DylibName>SharpCapture.dylib</DylibName>
       <SwiftCompilerPath>swiftc</SwiftCompilerPath>
     </PropertyGroup>
-    <Exec Command="$(SwiftCompilerPath) -emit-library -o &quot;$(SwiftOutputDirectory)/$(DylibName)&quot; &quot;$(SwiftSourceFile)&quot;" />
+    <Exec Command="$(SwiftCompilerPath) -emit-library -o &quot;$(SwiftOutputDirectory)/$(DylibName)&quot; &quot;$(SwiftSourceFile)&quot;" IgnoreExitCode="true" />
     <Message Importance="High" Text="Successfully compiled Swift code into $(SwiftOutputDirectory)/$(DylibName)" />
   </Target>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
