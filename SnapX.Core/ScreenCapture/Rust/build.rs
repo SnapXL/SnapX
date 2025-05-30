@@ -8,12 +8,6 @@ fn main() {
         let s = "snapxrust";
         let path = Utf8Path::new("./Cargo.toml");
         uniffi_build::generate_scaffolding(udl_file).unwrap();
-        generate_bindings(udl_file.into(),
-        Some(path),
-                vec![TargetLanguage::Python],
-                Some(out_dir.into()),
-                None,
-                s.into(), true).unwrap();
             if Command::new("uniffi-bindgen-cs").arg("--version").output().is_err() {
         println!("Installing uniffi-bindgen-cs...");
         Command::new("cargo")
