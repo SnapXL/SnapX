@@ -5,7 +5,11 @@ if [ -n "$BASH_VERSION" ]; then
 elif [ -n "$ZSH_VERSION" ]; then
     zsh --version
 else
-    shell=$(ps -p $$ -o comm= 2>/dev/null | awk -F/ '{print $NF}')
+    if [ -n "$SHELL" ]; then
+        shell=$(basename "$SHELL")
+    else
+        shell=$(ps -p $$ -o comm= 2>/dev/null | awk -F/ '{print $NF}')
+    fi
     if command -v "$shell" >/dev/null 2>&1 && "$shell" --version >/dev/null 2>&1; then
         "$shell" --version | head -n1
     else
