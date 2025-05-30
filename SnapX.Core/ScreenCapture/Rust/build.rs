@@ -25,5 +25,5 @@ fn main() {
             .arg("v0.8.4+v0.25.0")
             .status().expect("Failed to install uniffi-bindgen-cs");
         }
-        Command::new("uniffi-bindgen-cs").arg("--out-dir").arg(out_dir).arg(udl_file).arg("--config").arg("Cargo.toml").output().expect("Failed when generating C# bindings");
+        Command::new("~/.cargo/bin/uniffi-bindgen-cs").arg("--out-dir").arg(out_dir).arg(udl_file).arg("--config").arg("Cargo.toml").output().expect("Failed when generating C# bindings");
 }
