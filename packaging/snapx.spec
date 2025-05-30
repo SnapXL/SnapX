@@ -106,6 +106,13 @@ find . -name "*.csproj" | while read -r file; do
       -v "false" \
       "$file"
   fi
+  if xmlstarlet sel -t -c "//Project/PropertyGroup/Optimize" "$file" | grep -q .; then
+    echo "Setting <Optimize>false</Optimize> in $file"
+    xmlstarlet ed -L \
+      -u "//Project/PropertyGroup/Optimize" \
+      -v "false" \
+      "$file"
+  fi
 done
 %endif
 
