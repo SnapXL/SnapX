@@ -49,6 +49,7 @@ BuildRequires:  dotnet-sdk-9.0
 # NativeAOT applications. AOT invokes `clang ... -lssl -lcrypto -lbrotlienc
 # -lbrotlidec -lz ...`.
 BuildRequires:  brotli-devel
+BuildRequires:  curl-devel
 BuildRequires:  clang
 BuildRequires:  openssl-devel
 BuildRequires:  zlib-devel
