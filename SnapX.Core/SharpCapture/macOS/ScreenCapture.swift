@@ -161,7 +161,7 @@ import AppKit
 
                 } else if let windowsToCapture = windows, !windowsToCapture.isEmpty { // Window capture
                     // Initialize filter for window capture
-                    filter = SCContentFilter(desktopIndependentWindows: windowsToCapture) // Ensure this is the correct initializer
+                    filter = SCContentFilter()
 
                     if windowsToCapture.count == 1, let window = windowsToCapture.first {
                         var scaleFactor: CGFloat = 1.0

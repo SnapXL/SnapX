@@ -82,6 +82,7 @@ Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![scree
 - `git`
 - `dotnet-sdk-9.0`
 - `ffmpeg` (7)
+- `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
 - `clang`
 - `zlib-devel`
 - `curl-devel`
@@ -139,10 +140,7 @@ End of life macOS versions are not supported. For example, macOS Monterey is at 
 
 ```zsh
 xcode-select --install
-brew install ffmpeg@7
-curl -O https://dot.net/v1/dotnet-install.sh # Official installation script from .NET team
-chmod +x dotnet-install.sh
-./dotnet-install.sh -Channel current
+brew install ffmpeg@7 rust
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```

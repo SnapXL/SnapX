@@ -1,0 +1,22 @@
+dictionary ImageData {
+    bytes	 image;
+    u32     width;
+    u32     height;
+};
+dictionary MonitorData {
+    u32     width;
+    u32     height;
+    i32     x;
+    i32     y;
+    string  name;
+};
+namespace snapxrust {
+    ImageData capture_window(u32 x, u32 y);
+    ImageData capture_monitor([ByRef]string name);
+    ImageData capture_fullscreen();
+    ImageData capture_rect(u32 x, u32 y, u32 width, u32 height);
+    MonitorData get_screen_dimensions([ByRef]string name);
+    MonitorData get_working_area();
+    MonitorData get_primary_monitor();
+    MonitorData get_monitor(u32 x, u32 y);
+};

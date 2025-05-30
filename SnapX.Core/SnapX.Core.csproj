@@ -10,15 +10,11 @@
 
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
-  <Target Name="CompileSwift" BeforeTargets="BeforeBuild"  Condition="$([MSBuild]::IsOsPlatform('OSX'))">
-    <PropertyGroup>
-      <SwiftSourceFile>SharpCapture/macOS/ScreenCapture.swift</SwiftSourceFile>
-      <SwiftOutputDirectory>$(OutputPath)</SwiftOutputDirectory>
-      <DylibName>SharpCapture.dylib</DylibName>
-      <SwiftCompilerPath>swiftc</SwiftCompilerPath>
-    </PropertyGroup>
-    <Exec Command="$(SwiftCompilerPath) -emit-library -o &quot;$(SwiftOutputDirectory)/$(DylibName)&quot; &quot;$(SwiftSourceFile)&quot;" IgnoreExitCode="true" />
-    <Message Importance="High" Text="Successfully compiled Swift code into $(SwiftOutputDirectory)/$(DylibName)" />
+  <Target Name="CargoBuild" BeforeTargets="BeforeBuild" Condition="'$(nocargobuild)' == '' and $([MSBuild]::IsOsPlatform('OSX'))">
+    <Message Text="Compiling Rust intermediary library..." Importance="High" />
+    <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
+    <Exec Command="cp ScreenCapture/Rust/target/release/libsnapxrust.dylib $(OutputPath)/libsnapxrust.dylib" />
+    <Message Text="Copying native library from '$(NativeLibrary)' to '$(OutDir)'" Importance="High" />
   </Target>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
 <!--    <TargetFrameworks>net9.0-windows10.0.26100.48;net9.0</TargetFrameworks>-->
@@ -152,7 +148,6 @@
     <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Model\" />
-    <Folder Include="ViewModels\" />
+    <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
   </ItemGroup>
 </Project>
