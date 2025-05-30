@@ -184,7 +184,8 @@ import AppKit
                     filter = SCContentFilter(display: displayForRect, excludingWindows: [])
 
                 } else if let windowsToCapture = windows, !windowsToCapture.isEmpty { // Window capture
-                    filter = SCContentFilter(desktopIndependentWindows: windowsToCapture)
+                    let contentFilter = SCContentFilter()
+                    contentFilter.desktopIndependentWindows = windowsToCapture
                     // For window capture, width/height should ideally be derived from the window(s) or let the stream decide.
                     // If capturing a single window, you might set config dimensions to match it (in pixels).
                     if windowsToCapture.count == 1, let window = windowsToCapture.first {
