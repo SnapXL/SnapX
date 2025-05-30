@@ -220,7 +220,11 @@ internal class Program
 
                 var ridPart = $"-r {RuntimeInformation.RuntimeIdentifier}";
 
-                var ridArg = OperatingSystem.IsLinux() ? "" : ridPart;
+                var arch = RuntimeInformation.OSArchitecture.ToString().ToLowerInvariant();
+
+                var isUnsupportedArch = arch is "s390x" or "ppc64le";
+
+                var ridArg = OperatingSystem.IsLinux() && !isUnsupportedArch ? "" : ridPart;
 
                 await RunAsync("dotnet", $"publish \"{project}\" --configuration {configuration} --nologo -o \"{Path.Combine(outputDir, assemblyName)}\" {ridArg} {extraArgs}");
                 if (project.Contains("NativeMessagingHost"))
