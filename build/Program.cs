@@ -1,14 +1,14 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Runtime.InteropServices;
-using System.Xml.Linq;
-using static Bullseye.Targets;
-using static SimpleExec.Command;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Xml.Linq;
 using Bullseye;
+using static Bullseye.Targets;
+using static SimpleExec.Command;
 
 // I am on a limited timeframe for NUKING `NUKE.Build`
 // Sorry for the crimes against programming
@@ -60,7 +60,7 @@ internal class Program
     static readonly string[] ProjectNames = ["Avalonia", "CLI", "NativeMessagingHost"];
     readonly string[] projectsToBuild = ProjectNames
         .Where(projectName => OperatingSystem.IsLinux() || projectName != "GTK4")
-        .Select(projectName => Path.Combine(Path.GetRelativePath(Directory.GetCurrentDirectory() ,RootDirectory), Namespace + projectName))
+        .Select(projectName => Path.Combine(Path.GetRelativePath(Directory.GetCurrentDirectory(), RootDirectory), Namespace + projectName))
         .ToArray();
     public string LibDir
     {
@@ -220,7 +220,7 @@ internal class Program
 
                 var ridPart = $"-r {RuntimeInformation.RuntimeIdentifier}";
 
-                var ridArg = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "" : ridPart;
+                var ridArg = OperatingSystem.IsLinux() ? "" : ridPart;
 
                 await RunAsync("dotnet", $"publish \"{project}\" --configuration {configuration} --nologo -o \"{Path.Combine(outputDir, assemblyName)}\" {ridArg} {extraArgs}");
                 if (project.Contains("NativeMessagingHost"))
@@ -318,38 +318,38 @@ internal class Program
                 var outputFiles = Directory.GetFiles(outputDir, "*", SearchOption.AllDirectories)
                     .OrderBy(Path.GetFileName)
                     .ToArray();
-            foreach (var outputFile in outputFiles)
-            {
-                var permissions = "0755";
-                var destinationFile = Path.Join(BinDir, Path.GetFileName(outputFile));
-                var AvaloniaAssemblyName = "snapx-ui" + (OperatingSystem.IsWindows() ? ".exe" : "");
-
-                switch (Path.GetFileNameWithoutExtension(destinationFile))
+                foreach (var outputFile in outputFiles)
                 {
-                    case var name when destinationFile.Contains(".dbg") || destinationFile.Contains(".pdb"):
-                        continue;
-                    case var name when destinationFile.Contains(NMHassemblyName):
-                        destinationFile = NMHostPath;
-                        Information($"Installing NMH Binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
-                        break;
-                    case var name when destinationFile.Contains(AvaloniaAssemblyName):
-                        destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
-                        Information($"Installing AVALONIABINARY: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
-                        break;
-                    case var name when (destinationFile.Contains(".dll") || destinationFile.Contains(".so") || destinationFile.Contains(".dylib")) && !destinationFile.Contains(AvaloniaAssemblyName):
-                        destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
-                        Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
-                        break;
-                    case var name when destinationFile.Contains(".json"):
-                        destinationFile = Path.Join(Datadir, "SnapX", Path.GetFileName(destinationFile));
-                        Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
-                        break;
-                    default:
-                        Information($"Installing binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
-                        break;
+                    var permissions = "0755";
+                    var destinationFile = Path.Join(BinDir, Path.GetFileName(outputFile));
+                    var AvaloniaAssemblyName = "snapx-ui" + (OperatingSystem.IsWindows() ? ".exe" : "");
+
+                    switch (Path.GetFileNameWithoutExtension(destinationFile))
+                    {
+                        case var name when destinationFile.Contains(".dbg") || destinationFile.Contains(".pdb"):
+                            continue;
+                        case var name when destinationFile.Contains(NMHassemblyName):
+                            destinationFile = NMHostPath;
+                            Information($"Installing NMH Binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                            break;
+                        case var name when destinationFile.Contains(AvaloniaAssemblyName):
+                            destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
+                            Information($"Installing AVALONIABINARY: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                            break;
+                        case var name when (destinationFile.Contains(".dll") || destinationFile.Contains(".so") || destinationFile.Contains(".dylib")) && !destinationFile.Contains(AvaloniaAssemblyName):
+                            destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
+                            Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                            break;
+                        case var name when destinationFile.Contains(".json"):
+                            destinationFile = Path.Join(Datadir, "SnapX", Path.GetFileName(destinationFile));
+                            Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                            break;
+                        default:
+                            Information($"Installing binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
+                            break;
+                    }
+                    InstallFile(outputFile, destinationFile, permissions);
                 }
-                InstallFile(outputFile, destinationFile, permissions);
-            }
                 await Task.CompletedTask; // To satisfy async
             });
         Target("default", dependsOn: ["build"]);
@@ -554,12 +554,10 @@ internal class Program
                 var errorOutput = process.StandardError.ReadToEnd();
                 Error($"Install command failed: {errorOutput}");
 
-                if (!requiresElevationLikely && errorOutput.Contains("Permission denied"))
-                {
-                    Error("Retrying with elevated privileges (sudo)...");
-                    requiresElevationLikely = true;
-                    RunInstallCommand(installArguments);
-                }
+                if (requiresElevationLikely || !errorOutput.Contains("Permission denied")) return;
+                Error("Retrying with elevated privileges (sudo)...");
+                requiresElevationLikely = true;
+                RunInstallCommand(installArguments);
             }
             else
             {
@@ -681,11 +679,7 @@ internal class Program
 
             using var reader = process.StandardOutput;
             var output = reader.ReadToEnd();
-            if (int.TryParse(output.Trim(), out var uidCmd))
-            {
-                return uidCmd;
-            }
-            return 1000; // Default if parsing fails
+            return int.TryParse(output.Trim(), out var uidCmd) ? uidCmd : 1000; // Default if parsing fails
         }
         catch (Exception ex)
         {
