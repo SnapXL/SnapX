@@ -564,7 +564,7 @@ public class SnapX
             {
                 // @see https://github.com/BrycensRanch/SnapX-Linux-Port/blob/c650e315ab51e9100e4c63d61e5915fcf530d96c/Progress.md
                 var InformalPath = Path.Join(UserDirectory.DocumentsDir, AppName);
-                if (Directory.Exists(UserDirectory.DocumentsDir) && !File.Exists(InformalPath)) Directory.CreateSymbolicLink(InformalPath, PersonalFolder);
+                if (Directory.Exists(UserDirectory.DocumentsDir) && !Directory.Exists(InformalPath) && !File.Exists(InformalPath)) Directory.CreateSymbolicLink(InformalPath, PersonalFolder);
             }
             catch (Exception e)
             {
