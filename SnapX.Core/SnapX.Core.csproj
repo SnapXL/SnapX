@@ -43,21 +43,21 @@
 
   <!-- Feature Flags -->
   <PropertyGroup Condition="'$(DisableTelemetry)' == '1'">
-    <DefineConstants>DISABLE_TELEMETRY</DefineConstants>
+    <DefineConstants>$(DefineConstants);DISABLE_TELEMETRY</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(DisableAutoUpdates)' == '1'">
-    <DefineConstants>DISABLE_AUTO_UPDATES</DefineConstants>
+    <DefineConstants>$(DefineConstants);DISABLE_AUTO_UPDATES</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(DisableUploads)' == '1'">
-    <DefineConstants>DISABLE_UPLOADS</DefineConstants>
+    <DefineConstants>$(DefineConstants);DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
 
   <!-- For packagers -->
   <PropertyGroup Condition="'$(PKGTYPE)' != ''">
-    <DefineConstants>$(PKGTYPE)</DefineConstants>
+    <DefineConstants>$(DefineConstants);$(PKGTYPE)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <DefineConstants>WINDOWS;TARGET_WINDOWS</DefineConstants>
+    <DefineConstants>$(DefineConstants);WINDOWS;TARGET_WINDOWS</DefineConstants>
     <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
   </PropertyGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
