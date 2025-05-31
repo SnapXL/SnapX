@@ -35,7 +35,6 @@ public class LinuxAPI : NativeAPI
 
     public override Screen GetScreen(Point pos)
     {
-
         IntPtr display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
@@ -75,7 +74,6 @@ public class LinuxAPI : NativeAPI
         {
             if (IsPlasma())
             {
-
                 return windows;
             }
 
@@ -284,7 +282,6 @@ public class LinuxAPI : NativeAPI
         if (IsWayland())
         {
             // call dbus to copy text to clipboard
-
         }
         IntPtr display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
@@ -441,5 +438,4 @@ public class LinuxAPI : NativeAPI
         public nint obdata;
         // ReSharper restore MemberCanBePrivate.Global
     }
-
 }

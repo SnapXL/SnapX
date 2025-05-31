@@ -308,7 +308,6 @@ public class WindowsCapture : BaseCapture
         };
         // var asd = frame.Surface.Description
         // using var currentFrame = d3d11Device.CreateTexture2D(textureDesc);
-        ;
         var currentFrame = Texture2DFromSurface(result.Surface);
         var tempTexture = currentFrame.QueryInterface<ID3D11Texture2D>();
 
