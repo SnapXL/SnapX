@@ -1,6 +1,7 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Core.SharpCapture.Linux.DBus;
+using SnapX.Core.Utils.Native;
 using Tmds.DBus;
 using Tmds.DBus.Protocol;
 
@@ -137,6 +138,6 @@ public class LinuxCapture : BaseCapture
 
         // return LinuxAPI.TakeScreenshotWithX11(screen);
     }
-
+    public override async Task<Rectangle> GetScreen(Point pos) => Methods.NativeAPI.GetScreen(pos).Bounds;
     private static bool IsCompositorKwin => Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland" && Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") == "KDE";
 }

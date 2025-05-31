@@ -10,7 +10,7 @@ namespace SnapX.Core.Utils.Native;
 
 public class LinuxAPI : NativeAPI
 {
-    internal const string LibX11 = "libx11.so.6";
+    internal const string LibX11 = "libX11.so.6";
     internal static bool IsWayland()
     {
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");

@@ -17,7 +17,7 @@ public static class Methods
     private static bool IsFreeBSD => OperatingSystem.IsFreeBSD();
 
 
-    private static NativeAPI NativeAPI
+    internal static NativeAPI NativeAPI
     {
         get
         {

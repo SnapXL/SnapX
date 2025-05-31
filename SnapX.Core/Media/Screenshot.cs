@@ -71,7 +71,7 @@ public partial class Screenshot
 
     public Image CaptureWindow(Point pos) => Methods.CaptureWindow(pos).GetAwaiter().GetResult();
     public Image CaptureActiveWindow() => CaptureWindow(Methods.GetCursorPosition());
-    public async Task<Image> CaptureActiveMonitor() => Methods.CaptureScreen(Methods.GetCursorPosition()).GetAwaiter().GetResult();
+    public async Task<Image> CaptureActiveMonitor() => Methods.CaptureScreen(Methods.GetScreen(Methods.GetCursorPosition())).GetAwaiter().GetResult();
 
     private async Task<Image> CaptureMonitor(Point pos) => await Methods.CaptureScreen(Methods.GetScreen(pos));
     private Image CaptureRectangleNative(Rectangle rect, bool captureCursor = false) => Methods.CaptureRectangle(rect).GetAwaiter().GetResult();
