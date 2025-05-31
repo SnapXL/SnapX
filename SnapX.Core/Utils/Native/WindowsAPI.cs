@@ -88,16 +88,13 @@ public class WindowsAPI : NativeAPI
             PInvoke.SHGetFileInfo(filePath, FILE_FLAGS_AND_ATTRIBUTES.SECURITY_ANONYMOUS, &shfi, (uint)Marshal.SizeOf<SHFILEINFOW>(),
                 SHGFI_FLAGS.SHGFI_SYSICONINDEX | SHGFI_FLAGS.SHGFI_USEFILEATTRIBUTES);
             var guid = new Guid("46EB5926-582E-4017-9FDF-E8998DAA0950");
-            void* pImageList;
-            PInvoke.SHGetImageList(jumboSize ? (int)PInvoke.SHIL_JUMBO : (int)PInvoke.SHIL_EXTRALARGE, in guid, out pImageList);
+            PInvoke.SHGetImageList(jumboSize ? (int)PInvoke.SHIL_JUMBO : (int)PInvoke.SHIL_EXTRALARGE, in guid, out var pImageList);
             HIMAGELIST imagelist = new((nint)pImageList);
             var hIcon = PInvoke.ImageList_GetIcon(imagelist, shfi.iIcon,
                 IMAGE_LIST_DRAW_STYLE.ILD_TRANSPARENT | IMAGE_LIST_DRAW_STYLE.ILD_IMAGE);
-            ICONINFO iconInfo;
             var safeHIcon = new SafeHICON(hIcon, true);
-            PInvoke.GetIconInfo(safeHIcon, out iconInfo);
+            PInvoke.GetIconInfo(safeHIcon, out var iconInfo);
             var bmp = new BITMAP();
-            Image img;
             var width = 0;
             var height = 0;
             var bitsPerPixel = 0;
@@ -128,7 +125,7 @@ public class WindowsAPI : NativeAPI
             var managedArray = new byte[totalBytes];
             Marshal.Copy((IntPtr)bmp.bmBits, managedArray, 0, totalBytes);
 
-            img = Image.LoadPixelData<Bgra32>(managedArray, width, height);
+            Image img = Image.LoadPixelData<Bgra32>(managedArray, width, height);
             if (iconInfo.hbmColor != IntPtr.Zero) PInvoke.DeleteObject(iconInfo.hbmColor);
             if (iconInfo.hbmMask != IntPtr.Zero) PInvoke.DeleteObject(iconInfo.hbmMask);
 
@@ -158,13 +155,6 @@ public class WindowsAPI : NativeAPI
 
         PInvoke.ShowWindow(new HWND(hwnd), SHOW_WINDOW_CMD.SW_SHOW);
 
-    }
-
-    private static (int X, int Y) GetWindowPosition(IntPtr hwnd)
-    {
-        RECT rect;
-        PInvoke.GetWindowRect(new HWND(hwnd), out rect);
-        return (rect.left, rect.top);
     }
 
     // Method to check if a window is minimized
@@ -199,18 +189,13 @@ public class WindowsAPI : NativeAPI
         PInvoke.GetWindowText(hwnd, new PWSTR(ptr), 256);
 
         // If the window has a non-empty title, add it to the list
-        if (windowTitle.Length <= 0) return true; // Continue enumeration
-        var (X, Y) = GetWindowPosition(hwnd);
+        if (windowTitle.Length <= 0) return true;
         var windowRECT = GetWindowRect(hwnd);
         var windowInfo = new WindowInfo
         {
             Handle = hwnd,
             Title = windowTitle.ToString(),
             Rectangle = windowRECT,
-            X = windowRECT.X,
-            Y = windowRECT.Y,
-            Width = windowRECT.Width,
-            Height = windowRECT.Height,
             IsVisible = PInvoke.IsWindowVisible(hwnd),
             IsMinimized = IsWindowMinimized(hwnd),
             IsActive = IsWindowActive(hwnd)
@@ -269,8 +254,7 @@ public class WindowsAPI : NativeAPI
 
     public override Point GetCursorPosition()
     {
-        System.Drawing.Point LpPoint;
-        PInvoke.GetCursorPos(out LpPoint);
+        PInvoke.GetCursorPos(out var LpPoint);
         return new Point(LpPoint.X, LpPoint.Y);
     }
     public override void CopyImage(Image image, string? filename = null)
@@ -319,7 +303,7 @@ public class WindowsAPI : NativeAPI
                         *(short*)(filenamePtr + filename.Length * sizeof(char)) = 0; // Null terminator
 
                         PInvoke.GlobalUnlock(hMem);
-                        PInvoke.SetClipboardData((uint)CF_HDROP, new HANDLE(filePathPtr));
+                        PInvoke.SetClipboardData(CF_HDROP, new HANDLE(filePathPtr));
                     }
                 }
             }
@@ -726,12 +710,10 @@ public class WindowsAPI : NativeAPI
 
     public static void CreateRegistry(string path, string name, string value, RegistryHive root = RegistryHive.CurrentUser)
     {
-        using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path))
+        using var rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path);
+        if (rk != null)
         {
-            if (rk != null)
-            {
-                rk.SetValue(name, value, RegistryValueKind.String);
-            }
+            rk.SetValue(name, value, RegistryValueKind.String);
         }
     }
 
@@ -742,37 +724,29 @@ public class WindowsAPI : NativeAPI
 
     public static void CreateRegistry(string path, string name, int value, RegistryHive root = RegistryHive.CurrentUser)
     {
-        using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path))
+        using var rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path);
+        if (rk != null)
         {
-            if (rk != null)
-            {
-                rk.SetValue(name, value, RegistryValueKind.DWord);
-            }
+            rk.SetValue(name, value, RegistryValueKind.DWord);
         }
     }
 
     public static void RemoveRegistry(string path, RegistryHive root = RegistryHive.CurrentUser)
     {
-        if (!string.IsNullOrEmpty(path))
-        {
-            using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default))
-            {
-                rk.DeleteSubKeyTree(path, false);
-            }
-        }
+        if (string.IsNullOrEmpty(path)) return;
+        using RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default);
+        rk.DeleteSubKeyTree(path, false);
     }
 
     public static object GetValue(string path, string name = null, RegistryHive root = RegistryHive.CurrentUser, RegistryView view = RegistryView.Default)
     {
         try
         {
-            using (RegistryKey baseKey = RegistryKey.OpenBaseKey(root, view))
-            using (RegistryKey rk = baseKey.OpenSubKey(path))
+            using var baseKey = RegistryKey.OpenBaseKey(root, view);
+            using var rk = baseKey.OpenSubKey(path);
+            if (rk != null)
             {
-                if (rk != null)
-                {
-                    return rk.GetValue(name);
-                }
+                return rk.GetValue(name);
             }
         }
         catch (Exception e)

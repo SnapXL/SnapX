@@ -1,7 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.Versioning;
 using Windows.Graphics.Capture;
 using WinRT;
@@ -57,7 +55,7 @@ public static class CaptureItemHelper
             return null;
         }
         ComWrappers cw = new DefaultComWrappers();
-         var item = cw.GetOrCreateObjectForComInstance(itemPointer, CreateObjectFlags.None) as GraphicsCaptureItem;
+        var item = cw.GetOrCreateObjectForComInstance(itemPointer, CreateObjectFlags.None) as GraphicsCaptureItem;
         // var item = Marshal.GetObjectForIUnknown(itemPointer) as GraphicsCaptureItem;
         Marshal.Release(itemPointer);
         return item;

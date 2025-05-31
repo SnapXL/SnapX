@@ -1,17 +1,13 @@
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.Versioning;
-using Windows.Graphics.DirectX;
-using Windows.Media.Core;
-using ABI.Windows.Graphics.Capture;
-using ABI.Windows.Graphics.DirectX.Direct3D11;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
+using Windows.Graphics.DirectX;
 using WinRT;
 using Direct3D11CaptureFrame = Windows.Graphics.Capture.Direct3D11CaptureFrame;
 using Direct3D11CaptureFramePool = Windows.Graphics.Capture.Direct3D11CaptureFramePool;
