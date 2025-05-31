@@ -20,4 +20,6 @@ public class NativeAPI
     public virtual Rectangle GetWindowRectangle(WindowInfo window) => throw new NotImplementedException("NativeAPI.GetWindowRect is not implemented.");
     public virtual Rectangle GetWindowRectangle(IntPtr windowHandle) => throw new NotImplementedException("NativeAPI.GetWindowRect is not implemented.");
     public virtual Point GetCursorPosition() => throw new NotImplementedException("NativeAPI.GetCursorPosition is not implemented.");
+    public virtual Screen GetScreen(Point pos) =>
+        throw new NotImplementedException("NativeAPI.GetScreen is not implemented");
 }

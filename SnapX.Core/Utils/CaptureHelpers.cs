@@ -5,7 +5,6 @@
 
 using SixLabors.ImageSharp;
 using SnapX.Core.Utils.Native;
-using uniffi.snapxrust;
 
 
 namespace SnapX.Core.Utils;
@@ -17,29 +16,16 @@ public static class CaptureHelpers
         return GetScreenWorkingArea();
     }
 
-    public static Rectangle GetScreenWorkingArea()
-    {
-        var ScreenDimensions = SnapxrustMethods.GetWorkingArea();
-        return new Rectangle(ScreenDimensions.x, ScreenDimensions.y, (int)ScreenDimensions.width, (int)ScreenDimensions.height);
-    }
+    public static Rectangle GetScreenWorkingArea() => Methods.GetWorkingArea().GetAwaiter().GetResult();
+
     public static Rectangle GetActiveScreenBounds()
     {
         return GetActiveScreenWorkingArea();
     }
 
-    public static Rectangle GetActiveScreenWorkingArea()
-    {
-        var pos = GetCursorPosition();
-        var monitor = SnapxrustMethods.GetMonitor((uint)pos.X, (uint)pos.Y);
-        DebugHelper.WriteLine($"Monitor: {monitor.x} {monitor.y} {monitor.width} {monitor.height}");
-        return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
-    }
+    public static Rectangle GetActiveScreenWorkingArea() => Methods.GetActiveScreen().GetAwaiter().GetResult();
 
-    public static Rectangle GetPrimaryScreenBounds()
-    {
-        var monitor = SnapxrustMethods.GetPrimaryMonitor();
-        return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
-    }
+    public static Rectangle GetPrimaryScreenBounds() => Methods.GetPrimaryScreen().GetAwaiter().GetResult();
 
     public static Point ScreenToClient(Point p)
     {

@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
-using uniffi.snapxrust;
 
 namespace SnapX.Core.Media;
 
@@ -28,10 +26,7 @@ public partial class Screenshot
         return CaptureRectangleNative(rect, CaptureCursor);
     }
 
-    public Image CaptureFullscreen()
-    {
-        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureFullscreen());
-    }
+    public Image CaptureFullscreen() => Methods.CaptureFullscreen().GetAwaiter().GetResult();
 
     public Image CaptureWindow(IntPtr handle)
     {
@@ -74,35 +69,12 @@ public partial class Screenshot
         return null;
     }
 
-    public Image CaptureWindow(Point pos)
-    {
-        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureWindow((uint)pos.X, (uint)pos.Y));
-    }
-    public Image CaptureActiveWindow()
-    {
-        return CaptureWindow(Methods.GetCursorPosition());
-    }
+    public Image CaptureWindow(Point pos) => Methods.CaptureWindow(pos).GetAwaiter().GetResult();
+    public Image CaptureActiveWindow() => CaptureWindow(Methods.GetCursorPosition());
+    public async Task<Image> CaptureActiveMonitor() => Methods.CaptureScreen(Methods.GetCursorPosition()).GetAwaiter().GetResult();
 
-    public Image CaptureActiveMonitor()
-    {
-        return CaptureMonitor(Methods.GetCursorPosition());
-    }
-
-    private Image CaptureMonitor(Point pos)
-    {
-        var monitor = SnapxrustMethods.GetMonitor((uint)pos.X, (uint)pos.Y);
-        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureMonitor(monitor.name));
-    }
-    private Image CaptureRectangleNative(Rectangle rect, bool captureCursor = false)
-    {
-        // IntPtr handle = NativeMethods.GetDesktopWindow();
-        // return CaptureRectangleNative(handle, rect, captureCursor);
-        var imageData = SnapxrustMethods.CaptureRect((uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
-        DebugHelper.WriteLine($"CaptureRectangleNative: {imageData.image.Length} {imageData.width} {imageData.height}");
-
-        var img = Image.LoadPixelData<Rgba32>(imageData.image, (int)imageData.width, (int)imageData.height);
-        return img;
-    }
+    private async Task<Image> CaptureMonitor(Point pos) => await Methods.CaptureScreen(Methods.GetScreen(pos));
+    private Image CaptureRectangleNative(Rectangle rect, bool captureCursor = false) => Methods.CaptureRectangle(rect).GetAwaiter().GetResult();
 
     // private Image CaptureRectangleNative(IntPtr handle, Rectangle rect, bool captureCursor = false)
     // {

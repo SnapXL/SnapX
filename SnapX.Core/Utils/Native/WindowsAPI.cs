@@ -168,7 +168,7 @@ public class WindowsAPI : NativeAPI
     }
 
     // Method to check if a window is minimized
-    private static bool IsWindowMinimized(IntPtr hwnd)
+    public static bool IsWindowMinimized(IntPtr hwnd)
     {
         var placement = new WINDOWPLACEMENT();
         if (PInvoke.GetWindowPlacement(new HWND(hwnd), ref placement))
@@ -179,9 +179,9 @@ public class WindowsAPI : NativeAPI
     }
 
     // Method to check if the window is the active (foreground) window
-    private static bool IsWindowActive(IntPtr hwnd)
+    public static bool IsWindowActive(IntPtr hwnd)
     {
-        IntPtr activeWindow = PInvoke.GetForegroundWindow();
+        var activeWindow = PInvoke.GetForegroundWindow();
         return hwnd == activeWindow;
     }
     // [UnmanagedCallersOnly]
@@ -222,11 +222,9 @@ public class WindowsAPI : NativeAPI
         return true; // Continue enumeration
     }
 
-    // List to hold the window info
     private static List<WindowInfo> windowList = [];
 
-    // Method to get the list of windows
-    public List<WindowInfo> GetWindowList()
+    public override List<WindowInfo> GetWindowList()
     {
         windowList.Clear();
         unsafe
@@ -351,6 +349,22 @@ public class WindowsAPI : NativeAPI
         PInvoke.GetWindowRect(new HWND(hwnd), out RECT rect);
         return new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
     }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BITMAPINFO
+    {
+        public int biSize;
+        public int biWidth;
+        public int biHeight;
+        public short biPlanes;
+        public short biBitCount;
+        public int biCompression;
+        public int biSizeImage;
+        public int biXPelsPerMeter;
+        public int biYPelsPerMeter;
+        public int biClrUsed;
+        public int biClrImportant;
+    }
+
     // Beginning of IntegrationHelper class being integrated into WindowsAPI class
 
     private static readonly string ApplicationPath = $"\"{AppDomain.CurrentDomain.BaseDirectory}\"";

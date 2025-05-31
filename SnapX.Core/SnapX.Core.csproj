@@ -10,6 +10,36 @@
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Dapper.AOT</InterceptorsPreviewNamespaces>
 
   </PropertyGroup>
+  <!-- Most elegant way of handling platform specific code -->
+  <Target Name="CargoBuild"
+          BeforeTargets="BeforeBuild"
+          Condition="'$(nocargobuild)' == '' and $([MSBuild]::IsOsPlatform('OSX'))">    <Message Text="Compiling Rust intermediary library..." Importance="High" />
+    <PropertyGroup>
+      <RustLibName Condition="$([MSBuild]::IsOsPlatform('OSX'))">libsnapxrust.dylib</RustLibName>
+      <RustLibName Condition="$([MSBuild]::IsOsPlatform('Linux'))">libsnapxrust.so</RustLibName>
+    </PropertyGroup>
+    <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
+  </Target>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+<!--    <TargetFrameworks>net9.0-windows10.0.26100.48;net9.0</TargetFrameworks>-->
+    <!-- Windows 10 22H2 -->
+<!--    <TargetPlatformMinVersion>10.0.19045</TargetPlatformMinVersion>-->
+    <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref/10.0.26100.48 -->
+    <WindowsSdkPackageVersion>10.0.26100.48</WindowsSdkPackageVersion>
+    <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
+
+    <CsWinRTEnableLogging>true</CsWinRTEnableLogging>
+    <CsWinRTIncludes>Windows.Graphics;Windows.Foundation;Windows.Data;Windows.Devices;Windows.Security;Windows.Storage;Windows.System;Windows.Networking;Windows.Globalization;Windows.ApplicationModel;Windows.Web;Windows.UI;Windows.Perception;Windows.Media;Windows.Gaming;Windows.Services;Windows.Management</CsWinRTIncludes>
+    <CSWinRTExcludes>Windows.Foundation.PropertyType</CSWinRTExcludes>
+    <CsWinRTMessageImportance Condition="'$(CsWinRTMessageImportance)' == ''">normal</CsWinRTMessageImportance>
+    <CsWinRTCommandVerbosity Condition="'$(CsWinRTMessageImportance)' == 'high'">-verbose</CsWinRTCommandVerbosity>
+    <CsWinRTGenerateProjection>true</CsWinRTGenerateProjection>
+    <!-- Debugging source generators -->
+    <CsWinRTAotOptimizerEnabled>true</CsWinRTAotOptimizerEnabled>
+
+    <CsWinRTEmbedded>true</CsWinRTEmbedded>
+
+  </PropertyGroup>
 
   <!-- Feature Flags -->
   <PropertyGroup Condition="'$(DisableTelemetry)' == '1'">
@@ -27,9 +57,13 @@
     <DefineConstants>$(PKGTYPE)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <DefineConstants>WINDOWS</DefineConstants>
+    <DefineConstants>WINDOWS;TARGET_WINDOWS</DefineConstants>
     <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
   </PropertyGroup>
+  <!-- Exclude Windows-specific files from macOS and Linux -->
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Compile Remove="SharpCapture/Windows/*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Google Photos Library from Microsoft employee -->
@@ -44,16 +78,19 @@
     <!-- Builds are notably not provided for FreeBSD. Dynamic loading of normal system sqlite3 supported. -->
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
     <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="2.1.11" />
-
     <!-- Configuration has never been so intuitive -->
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.5" />
     <!-- Windows Registry Configuration Support -->
-    <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17" Condition="'$(OS)' == 'Windows_NT'">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" Condition="'$(OS)' == 'Windows_NT'">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" Condition="'$(OS)' == 'Windows_NT'" />
     <!-- Source generator dependency. It is just useful for keeping redudant code out of tree  -->
     <PackageReference Include="MimeTypes" Version="2.5.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -70,7 +107,7 @@
     <PackageReference Include="OpenCvSharp4.runtime.osx_arm64" Version="4.8.1-rc" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
     <!-- Crash forensics & performance analytics -->
-    <PackageReference Include="Sentry.Profiling" Version="5.8.1" />
+    <PackageReference Include="Sentry.Profiling" Version="5.9.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
@@ -89,7 +126,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <!-- Blazingly fast screen captures on Windows, hopefully even compatible with video games that have weird quirks. -->
-    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" />
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->

@@ -47,7 +47,7 @@ jobs:
       - name: Restore
         run: dotnet restore --packages ./vendor SnapX.slnx
       - name: Restore build project
-        run: dotnet restore --packages ./vendor build/_build.csproj
+        run: dotnet restore --packages ./vendor build/build.csproj
       - name: Cache .NET NuGet packages
         uses: actions/cache@v4
         with:
@@ -58,6 +58,9 @@ jobs:
       - name: Install NativeAOT Linux Deps
         if: runner.os == 'Linux'
         run: "sudo apt update && sudo apt install -y clang zlib1g-dev libcurl4-openssl-dev"
+      - name: Install Rust toolchain
+        if: runner.os == 'macOS'
+        run: brew install rust
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet

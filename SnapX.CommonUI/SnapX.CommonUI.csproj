@@ -5,6 +5,8 @@
     <OutputType>Library</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
