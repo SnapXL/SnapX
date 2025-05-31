@@ -75,7 +75,7 @@ public class LinuxAPI : NativeAPI
         XCloseDisplay(display);
         return null;
     }
-    
+
     public override List<WindowInfo> GetWindowList()
     {
         var windows = new List<WindowInfo>();

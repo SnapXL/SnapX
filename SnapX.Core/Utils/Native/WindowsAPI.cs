@@ -349,21 +349,6 @@ public class WindowsAPI : NativeAPI
         PInvoke.GetWindowRect(new HWND(hwnd), out RECT rect);
         return new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct BITMAPINFO
-    {
-        public int biSize;
-        public int biWidth;
-        public int biHeight;
-        public short biPlanes;
-        public short biBitCount;
-        public int biCompression;
-        public int biSizeImage;
-        public int biXPelsPerMeter;
-        public int biYPelsPerMeter;
-        public int biClrUsed;
-        public int biClrImportant;
-    }
 
     // Beginning of IntegrationHelper class being integrated into WindowsAPI class
 

@@ -140,7 +140,7 @@ public partial class RegionSelectorWindow : Window
                 TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings())
                     .CaptureActiveMonitor(),
             TaskCreationOptions.LongRunning
-        ).GetAwaiter().GetResult();
+        ).GetAwaiter().GetResult().GetAwaiter().GetResult();
         // Convert ImageSharp image to Avalonia Bitmap via a MemoryStream
         _imageStream = new MemoryStream();
         _imageStream.Position = 0;
