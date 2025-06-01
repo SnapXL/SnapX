@@ -18,7 +18,7 @@
 # This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
 
 
-%global version         0.1.0
+%global version         0.2.0
 # This build switch is not intended to be used as a method to make s390x and Ppc64le work
 %global build_with_aot  false
 %ifarch x86_64 aarch64
@@ -31,7 +31,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        8%{?dist}
+Release:        1%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
