@@ -16,3 +16,5 @@ jobs:
 
       - name: Ensure commit message(s) is/are compliant (conventional commits via commitlint)
         uses: wagoid/commitlint-github-action@v6
+        with:
+          commitDepth: 1
