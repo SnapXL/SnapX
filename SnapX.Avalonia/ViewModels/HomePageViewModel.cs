@@ -13,7 +13,7 @@ public partial class HomePageViewModel : ViewModelBase
 {
     public IEnumerable<HistoryItem> recentTasks { get; set; }
 
-    public ObservableCollection<ListTaskTemplate> SelectedTasks { get; set; } = new();
+    public ObservableCollection<ListTaskTemplate> SelectedTasks { get; set; } = [];
     public ObservableCollection<ListTaskTemplate> RecentTaskss { get; set; } =
         [];
     private System.Timers.Timer _refreshTimer;
@@ -35,6 +35,15 @@ public partial class HomePageViewModel : ViewModelBase
     public void ContextMenuSelection(object Sender)
     {
         SelectedTasks.Add(Sender as ListTaskTemplate);
+    }
+
+    [RelayCommand]
+    public void DeleteHistoryItemLocally(object Sender)
+    {
+        var ltt = Sender as ListTaskTemplate;
+        var task = ltt.task;
+        DebugHelper.WriteLine($"File {task.FileName} MUST BE DELETED!!");
+        File.Delete(task.FilePath);
     }
     [RelayCommand]
     private void ToggleSelection(object parameter)
@@ -60,22 +69,20 @@ public partial class HomePageViewModel : ViewModelBase
         DebugHelper.WriteLine(string.Join("\n", SelectedTasks.Select(t => t.ToString())));
     }
 
-    private void OnPointerPressed(object sender, PointerPressedEventArgs e)
+    private void OnPointerPress(object sender, PointerPressedEventArgs e)
     {
-        if (sender is ToggleButton button && button.DataContext is HomePageViewModel vm)
-        {
-            var item = button.Tag as string;
+        if (sender is not ToggleButton { DataContext: HomePageViewModel vm } button) return;
+        var item = button.Tag as string;
 
-            if (e.GetCurrentPoint(button).Properties.IsRightButtonPressed)
-            {
-                // Right-click: Show context menu on the toggle button itself
-                vm.ContextMenuSelectionCommand.Execute(button);
-            }
-            else if (e.GetCurrentPoint(button).Properties.IsLeftButtonPressed)
-            {
-                // Left-click: Toggle selection
-                vm.ToggleSelectionCommand.Execute(item);
-            }
+        if (e.GetCurrentPoint(button).Properties.IsRightButtonPressed)
+        {
+            // Right-click: Show context menu on the toggle button itself
+            vm.ContextMenuSelectionCommand.Execute(button);
+        }
+        else if (e.GetCurrentPoint(button).Properties.IsLeftButtonPressed)
+        {
+            // Left-click: Toggle selection
+            vm.ToggleSelectionCommand.Execute(item);
         }
     }
 

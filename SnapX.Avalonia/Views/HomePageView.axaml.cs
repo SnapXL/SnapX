@@ -15,6 +15,9 @@ public partial class HomePageView : UserControl
         ViewModel = vm;
         InitializeComponent();
     }
+    public HomePageView() : this(new HomePageViewModel())
+    {
+    }
 
     private void PopupFlyoutBase_OnOpening(object? Sender, EventArgs E)
     {

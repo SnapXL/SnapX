@@ -409,10 +409,6 @@ public class WindowsCapture : BaseCapture
         return Image.LoadPixelData<Rgba32>(screenshotBytes, bounds.Width, bounds.Height);
     }
 
-    private static byte[] GetBufferAsByteArray(global::Windows.Storage.Streams.Buffer buffer)
-    {
-        return buffer.ToArray();
-    }
     private static byte[] GetDataAsByteArray(IntPtr dataPointer, int rowPitch, int width, int height)
     {
         // Create a byte[] array to hold the pixel data

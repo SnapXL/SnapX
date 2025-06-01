@@ -1,24 +1,24 @@
 ﻿<UserControl
+    Loaded="Control_OnLoaded"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
-    Loaded="Control_OnLoaded"
     x:Class="SnapX.Avalonia.HomePageView"
     x:DataType="viewModels1:HomePageViewModel"
     xmlns="https://github.com/avaloniaui"
     xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
     xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:core="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fluent="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:core="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
-    xmlns:fluent="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.DataContext>
         <viewModels1:HomePageViewModel />
     </Design.DataContext>
     <ScrollViewer>
-      <ItemsControl ItemsSource="{Binding RecentTaskss}">
+        <ItemsControl ItemsSource="{Binding RecentTaskss}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel>
@@ -28,9 +28,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-
                     <ToggleButton
-                        CommandParameter="{Binding}"
                         Height="200"
                         Margin="5"
                         UseLayoutRounding="True"
@@ -47,76 +45,115 @@
                         </ToolTip.Tip>
                         <ToggleButton.ContextFlyout>
                             <controls:FAMenuFlyout Opening="PopupFlyoutBase_OnOpening" Placement="Bottom">
-                <controls:MenuFlyoutItem
-                  HotKey="Enter"
-                  IconSource="Repair"
-                  IsVisible="False"
-                  Text="{x:Static core:Lang.UI_ShowErrors}" />
-                <controls:MenuFlyoutSeparator IsVisible="False" />
-                <controls:MenuFlyoutSubItem IconSource="Open" Text="{x:Static core:Lang.UI_Open}" ToolTip.Tip="{x:Static core:Lang.UI_Open_ToolTip}" Cursor="Hand">
-                  <controls:MenuFlyoutItem IconSource="Link" HotKey="Enter" Text="{x:Static core:Lang.UI_URL}" ToolTip.Tip="{x:Static core:Lang.UI_URL_ToolTip}" />
-                  <controls:MenuFlyoutItem IconSource="Link" Text="{x:Static core:Lang.UI_ShortenedURL}" ToolTip.Tip="{x:Static core:Lang.UI_ShortenedURL_ToolTip}" />
-                  <controls:MenuFlyoutItem IconSource="Link" Text="{x:Static core:Lang.UI_ThumbnailURL}" ToolTip.Tip="{x:Static core:Lang.UI_ThumbnailURL_ToolTip}" />
-                  <controls:MenuFlyoutItem IconSource="Link" Text="{x:Static core:Lang.UI_DeletionURL}" ToolTip.Tip="{x:Static core:Lang.UI_DeletionURL_ToolTip}" />
-                  <controls:MenuFlyoutSeparator />
-                  <controls:MenuFlyoutItem HotKey="CTRL+Enter" Text="{x:Static core:Lang.UI_File}" IconSource="OpenFile" ToolTip.Tip="{x:Static core:Lang.UI_File_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                    HotKey="Enter"
+                                    IconSource="Repair"
+                                    IsVisible="False"
+                                    Text="{x:Static core:Lang.UI_ShowErrors}" />
+                                <controls:MenuFlyoutSeparator IsVisible="False" />
+                                <controls:MenuFlyoutSubItem
+                                    Cursor="Hand"
+                                    IconSource="Open"
+                                    Text="{x:Static core:Lang.UI_Open}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_Open_ToolTip}">
+                                    <controls:MenuFlyoutItem
+                                        HotKey="Enter"
+                                        IconSource="Link"
+                                        Text="{x:Static core:Lang.UI_URL}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_URL_ToolTip}" />
+                                    <controls:MenuFlyoutItem
+                                        IconSource="Link"
+                                        Text="{x:Static core:Lang.UI_ShortenedURL}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_ShortenedURL_ToolTip}" />
+                                    <controls:MenuFlyoutItem
+                                        IconSource="Link"
+                                        Text="{x:Static core:Lang.UI_ThumbnailURL}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_ThumbnailURL_ToolTip}" />
+                                    <controls:MenuFlyoutItem
+                                        IconSource="Link"
+                                        Text="{x:Static core:Lang.UI_DeletionURL}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_DeletionURL_ToolTip}" />
+                                    <controls:MenuFlyoutSeparator />
+                                    <controls:MenuFlyoutItem
+                                        HotKey="CTRL+Enter"
+                                        IconSource="OpenFile"
+                                        Text="{x:Static core:Lang.UI_File}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_File_ToolTip}" />
 
-                  <controls:MenuFlyoutItem HotKey="Shift+Enter" Text="{x:Static core:Lang.UI_Folder}" IconSource="OpenFolder" ToolTip.Tip="{x:Static core:Lang.UI_Folder_ToolTip}" />
-                  <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_ThumbnailFile}" />
+                                    <controls:MenuFlyoutItem
+                                        HotKey="Shift+Enter"
+                                        IconSource="OpenFolder"
+                                        Text="{x:Static core:Lang.UI_Folder}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_Folder_ToolTip}" />
+                                    <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_ThumbnailFile}" />
 
-                </controls:MenuFlyoutSubItem>
-                <controls:MenuFlyoutSubItem IconSource="Copy" Text="{x:Static core:Lang.UI_Copy}">
-                  <controls:MenuFlyoutItem IconSource="Copy" HotKey="CTRL+C" Text="{x:Static core:Lang.UI_URL}" />
-                  <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ShortenedURL}" />
-                  <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ThumbnailURL}" />
-                  <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_DeletionURL}" />
-                  <controls:MenuFlyoutSeparator />
-                  <controls:MenuFlyoutItem IconSource="Copy" HotKey="Shift+C" Text="{x:Static core:Lang.UI_File}" />
-                  <controls:MenuFlyoutItem HotKey="Alt+C" IconSource="ImageCopy" Text="{x:Static core:Lang.UI_Image}" />
-                  <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ImageDimensions}" />
-                  <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_Text}" />
-                  <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_Text}" />
+                                </controls:MenuFlyoutSubItem>
+                                <controls:MenuFlyoutSubItem IconSource="Copy" Text="{x:Static core:Lang.UI_Copy}">
+                                    <controls:MenuFlyoutItem
+                                        HotKey="CTRL+C"
+                                        IconSource="Copy"
+                                        Text="{x:Static core:Lang.UI_URL}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ShortenedURL}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ThumbnailURL}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_DeletionURL}" />
+                                    <controls:MenuFlyoutSeparator />
+                                    <controls:MenuFlyoutItem
+                                        HotKey="Shift+C"
+                                        IconSource="Copy"
+                                        Text="{x:Static core:Lang.UI_File}" />
+                                    <controls:MenuFlyoutItem
+                                        HotKey="Alt+C"
+                                        IconSource="ImageCopy"
+                                        Text="{x:Static core:Lang.UI_Image}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ImageDimensions}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_Text}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_Text}" />
 
-                  <fluent:FluentIcon Icon="MoneyOff" IconVariant="Regular" IconSize="Resizable" />
-                  <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ThumbnailFile}" />
-                  <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ThumbnailImage}" />
+                                    <fluent:FluentIcon
+                                        Icon="MoneyOff"
+                                        IconSize="Resizable"
+                                        IconVariant="Regular" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ThumbnailFile}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ThumbnailImage}" />
 
-                  <controls:MenuFlyoutSeparator />
+                                    <controls:MenuFlyoutSeparator />
 
-                  <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_FilePath}" />
-                  <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_FileName}" />
-                  <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_FileNameWithExtension}" />
-                  <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_Folder}" />
+                                    <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_FilePath}" />
+                                    <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_FileName}" />
+                                    <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_FileNameWithExtension}" />
+                                    <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_Folder}" />
 
-                </controls:MenuFlyoutSubItem>
-                <controls:MenuFlyoutItem
-                  HotKey="CTRL+U"
-                  IconSource="Share"
-                  Text="{x:Static core:Lang.UI_Upload}"
-                  ToolTip.Tip="{x:Static core:Lang.UI_Upload_ToolTip}" />
-                <controls:MenuFlyoutItem
-                  IconSource="ImageAltText"
-                  Text="{x:Static core:Lang.UI_OCRImage}"
-                  ToolTip.Tip="{x:Static core:Lang.UI_OCRImage_ToolTip}" />
-                <controls:MenuFlyoutItem
-                  HotKey="CTRL+E"
-                  IconSource="ImageEdit"
-                  Text="{x:Static core:Lang.UI_EditImage}"
-                  ToolTip.Tip="{x:Static core:Lang.UI_EditImage_ToolTip}" />
-                <controls:MenuFlyoutItem
-                  IconSource="Emoji"
-                  Text="{x:Static core:Lang.UI_BeautifyImage}"
-                  ToolTip.Tip="{x:Static core:Lang.UI_BeautifyImage_ToolTip}" />
-                <controls:MenuFlyoutItem
-                  IconSource="Preview"
-                  Text="{x:Static core:Lang.UI_AddImageEffects}"
-                  ToolTip.Tip="{x:Static core:Lang.UI_AddImageEffects_ToolTip}" />
-                <controls:MenuFlyoutSeparator />
-                <controls:MenuFlyoutItem
-                  HotKey="Shift+Delete"
-                  IconSource="Delete"
-                  Text="{x:Static core:Lang.UI_DeleteFileLocally}"
-                  ToolTip.Tip="{x:Static core:Lang.UI_DeleteFileLocally_ToolTip}" />
+                                </controls:MenuFlyoutSubItem>
+                                <controls:MenuFlyoutItem
+                                    HotKey="CTRL+U"
+                                    IconSource="Share"
+                                    Text="{x:Static core:Lang.UI_Upload}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_Upload_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                    IconSource="ImageAltText"
+                                    Text="{x:Static core:Lang.UI_OCRImage}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_OCRImage_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                    HotKey="CTRL+E"
+                                    IconSource="ImageEdit"
+                                    Text="{x:Static core:Lang.UI_EditImage}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_EditImage_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                    IconSource="Emoji"
+                                    Text="{x:Static core:Lang.UI_BeautifyImage}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_BeautifyImage_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                    IconSource="Preview"
+                                    Text="{x:Static core:Lang.UI_AddImageEffects}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_AddImageEffects_ToolTip}" />
+                                <controls:MenuFlyoutSeparator />
+                                <controls:MenuFlyoutItem
+                                    Command="{Binding DeleteHistoryItemLocallyCommand, DataType=viewModels1:HomePageViewModel}"
+                                    CommandParameter="{Binding}"
+                                    HotKey="Shift+Delete"
+                                    IconSource="Delete"
+                                    Text="{x:Static core:Lang.UI_DeleteFileLocally}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_DeleteFileLocally_ToolTip}" />
                             </controls:FAMenuFlyout>
                         </ToggleButton.ContextFlyout>
 
