@@ -582,15 +582,35 @@ public class SnapX
 #if WINDOWS
         if (OperatingSystem.IsWindows())
         {
-            // TODO: Reimplement FirstTimeForm to give users chance to consent
-            if (!WindowsAPI.CheckCustomUploaderExtension()) WindowsAPI.CreateCustomUploaderExtension(true);
-            if (!WindowsAPI.CheckImageEffectExtension()) WindowsAPI.CreateImageEffectExtension(true);
-            if (!WindowsAPI.CheckShellContextMenuButton()) WindowsAPI.CreateShellContextMenuButton(true);
-            if (!WindowsAPI.CheckSendToMenuButton()) WindowsAPI.CreateSendToMenuButton(true);
+            Task.Run(() =>
+            {
+                try
+                {
+                    // TODO: Reimplement FirstTimeForm to give users chance to consent
+                    if (!WindowsAPI.CheckCustomUploaderExtension())
+                        WindowsAPI.CreateCustomUploaderExtension(true);
 
-            if (!WindowsAPI.CheckChromeExtensionSupport()) WindowsAPI.CreateChromeExtensionSupport(true);
-            if (!WindowsAPI.CheckFirefoxAddonSupport())
-                WindowsAPI.CreateFirefoxAddonSupport(true);
+                    if (!WindowsAPI.CheckImageEffectExtension())
+                        WindowsAPI.CreateImageEffectExtension(true);
+
+                    if (!WindowsAPI.CheckShellContextMenuButton())
+                        WindowsAPI.CreateShellContextMenuButton(true);
+
+                    if (!WindowsAPI.CheckSendToMenuButton())
+                        WindowsAPI.CreateSendToMenuButton(true);
+
+                    if (!WindowsAPI.CheckChromeExtensionSupport())
+                        WindowsAPI.CreateChromeExtensionSupport(true);
+
+                    if (!WindowsAPI.CheckFirefoxAddonSupport())
+                        WindowsAPI.CreateFirefoxAddonSupport(true);
+                }
+                catch (Exception ex)
+                {
+                    // Consider logging the exception or notifying the user
+                    DebugHelper.WriteLine($"Windows API setup failed: {ex}");
+                }
+            });
         }
 #endif
     }
