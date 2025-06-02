@@ -1,3 +1,5 @@
+using SnapX.Core.Utils;
+
 namespace SnapX.Core.Media;
 
 public class ImageData : IDisposable
@@ -20,6 +22,8 @@ public class ImageData : IDisposable
                 {
                     ImageStream.Position = 0;
                 }
+
+                FileHelpers.CreateDirectoryFromFilePath(filePath);
                 using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
                 ImageStream.CopyTo(fileStream);
                 fileSaved = true;
