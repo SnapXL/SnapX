@@ -143,8 +143,8 @@ public partial class RegionSelectorWindow : Window
         ).GetAwaiter().GetResult().GetAwaiter().GetResult();
         // Convert ImageSharp image to Avalonia Bitmap via a MemoryStream
         _imageStream = new MemoryStream();
-        _imageStream.Position = 0;
         image.SaveAsPng(_imageStream);
+        _imageStream.Position = 0;
         _imageBounds = new Rect(image.Bounds.X, image.Bounds.Y, image.Bounds.Width, image.Bounds.Height);
         image.Dispose();
         DebugHelper.WriteLine($"_imageStream {_imageStream.Length} (Readable? {_imageStream.CanRead}) bytes raw image bounds {image.Bounds}");
