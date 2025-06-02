@@ -36,7 +36,7 @@
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
-- Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [ScreenCaptureKit](https://developer.apple.com/documentation/screencapturekit/) on macOS, and [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
+- Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!!)
 - Uses the power of [VLC](https://wiki.videolan.org/LibVLC/) to playback video/audio
