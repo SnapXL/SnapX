@@ -9,6 +9,7 @@ SetClipboardData
 GetWindowPlacement
 GetWindowRect
 GetWindow
+WindowFromPoint
 IsWindowVisible
 GetWindowText
 GetWindowRgn

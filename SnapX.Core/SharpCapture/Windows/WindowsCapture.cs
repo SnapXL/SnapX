@@ -8,6 +8,7 @@ using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
 using Windows.Graphics.DirectX;
+using Windows.Win32;
 using WinRT;
 using Direct3D11CaptureFrame = Windows.Graphics.Capture.Direct3D11CaptureFrame;
 using Direct3D11CaptureFramePool = Windows.Graphics.Capture.Direct3D11CaptureFramePool;
@@ -152,9 +153,6 @@ public class WindowsCapture : BaseCapture
         return await CaptureOutputImage(defaultOutput.Output, defaultOutput.Adapter, defaultBounds);
     }
 
-    [DllImport("user32.dll")]
-    private static extern IntPtr WindowFromPoint(WinPoint Point);
-
     [DllImport(
         "d3d11.dll",
         EntryPoint = "CreateDirect3D11DeviceFromDXGIDevice",
@@ -200,16 +198,6 @@ public class WindowsCapture : BaseCapture
         public int Y = Y;
     }
 
-    private static IntPtr WindowFromPoint(Point pos)
-    {
-        var winPoint = new WinPoint
-        {
-            X = pos.X,
-            Y = pos.Y
-        };
-        return WindowFromPoint(winPoint);
-    }
-
     private static Vortice.Direct3D11.ID3D11Texture2D Texture2DFromSurface(global::Windows.Graphics.DirectX.Direct3D11.IDirect3DSurface surface)
     {
         var dxgiAccess = surface.As<IDirect3DDxgiInterfaceAccess>();
@@ -233,7 +221,7 @@ public class WindowsCapture : BaseCapture
             DebugHelper.WriteLine("WindowsCapture: GraphicsCaptureSession is not supported on this device. Perhaps update your Windows?");
             return null;
         }
-        var hwnd = WindowFromPoint(pos);
+        var hwnd = PInvoke.WindowFromPoint(new System.Drawing.Point(pos.X, pos.Y));
         if (hwnd == IntPtr.Zero)
         {
             await Console.Error.WriteLineAsync("WindowsCapture was provieded a invalid window handle");
