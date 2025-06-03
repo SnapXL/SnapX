@@ -21,6 +21,7 @@ Please make sure you have checked all the following before submitting a new issu
 - Use the Bug & Feature Issue templates and provide all the required information.
 - Be as detailed as possible and include screenshots wherever possible. This will help reproduce your bug or understand your feature request.
 - Do not create GitHub issues with AI.
+- Do not bump SnapX's version in conventional pull requests. Only release branches like `develop`, `alpha`, and `beta` can do that.
 
 ## Contributing Code
 
