@@ -46,7 +46,6 @@ public static class CaptureItemHelper
     {
         DebugHelper.WriteLine($"CreateItemForWindow: {hwnd}");
         var factory = ActivationFactory.Get(typeof(GraphicsCaptureItem).FullName!);
-        // var interop = factory.AsInterface<IGraphicsCaptureItemInterop>();
         var interop = factory.AsInterface<IGraphicsCaptureItemInterop>();
         var itemPointer = interop.CreateForWindow(hwnd, ref GraphicsCaptureItemGuid);
         if (itemPointer == null || itemPointer == IntPtr.Zero)
@@ -56,7 +55,6 @@ public static class CaptureItemHelper
         }
         ComWrappers cw = new DefaultComWrappers();
         var item = cw.GetOrCreateObjectForComInstance(itemPointer, CreateObjectFlags.None) as GraphicsCaptureItem;
-        // var item = Marshal.GetObjectForIUnknown(itemPointer) as GraphicsCaptureItem;
         Marshal.Release(itemPointer);
         return item;
     }
