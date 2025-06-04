@@ -500,8 +500,11 @@ public class SnapX
 
         WatchFolderManager?.Dispose();
         SettingManager.SaveAllSettings();
-        DbConnection.CloseAsync().GetAwaiter().GetResult();
-        DbConnection.Dispose();
+        if (DbConnection != null)
+        {
+            DbConnection.CloseAsync().GetAwaiter().GetResult();
+            DbConnection.Dispose();
+        }
         if (TelemetryEnabled()) SentrySdk.Close();
 
         DebugHelper.WriteLine("SnapX closed.");

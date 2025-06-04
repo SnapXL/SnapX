@@ -144,6 +144,7 @@
     <Content Include="Resources\OAuthCallbackPage.html" />
     <Content Include="Resources\jira_sharex.pfx" />
     <EmbeddedResource Include="Resources\*.flac" />
+    <EmbeddedResource Include="Migrations\*.sql" />
 
   </ItemGroup>
   <ItemGroup>

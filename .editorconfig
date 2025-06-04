@@ -25,7 +25,6 @@ resharper_csharp_namespace_body = file_scoped
 # noinspection EditorConfigKeyCorrectness
 csharp_style_namespace_declarations = file_scoped:warning
 
-
 # You will comply or be DESTROYED.
 csharp_style_var_elsewhere = true
 csharp_style_var_for_built_in_types = true
@@ -62,3 +61,8 @@ indent_size = 2
 # For building on Windows using NUKE
 [*.{cmd,ps1}]
 end_of_line = crlf
+
+[*.sql]
+indent_size = 2
+charset = utf-8
+max_line_length = 120

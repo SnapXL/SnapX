@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json;
+using Dapper;
 #if WINDOWS
 using Esatto.Win32.Registry;
 #endif
@@ -115,6 +117,7 @@ internal static class SettingManager
     [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
     public static void LoadApplicationConfig(bool fallbackSupport = true)
     {
+        ApplicationConfigBackwardCompatibilityTasks();
         var configurationBuilder = new ConfigurationBuilder();
         if (!SnapX.Sandbox)
         {
@@ -142,7 +145,6 @@ internal static class SettingManager
         Settings = settings;
         if (string.IsNullOrWhiteSpace(Settings.SQLitePath))
             Settings.SQLitePath = Path.Combine(SnapX.DefaultPersonalFolder, "SnapX.db");
-        ApplicationConfigBackwardCompatibilityTasks();
         MigrateHistoryFile();
     }
 
@@ -190,16 +192,47 @@ internal static class SettingManager
         BuiltConfig.Bind(HotkeysConfig);
         HotkeysConfigBackwardCompatibilityTasks();
     }
+    [DapperAot]
 
     private static void ApplicationConfigBackwardCompatibilityTasks()
     {
-        // if (Settings.IsUpgradeFrom("16.0.2"))
-        // {
-        //     if (Settings.CheckPreReleaseUpdates)
-        //     {
-        //         Settings.UpdateChannel = UpdateChannel.PreRelease;
-        //     }
-        // }
+        var assembly = Assembly.GetExecutingAssembly();
+
+        var resourceNames = assembly.GetManifestResourceNames()
+            .Where(name => name.Contains("Migrations") && name.EndsWith(".sql"))
+            .OrderBy(name => name)
+            .ToList();
+        foreach (var resourceName in resourceNames)
+        {
+            // Normalize file name from resource (e.g. SnapX.Migrations.001_initial_schema.sql)
+            var fileName = resourceName.Split('.').Reverse().Take(2).Reverse().Aggregate((a, b) => $"{a}.{b}");
+
+            var hasMigrationLogTable = SnapX.DbConnection.ExecuteScalar<int>(
+                "SELECT COUNT(1) FROM sqlite_master WHERE type = 'table' AND name = 'MigrationLog';"
+            ) > 0;
+
+            if (hasMigrationLogTable)
+            {
+                var alreadyApplied = SnapX.DbConnection.ExecuteScalar<int>(
+                    "SELECT COUNT(1) FROM MigrationLog WHERE FileName = @FileName",
+                    new { FileName = fileName }
+                ) > 0;
+
+                if (alreadyApplied)
+                {
+                    continue;
+                }
+            }
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            using var reader = new StreamReader(stream!);
+            var sql = reader.ReadToEnd();
+            using var tx = SnapX.DbConnection.BeginTransaction(IsolationLevel.Serializable);
+            SnapX.DbConnection.Execute(sql, transaction: tx);
+            SnapX.DbConnection.Execute("INSERT INTO MigrationLog (FileName) VALUES (@FileName)", new { FileName = fileName }, transaction: tx);
+            tx.Commit();
+
+            DebugHelper.WriteLine($"Applied SQL Migration: {fileName}");
+        }
     }
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static async Task MigrateHistoryFile()
