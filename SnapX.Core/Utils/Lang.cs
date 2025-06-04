@@ -12,6 +12,9 @@ public static class Lang
     public static string AboutSnapX => Get("AboutSnapX");
     public static string UploadToAmazonS3Failed => Get("UploadToAmazonS3Failed");
     public static string SnapXFailedToStart => Get("SnapXFailedToStart");
+    public static string FailedToScreenshot => Get("FailedToScreenshot");
+    public static string Error =>  Get("Error");
+    public static string Ok =>  Get("Ok");
     public static string ReportErrorToDeveloper => Get("ReportErrorToDeveloper");
     public static string CreateGitHubIssue => Get("CreateGitHubIssue");
     public static string CopyErrorToClipboard => Get("CopyErrorToClipboard");

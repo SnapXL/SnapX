@@ -27,6 +27,15 @@
   <data name="SnapXFailedToStart">
     <value>SnapX Failed To Start</value>
   </data>
+  <data name="FailedToScreenshot">
+    <value>Failed to take screenshot.</value>
+  </data>
+  <data name="Error">
+    <value>Error</value>
+  </data>
+  <data name="Ok">
+    <value>Ok</value>
+  </data>
   <data name="ReportErrorToDeveloper">
     <value>Report Error To Developer</value>
   </data>

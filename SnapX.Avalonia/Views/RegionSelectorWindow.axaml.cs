@@ -2,8 +2,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using SixLabors.ImageSharp;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
@@ -70,10 +72,100 @@ public partial class RegionSelectorWindow : Window
         _infoBox.IsVisible = false;
         _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
         DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {_selectionRect.Bounds}");
-        var img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureRectangle(new SixLabors.ImageSharp.Rectangle((int)_selectionRect.Bounds.X, (int)_selectionRect.Bounds.Y, (int)_selectionRect.Bounds.Width, (int)_selectionRect.Bounds.Height));
-        if (img != null)
+        try
         {
-            UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
+            var img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureRectangle(new SixLabors.ImageSharp.Rectangle((int)_selectionRect.Bounds.X, (int)_selectionRect.Bounds.Y, (int)_selectionRect.Bounds.Width, (int)_selectionRect.Bounds.Height));
+            if (img != null)
+            {
+                UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
+            }
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteException(ex);
+    var dialog = new Window
+    {
+        Title = Lang.Error,
+        Width = 800,
+        Height = 450,
+        CanResize = false,
+        WindowStartupLocation = WindowStartupLocation.CenterOwner
+    };
+
+    var autoCloseCts = new CancellationTokenSource();
+
+    var messageText = new TextBlock
+    {
+        Text = Lang.FailedToScreenshot,
+        FontWeight = FontWeight.Bold,
+        Margin = new Thickness(0, 0, 0, 10)
+    };
+
+    var errorDetails = new ScrollViewer
+    {
+        Margin = new Thickness(2, 0, 0, 10),
+        Content = new TextBlock
+        {
+            Text = ex.ToString(),
+            TextWrapping = TextWrapping.Wrap
+        }
+    };
+
+    var okButton = new Button
+    {
+        Content = Lang.Ok,
+        HorizontalAlignment = HorizontalAlignment.Right,
+        Margin = new Thickness(5, 10, 0, 0)
+    };
+    okButton.Click += (_, _) =>
+    {
+        autoCloseCts.Cancel();
+        dialog.Close();
+    };
+
+    errorDetails.PointerPressed += (_, _) => autoCloseCts.Cancel();
+    errorDetails.PointerReleased += (_, _) => autoCloseCts.Cancel();
+    messageText.PointerPressed += (_, _) => autoCloseCts.Cancel();
+    messageText.PointerReleased += (_, _) => autoCloseCts.Cancel();
+
+    dialog.Content = new StackPanel
+    {
+        Margin = new Thickness(10),
+        Children =
+        {
+            messageText,
+            errorDetails,
+            new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Children = { okButton },
+                Spacing = 10
+            }
+        }
+    };
+
+    _ = Task.Run(async () =>
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(20), autoCloseCts.Token);
+            await Dispatcher.UIThread.InvokeAsync(() => dialog.Close());
+        }
+        catch (TaskCanceledException)
+        {
+            // User clicked a button to prevent auto-close or already closed it
+        }
+    });
+            if (App.MyMainWindow != null)
+            {
+                App.MyMainWindow?.Show();
+                dialog.ShowDialog(App.MyMainWindow);
+            }
+            else
+            {
+                dialog.Show();
+            }
         }
         App.MyMainWindow?.Show();
         Close();
@@ -98,7 +190,6 @@ public partial class RegionSelectorWindow : Window
     }
     private void UpdateDimmingOverlay(double x, double y, double width, double height)
     {
-        return;
         var overlay = new DrawingGroup();
         using (var context = overlay.Open())
         {
