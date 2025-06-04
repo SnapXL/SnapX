@@ -17,7 +17,7 @@ public class AboutDialog
     public virtual string GetLicense() => "GPL v3 or Later";
 
     public virtual string GetLicenseURL() =>
-        $"{Core.Utils.Miscellaneous.Links.GitHub}/blob/37ef50f36c2cba1b758c76fae213f261eb756418/LICENSE.md";
+        $"{Core.Utils.Miscellaneous.Links.GitHub}/blob/develop/LICENSE.md";
     public virtual string GetVersion() => Core.SnapX.VersionText;
     public virtual string GetWebsite() => Core.Utils.Miscellaneous.Links.GitHub;
     public virtual string GetDocumentation() => Core.Utils.Miscellaneous.Links.Docs;
