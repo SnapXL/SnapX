@@ -138,5 +138,11 @@ public class LinuxCapture : BaseCapture
         // return LinuxAPI.TakeScreenshotWithX11(screen);
     }
 
+    public override async Task<Image?> CaptureScreen(Point? pos)
+    {
+        if (pos == null || !pos.HasValue) throw new ArgumentNullException(nameof(pos));
+        return await CaptureScreen(await GetScreen(pos.Value));
+    }
+
     private static bool IsCompositorKwin => Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland" && Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") == "KDE";
 }
