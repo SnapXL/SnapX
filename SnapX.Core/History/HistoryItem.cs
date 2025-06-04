@@ -29,6 +29,7 @@ public class HistoryItem
     public string? ThumbnailURL { get; set; }
     public string? DeletionURL { get; set; }
     public string? ShortenedURL { get; set; }
+    [Table("Tags")]
     public record Tag
     {
         public int Id { get; set; }

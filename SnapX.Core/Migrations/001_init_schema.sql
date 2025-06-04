@@ -1,4 +1,4 @@
--- Migration: 0001_initial_schema.sql
+-- Migration: 001_initial_schema.sql
 -- Created: 2025-06-04
 -- Description: Initial schema for SnapX config and history tables.
 
