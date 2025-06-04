@@ -2,6 +2,7 @@
 #pragma warning disable CA1416 // I am aware
 using Avalonia;
 using Avalonia.Dialogs;
+using Avalonia.Media;
 using SnapX.Avalonia;
 
 Console.WriteLine("Initializing Avalonia");
@@ -12,6 +13,17 @@ static AppBuilder BuildAvaloniaApp()
 {
     var builder = AppBuilder.Configure<App>()
         .WithInterFont()
+        .With(new FontManagerOptions
+        {
+            DefaultFamilyName = "Inter",
+            FontFallbacks =
+            [
+                new FontFallback
+                {
+                    FontFamily = new FontFamily("Inter")
+                }
+            ]
+        })
         .LogToTrace();
 
     var x11Options = new X11PlatformOptions
