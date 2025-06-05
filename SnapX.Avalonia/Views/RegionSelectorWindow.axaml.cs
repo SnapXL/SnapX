@@ -83,55 +83,55 @@ public partial class RegionSelectorWindow : Window
         catch (Exception ex)
         {
             DebugHelper.WriteException(ex);
-    var dialog = new Window
-    {
-        Title = Lang.Error,
-        Width = 800,
-        Height = 450,
-        CanResize = false,
-        WindowStartupLocation = WindowStartupLocation.CenterOwner
-    };
+            var dialog = new Window
+            {
+                Title = Lang.Error,
+                Width = 800,
+                Height = 450,
+                CanResize = false,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
 
-    var autoCloseCts = new CancellationTokenSource();
+            var autoCloseCts = new CancellationTokenSource();
 
-    var messageText = new TextBlock
-    {
-        Text = Lang.FailedToScreenshot,
-        FontWeight = FontWeight.Bold,
-        Margin = new Thickness(0, 0, 0, 10)
-    };
+            var messageText = new TextBlock
+            {
+                Text = Lang.FailedToScreenshot,
+                FontWeight = FontWeight.Bold,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
 
-    var errorDetails = new ScrollViewer
-    {
-        Margin = new Thickness(2, 0, 0, 10),
-        Content = new TextBlock
-        {
-            Text = ex.ToString(),
-            TextWrapping = TextWrapping.Wrap
-        }
-    };
+            var errorDetails = new ScrollViewer
+            {
+                Margin = new Thickness(2, 0, 0, 10),
+                Content = new TextBlock
+                {
+                    Text = ex.ToString(),
+                    TextWrapping = TextWrapping.Wrap
+                }
+            };
 
-    var okButton = new Button
-    {
-        Content = Lang.Ok,
-        HorizontalAlignment = HorizontalAlignment.Right,
-        Margin = new Thickness(5, 10, 0, 0)
-    };
-    okButton.Click += (_, _) =>
-    {
-        autoCloseCts.Cancel();
-        dialog.Close();
-    };
+            var okButton = new Button
+            {
+                Content = Lang.Ok,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(5, 10, 0, 0)
+            };
+            okButton.Click += (_, _) =>
+            {
+                autoCloseCts.Cancel();
+                dialog.Close();
+            };
 
-    errorDetails.PointerPressed += (_, _) => autoCloseCts.Cancel();
-    errorDetails.PointerReleased += (_, _) => autoCloseCts.Cancel();
-    messageText.PointerPressed += (_, _) => autoCloseCts.Cancel();
-    messageText.PointerReleased += (_, _) => autoCloseCts.Cancel();
+            errorDetails.PointerPressed += (_, _) => autoCloseCts.Cancel();
+            errorDetails.PointerReleased += (_, _) => autoCloseCts.Cancel();
+            messageText.PointerPressed += (_, _) => autoCloseCts.Cancel();
+            messageText.PointerReleased += (_, _) => autoCloseCts.Cancel();
 
-    dialog.Content = new StackPanel
-    {
-        Margin = new Thickness(10),
-        Children =
+            dialog.Content = new StackPanel
+            {
+                Margin = new Thickness(10),
+                Children =
         {
             messageText,
             errorDetails,
@@ -143,20 +143,20 @@ public partial class RegionSelectorWindow : Window
                 Spacing = 10
             }
         }
-    };
+            };
 
-    _ = Task.Run(async () =>
-    {
-        try
-        {
-            await Task.Delay(TimeSpan.FromSeconds(20), autoCloseCts.Token);
-            await Dispatcher.UIThread.InvokeAsync(() => dialog.Close());
-        }
-        catch (TaskCanceledException)
-        {
-            // User clicked a button to prevent auto-close or already closed it
-        }
-    });
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(20), autoCloseCts.Token);
+                    await Dispatcher.UIThread.InvokeAsync(() => dialog.Close());
+                }
+                catch (TaskCanceledException)
+                {
+                    // User clicked a button to prevent auto-close or already closed it
+                }
+            });
             if (App.MyMainWindow != null)
             {
                 App.MyMainWindow?.Show();
