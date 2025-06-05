@@ -13,7 +13,8 @@
   <!-- Most elegant way of handling platform specific code -->
   <Target Name="CargoBuild"
           BeforeTargets="BeforeBuild"
-          Condition="'$(nocargobuild)' == '' and $([MSBuild]::IsOsPlatform('OSX'))">    <Message Text="Compiling Rust intermediary library..." Importance="High" />
+          Condition="'$(nocargobuild)' == '' and $([MSBuild]::IsOsPlatform('OSX'))">
+    <Message Text="Compiling Rust intermediary library..." Importance="High" />
     <PropertyGroup>
       <RustLibName Condition="$([MSBuild]::IsOsPlatform('OSX'))">libsnapxrust.dylib</RustLibName>
       <RustLibName Condition="$([MSBuild]::IsOsPlatform('Linux'))">libsnapxrust.so</RustLibName>

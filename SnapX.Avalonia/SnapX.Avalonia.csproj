@@ -16,7 +16,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TrimMode>link</TrimMode>
+    <TrimMode>full</TrimMode>
     <PublishTrimmed>true</PublishTrimmed>
     <Optimize>true</Optimize>
     <AvaloniaVersion>11.3.1</AvaloniaVersion>
