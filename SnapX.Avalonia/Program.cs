@@ -12,8 +12,11 @@ BuildAvaloniaApp()
 static AppBuilder BuildAvaloniaApp()
 {
     var builder = AppBuilder.Configure<App>()
-        .WithInterFont()
-        .With(new FontManagerOptions
+        .WithInterFont();
+
+    if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+    {
+        builder = builder.With(new FontManagerOptions
         {
             DefaultFamilyName = "Inter",
             FontFallbacks =
@@ -23,8 +26,10 @@ static AppBuilder BuildAvaloniaApp()
                     FontFamily = new FontFamily("Inter")
                 }
             ]
-        })
-        .LogToTrace();
+        });
+    }
+
+    builder = builder.LogToTrace();
 
     var x11Options = new X11PlatformOptions
     {
