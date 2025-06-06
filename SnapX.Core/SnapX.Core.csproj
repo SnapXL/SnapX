@@ -52,6 +52,9 @@
   <PropertyGroup Condition="'$(DisableUploads)' == '1'">
     <DefineConstants>$(DefineConstants);DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(DisableOCR)' == '1' OR $([MSBuild]::IsOsPlatform('Linux'))">
+    <DefineConstants>$(DefineConstants);DISABLE_OCR</DefineConstants>
+  </PropertyGroup>
 
   <!-- For packagers -->
   <PropertyGroup Condition="'$(PKGTYPE)' != ''">
