@@ -85,7 +85,6 @@ Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![Scree
 - `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
 - `clang`
 - `zlib-devel`
-- `curl-devel`
 - `vlc-libs` (libvlc, Runtime dependency)
 
 #### IDE of Choice
@@ -111,7 +110,7 @@ sudo dnf in -y git dotnet-sdk-aot-9.0 /usr/bin/ffmpeg vlc-devel
 sudo apt update && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports -y # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang libvlc-dev zlib1g-dev libcurl4-openssl-dev libice6 libsm6
+sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang libvlc-dev zlib1g-dev libcurl4-openssl-dev libsm6
 ```
 
 ### Windows 10 22H2+ 🪟
