@@ -48,7 +48,6 @@ BuildRequires:  dotnet-sdk-9.0
 # NativeAOT applications. AOT invokes `clang ... -lssl -lcrypto -lbrotlienc
 # -lbrotlidec -lz ...`.
 BuildRequires:  pkgconfig(libbrotlidec)
-BuildRequires:  curl-devel
 BuildRequires:  clang
 BuildRequires:  openssl-devel
 BuildRequires:  zlib-devel
@@ -56,7 +55,7 @@ BuildRequires:  zlib-devel
 
 Recommends:     /usr/bin/ffmpeg
 # Generic Avalonia Dependencies
-Requires:       libcurl, fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
+Requires:       fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
 # Required for opening browser tabs across Linux desktops
 Requires:       xdg-utils
 
