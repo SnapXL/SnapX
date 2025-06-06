@@ -48,11 +48,11 @@
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and *modern* application.
 
-You will *not* receive any support from the ShareX project for this software.
+You will *not* receive any support from the ShareX project for this software. \
 If you have any issues with this project, please **open an issue** in this repository.
 
-However, it's important to note that this project is maintained by volunteers.
-We may not be able to provide support for all issues.
+However, it's important to note that this project is maintained by volunteers. \
+We may not be able to provide support for all issues. \
 We will do our best to help you, but we cannot guarantee that we will be able to resolve your issue.
 
 <p align="center"> For further information, please check the source code.</p>
@@ -69,13 +69,13 @@ This project is built on Ubuntu 24.04 and is tested on the following distributio
 
 ## Other platforms
 
-I initially started this project with one main goal: ShareX on Linux on Wayland.
+I initially started this project with one main goal: ShareX on Linux on Wayland. \
 I realized my work could be used on other platforms such as macOS or Windows...
 
 That's why SnapX.Avalonia was created.
 
-Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *should* look something like this.
-Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
+Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *should* look something like this. \
+Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![Screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
 
 ## Development Dependencies
 
@@ -118,8 +118,8 @@ sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang libvlc-dev zlib1g-dev libcur
 
 End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and, thus, unsupported.
 
-SnapX now uses the Windows SDK to generate C# Windows API binding code.
-You need the Windows 11 SDK `10.0.26100.0`.
+SnapX now uses the Windows SDK to generate C# Windows API binding code. \
+You need the Windows 11 SDK `10.0.26100.0`. \
 It works on Windows 10, too.
 
 ```shell
@@ -154,11 +154,11 @@ exec $SHELL -l
 ## Building from Source
 
 > [!CAUTION]
-> **Only do this if you're a developer**; you should have a backup of all your ShareX/SnapX data.
+> **Only do this if you're a developer**; you should have a backup of all your ShareX/SnapX data. \
 > I do mean it when I say the project isn't ready for use.
 
 > [!IMPORTANT]
-> Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66).
+> Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66). \
 > I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
 >
 > On **Linux**, it's `~/.config/SnapX`

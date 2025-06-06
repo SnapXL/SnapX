@@ -8,8 +8,8 @@ This is an open source project, and we love to receive contributions from our co
 
 ## Ground Rules
 
-By contributing to this project, you agree to follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
-Please read this next section carefully and check if your contribution meets all requirements in this checklist.
+By contributing to this project, you agree to follow our [Code of Conduct](./CODE_OF_CONDUCT.md). \
+Please read this next section carefully and check if your contribution meets all requirements in this checklist. \
 This will save you and us a lot of time.
 
 ## Issues: Feature Requests & Bug Reports
