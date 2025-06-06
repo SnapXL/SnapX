@@ -31,7 +31,6 @@ check() {
 package_snapx() {
     depends=(
         'ffmpeg'
-        'curl'
         'fontconfig'
         'freetype2'
         'openssl'
