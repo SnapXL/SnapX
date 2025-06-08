@@ -22,7 +22,7 @@ public static class Lang
     public static string UploadWithSnapX => Get("UploadWithSnapX");
     public static string UploadManagerUploadFile => Get("UploadManagerUploadFile");
     #region UI strings
-    public static string UI_Settings =>  Get("UI_Settings");
+    public static string UI_Settings => Get("UI_Settings");
     public static string UI_NoFilePath => Get("UI_NoFilePath");
     public static string UI_Dropdown_Region => Get("UI_Dropdown_Region");
     public static string UI_Dropdown_RegionLight => Get("UI_Dropdown_RegionLight");

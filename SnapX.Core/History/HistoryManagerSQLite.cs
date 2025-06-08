@@ -1,7 +1,6 @@
 using System.Data;
 using Dapper;
 using Microsoft.Data.Sqlite;
-using SnapX.Core.Job;
 
 namespace SnapX.Core.History;
 
@@ -25,7 +24,7 @@ public class HistoryManagerSQLite : HistoryManager
     {
         if (_connection.State == ConnectionState.Closed) return [];
         const string sql = "SELECT * FROM HistoryItems LIMIT @Items";
-        return _connection.Query<HistoryItem>(sql, new {Items}).AsList();
+        return _connection.Query<HistoryItem>(sql, new { Items }).AsList();
     }
 
     [DapperAot]
@@ -93,10 +92,10 @@ public class HistoryManagerSQLite : HistoryManager
                             WHERE
                                 Id = @Id;
                             """, historyItem);
-         return _connection.QuerySingle<HistoryItem>(
-             "SELECT * FROM HistoryItems WHERE Id = @Id",
-             new { historyItem.Id }
-         );
+        return _connection.QuerySingle<HistoryItem>(
+            "SELECT * FROM HistoryItems WHERE Id = @Id",
+            new { historyItem.Id }
+        );
     }
 
     [DapperAot]

@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Timers;
+﻿using System.Timers;
 using Avalonia.Collections;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -8,7 +6,6 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using SnapX.Avalonia.Models;
 using SnapX.Core;
-using SnapX.Core.History;
 using SnapX.Core.Job;
 using SnapX.Core.Utils;
 

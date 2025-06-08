@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.IO.MemoryMappedFiles;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -183,7 +182,8 @@ public class VersionEnforcer : IDisposable
             try
             {
                 File.Delete(_lockFilePath);
-            } catch {}
+            }
+            catch { }
             // force downstream caller to redefine stream since it was deleted.
             _lockFileStream = null;
             return null;

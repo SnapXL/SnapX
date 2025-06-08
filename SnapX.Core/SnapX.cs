@@ -1,4 +1,3 @@
-using System.Data.Common;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -423,7 +422,7 @@ public class SnapX
         }
         SQLitePCL.Batteries_V2.Init();
 
-        var connectionString = new SqliteConnectionStringBuilder { DataSource = DBPath, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true,  }.ToString();
+        var connectionString = new SqliteConnectionStringBuilder { DataSource = DBPath, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true, }.ToString();
         DbConnection = new SqliteConnection(connectionString);
         RunWithTimeout(() => DbConnection.OpenAsync(), $"Opening the database connection at {DBPath}");
         RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA journal_mode=WAL;"), "Setting journal mode");
@@ -432,9 +431,9 @@ public class SnapX
             try
             {
                 if (DbConnection != null)
-                RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA optimize=0x10002;"), "Optimizing database");
+                    RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA optimize=0x10002;"), "Optimizing database");
             }
-            catch (ObjectDisposedException) {} // shush
+            catch (ObjectDisposedException) { } // shush
             catch (Exception ex)
             {
                 DebugHelper.WriteException(ex);
