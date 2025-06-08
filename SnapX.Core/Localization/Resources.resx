@@ -36,6 +36,12 @@
   <data name="Ok">
     <value>Ok</value>
   </data>
+  <data name="UI_Settings">
+    <value>Settings</value>
+  </data>
+  <data name="UI_NoFilePath">
+    <value>(No file path)</value>
+  </data>
   <data name="ReportErrorToDeveloper">
     <value>Report Error To Developer</value>
   </data>
@@ -91,6 +97,12 @@
  <data name="UI_URL_ToolTip">
   <value>Opens the URL with your browser</value>
  </data>
+  <data name="UI_ShortenURL">
+    <value>Shorten URL</value>
+  </data>
+  <data name="UI_ShortenURL_ToolTip">
+    <value>Shortens the URL with your configured URL Shortener Destination</value>
+  </data>
  <data name="UI_ShortenedURL">
   <value>Shortened URL</value>
  </data>
@@ -148,6 +160,18 @@
  <data name="UI_FileNameWithExtension">
   <value>File name with extension</value>
  </data>
+  <data name="UI_Download">
+    <value>Download</value>
+  </data>
+  <data name="UI_Download_ToolTip">
+    <value>Downloads the file from the saved URL or ThumbnailURL</value>
+  </data>
+  <data name="UI_ShareURL">
+    <value>Share URL</value>
+  </data>
+  <data name="UI_ShareURL_ToolTip">
+    <value>Share the URL using any of your preconfigured URL destinations etc</value>
+  </data>
  <data name="UI_Upload">
   <value>Upload</value>
  </data>
@@ -177,12 +201,12 @@
  </data>
  <data name="UI_AddImageEffects_ToolTip">
   <value>Opens image effects editor with this image.</value>
+ </data>RemoveTask
+ <data name="UI_RemoveTask">
+  <value>Remove item from history</value>
  </data>
- <data name="UI_RemoveRecentTask">
-  <value>Remove recent task from list</value>
- </data>
- <data name="UI_RemoveRecentTask_ToolTip">
-  <value>Removes recent task from MainWindow list but still exists in History.</value>
+ <data name="UI_RemoveTask_ToolTip">
+  <value>Removes task from history</value>
  </data>
  <data name="UI_ClearTaskList">
   <value>Clear task list</value>

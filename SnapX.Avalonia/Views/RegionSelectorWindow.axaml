@@ -8,7 +8,6 @@
         x:DataType="viewModels:RegionSelectorViewModel"
         Topmost="True"
         ShowInTaskbar="False"
-        WindowState="FullScreen"
         SystemDecorations="None"
         CanResize="False"
         Cursor="Hand"

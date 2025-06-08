@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -29,7 +30,7 @@ public partial class RegionSelectorWindow : Window
     // private readonly SixLabors.ImageSharp.Image _image;
     private Stream? _imageStream;
     private Rect _imageBounds;
-    private List<Window> windowsHiddenByUs = new();
+    private List<Window> windowsHiddenByUs = [];
     public RegionSelectorWindow(RegionSelectorViewModel vm)
     {
         DataContext = vm;
@@ -39,16 +40,26 @@ public partial class RegionSelectorWindow : Window
         _infoBox = this.FindControl<TextBox>("InfoBox");
         _canvas = this.FindControl<Canvas>("Canvas");
 
-        var allScreens = Screens.All;
-        var firstScreen = allScreens.FirstOrDefault();
+        var workingArea = Screens.All
+            .Select(screen => screen.Bounds)
+            .Aggregate((acc, next) => acc.Union(next));
 
-        var (x, y, width, height) = CaptureHelpers.GetActiveScreenWorkingArea();
+
+        var x = workingArea.X;
+        var y = workingArea.Y;
+        var width = workingArea.Width;
+        var height = workingArea.Height;
+        DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
         Position = new PixelPoint(x, y);
         _dimmingOverlay.Width = width;
         _dimmingOverlay.Height = height;
+        Width = width;
+        height = width;
         _canvas.Width = width;
         _canvas.Height = height;
-
+        var viewBox = _canvas.Parent as Viewbox;
+        viewBox.Width = width;
+        viewBox.Height = height;
     }
     public RegionSelectorWindow() : this(new RegionSelectorViewModel()) { }
     private void OnPointerPressed(object? Sender, PointerPressedEventArgs E)
@@ -74,11 +85,16 @@ public partial class RegionSelectorWindow : Window
         DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {_selectionRect.Bounds}");
         try
         {
-            var img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureRectangle(new SixLabors.ImageSharp.Rectangle((int)_selectionRect.Bounds.X, (int)_selectionRect.Bounds.Y, (int)_selectionRect.Bounds.Width, (int)_selectionRect.Bounds.Height));
-            if (img != null)
+            _ = Task.Run(() =>
             {
-                UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
-            }
+                var img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureRectangle(
+                    new SixLabors.ImageSharp.Rectangle((int)_selectionRect.Bounds.X, (int)_selectionRect.Bounds.Y,
+                        (int)_selectionRect.Bounds.Width, (int)_selectionRect.Bounds.Height));
+                if (img != null)
+                {
+                    UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
+                }
+            });
         }
         catch (Exception ex)
         {
