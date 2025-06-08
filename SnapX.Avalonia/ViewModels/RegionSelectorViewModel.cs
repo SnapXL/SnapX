@@ -5,7 +5,5 @@ public partial class RegionSelectorViewModel : ViewModelBase
     private int Height;
     public RegionSelectorViewModel()
     {
-
     }
-
 }

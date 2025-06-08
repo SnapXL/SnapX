@@ -21,7 +21,6 @@ namespace SnapX.Avalonia.Views;
 
 public partial class MainWindow : AppWindow
 {
-
     public static string MainWindowName => Core.SnapX.Title + " " + Core.SnapX.VersionText;
     public static string LogoResourcePath => OperatingSystem.IsWindows() ? "/Assets/SnapX_Icon.ico" : "avares://snapx-ui/SnapX_Logo.png";
     public MainWindow(MainViewModel vm)
@@ -55,7 +54,6 @@ public partial class MainWindow : AppWindow
         }
         InitializeComponent();
         ListenForEvents();
-
     }
     public MainWindow() : this(new MainViewModel()) { }
 
@@ -179,6 +177,5 @@ public partial class MainWindow : AppWindow
         changelogWindow.LostFocus += (_, _) => changelogWindow.Close();
         PointerEntered += (_, _) => changelogWindow.Close();
         GotFocus += (_, _) => changelogWindow.Close();
-
     }
 }

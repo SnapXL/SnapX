@@ -12,7 +12,6 @@ public partial class AboutWindowViewModel : ViewModelBase
     private AboutDialog _commonAboutDialog;
     public AboutWindowViewModel()
     {
-
     }
 
     [RelayCommand]

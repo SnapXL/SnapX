@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using SixLabors.ImageSharp;
 using SnapX.Core.Job;
 using SnapX.Core.Utils;
@@ -49,7 +49,6 @@ public class TaskThumbnailView : INotifyPropertyChanged
             if (thumbnailSize != value)
             {
                 thumbnailSize = value;
-
             }
         }
     }

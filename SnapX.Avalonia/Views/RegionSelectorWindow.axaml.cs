@@ -71,7 +71,6 @@ public partial class RegionSelectorWindow : Window
         _selectionRect.Margin = new Thickness(_startPoint.X, _startPoint.Y, 0, 0);
 
         _infoBox.IsVisible = true;
-
     }
 
     private void OnPointerReleased(object? Sender, PointerReleasedEventArgs E)
@@ -201,7 +200,6 @@ public partial class RegionSelectorWindow : Window
 
         _infoBox.Text = $"X: {x}, Y: {y}, Width: {width}, Height: {height}";
         _infoBox.Margin = new Thickness(x, y - 30, 0, 0);
-
     }
     private void UpdateDimmingOverlay(double x, double y, double width, double height)
     {

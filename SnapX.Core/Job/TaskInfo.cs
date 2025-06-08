@@ -158,7 +158,7 @@ public class TaskInfo
             tags.Add(new HistoryItem.Tag { Text = Metadata.ProcessName });
         }
 
-        return tags.Any() ? tags : null;
+        return tags.Count != 0 ? tags : null;
     }
 
 

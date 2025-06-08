@@ -20,7 +20,6 @@ public partial class AboutWindow : AppWindow
 
     public AboutWindow() : this(new AboutWindowViewModel())
     {
-
     }
 
     public AboutWindow(AboutWindowViewModel vm)
@@ -28,7 +27,6 @@ public partial class AboutWindow : AppWindow
         ViewModel = vm;
         DataContext = ViewModel;
         InitializeComponent();
-
     }
     private void FindURLOnDescendant(ILogical control)
     {
