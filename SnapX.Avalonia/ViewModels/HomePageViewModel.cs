@@ -1,4 +1,4 @@
-﻿using System.Timers;
+using System.Timers;
 using Avalonia.Collections;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -228,5 +228,4 @@ public partial class HomePageViewModel : ViewModelBase
     {
         _refreshTimer.Stop();
     }
-
 }

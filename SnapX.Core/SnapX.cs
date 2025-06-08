@@ -510,7 +510,6 @@ public class SnapX
             });
         if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
         // CleanupManager.CleanupAsync();
-
     }
     static void RunWithTimeout(Func<Task> taskFactory, string description = "SQLite Code", int timeoutSeconds = 10)
     {
@@ -780,7 +779,6 @@ public class SnapX
 
     private static void DebugWriteFlags()
     {
-
         if (Settings.DevMode) Flags.Add(nameof(Settings.DevMode));
         if (MultiInstance) Flags.Add(nameof(MultiInstance));
         if (Portable) Flags.Add(nameof(Portable));

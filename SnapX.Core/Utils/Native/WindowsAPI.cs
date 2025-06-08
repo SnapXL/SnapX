@@ -46,7 +46,6 @@ public sealed class SafeHICON : SafeHandle
 [SupportedOSPlatform("windows10.0.18362")]
 public class WindowsAPI : NativeAPI
 {
-
     // Constants for allocating memory and setting data format
     public const uint CF_TEXT = 1;
     private const uint CF_DIB = 8;
@@ -83,7 +82,6 @@ public class WindowsAPI : NativeAPI
     {
         unsafe
         {
-
             SHFILEINFOW shfi;
             PInvoke.SHGetFileInfo(filePath, FILE_FLAGS_AND_ATTRIBUTES.SECURITY_ANONYMOUS, &shfi, (uint)Marshal.SizeOf<SHFILEINFOW>(),
                 SHGFI_FLAGS.SHGFI_SYSICONINDEX | SHGFI_FLAGS.SHGFI_USEFILEATTRIBUTES);
@@ -100,7 +98,6 @@ public class WindowsAPI : NativeAPI
             var bitsPerPixel = 0;
             if (iconInfo.hbmColor != IntPtr.Zero)
             {
-
                 var nWrittenBytes = PInvoke.GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
                 if (nWrittenBytes > 0)
                 {
@@ -143,7 +140,6 @@ public class WindowsAPI : NativeAPI
         }
 
         PInvoke.ShowWindow(new HWND(handle), SHOW_WINDOW_CMD.SW_SHOW);
-
     }
 
     public override void ShowWindow(IntPtr hwnd)
@@ -154,7 +150,6 @@ public class WindowsAPI : NativeAPI
         }
 
         PInvoke.ShowWindow(new HWND(hwnd), SHOW_WINDOW_CMD.SW_SHOW);
-
     }
 
     // Method to check if a window is minimized
@@ -300,7 +295,7 @@ public class WindowsAPI : NativeAPI
 
                         var filenamePtr = (IntPtr)(ptr + 20);
                         Marshal.Copy(filename.ToCharArray(), 0, filenamePtr, filename.Length);
-                        *(short*)(filenamePtr + filename.Length * sizeof(char)) = 0; // Null terminator
+                        *(short*)(filenamePtr + (filename.Length * sizeof(char))) = 0; // Null terminator
 
                         PInvoke.GlobalUnlock(hMem);
                         PInvoke.SetClipboardData(CF_HDROP, new HANDLE(filePathPtr));

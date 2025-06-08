@@ -7,7 +7,6 @@ namespace SnapX.Core.History;
 
 public class HistoryManagerSQLite : HistoryManager
 {
-
     public HistoryManagerSQLite(SqliteConnection connection) : base(SnapX.DBPath)
     {
         _connection = connection;
@@ -153,7 +152,6 @@ public class HistoryManagerSQLite : HistoryManager
                 );
                 processedHistoryItems.Add(processedHistoryItem);
                 DebugHelper.WriteLine($"JSON -> SQLite Migration: Processed {processedHistoryItem.FileName}");
-
             }
 
             var allTags = processedHistoryItems
@@ -195,5 +193,4 @@ public class HistoryManagerSQLite : HistoryManager
             return false;
         }
     }
-
 }
