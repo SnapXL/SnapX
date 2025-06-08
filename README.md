@@ -147,7 +147,7 @@ exec $SHELL -l
 > If you're using MacPorts, run this instead of `brew install ffmpeg@7`:
 > ```zsh
 > sudo port selfupdate
-> sudo port install ffmpeg7
+> sudo port install ffmpeg7 cargo
 > ```
 
 ## Building from Source
