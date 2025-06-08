@@ -19,10 +19,10 @@ public class HistoryItem
 {
     [Key]
     public int Id { get; set; }
-    public string FileName { get; set; }
-    public string FilePath { get; set; }
+    public string? FileName { get; set; }
+    public string? FilePath { get; set; }
     public DateTime DateTime { get; set; }
-    public string Type { get; set; }
+    public string? Type { get; set; }
     public bool Hidden { get; set; }
     public string? Host { get; set; }
     public string? URL { get; set; }
@@ -66,6 +66,11 @@ public class HistoryItem
             return $"[{DateTime:HH:mm:ss}] {text}";
         }
     }
+    public string? BestImageSource =>
+        !string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath)
+            ? FilePath
+            : URL ?? ThumbnailURL;
+
     public override bool Equals(object? obj) =>
         obj is HistoryItem other && Id == other.Id;
 

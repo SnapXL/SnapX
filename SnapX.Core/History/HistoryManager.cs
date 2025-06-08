@@ -18,7 +18,7 @@ public abstract class HistoryManager
         FilePath = filePath;
     }
 
-    public virtual List<HistoryItem> GetHistoryItems()
+    public virtual List<HistoryItem> GetHistoryItems(int Items = Int32.MaxValue)
     {
         try
         {
@@ -32,9 +32,41 @@ public abstract class HistoryManager
         return [];
     }
 
-    public virtual async Task<List<HistoryItem>> GetHistoryItemsAsync()
+    public virtual HistoryItem UpdateHistoryItem(HistoryItem historyItem)
     {
-        return await Task.Run(() => GetHistoryItems());
+        var allHistoryItems = Load();
+
+        var index = allHistoryItems.FindIndex(h => h.Id == historyItem.Id);
+        if (index == -1)
+        {
+            throw new InvalidOperationException($"History item with ID {historyItem.Id} was not found.");
+        }
+
+        allHistoryItems[index] = historyItem;
+
+        Save(FilePath, allHistoryItems);
+
+        return historyItem;
+    }
+    public virtual bool RemoveHistoryItem(HistoryItem historyItem)
+    {
+        var allHistoryItems = Load();
+
+        var index = allHistoryItems.FindIndex(h => h.Id == historyItem.Id);
+        if (index == -1)
+        {
+            throw new InvalidOperationException($"History item with ID {historyItem.Id} was not found.");
+        }
+
+        allHistoryItems.RemoveAt(index);
+
+        return Save(FilePath, allHistoryItems);
+    }
+
+
+    public virtual async Task<List<HistoryItem>> GetHistoryItemsAsync(int Items = int.MaxValue)
+    {
+        return await Task.Run(() => GetHistoryItems(Items));
     }
 
     public virtual bool AppendHistoryItem(HistoryItem historyItem)
@@ -75,6 +107,7 @@ public abstract class HistoryManager
     }
 
     protected abstract bool Append(string filePath, IEnumerable<HistoryItem> historyItems);
+    protected abstract bool Save(string filePath, IEnumerable<HistoryItem> historyItems);
 
     protected void Backup(string filePath)
     {
