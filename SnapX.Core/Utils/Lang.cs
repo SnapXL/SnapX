@@ -22,6 +22,8 @@ public static class Lang
     public static string UploadWithSnapX => Get("UploadWithSnapX");
     public static string UploadManagerUploadFile => Get("UploadManagerUploadFile");
     #region UI strings
+    public static string UI_Settings =>  Get("UI_Settings");
+    public static string UI_NoFilePath => Get("UI_NoFilePath");
     public static string UI_Dropdown_Region => Get("UI_Dropdown_Region");
     public static string UI_Dropdown_RegionLight => Get("UI_Dropdown_RegionLight");
     public static string UI_Dropdown_RegionTransparent => Get("UI_Dropdown_RegionTransparent");
@@ -35,6 +37,8 @@ public static class Lang
     public static string UI_Open_ToolTip => Get("UI_Open_ToolTip");
     public static string UI_URL => Get("UI_URL");
     public static string UI_URL_ToolTip => Get("UI_URL_ToolTip");
+    public static string UI_ShortenURL => Get("UI_ShortenURL");
+    public static string UI_ShortenURL_ToolTip => Get("UI_ShortenURL_ToolTip");
     public static string UI_ShortenedURL => Get("UI_ShortenedURL");
     public static string UI_ShortenedURL_ToolTip => Get("UI_ShortenedURL_ToolTip");
     public static string UI_ThumbnailURL => Get("UI_ThumbnailURL");
@@ -54,6 +58,8 @@ public static class Lang
     public static string UI_FilePath => Get("UI_FilePath");
     public static string UI_FileName => Get("UI_FileName");
     public static string UI_FileNameWithExtension => Get("UI_FileNameWithExtension");
+    public static string UI_Download => Get("UI_Download");
+    public static string UI_Download_ToolTip => Get("UI_Download_ToolTip");
     public static string UI_Upload => Get("UI_Upload");
     public static string UI_Upload_ToolTip => Get("UI_Upload_ToolTip");
     public static string UI_OCRImage => Get("UI_OCRImage");
@@ -61,9 +67,13 @@ public static class Lang
     public static string UI_EditImage => Get("UI_EditImage");
     public static string UI_EditImage_ToolTip => Get("UI_EditImage_ToolTip");
     public static string UI_BeautifyImage => Get("UI_BeautifyImage");
+    public static string UI_ShareURL => Get("UI_ShareURL");
+    public static string UI_ShareURL_ToolTip => Get("UI_ShareURL_ToolTip");
     public static string UI_BeautifyImage_ToolTip => Get("UI_BeautifyImage_ToolTip");
     public static string UI_AddImageEffects => Get("UI_AddImageEffects");
     public static string UI_AddImageEffects_ToolTip => Get("UI_AddImageEffects_ToolTip");
+    public static string UI_RemoveTask => Get("UI_RemoveTask");
+    public static string UI_RemoveTask_ToolTip => Get("UI_RemoveTask_ToolTip");
     public static string UI_DeleteFileLocally => Get("UI_DeleteFileLocally");
     public static string UI_DeleteFileLocally_ToolTip => Get("UI_DeleteFileLocally_ToolTip");
 

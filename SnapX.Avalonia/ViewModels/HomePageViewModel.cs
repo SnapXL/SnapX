@@ -1,35 +1,81 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Timers;
+using Avalonia.Collections;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using SnapX.Avalonia.Models;
 using SnapX.Core;
 using SnapX.Core.History;
 using SnapX.Core.Job;
+using SnapX.Core.Utils;
 
 namespace SnapX.Avalonia.ViewModels;
 
 public partial class HomePageViewModel : ViewModelBase
 {
-    public IEnumerable<HistoryItem> recentTasks { get; set; }
-
-    public ObservableCollection<ListTaskTemplate> SelectedTasks { get; set; } = [];
-    public ObservableCollection<ListTaskTemplate> RecentTaskss { get; set; } =
+    public AvaloniaList<ListTaskTemplate> SelectedTasks { get; set; } = [];
+    public AvaloniaList<ListTaskTemplate> recentTasks { get; set; } =
         [];
     private System.Timers.Timer _refreshTimer;
+    private bool _isRefreshing; // Guard flag to prevent concurrent refreshes
+    private int _failedRefreshTasks;
+    private DateTime _lastCacheTime = DateTime.MinValue;
+    private List<ListTaskTemplate> _cachedTasks;
+    private readonly TimeSpan _cacheDuration = TimeSpan.FromSeconds(2);
 
+    public void InvalidateCache()
+    {
+        _lastCacheTime = DateTime.MinValue;
+        _cachedTasks = [];
+    }
     public HomePageViewModel()
     {
         // ShowContextMenuCommand = new RelayCommand<ToggleButton>(ShowContextMenu);
         _refreshTimer = new System.Timers.Timer(5000); // Refresh every 5 seconds
     }
 
-    public void Initialize()
+    public async Task Initialize()
     {
-        _refreshTimer.Elapsed += (s, e) => RefreshTasks();
+        TaskManager.InitHistoryManager();
+        _refreshTimer.Elapsed += OnRefreshTimerElapsed;
         _refreshTimer.AutoReset = true;
         _refreshTimer.Start();
-        RefreshTasks().GetAwaiter().GetResult();
+        RefreshTasks();
+    }
+    private async void OnRefreshTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        if (_isRefreshing)
+        {
+            DebugHelper.WriteLine("Previous timer run already in progress. Skipping this timer tick.");
+            // Apply more conservative _refreshTimer interval when we know that there's a bunch of tasks.
+            if (recentTasks.Count > 3000) _refreshTimer.Interval = 10_000;
+            if (_failedRefreshTasks > 15) _refreshTimer.Interval = 30_000;
+            if (_failedRefreshTasks > 10) _refreshTimer.Interval = 20_000;
+            if (_failedRefreshTasks > 5) _refreshTimer.Interval = 10_000;
+            if (_failedRefreshTasks > 19) _refreshTimer.Interval = 60_000;
+            // Fuck it, give up.
+            if (_failedRefreshTasks > 20) _refreshTimer.Stop();
+            _failedRefreshTasks++;
+            return;
+        }
+
+        _isRefreshing = true;
+        try
+        {
+            // ConfigureAwait(false) is good practice here as it's background work.
+            await RefreshTasks().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteException(ex);
+        }
+        finally
+        {
+            _isRefreshing = false; // Reset the flag when the refresh is complete (or fails)
+        }
     }
     [RelayCommand]
     public void ContextMenuSelection(object Sender)
@@ -42,8 +88,33 @@ public partial class HomePageViewModel : ViewModelBase
     {
         var ltt = Sender as ListTaskTemplate;
         var task = ltt.task;
-        DebugHelper.WriteLine($"File {task.FileName} MUST BE DELETED!!");
-        File.Delete(task.FilePath);
+        if (string.IsNullOrWhiteSpace(task.FilePath))
+        {
+            DebugHelper.WriteLine($"DeleteHistoryItemLocally called with a invalid file path: '{task.FilePath}'. The task file name is '{task.FileName}'");
+            return;
+        }
+        DebugHelper.WriteLine($"Deleting file {task.FilePath}");
+        try
+        {
+            File.Delete(task.FilePath);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteException(ex);
+        }
+
+        task.FilePath = null;
+        TaskManager.History.UpdateHistoryItem(task);
+    }
+    [RelayCommand]
+    public void RemoveHistoryItem(object Sender)
+    {
+        if (Sender is not ListTaskTemplate ltt) return;
+        var task = ltt.task;
+        DebugHelper.WriteLine($"Removing {task.FilePath ?? task.FileName} (Id: {task.Id}) from history");
+        var success = TaskManager.History.RemoveHistoryItem(task);
+        var status = success ? "Success" : "Failure";
+        DebugHelper.WriteLine($"{status} removing history item {task.FilePath ?? task.FileName}");
     }
     [RelayCommand]
     private void ToggleSelection(object parameter)
@@ -86,19 +157,79 @@ public partial class HomePageViewModel : ViewModelBase
         }
     }
 
-    private async Task RefreshTasks()
+    [RelayCommand]
+    public void OpenURL(object parameter)
     {
-        TaskManager.InitHistoryManager();
-        var HistoryItems = await TaskManager.History.GetHistoryItemsAsync();
+        DebugHelper.WriteLine("OpenURL");
+        if (parameter is not string url) return;
+        URLHelpers.OpenURL(url);
+    }
+    public async Task RefreshTasks()
+    {
+        var typeofVM = typeof(HomePageViewModel);
 
-        var taskTemplates = HistoryItems
-            .Select(task => new ListTaskTemplate(typeof(HomePageViewModel), task))
-            .ToList();
+        List<ListTaskTemplate> newDesiredTasks;
 
-        foreach (var taskTemplate in taskTemplates.Where(taskTemplate => !RecentTaskss.Any(existing => existing.Equals(taskTemplate))))
+        // Check cache first
+        if (DateTime.Now - _lastCacheTime < _cacheDuration && _cachedTasks != null)
         {
-            RecentTaskss.Add(taskTemplate);
+            newDesiredTasks = _cachedTasks;
         }
+        else
+        {
+            newDesiredTasks = await Task.Run(async () =>
+            {
+                var historyItems = await TaskManager.History.GetHistoryItemsAsync(3_000).ConfigureAwait(false);
+                return historyItems.AsParallel()
+                    .Select(task => new ListTaskTemplate(typeofVM, task))
+                    .ToList();
+            }).ConfigureAwait(false);
+
+            // Update cache
+            _cachedTasks = newDesiredTasks;
+            _lastCacheTime = DateTime.Now;
+        }
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            if (newDesiredTasks.Count > 5000)
+            {
+                recentTasks.ResetBehavior = ResetBehavior.Remove;
+                recentTasks.Clear();
+                recentTasks.AddRange(newDesiredTasks);
+                return;
+            }
+            var currentTasksById = recentTasks.ToDictionary(template => template.task.Id);
+
+            var newDesiredTaskIds = newDesiredTasks.Select(template => template.task.Id).ToHashSet();
+
+            for (var i = recentTasks.Count - 1; i >= 0; i--)
+            {
+                if (!newDesiredTaskIds.Contains(recentTasks[i].task.Id))
+                {
+                    recentTasks.RemoveAt(i);
+                }
+            }
+
+            foreach (var newItem in newDesiredTasks)
+            {
+                if (currentTasksById.TryGetValue(newItem.task.Id, out var existingItem))
+                {
+                    var index = recentTasks.IndexOf(existingItem);
+                    if (index == -1) continue;
+                    recentTasks.RemoveAt(index);
+                    recentTasks.Insert(index, newItem);
+                }
+                else
+                {
+                    recentTasks.Add(newItem);
+                }
+            }
+        });
+    }
+    public void stopTimer()
+    {
+        _refreshTimer.Stop();
     }
 
 }
