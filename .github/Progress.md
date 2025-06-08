@@ -21,7 +21,7 @@
 - [ ] Add to COPR
 - [ ] Add to Homebrew
 - [ ] Add to Itch.io
-- [ ] Add to AUR see PR #56 for the initial PKGBUILD
+- [ ] Add to AUR (see PR #56 for the initial PKGBUILD)
 - [ ] Add to FOSS Torrents
 - [ ] Add to PortableApps.com
 - [ ] Add to AppImageHub
@@ -42,13 +42,13 @@ It's important to know how the program *should* behave in accordance with user e
 
 ## Rewrite
 
-ShareX's internal code needs major refactoring and decoupling to be ready to work on Linux natively. For example, most cross platform screen capture libraries only work on X11 or hardly work at all. Hopefully, screenshotting on [Wayland](https://wayland.freedesktop.org/) can be done with Dbus on Dotnet. <https://github.com/tmds/Tmds.DBus>
+ShareX's internal code needs major refactoring and decoupling to be ready to work on Linux natively. For example, most cross platform screen capture libraries only work on X11 or hardly work at all. Hopefully, screenshotting on [Wayland](https://wayland.freedesktop.org/) can be done with DBus on .NET. <https://github.com/tmds/Tmds.DBus>
 
-I also want to decouple *away* from a specific UI framework
-While GTK4 does "work" on these platforms, it's significantly handicapped or unstable (on macOS)
+I also want to decouple *away* from a specific UI framework. \
+While GTK4 does "work" on these platforms, it's significantly handicapped or unstable (on macOS). \
 Keeping flexibility will be advantageous in the future, I imagine.
 
-For screen capture, we currently use [xcap](https://github.com/nashaofu/xcap)
+For screen capture, we currently use [xcap](https://github.com/nashaofu/xcap).
 
 ### SemVer & New Commit Message Standard
 
@@ -70,10 +70,10 @@ The idea is for SnapX to check for updates on startup. Since the goal is to have
 
 #### Telemetry
 
-I'm aiming to add telemetry to the application.
+I'm aiming to add telemetry to the application. \
 This will allow for the collection of anonymous usage data.
 
-This data will be used to improve the application and fix bugs.
+This data will be used to improve the application and fix bugs. \
 Coming in the form of [Sentry](https://sentry.io/) and [Aptabase](https://github.com/aptabase/aptabase).
 
 Allowing for the automatic collection of crash reports and other useful data for debugging. Aptabase is for application analytics.
