@@ -1,3 +1,4 @@
+using System.Data.Common;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -167,7 +168,6 @@ public class SnapX
         !string.IsNullOrEmpty(CustomPersonalPath)
             ? FileHelpers.ExpandFolderVariables(CustomPersonalPath)
             : DefaultPersonalFolder;
-
     public static string ConfigFolder => string.IsNullOrEmpty(CustomConfigPath)
         ? Path.Combine(
             OperatingSystem.IsWindows()
@@ -175,7 +175,9 @@ public class SnapX
                 : BaseDirectory.ConfigHome,
             AppName)
         : CustomConfigPath;
+    public static string CacheFolder => Path.Combine(BaseDirectory.CacheHome, AppName);
 
+    public static string LockDirectory => Path.Combine(BaseDirectory.RuntimeDir, AppName);
     public const string LogsFolderName = "Logs";
     // On Linux, strictly adhere to XDG BaseDirectory spec.
     // On macOS, most of these XDG directories resolve to $HOME/Library/Application Support	anyways so it doesn't really matter.
@@ -297,6 +299,10 @@ public class SnapX
     // Supports the failed standard https://consoledonottrack.com/
     public static bool TelemetryEnabled() => !FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry &&
                                     Environment.GetEnvironmentVariable("DO_NOT_TRACK") == null;
+    public static bool CanUpload() =>
+        !FeatureFlags.DisableUploads && !Settings.DisableUpload;
+    public static bool CanAutoUpdate() =>
+        !FeatureFlags.DisableAutoUpdates && Settings.AutoCheckUpdate;
 
     // Coding nerds, please, forgive me for this mortal sin.
     // The code here is instance dependent thus cannot be called from static stuff yada yada yada.
@@ -367,6 +373,7 @@ public class SnapX
         DebugHelper.WriteLine("Build: " + Build);
         DebugHelper.WriteLine("Data folder: " + ShortenPath(PersonalFolder));
         DebugHelper.WriteLine("Config folder: " + ShortenPath(ConfigFolder));
+        DebugHelper.WriteLine("Cache folder: " + ShortenPath(CacheFolder));
 
         if (!string.IsNullOrWhiteSpace(PersonalPathDetectionMethod))
         {
@@ -416,12 +423,35 @@ public class SnapX
         }
         SQLitePCL.Batteries_V2.Init();
 
-        var connectionString = new SqliteConnectionStringBuilder { DataSource = DBPath, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true }.ToString();
+        var connectionString = new SqliteConnectionStringBuilder { DataSource = DBPath, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true,  }.ToString();
         DbConnection = new SqliteConnection(connectionString);
-        DbConnection.OpenAsync().GetAwaiter().GetResult();
-        using var command = DbConnection.CreateCommand();
-        command.CommandText = "PRAGMA journal_mode=WAL;";
-        command.ExecuteScalarAsync().GetAwaiter().GetResult();
+        RunWithTimeout(() => DbConnection.OpenAsync(), $"Opening the database connection at {DBPath}");
+        RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA journal_mode=WAL;"), "Setting journal mode");
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                if (DbConnection != null)
+                RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA optimize=0x10002;"), "Optimizing database");
+            }
+            catch (ObjectDisposedException) {} // shush
+            catch (Exception ex)
+            {
+                DebugHelper.WriteException(ex);
+            }
+        });
+        // Handle SnapX running for a long time. To be good SQLite user, you must tidy up database once in a while.
+        var timer = new Timer(async void (_) =>
+        {
+            try
+            {
+                await DbConnection.ExecuteAsync("PRAGMA optimize;");
+            }
+            catch (Exception ex)
+            {
+                DebugHelper.WriteException(ex);
+            }
+        }, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         DebugHelper.WriteLine($"DB: SQLite {DbConnection.ServerVersion}");
         DebugHelper.WriteLine($"DB Path: {DbConnection.ConnectionString}");
 
@@ -483,7 +513,19 @@ public class SnapX
         // CleanupManager.CleanupAsync();
 
     }
+    static void RunWithTimeout(Func<Task> taskFactory, string description = "SQLite Code", int timeoutSeconds = 10)
+    {
+        var task = Task.Run(taskFactory); // force SQLite to run on a background thread, HAH!
 
+        var completedInTime = Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(timeoutSeconds)))
+            .GetAwaiter()
+            .GetResult() == task;
+
+        if (!completedInTime)
+            throw new TimeoutException($"{description} timed out after {timeoutSeconds} seconds.");
+
+        task.GetAwaiter().GetResult(); // propagate exceptions
+    }
     public SnapXCLIManager GetCLIManager() => CLIManager;
     public RootConfiguration GetConfiguration() => Settings;
 
@@ -500,6 +542,7 @@ public class SnapX
 
         WatchFolderManager?.Dispose();
         SettingManager.SaveAllSettings();
+        SettingManager.Dispose();
         if (DbConnection != null)
         {
             DbConnection.CloseAsync().GetAwaiter().GetResult();
@@ -748,6 +791,7 @@ public class SnapX
         if (FeatureFlags.DisableTelemetry) Flags.Add(nameof(FeatureFlags.DisableTelemetry));
         if (FeatureFlags.DisableAutoUpdates) Flags.Add(nameof(FeatureFlags.DisableAutoUpdates));
         if (FeatureFlags.DisableUploads) Flags.Add(nameof(FeatureFlags.DisableUploads));
+        if (FeatureFlags.DisableOCR) Flags.Add(nameof(FeatureFlags.DisableOCR));
         if (PuushMode) Flags.Add(nameof(PuushMode));
 
         var output = string.Join(", ", Flags);
