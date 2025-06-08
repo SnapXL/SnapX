@@ -193,50 +193,6 @@ internal static class SettingManager
         BuiltConfig.Bind(HotkeysConfig);
         HotkeysConfigBackwardCompatibilityTasks();
     }
-    [DapperAot]
-    private static void FlattenAndInsert(JsonElement element, string section, string prefix = "")
-    {
-        if (element.ValueKind == JsonValueKind.Object)
-        {
-            foreach (var property in element.EnumerateObject())
-            {
-                var key = string.IsNullOrEmpty(prefix) ? property.Name : $"{prefix}:{property.Name}";
-                FlattenAndInsert(property.Value, section, key);
-            }
-        }
-        else
-        {
-            var settingKey = string.IsNullOrEmpty(prefix) ? section : prefix;
-            var settingValue = element.ToString();
-            var dataType = GetTypeName(element);
-
-            SnapX.DbConnection.Execute("""
-                            INSERT OR REPLACE INTO ApplicationConfig
-                            (SettingKey, SettingValue, ConfigSection, DataType)
-                            VALUES (@Key, @Value, @Section, @Type)
-                        """, new
-            {
-                Key = settingKey,
-                Value = settingValue,
-                Section = section,
-                Type = dataType
-            });
-        }
-    }
-
-    private static string GetTypeName(JsonElement value)
-    {
-        return value.ValueKind switch
-        {
-            JsonValueKind.String => "String",
-            JsonValueKind.Array => "Array",
-            JsonValueKind.Object => "Object",
-            JsonValueKind.Number => value.TryGetInt32(out _) ? "Int32" : "Double",
-            JsonValueKind.True or JsonValueKind.False => "Boolean",
-            JsonValueKind.Null => "Null",
-            _ => "String"
-        };
-    }
 
     // private static void MigrateApplicationConfigJSONToSQLite()
     // {
@@ -320,9 +276,9 @@ internal static class SettingManager
 
         // First, load the last applied migration version from the database, if MigrationLog exists and has entries.
         // If MigrationLog is empty or doesn't exist, lastAppliedMigrationVersion remains -1.
-        var currentMigrationsInDb = SnapX.DbConnection.Query<string>(
+        var currentMigrationsInDb = SnapX.DbConnection.QueryFirstOrDefault<string>(
             "SELECT FileName FROM MigrationLog ORDER BY FileName DESC LIMIT 1;"
-        ).FirstOrDefault();
+        );
 
         if (currentMigrationsInDb != null)
         {
