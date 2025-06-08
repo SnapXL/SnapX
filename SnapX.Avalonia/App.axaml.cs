@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views;
+using SnapX.Avalonia.Views.Settings;
 using SnapX.Core;
 using SnapX.Core.Capture;
 using SnapX.Core.Job;
@@ -209,7 +210,7 @@ public partial class App : Application
     {
         // For now, do nothing when the button is clicked
         // This is where Sentry comes in
-        Console.WriteLine("Report Error button clicked. No action yet.");
+        Console.WriteLine("Report Error button clicked. No action yet. If you have telemetry enabled, (it is by default) it will have already been sent to Sentry.");
     }
 
     private void Shutdown()
@@ -427,6 +428,23 @@ public partial class App : Application
         }
     }
 
+    public static void CreateOrOpenSettingsWindowStatic()
+    {
+        var settingsWindow = Design.IsDesignMode
+            ? Activator.CreateInstance<SettingsWindow>()
+            : Ioc.Default.GetService<SettingsWindow>();
+        if (settingsWindow is null)
+        {
+            DebugHelper.WriteLine("Failed to create about window, got null back from IoC");
+            return;
+        }
+        if (MyMainWindow is not null && MyMainWindow.IsVisible) settingsWindow.Show(MyMainWindow);
+        else
+        {
+            settingsWindow.ShowAsDialog = false;
+            settingsWindow.Show();
+        }
+    }
     public static void CreateAboutWindowStatic()
     {
         var aboutWindow = Design.IsDesignMode
@@ -460,10 +478,14 @@ public partial class App : Application
 
         services.AddTransient<MainViewModel>();
         services.AddSingleton<MainWindow>();
+        services.AddTransient<SettingsWindow>();
+        services.AddSingleton<SettingsWindowViewModel>();
+
         services.AddTransient<AboutWindow>();
+        services.AddSingleton<AboutWindowViewModel>();
 
         services.AddTransient<HomePageView>();
-        services.AddTransient<HomePageViewModel>();
+        services.AddSingleton<HomePageViewModel>();
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
     }
