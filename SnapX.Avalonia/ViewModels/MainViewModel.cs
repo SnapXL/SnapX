@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
@@ -10,9 +11,11 @@ namespace SnapX.Avalonia.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
+    public AvaloniaList<ListItemTemplate> Items { get; }
+
     public MainViewModel(IMessenger messenger)
     {
-        Items = new ObservableCollection<ListItemTemplate>(_templates);
+        Items = new AvaloniaList<ListItemTemplate>(_templates);
 
         SelectedListItem = Items.First(vm => vm.ModelType == typeof(HomePageViewModel));
     }
@@ -20,15 +23,6 @@ public partial class MainViewModel : ViewModelBase
     private readonly List<ListItemTemplate> _templates =
     [
         new(typeof(HomePageViewModel), "HomeRegular", "Home"),
-
-        // new(typeof(ButtonPageViewModel), "CursorHoverRegular", "Buttons"),
-        // new(typeof(TextPageViewModel), "TextNumberFormatRegular", "Text"),
-        // new(typeof(ValueSelectionPageViewModel), "CalendarCheckmarkRegular", "Value Selection"),
-        // new(typeof(ImagePageViewModel), "ImageRegular", "Images"),
-        // new(typeof(GridPageViewModel), "GridRegular", "Grids"),
-        // new(typeof(DragAndDropPageViewModel), "TapDoubleRegular", "Drang And Drop"),
-        // new(typeof(LoginPageViewModel), "LockRegular", "Login Form"),
-        // new(typeof(ChartsPageViewModel), "PollRegular", "Charts"),
     ];
 
     public MainViewModel() : this(new WeakReferenceMessenger()) { }
@@ -55,8 +49,6 @@ public partial class MainViewModel : ViewModelBase
         CurrentPage = vmb;
     }
 
-    public ObservableCollection<ListItemTemplate> Items { get; }
-
     [RelayCommand]
     private void TriggerPane()
     {
@@ -67,5 +59,10 @@ public partial class MainViewModel : ViewModelBase
     private void OpenAboutWindow()
     {
         App.CreateAboutWindowStatic();
+    }
+    [RelayCommand]
+    private void OpenSettingsWindow()
+    {
+        App.CreateOrOpenSettingsWindowStatic();
     }
 }

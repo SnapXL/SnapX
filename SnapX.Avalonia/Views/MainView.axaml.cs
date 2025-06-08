@@ -58,7 +58,7 @@ public partial class MainView : UserControl
                 img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow();
                 break;
             case "Monitor":
-                img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor().GetAwaiter().GetResult();
+                img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor().ConfigureAwait(false).GetAwaiter().GetResult();
                 break;
         }
 

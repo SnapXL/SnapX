@@ -10,6 +10,7 @@ using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp;
 using SnapX.Avalonia.ViewModels;
+using SnapX.Avalonia.Views.Controls;
 using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
@@ -167,5 +168,17 @@ public partial class MainWindow : AppWindow
     private void TopLevel_OnOpened(object? Sender, EventArgs E)
     {
         DebugHelper.WriteLine("MainWindow Opened");
+        if (Core.SnapX.Settings.FirstTimeRunDate != DateTime.MinValue &&
+            Core.SnapX.Settings.FirstTimeRunDate != null) return;
+        var changelogWindow = new AppWindow();
+        changelogWindow.Width = Width - 135;
+        changelogWindow.Height = Height - 20;
+        changelogWindow.Title = Title;
+        changelogWindow.Content = new ChangelogControl();
+        changelogWindow.Show(this);
+        changelogWindow.LostFocus += (_, _) => changelogWindow.Close();
+        PointerEntered += (_, _) => changelogWindow.Close();
+        GotFocus += (_, _) => changelogWindow.Close();
+
     }
 }

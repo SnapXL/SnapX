@@ -81,6 +81,10 @@
               </WrapPanel>
             </controls:CommandBarElementContainer>
             <controls:CommandBarButton
+              Command="{Binding OpenSettingsWindowCommand}"
+              IconSource="Settings"
+              Label="{x:Static utils:Lang.UI_Settings}" />
+            <controls:CommandBarButton
               Command="{Binding OpenAboutWindowCommand}"
               IconSource="Favorite"
               Label="{x:Static utils:Lang.AboutSnapX}" />

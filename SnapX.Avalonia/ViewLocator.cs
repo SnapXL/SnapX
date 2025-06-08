@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views;
+using SnapX.Avalonia.Views.Settings;
 
 namespace SnapX.Avalonia;
 
@@ -16,16 +17,7 @@ public class ViewLocator : IDataTemplate
     {
         RegisterViewFactory<MainViewModel, MainWindow>();
         RegisterViewFactory<HomePageViewModel, HomePageView>();
-        // RegisterViewFactory<ButtonPageViewModel, ButtonPageView>();
-        // RegisterViewFactory<TextPageViewModel, TextPageView>();
-        // RegisterViewFactory<ValueSelectionPageViewModel, ValueSelectionPageView>();
-        // RegisterViewFactory<ImagePageViewModel, ImagePageView>();
-        // RegisterViewFactory<GridPageViewModel, GridPageView>();
-        // RegisterViewFactory<DragAndDropPageViewModel, DragAndDropPageView>();
-        // RegisterViewFactory<CustomSplashScreenViewModel, CustomSplashScreenView>();
-        // RegisterViewFactory<LoginPageViewModel, LoginPageView>();
-        // RegisterViewFactory<SecretViewModel, SecretView>();
-        // RegisterViewFactory<ChartsPageViewModel, ChartsPageView>();
+        RegisterViewFactory<SettingsWindowViewModel, SettingsWindow>();
     }
 
     public Control Build(object? data)
