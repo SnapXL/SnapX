@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnapX.CommonUI;
@@ -14,7 +15,10 @@ public partial class AboutWindowViewModel : ViewModelBase
     {
     }
 
-    [RelayCommand]
+    [UnconditionalSuppressMessage("Trimming",
+         "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
+         Justification = "<Pending>"),
+     RelayCommand]
     private Task InitDataAsync()
     {
         _commonAboutDialog = new AboutDialog();

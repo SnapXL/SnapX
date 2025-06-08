@@ -86,8 +86,7 @@ public partial class AboutWindow : AppWindow
         var thm = ActualThemeVariant;
         if (!IsWindows11 || thm == FluentAvaloniaTheme.HighContrastTheme) return;
         TransparencyBackgroundFallback = Brushes.Transparent;
-        TransparencyLevelHint = new[]
-            { WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.None };
+        TransparencyLevelHint = [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.None];
 
         TryEnableMicaEffect();
     }
