@@ -74,7 +74,7 @@ public static class UploadManager
         taskSettings ??= TaskSettings.GetDefaultTaskSettings();
         var data = new NeedFileOpenerEvent()
         {
-            Title = "SnapX - " + Lang.UploadManagerUploadFile,
+            Title = Lang.UploadManagerUploadFile,
             Multiselect = true,
             Directory = IsValidDirectory(SnapX.Settings.FileUploadDefaultDirectory) ? SnapX.Settings.FileUploadDefaultDirectory : UserDirectory.DesktopDir,
             TaskSettings = taskSettings

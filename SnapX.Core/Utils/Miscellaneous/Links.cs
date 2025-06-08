@@ -24,7 +24,7 @@ public static class Links
     public const string Discord = "https://discord.gg/ys3ZCzttVQ";
     public const string X = "https://twitter.com/ShareX";
     public const string XFollow = "https://twitter.com/intent/follow?screen_name=ShareX";
-    private const string Docs = GitHub + "/wiki";
+    public const string Docs = GitHub + "/wiki";
     public const string DocsCustomUploader = Docs + "/custom-uploader";
     public const string DocsKeybinds = Docs + "/keybinds";
     public const string DocsOCR = Docs + "/ocr";

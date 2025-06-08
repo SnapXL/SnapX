@@ -4,15 +4,25 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Png;
 using SnapX.Core.Media;
+using WaylandSharp;
 
 namespace SnapX.Core.Utils.Native;
 
 public class LinuxAPI : NativeAPI
 {
-    internal const string LibX11 = "libx11.so.6";
+    internal const string LibX11 = "libX11.so.6";
     internal static bool IsWayland()
     {
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
+        using var wlDisplay = WlDisplay.Connect();
+        using var wlRegistry = wlDisplay.GetRegistry();
+
+        wlRegistry.Global += (_, e) =>
+        {
+            DebugHelper.WriteLine($"{e.Name}:{e.Interface}:{e.Version}");
+        };
+
+        wlDisplay.Roundtrip();
         return !string.IsNullOrEmpty(display);
     }
 
@@ -32,7 +42,6 @@ public class LinuxAPI : NativeAPI
     {
         return GetWindowRectangleX11(windowHandle);
     }
-
     public override Screen GetScreen(Point pos)
     {
         IntPtr display = XOpenDisplay(null);
@@ -272,10 +281,45 @@ public class LinuxAPI : NativeAPI
 
     [DllImport(LibX11)]
     private static extern void XCloseDisplay(IntPtr display);
+    [DllImport(LibX11)]
+    private static extern IntPtr XCreateSimpleWindow(IntPtr display, IntPtr parent, int x, int y, uint width, uint height, uint border_width, ulong border, ulong background);
+    [DllImport(LibX11)]
+    private static extern int XSendEvent(IntPtr display, IntPtr window, bool propagate, int event_mask, ref XEvent xevent);
+    [DllImport(LibX11)]
+    private static extern int XNextEvent(IntPtr display, out XEvent xevent);
+    [DllImport(LibX11)]
+    private static extern int XChangeProperty(IntPtr display, IntPtr window, IntPtr property, IntPtr type, int format, int mode, byte[] data, int nelements);
 
+
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XEvent
+    {
+        public int type;
+        public XSelectionRequestEvent xselectionrequest;
+    }
+    private const int SelectionRequest = 30;
+    private const int SelectionNotify = 31;
+    private const int PropModeReplace = 0;
+    private const int CurrentTime = 0;
+    private static readonly IntPtr XA_STRING = new IntPtr(31);
+
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XSelectionRequestEvent
+    {
+        public int type;
+        public IntPtr display;
+        public IntPtr requestor;
+        public IntPtr selection;
+        public IntPtr target;
+        public IntPtr property;
+        public int time;
+    }
     // X11 Constants
     private static readonly IntPtr XA_PRIMARY = 1;
     private static readonly IntPtr XA_CLIPBOARD = 2;
+
 
     public override void CopyText(string text)
     {
@@ -289,20 +333,76 @@ public class LinuxAPI : NativeAPI
             DebugHelper.Logger?.Debug("Unable to open X11 display.");
             return;
         }
-
-        IntPtr rootWindow = XRootWindow(display, 0);  // Get the root window for the default screen
-        IntPtr selection = XA_CLIPBOARD;
-
+        IntPtr root = XDefaultRootWindow(display);
+        IntPtr window = XCreateSimpleWindow(display, root, 0, 0, 1, 1, 0, 0, 0);
+        IntPtr clipboard = XInternAtom(display, "CLIPBOARD", false);
+        XSetSelectionOwner(display, clipboard, window, CurrentTime);
+        if (XGetSelectionOwner(display, clipboard) != window)
+        {
+            DebugHelper.WriteLine($"Failed to set X11 selection owner... :(");
+            return;
+        }
         byte[] textBytes = Encoding.UTF8.GetBytes(text);
-
-        // Set the clipboard content by sending the data to the X server
-        XSetSelectionOwner(display, selection, rootWindow, 0);
-        XStoreBytes(display, selection, textBytes, textBytes.Length);
-        XFlush(display);  // Ensure the data is written to the clipboard
-
-        DebugHelper.Logger?.Debug("Text copied to clipboard.");
+        IntPtr utf8 = XInternAtom(display, "UTF8_STRING", false);
+        while (true)
+        {
+            XEvent ev;
+            XNextEvent(display, out ev);
+            if (ev.type == SelectionRequest)
+            {
+                XSelectionRequestEvent req = ev.xselectionrequest;
+                XEvent response = new XEvent();
+                response.type = SelectionNotify;
+                response.xselectionrequest.display = req.display;
+                response.xselectionrequest.requestor = req.requestor;
+                response.xselectionrequest.selection = req.selection;
+                response.xselectionrequest.target = req.target;
+                response.xselectionrequest.property = req.property;
+                if (req.target == utf8 || req.target == XA_STRING)
+                {
+                    XChangeProperty(display, req.requestor, req.property, req.target, 8, PropModeReplace, textBytes, textBytes.Length);
+                }
+                else
+                {
+                    response.xselectionrequest.property = IntPtr.Zero;
+                }
+                XSendEvent(display, req.requestor, false, 0, ref response);
+                XFlush(display);
+            }
+        }
     }
 
+    public Rectangle GetScreenBounds()
+    {
+        var display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+            throw new InvalidOperationException("Could not open X11 display.");
+
+        try
+        {
+            var screenCount = XScreenCount(display);
+
+            var totalWidth = 0;
+            var maxHeight = 0;
+
+            for (var i = 0; i < screenCount; i++)
+            {
+                var screen = XScreenOfDisplay(display, i);
+                var width = XWidthOfScreen(screen);
+                var height = XHeightOfScreen(screen);
+
+                totalWidth += width; // assuming screens are side-by-side
+                if (height > maxHeight)
+                    maxHeight = height;
+            }
+
+            return new Rectangle(0, 0, totalWidth, maxHeight);
+        }
+        finally
+        {
+            XCloseDisplay(display);
+        }
+    }
     public override void CopyImage(Image image, string filename = null)
     {
         using var ms = new MemoryStream();

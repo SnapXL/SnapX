@@ -18,14 +18,32 @@
   <data name="AboutSnapX">
     <value>About SnapX</value>
   </data>
+  <data name="UnhandledException">
+    <value>SnapX Unhandled Exception</value>
+  </data>
   <data name="UploadToAmazonS3Failed">
     <value>Upload to AmazonS3 Failed</value>
   </data>
   <data name="SnapXFailedToStart">
     <value>SnapX Failed To Start</value>
   </data>
-  <data name="ReportErrorToSentry">
-    <value>Report Error To Sentry</value>
+  <data name="FailedToScreenshot">
+    <value>Failed to take screenshot.</value>
+  </data>
+  <data name="Error">
+    <value>Error</value>
+  </data>
+  <data name="Ok">
+    <value>Ok</value>
+  </data>
+  <data name="UI_Settings">
+    <value>Settings</value>
+  </data>
+  <data name="UI_NoFilePath">
+    <value>(No file path)</value>
+  </data>
+  <data name="ReportErrorToDeveloper">
+    <value>Report Error To Developer</value>
   </data>
   <data name="CreateGitHubIssue">
     <value>Create GitHub Issue</value>
@@ -40,6 +58,166 @@
     <value>Upload with SnapX</value>
   </data>
   <data name="UploadManagerUploadFile">
-    <value>File Upload</value>
+    <value>SnapX - File Upload</value>
   </data>
+  <!-- UI -->
+  <data name="UI_Capture_Fullscreen">
+    <value>Fullscreen</value>
+  </data>
+  <data name="UI_Dropdown_Region">
+    <value>Region</value>
+  </data>
+  <data name="UI_Dropdown_RegionLight">
+  <value>Region (Light)</value>
+  </data>
+  <data name="UI_Dropdown_RegionTransparent">
+    <value>Region (Transparent)</value>
+  </data>
+  <data name="UI_Dropdown_Window">
+    <value>Window</value>
+  </data>
+  <data name="UI_Dropdown_Monitor">
+    <value>Monitor</value>
+  </data>
+  <data name="UI_Monitor_DisplayName">
+  <value>{0}: {1} ({2})</value>
+  </data>
+   <data name="UI_ShowErrors">
+  <value>Show errors</value>
+ </data>
+ <data name="UI_Open">
+  <value>Open</value>
+ </data>
+ <data name="UI_Open_ToolTip">
+  <value>Defaults to opening the URL or File</value>
+ </data>
+ <data name="UI_URL">
+  <value>URL</value>
+ </data>
+ <data name="UI_URL_ToolTip">
+  <value>Opens the URL with your browser</value>
+ </data>
+  <data name="UI_ShortenURL">
+    <value>Shorten URL</value>
+  </data>
+  <data name="UI_ShortenURL_ToolTip">
+    <value>Shortens the URL with your configured URL Shortener Destination</value>
+  </data>
+ <data name="UI_ShortenedURL">
+  <value>Shortened URL</value>
+ </data>
+ <data name="UI_ShortenedURL_ToolTip">
+  <value>Opens the Shortened URL with your browser</value>
+ </data>
+ <data name="UI_ThumbnailURL">
+  <value>Thumbnail URL</value>
+ </data>
+ <data name="UI_ThumbnailURL_ToolTip">
+  <value>Opens the Thumbnail URL with your browser</value>
+ </data>
+ <data name="UI_DeletionURL">
+  <value>Deletion URL</value>
+ </data>
+ <data name="UI_DeletionURL_ToolTip">
+  <value>Opens the Deletion URL with your browser</value>
+ </data>
+ <data name="UI_File">
+  <value>File</value>
+ </data>
+ <data name="UI_File_ToolTip">
+  <value>Opens the file with the default associated program.</value>
+ </data>
+ <data name="UI_Folder">
+  <value>Folder</value>
+ </data>
+ <data name="UI_Folder_ToolTip">
+  <value>Opens the folder with the default associated program</value>
+ </data>
+ <data name="UI_ThumbnailFile">
+  <value>Thumbnail file</value>
+ </data>
+ <data name="UI_Copy">
+  <value>Copy</value>
+ </data>
+ <data name="UI_Image">
+  <value>Image</value>
+ </data>
+ <data name="UI_ImageDimensions">
+  <value>Image dimensions</value>
+ </data>
+ <data name="UI_Text">
+  <value>Text</value>
+ </data>
+ <data name="UI_ThumbnailImage">
+  <value>Thumbnail image</value>
+ </data>
+ <data name="UI_FilePath">
+  <value>File path</value>
+ </data>
+ <data name="UI_FileName">
+  <value>File name</value>
+ </data>
+ <data name="UI_FileNameWithExtension">
+  <value>File name with extension</value>
+ </data>
+  <data name="UI_Download">
+    <value>Download</value>
+  </data>
+  <data name="UI_Download_ToolTip">
+    <value>Downloads the file from the saved URL or ThumbnailURL</value>
+  </data>
+  <data name="UI_ShareURL">
+    <value>Share URL</value>
+  </data>
+  <data name="UI_ShareURL_ToolTip">
+    <value>Share the URL using any of your preconfigured URL destinations etc</value>
+  </data>
+ <data name="UI_Upload">
+  <value>Upload</value>
+ </data>
+ <data name="UI_Upload_ToolTip">
+  <value>Uploads to your specified image destination or custom uploader.</value>
+ </data>
+ <data name="UI_OCRImage">
+  <value>OCR Image...</value>
+ </data>
+ <data name="UI_OCRImage_ToolTip">
+  <value>Analyzes images using optical character recognition powered by PaddleOCR.</value>
+ </data>
+ <data name="UI_EditImage">
+  <value>Edit Image...</value>
+ </data>
+ <data name="UI_EditImage_ToolTip">
+  <value>Opens image editor with this image.</value>
+ </data>
+ <data name="UI_BeautifyImage">
+  <value>Beautify Image...</value>
+ </data>
+ <data name="UI_BeautifyImage_ToolTip">
+  <value>Opens image beautifier with this image.</value>
+ </data>
+ <data name="UI_AddImageEffects">
+  <value>Add image effects...</value>
+ </data>
+ <data name="UI_AddImageEffects_ToolTip">
+  <value>Opens image effects editor with this image.</value>
+ </data>RemoveTask
+ <data name="UI_RemoveTask">
+  <value>Remove item from history</value>
+ </data>
+ <data name="UI_RemoveTask_ToolTip">
+  <value>Removes task from history</value>
+ </data>
+ <data name="UI_ClearTaskList">
+  <value>Clear task list</value>
+ </data>
+ <data name="UI_ClearTaskList_ToolTip">
+  <value>Clears all recent tasks from the MainWindow yet they still exist in History.</value>
+ </data>
+ <data name="UI_DeleteFileLocally">
+  <value>Delete file locally...</value>
+ </data>
+ <data name="UI_DeleteFileLocally_ToolTip">
+  <value>Deletes it from your computer, not any configured destinations or uploaders.</value>
+ </data>
 </root>

@@ -8,13 +8,53 @@ using SnapX.Avalonia;
 Console.WriteLine("Initializing Avalonia");
 BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
-AppBuilder BuildAvaloniaApp()
-   => AppBuilder.Configure<App>()
-       .UsePlatformDetect()
-       .UseManagedSystemDialogs()
-       .WithInterFont()
-       .LogToTrace()
-       .With(new FontManagerOptions
-       {
-           DefaultFamilyName = "avares://Avalonia.Fonts.Inter/Assets#Inter"
-       });
+
+static AppBuilder BuildAvaloniaApp()
+{
+    var builder = AppBuilder.Configure<App>()
+        .WithInterFont();
+
+    if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+    {
+        builder = builder.With(new FontManagerOptions
+        {
+            DefaultFamilyName = "Inter",
+            FontFallbacks =
+            [
+                new FontFallback
+                {
+                    FontFamily = new FontFamily("Inter")
+                }
+            ]
+        });
+    }
+
+    builder = builder.LogToTrace();
+
+    var x11Options = new X11PlatformOptions
+    {
+        // Fixes poor performance on my NVIDIA RTX 3060 Laptop GPU using Region Selector on Fedora KDE Wayland
+        RenderingMode = [X11RenderingMode.Vulkan, X11RenderingMode.Egl, X11RenderingMode.Glx, X11RenderingMode.Software],
+        UseRetainedFramebuffer = true,
+        OverlayPopups = true
+    };
+
+    if (OperatingSystem.IsFreeBSD())
+    {
+        builder = builder
+            .UseSkia()
+            .UseX11()
+            .With(x11Options);
+    }
+    else
+    {
+        builder = builder
+            .UsePlatformDetect()
+            .UseManagedSystemDialogs()
+            .With(x11Options)
+            .With(new AvaloniaNativePlatformOptions { OverlayPopups = true })
+            .With(new Win32PlatformOptions { OverlayPopups = true });
+    }
+
+    return builder;
+}

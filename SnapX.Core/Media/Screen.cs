@@ -12,6 +12,7 @@ public class Screen
     public string Resolution => $"{Bounds.Width}x{Bounds.Height}";
 
     public double RefreshRate { get; set; }
+    string Index { get; }
 
     // The physical dimensions of the screen (e.g., diagonal size in inches)
     public double DiagonalSizeInches { get; set; }

@@ -16,10 +16,12 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TrimMode>link</TrimMode>
+    <TrimMode>full</TrimMode>
     <PublishTrimmed>true</PublishTrimmed>
     <Optimize>true</Optimize>
     <AvaloniaVersion>11.3.1</AvaloniaVersion>
+    <SkiaSharpVersion>3.119.0</SkiaSharpVersion>
+    <HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
     <!-- After investigation, this needs to be an absolute path. It should be set by our build script later down the road. -->
     <!-- That way, you hopefully wouldn't need to have the snapx-ui executable right alongside it's .so/.dll/.dylib -->
     <AvaloniaNativeLibraryPath>/usr/local/lib/snapx</AvaloniaNativeLibraryPath>
@@ -42,17 +44,30 @@
     </AvaloniaResource>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
     <PackageReference Include="FluentAvaloniaUI" Version="2.3.0" />
+    <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="1.1.302" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="$(HarfBuzzSharpVersion)" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" Version="$(HarfBuzzSharpVersion)" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="$(HarfBuzzSharpVersion)" />
     <PackageReference Include="LibVLCSharp.Avalonia" Version="3.9.3" />
+    <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
+    <PackageReference Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
+    <!-- We prefer the NoDependencies flavor -->
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="$(SkiaSharpVersion)" ExcludeAssets="all" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="$(SkiaSharpVersion)" />
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="$(SkiaSharpVersion)" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
     <PackageReference Condition="$([MSBuild]::IsOsPlatform('OSX'))" Include="VideoLAN.LibVLC.Mac" Version="3.1.3.1" />
     <PackageReference Condition="$([MSBuild]::IsOsPlatform('Windows'))" Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
     <PackageReference Condition="$([MSBuild]::IsOsPlatform('Windows'))" Include="VideoLAN.LibVLC.Windows.GPL" Version="3.0.21" />
-    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
     <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,7 @@
 name: Build SnapX
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - "**"
@@ -24,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-2025 ]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-2025, windows-11-arm ]
         configuration:
           - Release
           - Debug
@@ -104,36 +105,11 @@ jobs:
       - name: Enforce code style using dotnet format
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         run: dotnet format --exclude build --verify-no-changes -v diagnostic SnapX.slnx
-      - name: Publish Windows ARM64 (CLI)
-        if: matrix.os == 'windows-2025'
-        working-directory: SnapX.CLI
-        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
-      - name: Publish Windows ARM64 (Avalonia)
-        if: matrix.os == 'windows-2025'
-        working-directory: SnapX.Avalonia
-        run: dotnet publish -c ${{ matrix.configuration }} -r win-arm64
-      - name: Upload ARM64 Publish artifact (CLI)
-        if: matrix.os == 'windows-2025'
-        uses: actions/upload-artifact@v4
-        with:
-          name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-ARM64
-          path: "SnapX.CLI/bin/${{ matrix.configuration }}/net9.0/win-arm64/publish"
-          compression-level: 9
-          if-no-files-found: error
-      - name: Upload ARM64 Publish artifact (Avalonia)
-        if: matrix.os == 'windows-2025'
-        uses: actions/upload-artifact@v4
-        with:
-          name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-ARM64
-          path: "SnapX.Avalonia/bin/${{ matrix.configuration }}/net9.0/win-arm64/publish"
-          compression-level: 9
-          if-no-files-found: error
       - name: Publish
-        if: matrix.os == 'windows-2025'
-        run: |
-          ./build.ps1 --configuration ${{ matrix.configuration }}
+        if: runner.os == 'Windows'
+        run: ./build.ps1 --configuration ${{ matrix.configuration }}
       - name: Publish
-        if: matrix.os != 'windows-2025'
+        if: runner.os != 'Windows'
         run: ./build.sh --configuration ${{ matrix.configuration }}
 
       - name: Upload Publish artifact (CLI)
@@ -150,3 +126,12 @@ jobs:
           path: "Output/snapx-ui"
           compression-level: 9
           if-no-files-found: error
+      - name: Start building on other arches
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && always()
+        continue-on-error: true
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: build-on-other-arches.yml
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN || github.token }}
+          repo: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}

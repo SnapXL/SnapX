@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="SnapX.Avalonia.Views.RegionSelectorWindow"
+        x:DataType="viewModels:RegionSelectorViewModel"
+        Topmost="True"
+        ShowInTaskbar="False"
+        SystemDecorations="None"
+        CanResize="False"
+        Cursor="Hand"
+        Background="Transparent"
+        Focusable="True"
+        PointerPressed="OnPointerPressed"
+        PointerReleased="OnPointerReleased"
+        PointerMoved="OnPointerMoved"
+        LostFocus="OnLostFocus"
+        Closed="OnClosed"
+        Opened="OnOpened"
+        KeyDown="OnKeyDown" KeyUp="OnKeyDown"
+        Title="RegionSelectorWindow">
+  <Design.DataContext>
+    <viewModels:RegionSelectorViewModel />
+  </Design.DataContext>
+  <Viewbox Stretch="UniformToFill">
+
+  <Canvas x:Name="Canvas">
+    <Rectangle
+      x:Name="DimmingOverlay"
+      Stretch="UniformToFill"
+      Fill="Black"
+      IsVisible="False"/>
+    <Rectangle x:Name="SelectionRect"
+               StrokeThickness="2"
+               Stroke="{DynamicResource SystemAccentColorDark1}"
+               IsHitTestVisible="False"
+               />
+    <TextBox x:Name="InfoBox"
+             IsReadOnly="True"
+             Background="{DynamicResource SystemAccentColorDark3}"
+             Foreground="{DynamicResource SystemChromeWhiteColor}"
+             BorderThickness="0"
+             Padding="5"
+             HorizontalAlignment="Left"
+             VerticalAlignment="Top"
+             Margin="9"
+             />
+  </Canvas>
+    </Viewbox>
+</Window>
+

@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Text.Json;
+using Dapper;
 #if WINDOWS
 using Esatto.Win32.Registry;
 #endif
@@ -12,12 +15,10 @@ using SnapX.Core.History;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
-using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.Zip;
 using SnapX.Core.Utils;
 
 namespace SnapX.Core;
-
 internal static class SettingManager
 {
     private const string ApplicationConfigFileName = "ApplicationConfig.json";
@@ -84,25 +85,20 @@ internal static class SettingManager
     private static TaskSettings DefaultTaskSettings { get => SnapX.DefaultTaskSettings; set => SnapX.DefaultTaskSettings = value; }
     private static UploadersConfig UploadersConfig { get => SnapX.UploadersConfig; set => SnapX.UploadersConfig = value; }
     private static HotkeysConfig HotkeysConfig { get => SnapX.HotkeysConfig; set => SnapX.HotkeysConfig = value; }
+    private static VersionEnforcer theLaw;
 
     private static ManualResetEvent uploadersConfigResetEvent = new(false);
     private static ManualResetEvent hotkeysConfigResetEvent = new(false);
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public static void LoadInitialSettings()
+    public static void LoadSettings()
     {
+        theLaw = new VersionEnforcer(SnapX.LockDirectory);
+        theLaw.Enforce();
         LoadApplicationConfig();
-
-        Task.Run(() =>
-        {
-            LoadUploadersConfig();
-            uploadersConfigResetEvent.Set();
-
-            LoadHotkeysConfig();
-            hotkeysConfigResetEvent.Set();
-        });
+        LoadUploadersConfig();
+        LoadHotkeysConfig();
     }
-
     public static void WaitUploadersConfig()
     {
         if (UploadersConfig == null)
@@ -123,24 +119,33 @@ internal static class SettingManager
     [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
     public static void LoadApplicationConfig(bool fallbackSupport = true)
     {
-        var configurationBuilder = new ConfigurationBuilder()
-            // .AddInMemoryCollection()
-            // Allows ALL settings to be managed via the Windows Registry.
-            // This call does nothing on non-Windows Operating Systems
-#if WINDOWS
-            .AddRegistry(@"Software\BrycensRanch\SnapX")
-#endif
-            .AddEnvironmentVariables(prefix: "SNAPX_")
-            .AddCommandLine(Environment.GetCommandLineArgs());
+        ApplicationConfigBackwardCompatibilityTasks();
+        var configurationBuilder = new ConfigurationBuilder();
         if (!SnapX.Sandbox)
         {
             configurationBuilder.AddJsonFile(ApplicationConfigFilePath, optional: true, reloadOnChange: true);
         }
+
+        configurationBuilder
+#if WINDOWS
+        .AddRegistry(@"Software\BrycensRanch\SnapX")
+#endif
+        .AddCommandLine(Environment.GetCommandLineArgs())
+
+        // .AddInMemoryCollection()
+        // Allows ALL settings to be managed via the Windows Registry.
+        // This call does nothing on non-Windows Operating Systems
+        .AddEnvironmentVariables(prefix: "SNAPX_");
         SnapX.Configuration = configurationBuilder.Build();
+        foreach (var kv in SnapX.Configuration.AsEnumerable())
+        {
+            // DebugHelper.WriteLine($"{kv.Key} = {kv.Value}");
+        }
         var settings = new RootConfiguration();
         SnapX.Configuration.Bind(settings);
         Settings = settings;
-        ApplicationConfigBackwardCompatibilityTasks();
+        if (string.IsNullOrWhiteSpace(Settings.SQLitePath))
+            Settings.SQLitePath = Path.Combine(SnapX.DefaultPersonalFolder, "SnapX.db");
         MigrateHistoryFile();
     }
 
@@ -189,44 +194,245 @@ internal static class SettingManager
         HotkeysConfigBackwardCompatibilityTasks();
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public static void LoadAllSettings()
-    {
-        LoadApplicationConfig();
-        LoadUploadersConfig();
-        LoadHotkeysConfig();
-    }
-
+    // private static void MigrateApplicationConfigJSONToSQLite()
+    // {
+    //     try
+    //     {
+    //             DebugHelper.WriteLine($"JSON -> SQLite Migration: Migrating {ApplicationConfigFileName} at {ApplicationConfigFilePath}");
+    //             var json = File.ReadAllText(ApplicationConfigFilePath);
+    //             var node = JsonNode.Parse(json)!.AsObject();
+    //             node.Remove("RecentTasks");
+    //
+    //             var nodeJSON = node.ToJsonString();
+    //
+    //             var root = JsonDocument.Parse(nodeJSON).RootElement;
+    //             foreach (var property in root.EnumerateObject())
+    //             {
+    //                 var key = property.Name;
+    //                 var value = property.Value;
+    //
+    //                 switch (value.ValueKind)
+    //                 {
+    //                     case JsonValueKind.Object:
+    //                         FlattenAndInsert(value, key);
+    //                         break;
+    //
+    //                     case JsonValueKind.Array:
+    //                         var index = 0;
+    //                         foreach (var item in value.EnumerateArray())
+    //                         {
+    //                             // Compose a "key:index" prefix for each item and recurse
+    //                             FlattenAndInsert(item, $"{key}:{index++}");
+    //                         }
+    //
+    //                         break;
+    //
+    //                     case JsonValueKind.String:
+    //                     case JsonValueKind.Number:
+    //                     case JsonValueKind.True:
+    //                     case JsonValueKind.False:
+    //                     case JsonValueKind.Null:
+    //                     case JsonValueKind.Undefined:
+    //                     default:
+    //                         FlattenAndInsert(value, key);
+    //                         break;
+    //                 }
+    //             }
+    //             var migratedPath = ApplicationConfigFilePath + ".migrated";
+    //             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+    //             migratedPath = ApplicationConfigFilePath + $"{timestamp}.migrated";
+    //             File.Move(ApplicationConfigFilePath, migratedPath);
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         DebugHelper.WriteException(ex);
+    //     }
+    // }
+    [DapperAot]
     private static void ApplicationConfigBackwardCompatibilityTasks()
     {
-        // if (Settings.IsUpgradeFrom("16.0.2"))
-        // {
-        //     if (Settings.CheckPreReleaseUpdates)
-        //     {
-        //         Settings.UpdateChannel = UpdateChannel.PreRelease;
-        //     }
-        // }
-    }
+        // if (File.Exists(ApplicationConfigFilePath)) MigrateApplicationConfigJSONToSQLite();
 
-    private static void MigrateHistoryFile()
-    {
-        if (File.Exists(SnapX.HistoryFilePathOld))
+        var assembly = Assembly.GetExecutingAssembly();
+
+        var resourceNames = assembly.GetManifestResourceNames()
+            .Where(name => name.Contains("Migrations") && name.EndsWith(".sql"))
+            .OrderBy(name => name) // Ensure migrations are processed in numerical order
+            .ToList();
+
+        // Ensure MigrationLog table exists for the checks below
+        // This is crucial if it's the very first time running migrations.
+        SnapX.DbConnection.Execute(@"
+        CREATE TABLE IF NOT EXISTS MigrationLog (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            FileName TEXT NOT NULL UNIQUE,
+            AppliedOn TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL
+        );
+    ");
+
+        // Track the highest migration version number that has been applied.
+        // Initialize with -1 to handle the case where no migrations have been applied yet.
+        long lastAppliedMigrationVersion = -1;
+
+        // First, load the last applied migration version from the database, if MigrationLog exists and has entries.
+        // If MigrationLog is empty or doesn't exist, lastAppliedMigrationVersion remains -1.
+        var currentMigrationsInDb = SnapX.DbConnection.QueryFirstOrDefault<string>(
+            "SELECT FileName FROM MigrationLog ORDER BY FileName DESC LIMIT 1;"
+        );
+
+        if (currentMigrationsInDb != null)
         {
-            if (!File.Exists(SnapX.HistoryFilePath))
+            // Extract the numerical prefix (e.g., "001" from "001_initial_schema.sql")
+            var lastAppliedPrefix = currentMigrationsInDb.Split('_').FirstOrDefault();
+            if (long.TryParse(lastAppliedPrefix, out long parsedVersion))
             {
-                DebugHelper.WriteLine($"Migrating XML history file \"{SnapX.HistoryFilePathOld}\" to JSON history file \"{SnapX.HistoryFilePath}\"");
+                lastAppliedMigrationVersion = parsedVersion;
+            }
+            else
+            {
+                // Handle case where migration file name doesn't follow expected format
+                // This might indicate a malformed log entry, or an unexpected file name.
+                // For now, let's just log and proceed carefully, or throw a more specific error.
+                DebugHelper.WriteLine($"Warning: Could not parse migration version from '{currentMigrationsInDb}'. Proceeding carefully.");
+            }
+        }
 
-                var historyManagerXML = new HistoryManagerXML(SnapX.HistoryFilePathOld);
-                var historyItems = historyManagerXML.GetHistoryItems();
 
-                if (historyItems.Count > 0)
-                {
-                    var historyManagerJSON = new HistoryManagerJSON(SnapX.HistoryFilePath);
-                    historyManagerJSON.AppendHistoryItems(historyItems);
-                }
+        foreach (var resourceName in resourceNames)
+        {
+            var fileName = resourceName.Split('.').Reverse().Take(2).Reverse().Aggregate((a, b) => $"{a}.{b}");
+
+            // Extract the numerical prefix for the current migration file
+            var currentMigrationPrefix = fileName.Split('_').FirstOrDefault();
+            if (!long.TryParse(currentMigrationPrefix, out long currentMigrationVersion))
+            {
+                throw new InvalidOperationException($"Migration file '{fileName}' does not have a valid numerical prefix (e.g., '001_'). Please rename the file.");
             }
 
-            FileHelpers.MoveFile(SnapX.HistoryFilePathOld, SnapshotFolder);
+            if (currentMigrationVersion < 0)
+            {
+                throw new InvalidOperationException($"Migration file '{fileName}' has a migration version less than  zero. Please rename the file.");
+            }
+
+            // Check for out-of-order migration
+            if (currentMigrationVersion <= lastAppliedMigrationVersion)
+            {
+                // Check if this specific migration is already applied.
+                // If it is, and its version is <= lastApplied, then it's either already processed
+                // or an older one found after newer ones.
+                var alreadyApplied = SnapX.DbConnection.ExecuteScalar<int>(
+                    "SELECT COUNT(1) FROM MigrationLog WHERE FileName = @FileName",
+                    new { FileName = fileName }
+                ) > 0;
+
+                if (alreadyApplied)
+                {
+                    // If it's already applied, and its version is <= lastAppliedMigrationVersion,
+                    // it means it was applied correctly in its turn or a duplicate check.
+                    // We just continue to the next one.
+                    continue;
+                }
+                // but its version number is LESS THAN or EQUAL TO the last applied version,
+                // it means an out-of-order or duplicate migration is being attempted.
+                throw new InvalidOperationException(
+                    $"Out-of-order migration detected! Attempted to apply '{fileName}' (version {currentMigrationVersion}), " +
+                    $"but a newer migration (version {lastAppliedMigrationVersion}) has already been applied. " +
+                    "Please ensure to NAG developer that migrations are applied in strictly increasing numerical order."
+                );
+            }
+            if (currentMigrationVersion - lastAppliedMigrationVersion > 1)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot apply migration version {currentMigrationVersion} because the previous applied version is {lastAppliedMigrationVersion}. " +
+                    $"You must apply intermediate migrations in order to avoid data loss."
+                );
+            }
+
+            // If we reach here, the current migration version is > lastAppliedMigrationVersion,
+            // so it's a valid next migration. Update lastAppliedMigrationVersion.
+            lastAppliedMigrationVersion = currentMigrationVersion;
+
+
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            using var reader = new StreamReader(stream!);
+            var sql = reader.ReadToEnd();
+
+            using var tx = SnapX.DbConnection.BeginTransaction(IsolationLevel.Serializable);
+            try
+            {
+                SnapX.DbConnection.Execute(sql, transaction: tx);
+                SnapX.DbConnection.Execute("INSERT INTO MigrationLog (FileName) VALUES (@FileName)", new { FileName = fileName }, transaction: tx);
+                tx.Commit();
+                DebugHelper.WriteLine($"Applied SQL Migration: {fileName}");
+            }
+            catch (Exception ex)
+            {
+                tx.Rollback(); // Rollback on error
+                DebugHelper.WriteException(ex);
+                throw new InvalidOperationException($"Failed to apply migration '{fileName}'. Transaction rolled back.", ex);
+            }
+        }
+
+        SnapX.DbConnection.Execute("PRAGMA optimize;");
+    }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+    private static async Task MigrateHistoryFile()
+    {
+        if (!File.Exists(SnapX.HistoryFilePathOld)) return;
+
+        TaskManager.InitHistoryManager();
+        DebugHelper.WriteLine($"JSON -> SQLite Migration: Migrating history ({FileHelpers.GetFileSizeReadable(SnapX.HistoryFilePathOld)})");
+
+        FileHelpers.BackupFileMonthly(SnapX.HistoryFilePathOld, SnapshotFolder);
+
+        try
+        {
+            var json = await File.ReadAllTextAsync(SnapX.HistoryFilePathOld);
+            if (!json.StartsWith('[')) json = "[" + json + "]";
+
+            if (string.IsNullOrEmpty(json) || json == "{}" || json == "[{}]")
+            {
+                DebugHelper.WriteLine("JSON -> SQLite Migration: Old history file is empty. Deleting it to prevent the migration running again.");
+                File.Delete(SnapX.HistoryFilePathOld);
+            }
+
+            var historyItems = JsonSerializer.Deserialize<List<HistoryItem>>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                TypeInfoResolver = HistoryContext.Default,
+            });
+            var shouldRenameFile = true;
+            if (historyItems?.Count > 0)
+            {
+                DebugHelper.WriteLine($"JSON -> SQLite Migration: Found {historyItems.Count:N0} history items. First one is {historyItems[0].FilePath} and the last one is {historyItems[^1].FilePath}");
+                if (!TaskManager.History.AppendHistoryItems(historyItems))
+                {
+                    DebugHelper.WriteLine("JSON -> SQLite Migration: Failed to migrate history items.");
+                    shouldRenameFile = false;
+                }
+                else
+                {
+                    DebugHelper.WriteLine("JSON -> SQLite Migration: Migration complete! Welcome to the future! 🚀");
+                }
+            }
+            else
+            {
+                DebugHelper.WriteLine("JSON -> SQLite Migration: No history items found");
+            }
+
+            if (shouldRenameFile)
+            {
+                var migratedPath = SnapX.HistoryFilePathOld + ".migrated";
+                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                migratedPath = SnapX.HistoryFilePathOld + $"{timestamp}.migrated";
+                File.Move(SnapX.HistoryFilePathOld, migratedPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine($"JSON -> SQLite Migration: Migration failed!!!");
+            DebugHelper.WriteException(ex);
         }
     }
 
@@ -234,7 +440,7 @@ internal static class SettingManager
     {
         if (UploadersConfig.CustomUploadersList != null)
         {
-            foreach (CustomUploaderItem cui in UploadersConfig.CustomUploadersList)
+            foreach (var cui in UploadersConfig.CustomUploadersList)
             {
                 cui.CheckBackwardCompatibility();
             }
@@ -257,6 +463,7 @@ internal static class SettingManager
         // }
     }
 
+    public static void Dispose() => theLaw.Dispose();
     public static void CleanupHotkeysConfig()
     {
         foreach (var taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
@@ -334,7 +541,7 @@ internal static class SettingManager
 
             if (history)
             {
-                entries.Add(new ZipEntryInfo(SnapX.HistoryFilePath));
+                entries.Add(new ZipEntryInfo(SnapX.DBPath));
             }
 
             ZipManager.Compress(archivePath, entries);
@@ -360,7 +567,7 @@ internal static class SettingManager
         {
             ZipManager.Extract(archivePath, SnapX.ConfigFolder, true, entry =>
             {
-                return FileHelpers.CheckExtension(entry.Name, new[] { "json", "xml" });
+                return FileHelpers.CheckExtension(entry.Name, new[] { "db" });
             }, 1_000_000_000);
 
             return true;
@@ -371,6 +578,28 @@ internal static class SettingManager
         }
 
         return false;
+    }
+
+    // This method validates the setting before restoration to ensure it fits the defined type
+    private static bool IsValidValue(string value, string dataType)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false; // Prevent null or empty values.
+
+        switch (dataType)
+        {
+            case "int":
+                return int.TryParse(value, out _);
+            case "double":
+                return double.TryParse(value, out _);
+            case "bool":
+                return bool.TryParse(value, out _);
+            case "string":
+                return true;
+            default:
+                DebugHelper.WriteLine($"Unknown data type: {dataType}");
+                return false;
+        }
     }
 }
 

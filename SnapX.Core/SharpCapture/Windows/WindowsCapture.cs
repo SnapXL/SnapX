@@ -1,22 +1,19 @@
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.Versioning;
-using Windows.Graphics.DirectX;
-using Windows.Media.Core;
-using ABI.Windows.Graphics.Capture;
-using ABI.Windows.Graphics.DirectX.Direct3D11;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
+using Windows.Graphics.DirectX;
+using Windows.Win32;
 using WinRT;
 using Direct3D11CaptureFrame = Windows.Graphics.Capture.Direct3D11CaptureFrame;
 using Direct3D11CaptureFramePool = Windows.Graphics.Capture.Direct3D11CaptureFramePool;
 using GraphicsCaptureSession = Windows.Graphics.Capture.GraphicsCaptureSession;
 using IDirect3DDevice = Windows.Graphics.DirectX.Direct3D11.IDirect3DDevice;
+using IDirect3DSurface = Windows.Graphics.DirectX.Direct3D11.IDirect3DSurface;
 
 namespace SnapX.Core.SharpCapture.Windows;
 
@@ -156,9 +153,6 @@ public class WindowsCapture : BaseCapture
         return await CaptureOutputImage(defaultOutput.Output, defaultOutput.Adapter, defaultBounds);
     }
 
-    [DllImport("user32.dll")]
-    private static extern IntPtr WindowFromPoint(WinPoint Point);
-
     [DllImport(
         "d3d11.dll",
         EntryPoint = "CreateDirect3D11DeviceFromDXGIDevice",
@@ -168,17 +162,6 @@ public class WindowsCapture : BaseCapture
         CallingConvention = CallingConvention.StdCall
     )]
     private static extern uint CreateDirect3D11DeviceFromDXGIDevice(IntPtr dxgiDevice, out IntPtr graphicsDevice);
-
-    [DllImport(
-        "d3d11.dll",
-        EntryPoint = "CreateDirect3D11SurfaceFromDXGISurface",
-        SetLastError = true,
-        CharSet = CharSet.Unicode,
-        ExactSpelling = true,
-        CallingConvention = CallingConvention.StdCall
-    )]
-    private static extern uint CreateDirect3D11SurfaceFromDXGISurface(IntPtr dxgiSurface, out IntPtr graphicsSurface);
-
     private static IDirect3DDevice CreateDirect3DDeviceFromVorticeDevice(ID3D11Device d3dDevice)
     {
         IDirect3DDevice device = null;
@@ -197,39 +180,12 @@ public class WindowsCapture : BaseCapture
         return device;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    private struct WinPoint(int X, int Y)
+    private static ID3D11Texture2D Texture2DFromSurface(IDirect3DSurface surface)
     {
-        public int X = X;
-        public int Y = Y;
+        var access = surface.As<IDirect3DDxgiInterfaceAccess>();
+        var texture = access.QueryInterface<ID3D11Texture2D>();
+        return texture;
     }
-
-    private static IntPtr WindowFromPoint(Point pos)
-    {
-        var winPoint = new WinPoint
-        {
-            X = pos.X,
-            Y = pos.Y
-        };
-        return WindowFromPoint(winPoint);
-    }
-
-    private static Vortice.Direct3D11.ID3D11Texture2D Texture2DFromSurface(global::Windows.Graphics.DirectX.Direct3D11.IDirect3DSurface surface)
-    {
-        var dxgiAccess = surface.As<IDirect3DDxgiInterfaceAccess>();
-        var guid = new Guid("6f15aaf2-d208-4e89-9ab4-489535d34f9c");
-        // var texture = dxgiAccess.GetInterface(ref guid);
-        // return new ID3D11Texture2D(texture);
-
-        return new ID3D11Texture2D(IntPtr.Zero);
-    }
-
-    // [GeneratedComInterface]
-    // [Guid("A9B3D012-3DF2-4EE3-BF3A-0BFCB8E6D9D9")]
-    // internal partial interface IDirect3DDxgiInterfaceAccess
-    // {
-    //     IntPtr GetInterface(ref Guid iid);
-    // }
     public override async Task<Image?> CaptureWindow(Point pos)
     {
         if (!GraphicsCaptureSession.IsSupported())
@@ -237,10 +193,10 @@ public class WindowsCapture : BaseCapture
             DebugHelper.WriteLine("WindowsCapture: GraphicsCaptureSession is not supported on this device. Perhaps update your Windows?");
             return null;
         }
-        var hwnd = WindowFromPoint(pos);
+        var hwnd = PInvoke.WindowFromPoint(new System.Drawing.Point(pos.X, pos.Y));
         if (hwnd == IntPtr.Zero)
         {
-            await Console.Error.WriteLineAsync("WindowsCapture was provieded a invalid window handle");
+            DebugHelper.WriteLine("WindowsCapture was provided a invalid window handle");
             return null;
         }
 
@@ -288,30 +244,10 @@ public class WindowsCapture : BaseCapture
 
         var width = size.Width;
         var height = size.Height;
-
-        // create a CPU-readable texture
-        // note: for max perf, the texture creation
-        // should be done once per surface size
-        // or allocate a big enough texture (like adapter-sized) and copy portions
-        var textureDesc = new Texture2DDescription
-        {
-            CPUAccessFlags = CpuAccessFlags.Read,
-            BindFlags = BindFlags.None,
-            Format = Format.B8G8R8A8_UNorm,
-            Width = (uint)width,
-            Height = (uint)height,
-            MiscFlags = ResourceOptionFlags.None,
-            MipLevels = 1,
-            ArraySize = 1,
-            SampleDescription = { Count = 1, Quality = 0 },
-            Usage = ResourceUsage.Staging
-        };
-        // var asd = frame.Surface.Description
-        // using var currentFrame = d3d11Device.CreateTexture2D(textureDesc);
         var currentFrame = Texture2DFromSurface(result.Surface);
         var tempTexture = currentFrame.QueryInterface<ID3D11Texture2D>();
 
-        // d3d11Device.ImmediateContext.CopyResource(currentFrame, tempTexture);
+        d3d11Device.ImmediateContext.CopyResource(currentFrame, tempTexture);
         var dataBox = d3d11Device.ImmediateContext.Map(currentFrame, 0);
 
         var screenshotBytes = GetDataAsByteArray(dataBox.DataPointer, (int)dataBox.RowPitch, width,
@@ -410,13 +346,10 @@ public class WindowsCapture : BaseCapture
             bounds.Height);
         duplication.ReleaseFrame();
         device.ImmediateContext.Unmap(currentFrame, 0);
+        device.Dispose();
         return Image.LoadPixelData<Rgba32>(screenshotBytes, bounds.Width, bounds.Height);
     }
 
-    private static byte[] GetBufferAsByteArray(global::Windows.Storage.Streams.Buffer buffer)
-    {
-        return buffer.ToArray();
-    }
     private static byte[] GetDataAsByteArray(IntPtr dataPointer, int rowPitch, int width, int height)
     {
         // Create a byte[] array to hold the pixel data

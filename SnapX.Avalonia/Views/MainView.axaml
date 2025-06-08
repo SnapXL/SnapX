@@ -1,42 +1,102 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:core="clr-namespace:SnapX.Core;assembly=SnapX.Core"
-        xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
-        xmlns:local="clr-namespace:SnapX.Avalonia"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        MinWidth="512" MinHeight="200"
-        MaxWidth="1024" MaxHeight="600"
-        x:Class="SnapX.Avalonia.MainView"
-        x:DataType="local:MainView"
+﻿<UserControl
+  d:DesignHeight="700"
+  d:DesignWidth="450"
+  mc:Ignorable="d"
+  x:Class="SnapX.Avalonia.Views.MainView"
+  x:DataType="viewModels:MainViewModel"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+  xmlns:converters="clr-namespace:SnapX.Avalonia.Converters"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:models="clr-namespace:SnapX.Avalonia.Models"
+  xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
+  xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Design.DataContext>
+    <viewModels:MainViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="Auto, *">
+    <SplitView
+      Background="{DynamicResource SolidBackgroundFillColorBase}"
+      CompactPaneLength="46"
+      DisplayMode="CompactInline"
+      Grid.Row="1"
+      IsPaneOpen="{Binding IsPaneOpen}"
+      OpenPaneLength="170">
 
-        Title="{Binding MainWindowName}">
-    <Design.DataContext>
-        <local:MainView/>
-    </Design.DataContext>
-    <Grid Background="#262626" ColumnDefinitions="Auto, *" MaxWidth="400">
-        <Border Padding="20">
-            <Grid RowDefinitions="*, Auto">
-                <StackPanel Spacing="12">
-                    <Button HorizontalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Classes="icon" Content="#3335a"></Label>
-                            <Label Classes="akko" Content="Capture"></Label>
-                        </StackPanel>
-                    </Button>
-                    <TextBox Text="{x:Static utils:Lang.WelcomeMessage}" Classes="h1"/>
+      <SplitView.Pane>
+        <controls:CommandBar
+          DefaultLabelPosition="Right"
+          IsDynamicOverflowEnabled="True"
+          IsOpen="{Binding IsPaneOpen}"
+          UseLayoutRounding="True">
+          <controls:CommandBar.PrimaryCommands>
+            <controls:CommandBarButton Command="{Binding TriggerPaneCommand}" IconSource="GlobalNavigationButton" />
 
-                    <!-- TextBox for the image URL with placeholder text -->
-                    <TextBox Name="ImageURLTextBox" Watermark="https://fedoramagazine.org/wp-content/uploads/2024/10/Whats-new-in-Fedora-KDE-41-2-816x431.jpg"
-                             Margin="0,0,0,10"/>
+            <controls:CommandBarElementContainer>
 
-                    <!-- Button that triggers the upload action -->
-                    <Button Content="Upload Remote Image" Click="OnDemoTestButtonClick"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-    </Grid>
-</Window>
+              <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedListItem}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate DataType="{x:Type models:ListItemTemplate}">
+                    <StackPanel Orientation="Horizontal" Spacing="17">
+                      <PathIcon Data="{Binding IconKey, Converter={x:Static converters:TypeConverters.IconConverter}}"
+                                Width="16" />
+                      <TextBlock
+                        Text="{Binding Label}"
+                        TextTrimming="WordEllipsis"
+                        TextWrapping="Wrap" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </controls:CommandBarElementContainer>
+          </controls:CommandBar.PrimaryCommands>
+          <controls:CommandBar.SecondaryCommands>
+            <controls:CommandBarElementContainer>
+              <WrapPanel Orientation="Horizontal">
+                <SplitButton x:Name="CaptureSplitButton">
+                  <WrapPanel Orientation="Horizontal">
+                    <controls:SymbolIcon Symbol="Camera" FontSize="20" />
+                    <Label Content="Region" Name="RegionCaptureLabel" />
+                  </WrapPanel>
+                  <SplitButton.Flyout>
+                    <controls:FAMenuFlyout>
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_Region}"
+                        IconSource="Camera" />
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_RegionLight}" />
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" />
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_Window}" />
+                      <controls:ToggleMenuFlyoutItem
+                        Text="{x:Static utils:Lang.UI_Dropdown_Monitor}" />
 
 
+                    </controls:FAMenuFlyout>
+                  </SplitButton.Flyout>
+                </SplitButton>
+              </WrapPanel>
+            </controls:CommandBarElementContainer>
+            <controls:CommandBarButton
+              Command="{Binding OpenSettingsWindowCommand}"
+              IconSource="Settings"
+              Label="{x:Static utils:Lang.UI_Settings}" />
+            <controls:CommandBarButton
+              Command="{Binding OpenAboutWindowCommand}"
+              IconSource="Favorite"
+              Label="{x:Static utils:Lang.AboutSnapX}" />
+          </controls:CommandBar.SecondaryCommands>
+        </controls:CommandBar>
+      </SplitView.Pane>
+
+
+      <Border>
+        <TransitioningContentControl Content="{Binding CurrentPage}" />
+      </Border>
+    </SplitView>
+
+  </Grid>
+</UserControl>

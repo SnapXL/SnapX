@@ -8,25 +8,40 @@ namespace SnapX.Core.Utils;
 
 public static partial class OsInfo
 {
+    private static readonly Dictionary<string, string> BuildToFriendlyName = new()
+    {
+        // Windows 11
+        { "22000", "21H2" },
+        { "22621", "22H2" },
+        { "22631", "23H2" },
+        { "26100", "24H2" },
+        { "27768", "25H2" },
+        { "27813", "25H2" },
+
+        // Windows 10
+        { "10240", "1507" },
+        { "10586", "1511" },
+        { "14393", "1607" },
+        { "15063", "1703" },
+        { "16299", "1709" },
+        { "17134", "1803" },
+        { "17763", "1809" },
+        { "18362", "1903" },
+        { "18363", "1909" },
+        { "19041", "2004" },
+        { "19042", "20H2" },
+        { "19043", "21H1" },
+        { "19044", "21H2" },
+        { "19045", "22H2" }
+    };
     public static string GetFancyOSNameAndVersion()
     {
-        if (OperatingSystem.IsWindows())
-        {
-            return GetWindowsVersion();
+        if (OperatingSystem.IsWindows()) return GetWindowsVersion();
+        if (OperatingSystem.IsLinux()) return GetLinuxVersion();
+        if (OperatingSystem.IsMacOS()) return GetmacOSVersion();
+        if (OperatingSystem.IsFreeBSD()) return GetFreeBSDVersion();
 
-        }
-        else if (OperatingSystem.IsLinux())
-        {
-            return GetLinuxVersion();
-        }
-        else if (OperatingSystem.IsMacOS())
-        {
-            return GetmacOSVersion();
-        }
-        else
-        {
-            return $"{Environment.OSVersion.Platform} {Environment.OSVersion.Version}";
-        }
+        return $"{Environment.OSVersion.Platform} {Environment.OSVersion.Version}";
     }
     [SupportedOSPlatform("windows")]
     static string GetWindowsVersion()
@@ -43,6 +58,24 @@ public static partial class OsInfo
 
             if (Helpers.IsWindows11OrGreater())
                 productName = productName.Replace("10", "11");
+            if (BuildToFriendlyName.TryGetValue(currentBuild, out string friendlyName))
+            {
+                return $"{productName} {friendlyName}";
+            }
+
+            if (int.TryParse(currentBuild, out int currentBuildNumber))
+            {
+                var closestMatch = BuildToFriendlyName
+                    .Where(kvp => int.TryParse(kvp.Key, out int buildNumber))
+                    .Select(kvp => new { BuildNumber = int.Parse(kvp.Key), FriendlyName = kvp.Value })
+                    .OrderBy(match => Math.Abs(currentBuildNumber - match.BuildNumber))
+                    .FirstOrDefault();
+
+                if (closestMatch != null)
+                {
+                    return $"{productName} {closestMatch.FriendlyName}";
+                }
+            }
 
             return $"{productName} {currentBuild}";
 
@@ -117,25 +150,15 @@ public static partial class OsInfo
             return $"macOS {Environment.OSVersion.Version}";
         }
     }
+    static string GetFreeBSDVersion() => $"FreeBSD {Environment.OSVersion.Version}";
 
     public static string GetProcessorName()
     {
-        if (OperatingSystem.IsWindows())
-        {
-            return GetProcessorNameWindows();
-        }
-        else if (OperatingSystem.IsLinux())
-        {
-            return GetProcessorNameLinux();
-        }
-        else if (OperatingSystem.IsMacOS())
-        {
-            return GetProcessorNameMacOS();
-        }
-        else
-        {
-            throw new PlatformNotSupportedException("This platform is not supported.");
-        }
+        if (OperatingSystem.IsWindows()) return GetProcessorNameWindows();
+        if (OperatingSystem.IsLinux()) return GetProcessorNameLinux();
+        if (OperatingSystem.IsMacOS()) return GetProcessorNameMacOS();
+        if (OperatingSystem.IsFreeBSD()) return GetProcessorNameFreeBSD();
+        return "Unknown Processor";
     }
     [SupportedOSPlatform("windows")]
     private static string GetProcessorNameWindows()
@@ -178,6 +201,35 @@ public static partial class OsInfo
 
         return "Unknown Processor";
     }
+    private static string GetProcessorNameFreeBSD()
+    {
+        try
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "/sbin/sysctl",
+                Arguments = "-n hw.model",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = Process.Start(startInfo);
+            if (process != null)
+            {
+                string output = process.StandardOutput.ReadToEnd().Trim();
+                process.WaitForExit();
+                if (!string.IsNullOrWhiteSpace(output))
+                    return output;
+            }
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine("Error running sysctl: " + ex.Message);
+        }
+
+        return "Unknown Processor";
+    }
 
     private static string GetProcessorNameMacOS()
     {
@@ -205,19 +257,12 @@ public static partial class OsInfo
     }
     public static (long totalMemory, long usedMemory) GetMemoryInfo()
     {
-        if (OperatingSystem.IsWindows())
-        {
-            return GetMemoryInfoWindows();
-        }
-        if (OperatingSystem.IsLinux())
-        {
-            return GetMemoryInfoLinux();
-        }
-        if (OperatingSystem.IsMacOS())
-        {
-            return GetMemoryInfoMacOS();
-        }
-        throw new PlatformNotSupportedException("This platform is not supported.");
+        if (OperatingSystem.IsWindows()) return GetMemoryInfoWindows();
+        if (OperatingSystem.IsLinux()) return GetMemoryInfoLinux();
+        if (OperatingSystem.IsMacOS()) return GetMemoryInfoMacOS();
+        if (OperatingSystem.IsFreeBSD()) return GetMemoryInfoFreeBSD();
+
+        return (0, 0);
     }
     [SupportedOSPlatform("windows")]
     private static (long totalMemory, long usedMemory) GetMemoryInfoWindows()
@@ -310,6 +355,76 @@ public static partial class OsInfo
 
         return (0, 0);
     }
+    [SupportedOSPlatform("freebsd")]
+    private static (long totalMemory, long usedMemory) GetMemoryInfoFreeBSD()
+    {
+        try
+        {
+            long totalMemory = GetSysctlLong("hw.physmem");
+            long freeMemory = GetSysctlLong("vm.stats.vm.v_free_count") * GetPageSize();
+
+            long usedMemory = totalMemory - freeMemory;
+
+            // Convert from bytes to megabytes
+            return (totalMemory / 1024 / 1024, usedMemory / 1024 / 1024);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine("Error reading memory info on FreeBSD: " + ex.Message);
+        }
+
+        return (0, 0);
+    }
+    [SupportedOSPlatform("freebsd")]
+    private static long GetSysctlLong(string key)
+    {
+        var startInfo = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "/sbin/sysctl",
+            Arguments = "-n " + key,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = Process.Start(startInfo);
+        if (process != null)
+        {
+            string output = process.StandardOutput.ReadToEnd().Trim();
+            process.WaitForExit();
+            if (long.TryParse(output, out var value))
+            {
+                return value;
+            }
+        }
+
+        throw new InvalidOperationException($"Failed to get sysctl value for {key}");
+    }
+
+    private static long GetPageSize()
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "/usr/bin/getconf",
+            Arguments = "PAGE_SIZE",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = Process.Start(startInfo);
+        if (process != null)
+        {
+            string output = process.StandardOutput.ReadToEnd().Trim();
+            process.WaitForExit();
+            if (long.TryParse(output, out var pageSize))
+            {
+                return pageSize;
+            }
+        }
+
+        throw new InvalidOperationException("Failed to get page size");
+    }
 
     private static long ParseMemInfo(string line)
     {
@@ -341,7 +456,7 @@ public static partial class OsInfo
 
     private static long GetSysctl(string key)
     {
-        var process = new System.Diagnostics.Process();
+        var process = new Process();
         process.StartInfo.FileName = "sysctl";
         process.StartInfo.Arguments = key;
         process.StartInfo.RedirectStandardOutput = true;

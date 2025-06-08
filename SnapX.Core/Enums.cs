@@ -18,6 +18,7 @@ public enum BuildType
     RPM,
     DEB,
     PKG,
+    Arch, // btw
     APK, // Not to be confused with Android. For Alpine Linux
     Unknown
 }

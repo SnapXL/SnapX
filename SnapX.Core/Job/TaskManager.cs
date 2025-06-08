@@ -15,7 +15,8 @@ namespace SnapX.Core.Job;
 public static class TaskManager
 {
     public static List<WorkerTask> Tasks { get; } = [];
-    public static RecentTaskManager RecentManager { get; } = new RecentTaskManager();
+
+    public static HistoryManager History { get; set; }
     public static bool IsBusy => Tasks.Count > 0 && Tasks.Any(task => task.IsBusy);
 
     private static int lastIconStatus = -1;
@@ -49,45 +50,35 @@ public static class TaskManager
     }
     public static void Remove(WorkerTask task)
     {
-        if (task != null)
-        {
-            task.Stop();
-            Tasks.Remove(task);
-            task.Dispose();
-        }
+        if (task == null) return;
+        task.Stop();
+        Tasks.Remove(task);
+        task.Dispose();
     }
 
     private static void StartTasks()
     {
-        int workingTasksCount = Tasks.Count(x => x.IsWorking);
-        WorkerTask[] inQueueTasks = Tasks.Where(x => x.Status == TaskStatus.InQueue).ToArray();
+        InitHistoryManager();
+        var workingTasksCount = Tasks.Count(x => x.IsWorking);
+        var inQueueTasks = Tasks.Where(x => x.Status == TaskStatus.InQueue).ToArray();
 
-        if (inQueueTasks.Length > 0)
+        if (inQueueTasks.Length <= 0) return;
+        int len;
+
+        len = SnapX.Settings.UploadLimit == 0 ? inQueueTasks.Length : (SnapX.Settings.UploadLimit - workingTasksCount).Clamp(0, inQueueTasks.Length);
+
+        for (var i = 0; i < len; i++)
         {
-            int len;
-
-            if (SnapX.Settings.UploadLimit == 0)
-            {
-                len = inQueueTasks.Length;
-            }
-            else
-            {
-                len = (SnapX.Settings.UploadLimit - workingTasksCount).Clamp(0, inQueueTasks.Length);
-            }
-
-            for (int i = 0; i < len; i++)
-            {
-                inQueueTasks[i].Start();
-            }
+            inQueueTasks[i].Start();
         }
     }
 
     public static void StopAllTasks()
     {
         DebugHelper.WriteLine("StopAllTasks called.");
-        foreach (WorkerTask task in Tasks)
+        foreach (var task in Tasks.OfType<WorkerTask>())
         {
-            if (task != null) task.Stop();
+            task.Stop();
         }
     }
 
@@ -199,7 +190,6 @@ public static class TaskManager
                                 AppendHistoryItemAsync(historyItem);
                             }
 
-                            RecentManager.Add(task);
 
                             if (info.Job != TaskJob.ShareURL)
                             {
@@ -245,14 +235,20 @@ public static class TaskManager
         DebugHelper.Logger.Debug("Appending history item {historyItem} to task list", historyItem.FilePath);
         Task.Run(() =>
         {
-            HistoryManager history = new HistoryManagerJSON(SnapX.HistoryFilePath)
-            {
-                BackupFolder = SettingManager.SnapshotFolder,
-                CreateBackup = false,
-                CreateWeeklyBackup = true
-            };
-
-            history.AppendHistoryItem(historyItem);
+            History.AppendHistoryItem(historyItem);
         });
     }
+
+    public static void InitHistoryManager()
+    {
+        if (History == null)
+            History = new HistoryManagerSQLite(SnapX.DbConnection)
+            {
+                BackupFolder = SettingManager.SnapshotFolder,
+                CreateBackup = true,
+                CreateWeeklyBackup = true
+            };
+    }
+
+    public static IEnumerable<HistoryItem> GetRecentHistoryItems(int MaxCount) => History?.GetHistoryItems().Take(MaxCount) ?? [];
 }

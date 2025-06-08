@@ -16,7 +16,8 @@ public static class Methods
     private static bool IsWindows => OperatingSystem.IsWindows();
     private static bool IsFreeBSD => OperatingSystem.IsFreeBSD();
 
-    private static NativeAPI NativeAPI
+
+    internal static NativeAPI NativeAPI
     {
         get
         {
@@ -44,6 +45,8 @@ public static class Methods
     }
     public static List<WindowInfo> GetWindowList() => NativeAPI.GetWindowList();
 
+    public static Image GetJumboFileIcon(string filePath, bool jumboSize = true) =>
+        NativeAPI.GetJumboFileIcon(filePath, jumboSize);
     public static void ShowWindow(WindowInfo window) => NativeAPI.ShowWindow(window);
     public static void RestoreWindow(WindowInfo window) => ShowWindow(window);
     public static void CopyText(string text) => NativeAPI.CopyText(text);

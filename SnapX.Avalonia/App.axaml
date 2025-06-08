@@ -1,16 +1,28 @@
-<Application xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
-             xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
-             x:Class="SnapX.Avalonia.App">
+<Application
+    x:Class="SnapX.Avalonia.App"
+    x:DataType="avalonia:App"
+    Name="{x:Static core:SnapX.AppName}"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:avalonia="clr-namespace:SnapX.Avalonia"
+    xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
+    xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="clr-namespace:SnapX.Core;assembly=SnapX.Core">
     <Application.Styles>
-        <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" PreferUserAccentColor="True" PreferSystemTheme="True" />
+        <styling:FluentAvaloniaTheme
+            PreferSystemTheme="True"
+            PreferUserAccentColor="True"
+            UseSystemFontOnWindows="True" />
         <Style Selector="TextBlock.h1">
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontSize" Value="24" />
             <Setter Property="Margin" Value="5" />
         </Style>
     </Application.Styles>
+    <Application.DataTemplates>
+        <avalonia:ViewLocator />
+    </Application.DataTemplates>
+
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -20,7 +32,7 @@
     </Application.Resources>
     <NativeMenu.Menu>
         <NativeMenu>
-            <NativeMenuItem Header="{x:Static utils:Lang.AboutSnapX}" Click="NativeMenuAboutSnapXClick" />
+            <NativeMenuItem Click="NativeMenuAboutSnapXClick" Header="{x:Static utils:Lang.AboutSnapX}" />
         </NativeMenu>
     </NativeMenu.Menu>
 </Application>

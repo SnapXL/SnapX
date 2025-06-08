@@ -21,7 +21,7 @@ public static class URLHelpers
     public const string URLPathCharacters = URLCharacters + "/"; // 47
     public const string ValidURLCharacters = URLPathCharacters + ":?#[]@!$&'()*+,;= ";
 
-    private static readonly string[] URLPrefixes = ["http://", "https://", "ftp://", "ftps://", "file://", "//"];
+    private static readonly string[] URLPrefixes = ["http://", "https://", "ftp://", "ftps://", "file://", "//", "\\\\"];
     private static readonly char[] BidiControlCharacters = ['\u200E', '\u200F', '\u202A', '\u202B', '\u202C', '\u202D', '\u202E'];
 
     public static void OpenURL(string url)

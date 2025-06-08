@@ -46,6 +46,11 @@ public class NameParser
 
     public string Parse(string pattern)
     {
+        return Parse(pattern, DateTime.Now);
+    }
+
+    public string Parse(string pattern, DateTime dt)
+    {
         if (string.IsNullOrEmpty(pattern))
         {
             return "";
@@ -87,7 +92,6 @@ public class NameParser
         sb.Replace(CodeMenuEntryFilename.width.ToPrefixString(), width);
         sb.Replace(CodeMenuEntryFilename.height.ToPrefixString(), height);
 
-        var dt = DateTime.Now;
 
         if (CustomTimeZone != null)
         {

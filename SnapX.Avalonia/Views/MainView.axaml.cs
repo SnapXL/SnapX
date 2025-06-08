@@ -1,123 +1,86 @@
-using System.Runtime.InteropServices;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Media;
-using Avalonia.Media.Immutable;
-using Avalonia.Platform.Storage;
-using Avalonia.Styling;
-using FluentAvalonia.Styling;
-using FluentAvalonia.UI.Media;
-using FluentAvalonia.UI.Windowing;
+﻿using Avalonia.Controls;
+using CommunityToolkit.Mvvm.Input;
+using FluentAvalonia.UI.Controls;
+using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
+using SnapX.Core.Job;
 using SnapX.Core.Upload;
+using Image = SixLabors.ImageSharp.Image;
 
-namespace SnapX.Avalonia;
+namespace SnapX.Avalonia.Views;
 
-public partial class MainView : AppWindow
+public partial class MainView : UserControl
 {
-    public static string MainWindowName => Core.SnapX.Title + " " + Core.SnapX.VersionText;
+    private readonly FAMenuFlyout _flyout;
+    private readonly SplitButton _splitButton;
+    private readonly Label _captureRegionLabel;
+    private string? selectedAction;
+
     public MainView()
     {
         InitializeComponent();
-        ListenForEvents();
-    }
-
-    public void ListenForEvents()
-    {
-        Core.SnapX.EventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
-    }
-    private async void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
-    {
-        var topLevel = TopLevel.GetTopLevel(this);
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        _splitButton = this.FindControl<SplitButton>("CaptureSplitButton");
+        _captureRegionLabel = this.FindControl<Label>("RegionCaptureLabel");
+        _splitButton.Command = ExecuteSelectedCaptureActionCommand;
+        selectedAction = _captureRegionLabel?.Content as string;
+        _flyout = _splitButton.Flyout as FAMenuFlyout;
+        if (_flyout != null)
         {
-            Title = @event.Title,
-            AllowMultiple = @event.Multiselect,
-            SuggestedFileName = @event.FileName,
-            SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(@event.Directory)
-        });
-
-        if (files.Count > 0)
-        {
-            string[] filePaths = files.Select(f => f.Path.ToString()).ToArray();
-            UploadManager.UploadFile(filePaths, @event.TaskSettings);
-        }
-    }
-
-    // Event handler for the button click
-    private void OnDemoTestButtonClick(object sender, RoutedEventArgs e)
-    {
-        DebugHelper.WriteLine("Upload Demo Image triggered");
-
-        try
-        {
-            var imageUrl = ImageURLTextBox.Text ?? ImageURLTextBox.Watermark;
-            UploadManager.DownloadAndUploadFile(imageUrl!);
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.Logger.Error(ex.ToString());
-        }
-    }
-
-    private void ApplicationActualThemeVariantChanged(object? sender, EventArgs e)
-    {
-        if (!OperatingSystem.IsWindows()) return;
-        if (IsWindows11 && ActualThemeVariant != FluentAvaloniaTheme.HighContrastTheme)
-        {
-            TryEnableMicaEffect();
-        }
-        else if (ActualThemeVariant != FluentAvaloniaTheme.HighContrastTheme)
-        {
-            SetValue(BackgroundProperty, AvaloniaProperty.UnsetValue);
-        }
-    }
-
-    protected override void OnOpened(EventArgs e)
-    {
-        base.OnOpened(e);
-
-        Application.Current!.ActualThemeVariantChanged += ApplicationActualThemeVariantChanged;
-        var thm = ActualThemeVariant;
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            if (IsWindows11 && thm != FluentAvaloniaTheme.HighContrastTheme)
+            foreach (var item in _flyout.Items)
             {
-                TransparencyBackgroundFallback = Brushes.Transparent;
-                TransparencyLevelHint = new[]
-                    { WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.None };
-
-                TryEnableMicaEffect();
+                if (item is ToggleMenuFlyoutItem menuItem)
+                {
+                    menuItem.Command = SelectCaptureActionCommand;
+                    menuItem.CommandParameter = menuItem.Text;
+                }
             }
         }
     }
 
-    private void TryEnableMicaEffect()
+    [RelayCommand]
+    private void ExecuteSelectedCaptureAction()
     {
-        if (ActualThemeVariant == ThemeVariant.Dark)
+        var action = selectedAction ?? _captureRegionLabel.Content as string;
+        DebugHelper.WriteLine($"Executing: {action}");
+        Image? img = null;
+        switch (action)
         {
-            var color = this.TryFindResource("SolidBackgroundFillColorBase",
-                ThemeVariant.Dark, out var value)
-                ? (Color2)(Color)value!
-                : new Color2(32, 32, 32);
-
-            color = color.LightenPercent(-0.8f);
-
-            Background = new ImmutableSolidColorBrush(color, 0.78);
+            case "Region":
+                new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
+                break;
+            case "Region (Light)":
+                new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
+                break;
+            case "Region (Transparent)":
+                new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
+                break;
+            case "Window":
+                img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow();
+                break;
+            case "Monitor":
+                img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor().ConfigureAwait(false).GetAwaiter().GetResult();
+                break;
         }
-        else if (ActualThemeVariant == ThemeVariant.Light)
+
+        if (img != null) UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
+    }
+    [RelayCommand]
+    private void SelectCaptureAction(string action)
+    {
+        DebugHelper.WriteLine($"Selecting: {action}");
+        selectedAction = action;
+        _captureRegionLabel.Content = action;
+        if (_flyout != null)
         {
-            // Similar effect here
-            var color = this.TryFindResource("SolidBackgroundFillColorBase",
-                ThemeVariant.Light, out var value)
-                ? (Color2)(Color)value!
-                : new Color2(243, 243, 243);
-
-            color = color.LightenPercent(0.5f);
-
-            Background = new ImmutableSolidColorBrush(color, 0.9);
+            foreach (var item in _flyout.Items)
+            {
+                if (item is ToggleMenuFlyoutItem menuItem)
+                {
+                    menuItem.IsChecked = menuItem.Text == action;
+                }
+            }
         }
+
+        ExecuteSelectedCaptureActionCommand.Execute(this);
     }
 }

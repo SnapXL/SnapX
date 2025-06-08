@@ -1,0 +1,13 @@
+<windowing:AppWindow xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="SnapX.Avalonia.Views.Settings.SettingsWindow"
+        MaxWidth="1000"
+        MaxHeight="450"
+        Title="Settings for SnapX">
+  <SelectableTextBlock FontSize="38" FontWeight="Black" FontFamily="Inter" HorizontalAlignment="Center" VerticalAlignment="Center">Yeah, that's a work in progress... Check back later!</SelectableTextBlock>
+</windowing:AppWindow>
+

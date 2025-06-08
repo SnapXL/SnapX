@@ -1,6 +1,9 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Dapper;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using SnapX.Core.CLI;
 using SnapX.Core.Hotkey;
@@ -8,15 +11,19 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
+#if WINDOWS
+using SnapX.Core.Utils.Native;
+#endif
 using SnapX.Core.Watch;
+using SQLitePCL;
 using Xdg.Directories;
 
-namespace SnapX.Core;
 
+namespace SnapX.Core;
 public class SnapX
 {
     public const string AppName = "SnapX";
-    public static string Qualifier = "";
+    public static string Qualifier { get; set; } = "";
     public const BuildType Build =
 
 #if DEBUG
@@ -25,6 +32,8 @@ public class SnapX
             BuildType.RPM;
 #elif DEB
             BuildType.DEB;
+#elif ARCH
+            BuildType.Arch;
 #elif APPIMAGE
             BuildType.AppImage;
 #elif FLATPAK
@@ -103,7 +112,8 @@ public class SnapX
     public static bool IgnoreHotkeyWarning { get; private set; }
     public static bool PuushMode { get; private set; }
 
-    internal static RootConfiguration Settings { get; set; } = new();
+    public static RootConfiguration Settings { get; set; } = new();
+    public static List<string> Flags { get; set; } = new();
 
     internal static IConfiguration Configuration { get; set; }
     internal static TaskSettings DefaultTaskSettings { get; set; } = TaskSettings.GetDefaultTaskSettings();
@@ -149,6 +159,7 @@ public class SnapX
     private static string CustomPersonalPath { get; set; }
 
     private static string CustomConfigPath { get; set; }
+    public static SqliteConnection DbConnection { get; set; }
     public static string ShortenPath(string path) =>
         OperatingSystem.IsWindows() ? path : path.Replace(Environment.GetEnvironmentVariable("HOME") ?? "", "~");
 
@@ -156,7 +167,6 @@ public class SnapX
         !string.IsNullOrEmpty(CustomPersonalPath)
             ? FileHelpers.ExpandFolderVariables(CustomPersonalPath)
             : DefaultPersonalFolder;
-
     public static string ConfigFolder => string.IsNullOrEmpty(CustomConfigPath)
         ? Path.Combine(
             OperatingSystem.IsWindows()
@@ -164,30 +174,9 @@ public class SnapX
                 : BaseDirectory.ConfigHome,
             AppName)
         : CustomConfigPath;
-    public const string HistoryFileName = "History.json";
+    public static string CacheFolder => Path.Combine(BaseDirectory.CacheHome, AppName);
 
-    public static string HistoryFilePath
-    {
-        get
-        {
-            if (Sandbox) return null;
-
-            return Path.Combine(PersonalFolder, HistoryFileName);
-        }
-    }
-
-    public const string HistoryFileNameOld = "History.xml";
-
-    public static string HistoryFilePathOld
-    {
-        get
-        {
-            if (Sandbox) return null;
-
-            return Path.Combine(PersonalFolder, HistoryFileNameOld);
-        }
-    }
-
+    public static string LockDirectory => Path.Combine(BaseDirectory.RuntimeDir, AppName);
     public const string LogsFolderName = "Logs";
     // On Linux, strictly adhere to XDG BaseDirectory spec.
     // On macOS, most of these XDG directories resolve to $HOME/Library/Application Support	anyways so it doesn't really matter.
@@ -240,9 +229,23 @@ public class SnapX
         }
     }
 
+    public static readonly string DBPath = Path.Combine(PersonalFolder, "SnapX.db");
+
     public static string ImageEffectsFolder => Path.Combine(PersonalFolder, "ImageEffects");
 
     private static string PersonalPathDetectionMethod;
+
+    public const string HistoryFileNameOld = "History.json";
+
+    public static string HistoryFilePathOld
+    {
+        get
+        {
+            if (Sandbox) return null;
+
+            return Path.Combine(PersonalFolder, HistoryFileNameOld);
+        }
+    }
 
     #endregion Paths
 
@@ -262,6 +265,7 @@ public class SnapX
     {
         CloseSequence();
     }
+    public Assembly[] GetAssemblies() => AppDomain.CurrentDomain.GetAssemblies();
     public void start(string[] args)
     {
         HandleExceptions();
@@ -270,7 +274,6 @@ public class SnapX
         // TODO: Implement CLI in a better way than what it is now.
         CLIManager = new SnapXCLIManager(args);
         CLIManager.ParseCommands();
-        CLIManager.UseCommandLineArgs(CLIManager.Commands).GetAwaiter().GetResult();
 
         if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute a task as Admin
 
@@ -282,7 +285,7 @@ public class SnapX
         MultiInstance = CLIManager.IsCommandExist("multi", "m");
         if (CLIManager.IsCommandExist("sound", "s"))
         {
-            DebugHelper.WriteLine("Running Sound Command");
+            DebugHelper.WriteLine("Playing Notification Sound");
             PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
         }
         Run();
@@ -295,6 +298,10 @@ public class SnapX
     // Supports the failed standard https://consoledonottrack.com/
     public static bool TelemetryEnabled() => !FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry &&
                                     Environment.GetEnvironmentVariable("DO_NOT_TRACK") == null;
+    public static bool CanUpload() =>
+        !FeatureFlags.DisableUploads && !Settings.DisableUpload;
+    public static bool CanAutoUpdate() =>
+        !FeatureFlags.DisableAutoUpdates && Settings.AutoCheckUpdate;
 
     // Coding nerds, please, forgive me for this mortal sin.
     // The code here is instance dependent thus cannot be called from static stuff yada yada yada.
@@ -357,6 +364,7 @@ public class SnapX
                 break;
         }
     }
+    [DapperAot]
     private static void Run()
     {
         DebugHelper.WriteLine("SnapX starting.");
@@ -364,6 +372,7 @@ public class SnapX
         DebugHelper.WriteLine("Build: " + Build);
         DebugHelper.WriteLine("Data folder: " + ShortenPath(PersonalFolder));
         DebugHelper.WriteLine("Config folder: " + ShortenPath(ConfigFolder));
+        DebugHelper.WriteLine("Cache folder: " + ShortenPath(CacheFolder));
 
         if (!string.IsNullOrWhiteSpace(PersonalPathDetectionMethod))
         {
@@ -381,6 +390,7 @@ public class SnapX
         DebugHelper.WriteLine($"Platform: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
         if (OperatingSystem.IsLinux() && OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
         DebugHelper.WriteLine(".NET: " + RuntimeInformation.FrameworkDescription);
+        Settings.ApplicationVersion = Helpers.GetApplicationVersion();
 
         _ = Task.Run(() =>
         {
@@ -403,8 +413,52 @@ public class SnapX
         RegisterIntegrations();
         CheckPuushMode();
         DebugWriteFlags();
-        // SettingManager.LoadInitialSettings();
-        SettingManager.LoadAllSettings();
+        if (OperatingSystem.IsFreeBSD() || Environment.GetEnvironmentVariable("SNAPX_USE_SYSTEM_SQLITE3") != null)
+        {
+            // There are no provided bundles for FreeBSD, must use system SQLite for now.
+            // If it fails to load libsqlite3.so, ensure that you have the sqlite package installed. If that doesn't work, try
+            // LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib snapx-ui
+            SQLitePCL.raw.SetProvider(new SQLite3Provider_sqlite3());
+        }
+        SQLitePCL.Batteries_V2.Init();
+
+        var connectionString = new SqliteConnectionStringBuilder { DataSource = DBPath, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true, }.ToString();
+        DbConnection = new SqliteConnection(connectionString);
+        RunWithTimeout(() => DbConnection.OpenAsync(), $"Opening the database connection at {DBPath}");
+        RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA journal_mode=WAL;"), "Setting journal mode");
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                if (DbConnection != null)
+                    RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA optimize=0x10002;"), "Optimizing database");
+            }
+            catch (ObjectDisposedException) { } // shush
+            catch (Exception ex)
+            {
+                DebugHelper.WriteException(ex);
+            }
+        });
+        // Handle SnapX running for a long time. To be good SQLite user, you must tidy up database once in a while.
+        var timer = new Timer(async void (_) =>
+        {
+            try
+            {
+                await DbConnection.ExecuteAsync("PRAGMA optimize;");
+            }
+            catch (Exception ex)
+            {
+                DebugHelper.WriteException(ex);
+            }
+        }, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+        DebugHelper.WriteLine($"DB: SQLite {DbConnection.ServerVersion}");
+        DebugHelper.WriteLine($"DB Path: {DbConnection.ConnectionString}");
+
+        DbConnection.StateChange += (_, Args) =>
+        {
+            DebugHelper.WriteLine($"DB: {Args.CurrentState}");
+        };
+        SettingManager.LoadSettings();
         if (TelemetryEnabled())
             SentrySdk.Init(options =>
             {
@@ -414,6 +468,13 @@ public class SnapX
 
                 // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
                 options.Debug = Environment.GetEnvironmentVariable("SENTRY_DEBUG") == "1";
+
+#if DEBUG
+                options.Environment = "development";
+#else
+                options.Environment = "production";
+#endif
+
                 // VLCException includes multiple paths with username
                 // For full transparency, I discovered this issue on my computer.
                 // No other users are effected to my knowledge.
@@ -451,8 +512,22 @@ public class SnapX
         // CleanupManager.CleanupAsync();
 
     }
+    static void RunWithTimeout(Func<Task> taskFactory, string description = "SQLite Code", int timeoutSeconds = 10)
+    {
+        var task = Task.Run(taskFactory); // force SQLite to run on a background thread, HAH!
 
-    public CLIManager GetCLIManager() => CLIManager;
+        var completedInTime = Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(timeoutSeconds)))
+            .GetAwaiter()
+            .GetResult() == task;
+
+        if (!completedInTime)
+            throw new TimeoutException($"{description} timed out after {timeoutSeconds} seconds.");
+
+        task.GetAwaiter().GetResult(); // propagate exceptions
+    }
+    public SnapXCLIManager GetCLIManager() => CLIManager;
+    public RootConfiguration GetConfiguration() => Settings;
+
     // TODO: Implement Dependency Injection to pass around instance of SnapX to classes
     // TODO: Add back all notification sounds calls
     public async virtual Task PlaySound(Stream stream) => throw new NotImplementedException("PlaySound is not implemented.");
@@ -462,10 +537,16 @@ public class SnapX
         if (closeSequenceStarted) return;
         closeSequenceStarted = true;
 
-        DebugHelper.WriteLine("SnapX closing.");
+        DebugHelper.WriteLine("SnapX closing!");
 
         WatchFolderManager?.Dispose();
         SettingManager.SaveAllSettings();
+        SettingManager.Dispose();
+        if (DbConnection != null)
+        {
+            DbConnection.CloseAsync().GetAwaiter().GetResult();
+            DbConnection.Dispose();
+        }
         if (TelemetryEnabled()) SentrySdk.Close();
 
         DebugHelper.WriteLine("SnapX closed.");
@@ -476,7 +557,7 @@ public class SnapX
     private static void UpdatePersonalPath()
     {
         if (Sandbox) return;
-        Sandbox = CLIManager.IsCommandExist("sandbox");
+        Sandbox = CLIManager.IsCommandExist("sandbox") || Environment.GetEnvironmentVariable("SNAPX_SANDBOX") != null;
 
         if (CLIManager.IsCommandExist("portable", "p"))
         {
@@ -544,15 +625,38 @@ public class SnapX
     {
         if (Portable || Sandbox) return;
 #if WINDOWS
-        // TODO: Reimplement FirstTimeForm to give users chance to consent
-        if (!WindowsAPI.CheckCustomUploaderExtension()) WindowsAPI.CreateCustomUploaderExtension(true);
-        if (!WindowsAPI.CheckImageEffectExtension()) WindowsAPI.CreateImageEffectExtension(true);
-        if (!WindowsAPI.CheckShellContextMenuButton()) WindowsAPI.CreateShellContextMenuButton(true);
-        if (!WindowsAPI.CheckSendToMenuButton()) WindowsAPI.CreateSendToMenuButton(true);
+        if (OperatingSystem.IsWindows())
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    // TODO: Reimplement FirstTimeForm to give users chance to consent
+                    if (!WindowsAPI.CheckCustomUploaderExtension())
+                        WindowsAPI.CreateCustomUploaderExtension(true);
 
-        if (!WindowsAPI.CheckChromeExtensionSupport()) WindowsAPI.CreateChromeExtensionSupport(true);
-        if (!WindowsAPI.CheckFirefoxAddonSupport())
-            WindowsAPI.CreateFirefoxAddonSupport(true);
+                    if (!WindowsAPI.CheckImageEffectExtension())
+                        WindowsAPI.CreateImageEffectExtension(true);
+
+                    if (!WindowsAPI.CheckShellContextMenuButton())
+                        WindowsAPI.CreateShellContextMenuButton(true);
+
+                    if (!WindowsAPI.CheckSendToMenuButton())
+                        WindowsAPI.CreateSendToMenuButton(true);
+
+                    if (!WindowsAPI.CheckChromeExtensionSupport())
+                        WindowsAPI.CreateChromeExtensionSupport(true);
+
+                    if (!WindowsAPI.CheckFirefoxAddonSupport())
+                        WindowsAPI.CreateFirefoxAddonSupport(true);
+                }
+                catch (Exception ex)
+                {
+                    // Consider logging the exception or notifying the user
+                    DebugHelper.WriteLine($"Windows API setup failed: {ex}");
+                }
+            });
+        }
 #endif
     }
 
@@ -676,20 +780,20 @@ public class SnapX
 
     private static void DebugWriteFlags()
     {
-        var flags = new List<string>();
 
-        if (Settings.DevMode) flags.Add(nameof(Settings.DevMode));
-        if (MultiInstance) flags.Add(nameof(MultiInstance));
-        if (Portable) flags.Add(nameof(Portable));
-        if (SilentRun) flags.Add(nameof(SilentRun));
-        if (Sandbox) flags.Add(nameof(Sandbox));
-        if (IgnoreHotkeyWarning) flags.Add(nameof(IgnoreHotkeyWarning));
-        if (FeatureFlags.DisableTelemetry) flags.Add(nameof(FeatureFlags.DisableTelemetry));
-        if (FeatureFlags.DisableAutoUpdates) flags.Add(nameof(FeatureFlags.DisableAutoUpdates));
-        if (FeatureFlags.DisableUploads) flags.Add(nameof(FeatureFlags.DisableUploads));
-        if (PuushMode) flags.Add(nameof(PuushMode));
+        if (Settings.DevMode) Flags.Add(nameof(Settings.DevMode));
+        if (MultiInstance) Flags.Add(nameof(MultiInstance));
+        if (Portable) Flags.Add(nameof(Portable));
+        if (SilentRun) Flags.Add(nameof(SilentRun));
+        if (Sandbox) Flags.Add(nameof(Sandbox));
+        if (IgnoreHotkeyWarning) Flags.Add(nameof(IgnoreHotkeyWarning));
+        if (FeatureFlags.DisableTelemetry) Flags.Add(nameof(FeatureFlags.DisableTelemetry));
+        if (FeatureFlags.DisableAutoUpdates) Flags.Add(nameof(FeatureFlags.DisableAutoUpdates));
+        if (FeatureFlags.DisableUploads) Flags.Add(nameof(FeatureFlags.DisableUploads));
+        if (FeatureFlags.DisableOCR) Flags.Add(nameof(FeatureFlags.DisableOCR));
+        if (PuushMode) Flags.Add(nameof(PuushMode));
 
-        var output = string.Join(", ", flags);
+        var output = string.Join(", ", Flags);
         DebugHelper.WriteLine("Flags: " + output);
     }
 }

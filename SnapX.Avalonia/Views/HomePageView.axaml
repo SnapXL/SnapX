@@ -1,0 +1,241 @@
+﻿<UserControl
+    Loaded="Control_OnLoaded"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.HomePageView"
+    x:DataType="viewModels1:HomePageViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:core="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
+    xmlns:snapx="clr-namespace:SnapX.Core;assembly=SnapX.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fluent="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core1="clr-namespace:SnapX.Core;assembly=SnapX.Core"
+    xmlns:extensions="clr-namespace:SnapX.Avalonia.Extensions"
+    xmlns:fluent1="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
+    Unloaded="Control_OnUnloaded"
+    xmlns:models="clr-namespace:SnapX.Avalonia.Models"
+    xmlns:controls1="clr-namespace:SnapX.Avalonia.Views.Controls">
+    <Design.DataContext>
+        <viewModels1:HomePageViewModel />
+    </Design.DataContext>
+    <ScrollViewer>
+      <controls:ItemsRepeater ItemsSource="{Binding recentTasks}">
+            <controls:ItemsRepeater.Layout>
+              <controls:UniformGridLayout MinColumnSpacing="2" MinRowSpacing="2" ItemsJustification="Start" Orientation="Horizontal" />
+            </controls:ItemsRepeater.Layout>
+            <controls:ItemsRepeater.ItemTemplate>
+                <DataTemplate DataType="{x:Type models:ListTaskTemplate}">
+
+                  <ToggleButton
+                        Height="200"
+                        Margin="5"
+                        UseLayoutRounding="True"
+                        Width="205">
+                        <ToolTip.Tip>
+                            <WrapPanel>
+                              <TextBlock Margin="5" Text="{Binding task.FilePath, TargetNullValue='{x:Static core:Lang.UI_NoFilePath}'}" />
+
+                              <TextBlock Margin="0,0,0,5"
+                                         Text="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, StringFormat='File size: {0:N0} bytes'}"
+                                         IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FileSizeConverter}}" />
+                                <Image
+                                    Height="300"
+                                    Stretch="Uniform"
+                                    Width="800"
+                                    asyncImageLoader:ImageLoader.Source="{Binding task.BestImageSource}" />
+                            </WrapPanel>
+                        </ToolTip.Tip>
+                        <ToggleButton.ContextFlyout>
+                            <controls:FAMenuFlyout Opening="PopupFlyoutBase_OnOpening" Placement="Bottom">
+                                <controls:MenuFlyoutItem
+                                    HotKey="Enter"
+                                    IconSource="Repair"
+                                    IsVisible="False"
+                                    Text="{x:Static core:Lang.UI_ShowErrors}" />
+                                <controls:MenuFlyoutSeparator IsVisible="False" />
+                                <controls:MenuFlyoutSubItem
+                                    Cursor="Hand"
+                                    IconSource="Open"
+                                    Text="{x:Static core:Lang.UI_Open}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_Open_ToolTip}">
+                                    <controls:MenuFlyoutItem
+                                        HotKey="Enter"
+                                        IconSource="Link"
+                                        Command="{Binding OpenURLCommand, DataType=viewModels1:HomePageViewModel, Source={RelativeSource AncestorType={x:Type viewModels1:HomePageViewModel}}}"
+                                        CommandParameter="{Binding task.URL}"
+                                        Text="{x:Static core:Lang.UI_URL}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_URL_ToolTip}" IsEnabled="{Binding task.URL, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem
+                                        IconSource="Link"
+                                        Text="{x:Static core:Lang.UI_ShortenedURL}"
+                                        Command="{Binding OpenURLCommand, DataType=viewModels1:HomePageViewModel}"
+                                        CommandParameter="{Binding task.ShortenedURL}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_ShortenedURL_ToolTip}" IsEnabled="{Binding task.ShortenedURL, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem
+                                        IconSource="Link"
+                                        Text="{x:Static core:Lang.UI_ThumbnailURL}"
+                                        Command="{Binding OpenURLCommand, DataType=viewModels1:HomePageViewModel}"
+                                        CommandParameter="{Binding task.ThumbnailURL}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_ThumbnailURL_ToolTip}" IsEnabled="{Binding task.ThumbnailURL, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem
+                                        IconSource="Link"
+                                        Text="{x:Static core:Lang.UI_DeletionURL}"
+                                        Command="{Binding OpenURLCommand, DataType=viewModels1:HomePageViewModel}"
+                                        CommandParameter="{Binding task.DeletionURL}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_DeletionURL_ToolTip}" IsEnabled="{Binding task.DeletionURL, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutSeparator />
+                                    <controls:MenuFlyoutItem
+                                        HotKey="CTRL+Enter"
+                                        IconSource="OpenFile"
+                                        Text="{x:Static core:Lang.UI_File}"
+                                        Command="{Binding OpenURLCommand, DataType=viewModels1:HomePageViewModel, Source={RelativeSource AncestorType={x:Type viewModels1:HomePageViewModel}}}"
+                                        CommandParameter="{Binding task.FilePath}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_File_ToolTip}" IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}" />
+
+                                    <controls:MenuFlyoutItem
+                                        HotKey="Shift+Enter"
+                                        IconSource="OpenFolder"
+                                        Text="{x:Static core:Lang.UI_Folder}"
+                                        ToolTip.Tip="{x:Static core:Lang.UI_Folder_ToolTip}" IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem Text="{x:Static core:Lang.UI_ThumbnailFile}" />
+
+                                </controls:MenuFlyoutSubItem>
+                                <controls:MenuFlyoutSubItem IconSource="Copy" Text="{x:Static core:Lang.UI_Copy}">
+                                    <controls:MenuFlyoutItem
+                                        HotKey="CTRL+C"
+                                        IconSource="Link"
+                                        Text="{x:Static core:Lang.UI_URL}" IsEnabled="{Binding task.URL, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem IconSource="Link" Text="{x:Static core:Lang.UI_ShortenedURL}" IsEnabled="{Binding task.ShortenedURL, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem IconSource="Link" Text="{x:Static core:Lang.UI_ThumbnailURL}" IsEnabled="{Binding task.ThumbnailURL, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem IconSource="Link" Text="{x:Static core:Lang.UI_DeletionURL}" IsEnabled="{Binding task.DeletionURL, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutSeparator />
+                                    <controls:MenuFlyoutItem
+                                        HotKey="Shift+C"
+                                        IconSource="Copy"
+                                        Text="{x:Static core:Lang.UI_File}" />
+                                    <controls:MenuFlyoutItem
+                                        HotKey="Alt+C"
+                                        IconSource="ImageCopy"
+                                        Text="{x:Static core:Lang.UI_Image}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ImageDimensions}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_Text}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_Text}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ThumbnailFile}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_ThumbnailImage}" />
+
+                                    <controls:MenuFlyoutSeparator />
+
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_FilePath}" IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_FileName}" IsEnabled="{Binding task.FileName, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_FileNameWithExtension}" IsEnabled="{Binding task.FileName, Converter={StaticResource StringValid}}" />
+                                    <controls:MenuFlyoutItem IconSource="Copy" Text="{x:Static core:Lang.UI_Folder}" IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}" />
+
+                                </controls:MenuFlyoutSubItem>
+                                <controls:MenuFlyoutItem
+                                    HotKey="CTRL+U"
+                                    IconSource="Upload"
+                                    IsVisible="{extensions:CanUpload}"
+                                    Text="{x:Static core:Lang.UI_Upload}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_Upload_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                  HotKey="CTRL+D"
+                                  IconSource="Download"
+                                  IsVisible="{Binding task.URL, Converter={StaticResource StringValid}}"
+                                  Text="{x:Static core:Lang.UI_Download}"
+                                  ToolTip.Tip="{x:Static core:Lang.UI_Download_ToolTip}" />
+                                <controls:MenuFlyoutSeparator />
+                                <controls:MenuFlyoutItem
+                                  IconSource="ImageAltText"
+                                  IsVisible="{Binding Source={x:Static core1:FeatureFlags.DisableOCR}, Converter={StaticResource NegateBool}}"
+                                  Text="{x:Static core:Lang.UI_OCRImage}"
+                                  ToolTip.Tip="{x:Static core:Lang.UI_OCRImage_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                    HotKey="CTRL+E"
+                                    IconSource="ImageEdit"
+                                    Text="{x:Static core:Lang.UI_EditImage}"
+                                    IsEnabled="False"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_EditImage_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                    IconSource="Emoji"
+                                    Text="{x:Static core:Lang.UI_BeautifyImage}"
+                                    IsEnabled="False"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_BeautifyImage_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                    IconSource="Preview"
+                                    Text="{x:Static core:Lang.UI_AddImageEffects}"
+                                    IsEnabled="False"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_AddImageEffects_ToolTip}" />
+                                <controls:MenuFlyoutSubItem
+                                  Text="{x:Static core:Lang.UI_ShortenURL}"
+                                  IsEnabled="False"
+                                  IsVisible="{Binding task.URL, Converter={StaticResource StringValid}}"
+                                  ToolTip.Tip="{x:Static core:Lang.UI_ShortenURL_ToolTip}">
+                                  <controls:MenuFlyoutSubItem.IconSource>
+                                    <fluent1:FluentIconSource Icon="LinkEdit" IconVariant="Regular" IconSize="Size32" />
+                                  </controls:MenuFlyoutSubItem.IconSource>
+                                </controls:MenuFlyoutSubItem>
+                                <controls:MenuFlyoutSubItem
+                                  IconSource="Share"
+                                  Text="{x:Static core:Lang.UI_ShareURL}"
+                                  IsVisible="{Binding task.URL, Converter={StaticResource StringValid}}"
+                                  IsEnabled="False"
+                                  ToolTip.Tip="{x:Static core:Lang.UI_ShareURL_ToolTip}" />
+
+                                <controls:MenuFlyoutSeparator />
+                                <controls:MenuFlyoutItem
+                                  Command="{Binding DeleteHistoryItemLocallyCommand, DataType=viewModels1:HomePageViewModel}"
+                                  CommandParameter="{Binding}"
+                                  Click="RemoveHistoryItem_OnClick"
+                                  HotKey="Delete"
+                                  IconSource="Remove"
+                                  Text="{x:Static core:Lang.UI_RemoveTask}"
+                                  ToolTip.Tip="{x:Static core:Lang.UI_RemoveTask_ToolTip}" />
+                                <controls:MenuFlyoutItem
+                                    Command="{Binding DeleteHistoryItemLocallyCommand, DataType=viewModels1:HomePageViewModel}"
+                                    CommandParameter="{Binding}"
+                                    Click="DeleteLocallyButton_OnClick"
+                                    HotKey="Shift+Delete"
+                                    IconSource="Delete"
+                                    IsEnabled="{Binding task.FilePath, Converter={StaticResource FilePathValidConverter}}"
+                                    Text="{x:Static core:Lang.UI_DeleteFileLocally}"
+                                    ToolTip.Tip="{x:Static core:Lang.UI_DeleteFileLocally_ToolTip}" />
+                            </controls:FAMenuFlyout>
+                        </ToggleButton.ContextFlyout>
+
+                        <!-- <ToggleButton.Styles> -->
+                        <!--     <Style Selector="ToggleButton:checked SelectableTextBlock#FileNameText"> -->
+                        <!--         <Setter Property="FontWeight" Value="Bold" /> -->
+                        <!--     </Style> -->
+                        <!--     <Style Selector="ToggleButton:unchecked SelectableTextBlock#FileNameText"> -->
+                        <!--         <Setter Property="FontWeight" Value="SemiBold" /> -->
+                        <!--     </Style> -->
+                        <!-- </ToggleButton.Styles> -->
+                        <Border CornerRadius="3">
+                            <StackPanel>
+                                <Image
+                                    Height="150"
+                                    Stretch="Uniform"
+                                    Width="200"
+
+                                    asyncImageLoader:ImageLoader.Source="{Binding task.BestImageSource}" />
+                                <SelectableTextBlock
+                                    FontWeight="SemiBold"
+                                    Foreground="White"
+                                    HorizontalAlignment="Center"
+                                    Text="{Binding task.FileName}"
+                                    TextTrimming="CharacterEllipsis"
+                                    x:Name="FileNameText" />
+                            </StackPanel>
+                        </Border>
+                    </ToggleButton>
+                </DataTemplate>
+            </controls:ItemsRepeater.ItemTemplate>
+        </controls:ItemsRepeater>
+    </ScrollViewer>
+</UserControl>

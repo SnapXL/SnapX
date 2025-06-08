@@ -1,6 +1,7 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Core.SharpCapture.Linux.DBus;
+using SnapX.Core.Utils.Native;
 using Tmds.DBus;
 using Tmds.DBus.Protocol;
 
@@ -142,6 +143,15 @@ public class LinuxCapture : BaseCapture
     {
         if (pos == null || !pos.HasValue) throw new ArgumentNullException(nameof(pos));
         return await CaptureScreen(await GetScreen(pos.Value));
+    }
+
+    public override async Task<Rectangle> GetScreen(Point pos) => Methods.NativeAPI.GetScreen(pos).Bounds;
+
+    public override async Task<Rectangle> GetWorkingArea() => ((LinuxAPI)Methods.NativeAPI).GetScreenBounds();
+    public override async Task<Image?> CaptureRectangle(Rectangle rect)
+    {
+        return CropFullscreenScreenshotToBounds(rect, await CaptureFullscreen().ConfigureAwait(false));
+
     }
 
     private static bool IsCompositorKwin => Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland" && Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") == "KDE";

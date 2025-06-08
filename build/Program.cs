@@ -259,7 +259,7 @@ internal class Program
                             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
                         }));
                     }
-                    var rustLib= OperatingSystem.IsLinux() ? "libsnapxrust.so" : "libsnapxrust.dylib";
+                    var rustLib = OperatingSystem.IsLinux() ? "libsnapxrust.so" : "libsnapxrust.dylib";
                     var sourcePath = Path.Combine(RootDirectory, "SnapX.Core", "ScreenCapture", "Rust", "target", "release", rustLib);
                     if (!File.Exists(sourcePath)) return;
                     foreach (var dir in Directory.GetDirectories(outputDir, "*", SearchOption.AllDirectories))

@@ -140,30 +140,27 @@ public class TaskInfo
         Result = new UploadResult();
     }
 
-    public Dictionary<string, string> GetTags()
+    public List<HistoryItem.Tag> GetTags()
     {
-        if (Metadata != null)
+        if (Metadata == null)
+            return null;
+
+        var tags = new List<HistoryItem.Tag>();
+
+        if (!string.IsNullOrEmpty(Metadata.WindowTitle))
         {
-            Dictionary<string, string> tags = [];
-
-            if (!string.IsNullOrEmpty(Metadata.WindowTitle))
-            {
-                tags.Add("WindowTitle", Metadata.WindowTitle);
-            }
-
-            if (!string.IsNullOrEmpty(Metadata.ProcessName))
-            {
-                tags.Add("ProcessName", Metadata.ProcessName);
-            }
-
-            if (tags.Count > 0)
-            {
-                return tags;
-            }
+            tags.Add(new HistoryItem.Tag { Text = Metadata.WindowTitle });
         }
 
-        return null;
+        // Add ProcessName tag if present
+        if (!string.IsNullOrEmpty(Metadata.ProcessName))
+        {
+            tags.Add(new HistoryItem.Tag { Text = Metadata.ProcessName });
+        }
+
+        return tags.Any() ? tags : null;
     }
+
 
     public override string ToString()
     {
