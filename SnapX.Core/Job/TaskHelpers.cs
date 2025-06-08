@@ -509,8 +509,10 @@ public static class TaskHelpers
         return fileName;
     }
 
-    public static string GetScreenshotsFolder(TaskSettings taskSettings = null, TaskMetadata metadata = null)
+    public static string GetScreenshotsFolder(TaskSettings taskSettings = null, TaskMetadata metadata = null, DateTime? date = null)
     {
+        date ??= DateTime.Now;
+        var dt = date.Value;
         string screenshotsFolder;
 
         NameParser nameParser = new NameParser(NameParserType.FilePath);
@@ -544,7 +546,7 @@ public static class TaskHelpers
                 subFolderPattern = SnapX.Settings.SaveImageSubFolderPattern;
             }
 
-            string subFolderPath = nameParser.Parse(subFolderPattern);
+            string subFolderPath = nameParser.Parse(subFolderPattern, dt);
             screenshotsFolder = Path.Combine(SnapX.ScreenshotsParentFolder, subFolderPath);
         }
 
