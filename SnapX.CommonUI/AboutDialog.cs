@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace SnapX.CommonUI;
@@ -30,45 +31,24 @@ public class AboutDialog
         ((AssemblyCopyrightAttribute)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyCopyrightAttribute))!).Copyright;
     public virtual string GetRuntime() => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
     public virtual string GetOsPlatform() => $"{Environment.OSVersion.Platform} {Environment.OSVersion.Version}";
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(ThisAssembly))]
+    [RequiresUnreferencedCode("Uses reflection to access properties that may be removed by the trimmer.")]
     public virtual string GetBuildInformation()
     {
         var title = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? "Unknown Title";
-        var version = ThisAssembly.AssemblyFileVersion ?? "Unknown Version";
         var flags = string.Join(", ", Core.SnapX.Flags);
-        var informationalVersion = ThisAssembly.AssemblyInformationalVersion ?? "Unknown Informational Version";
+        var informationalVersion = ThisAssembly.AssemblyInformationalVersion;
 
-        string gitCommitId;
-        string gitCommitDate;
-        string isPrerelease;
+        var type = typeof(ThisAssembly);
+        var gitCommitId = type.GetProperty("GitCommitId")?.GetValue(null) as string ?? "Unavailable";
+        var gitCommitDateValue = type.GetProperty("GitCommitDate")?.GetValue(null);
+        var isPrerelease = type.GetProperty("IsPrerelease")?.GetValue(null)?.ToString() ?? "Unknown";
 
-        try
-        {
-            gitCommitId = ThisAssembly.GitCommitId ?? "Unavailable";
-        }
-        catch
-        {
-            gitCommitId = "Unavailable";
-        }
+        var gitCommitDate = gitCommitDateValue is DateTime dt
+            ? dt.ToLongDateString()
+            : "Unknown Date";
 
-        try
-        {
-            gitCommitDate = ThisAssembly.GitCommitDate.ToLongDateString();
-        }
-        catch
-        {
-            gitCommitDate = "Unknown Date";
-        }
-
-        try
-        {
-            isPrerelease = ThisAssembly.IsPrerelease.ToString();
-        }
-        catch
-        {
-            isPrerelease = "Unknown";
-        }
-
-        return $"{title} v{version}{Environment.NewLine}" +
+        return $"{title} v{ThisAssembly.AssemblyFileVersion}{Environment.NewLine}" +
                $"Flags: {flags}{Environment.NewLine}" +
                $"Build: {Core.SnapX.Build}{Environment.NewLine}" +
                $"Informational Version: {informationalVersion} (IsPrerelease: {isPrerelease}){Environment.NewLine}" +
