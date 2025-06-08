@@ -16,7 +16,7 @@ public partial class ChangelogControl : UserControl
 
     private async void Control_OnLoaded(object? Sender, RoutedEventArgs E)
     {
-        await vm.LoadCommand.ExecuteAsync(this);
+        await vm.LoadCommand.ExecuteAsync(this).ConfigureAwait(false);
     }
 }
 

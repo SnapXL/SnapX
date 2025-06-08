@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnapX.CommonUI;
@@ -8,7 +9,7 @@ namespace SnapX.Avalonia.ViewModels;
 
 public partial class ChangelogViewModel : ViewModelBase
 {
-    public ObservableCollection<Changelog.ChangelogVersion> Versions { get; } = new();
+    public AvaloniaList<Changelog.ChangelogVersion> Versions { get; } = [];
     [ObservableProperty]
     public Changelog.ChangelogVersion selectedChangelogVersion = new();
 
