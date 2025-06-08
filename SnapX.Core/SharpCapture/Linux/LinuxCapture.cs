@@ -147,5 +147,12 @@ public class LinuxCapture : BaseCapture
 
     public override async Task<Rectangle> GetScreen(Point pos) => Methods.NativeAPI.GetScreen(pos).Bounds;
 
+    public override async Task<Rectangle> GetWorkingArea() => ((LinuxAPI)Methods.NativeAPI).GetScreenBounds();
+    public override async Task<Image?> CaptureRectangle(Rectangle rect)
+    {
+        return CropFullscreenScreenshotToBounds(rect, await CaptureFullscreen().ConfigureAwait(false));
+
+    }
+
     private static bool IsCompositorKwin => Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland" && Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") == "KDE";
 }

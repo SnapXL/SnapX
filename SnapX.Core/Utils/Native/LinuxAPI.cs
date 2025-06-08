@@ -372,6 +372,37 @@ public class LinuxAPI : NativeAPI
         }
     }
 
+    public Rectangle GetScreenBounds()
+    {
+        var display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+            throw new InvalidOperationException("Could not open X11 display.");
+
+        try
+        {
+            var screenCount = XScreenCount(display);
+
+            var totalWidth = 0;
+            var maxHeight = 0;
+
+            for (var i = 0; i < screenCount; i++)
+            {
+                var screen = XScreenOfDisplay(display, i);
+                var width = XWidthOfScreen(screen);
+                var height = XHeightOfScreen(screen);
+
+                totalWidth += width; // assuming screens are side-by-side
+                if (height > maxHeight)
+                    maxHeight = height;
+            }
+
+            return new Rectangle(0, 0, totalWidth, maxHeight);
+        }
+        finally
+        {
+            XCloseDisplay(display);
+        }
+    }
     public override void CopyImage(Image image, string filename = null)
     {
         using var ms = new MemoryStream();
