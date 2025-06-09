@@ -12,7 +12,6 @@ makedepends=(
     'dotnet-sdk>=9.0'
     'clang'
     'zlib'
-    'curl'
 )
 
 source=("$pkgbase::git+https://github.com/BrycensRanch/SnapX.git")
