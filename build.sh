@@ -53,7 +53,7 @@ export DOTNET_NOLOGO=1
 ###########################################################################
 
 
-if [ "$os_name" = "Darwin" ]; then
+if [ "$os_name" = "Darwin" ] && [ "${SKIP_MACOS_VERSION_CHECK:-}" != "1" ]; then
     USER_MACOS_VERSION=$(sw_vers -productVersion)
     USER_MACOS_VERSION_INT=$(echo "$USER_MACOS_VERSION" | awk -F. '{ printf "%d%02d", $1, $2 }')
 
