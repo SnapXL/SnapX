@@ -600,6 +600,7 @@ internal class Program
 
     bool RequiresElevationLikely(string installArguments)
     {
+        if (Environment.GetEnvironmentVariable("ELEVATION_NOT_NEEDED") == "1") return false;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             // On Windows, elevation is handled differently (e.g., run as admin).
