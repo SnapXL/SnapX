@@ -160,7 +160,7 @@ public class VersionEnforcer : IDisposable
             _lockFilePath,
             FileMode.OpenOrCreate,
             FileAccess.ReadWrite,
-            FileShare.Read
+            FileShare.ReadWrite
         );
         var originalPosition = _lockFileStream.Position;
         try
@@ -232,7 +232,7 @@ public class VersionEnforcer : IDisposable
                 _lockFilePath,
                 FileMode.OpenOrCreate,
                 FileAccess.ReadWrite,
-                FileShare.Read
+                FileShare.ReadWrite
             );
         }
 
@@ -263,6 +263,7 @@ public class VersionEnforcer : IDisposable
         {
             try
             {
+                _lockFileStream?.Close();
                 File.Delete(_lockFilePath);
             }
             catch (Exception ex)

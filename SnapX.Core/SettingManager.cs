@@ -340,7 +340,7 @@ internal static class SettingManager
                     "Please ensure to NAG developer that migrations are applied in strictly increasing numerical order."
                 );
             }
-            if (currentMigrationVersion - lastAppliedMigrationVersion > 1)
+            if (currentMigrationVersion - lastAppliedMigrationVersion > 1 && lastAppliedMigrationVersion != -1)
             {
                 throw new InvalidOperationException(
                     $"Cannot apply migration version {currentMigrationVersion} because the previous applied version is {lastAppliedMigrationVersion}. " +
