@@ -96,10 +96,10 @@ export PKGTYPE=RPM
 %global build_extra_args --extra-args="-p:PublishAot=false"
 %endif
 
-./build.sh --configuration Release %{build_extra_args}
+./build.sh --no-color --no-extended-chars --configuration Release %{build_extra_args}
 
 %install
-./build.sh install --prefix %{_prefix} --lib-dir %{buildroot}%{_libdir} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
+./build.sh install --no-color --no-extended-chars --prefix %{_prefix} --lib-dir %{buildroot}%{_libdir} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
 
 %files
 %{_bindir}/libe_sqlite3.so
