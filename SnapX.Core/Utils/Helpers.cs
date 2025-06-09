@@ -91,7 +91,7 @@ public static class Helpers
         var publicIPv6Regex = new Regex(@"^(?!fe80(:|::))(?!fc00(:|::))(?!ff00(:|::))(?!::1$)(?!2001:db8::)(?!::ffff:.*)([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$", RegexOptions.IgnoreCase);
         var credentialsRegex = new Regex(@"(?i)(Authorization|Client\-Id|Client\-Token|Api\-Key)\s*:\s*([A-Za-z0-9\-_.]+)", RegexOptions.IgnoreCase);
 
-        input = Regex.Replace(input, usernamePattern, "[REDACTED USERNAME]", RegexOptions.IgnoreCase);
+        input = Regex.Replace(input, usernamePattern, "anonymous", RegexOptions.IgnoreCase);
         input = Regex.Replace(input, hostnamePattern, "[REDACTED HOSTNAME]", RegexOptions.IgnoreCase);
         input = credentialsRegex.Replace(input, "[REDACTED CREDENTIALS]");
         input = emailRegex.Replace(input, "[REDACTED EMAIL]");
@@ -110,7 +110,7 @@ public static class Helpers
         try
         {
             // Format the title and body for the issue
-            var title = "[BUG] " + ex.Message;
+            var title = StripPII(ex.Message);
             var body = StripPII($"### Exception Details:\n\n{ex.Message}\n\n### Stack Trace:\n\n```\n{ex.StackTrace}\n```\n\nInner Exception: {ex.InnerException?.Message}\n\n## Stack Trace:\n\n```\n{ex.InnerException?.StackTrace}\n```\n\nAssembly: {Assembly.GetEntryAssembly()}\n\nOperating System: {OsInfo.GetFancyOSNameAndVersion()}");
 
             var encodedTitle = HttpUtility.UrlEncode(title);
