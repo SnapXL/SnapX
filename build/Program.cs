@@ -533,6 +533,10 @@ internal class Program
     {
         if (File.Exists(source))
         {
+            if (OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD())
+            {
+                RunInstallCommand($"-p {Path.GetDirectoryName(destination)}", "mkdir");
+            }
             var installArgs = $"-D -m {permissions} {source} {destination}";
             RunInstallCommand(installArgs);
 
