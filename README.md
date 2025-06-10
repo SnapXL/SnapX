@@ -144,7 +144,7 @@ git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
 > [!TIP]
-> If you're using MacPorts, run this instead of `brew install ffmpeg@7`:
+> If you're using MacPorts, run this instead of `brew install` command:
 > ```zsh
 > sudo port selfupdate
 > sudo port install ffmpeg7 cargo
