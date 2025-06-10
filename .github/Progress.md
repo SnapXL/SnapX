@@ -62,7 +62,7 @@ For the commit messages, I will be following the [Conventional Commits](https://
 
 ShareX on Windows has auto update functionality. This is a feature that I would like to implement in this port. This will allow users to receive updates automatically without having to manually download and install them. This will also allow for easier distribution of updates and bug fixes. I know this doesn't bode well with Linux users. So on actual Linux packages, they will be disabled because I don't want a situation like Discord on Linux. :laughing:
 
-![Screenshot showing Discord complaining about being outdated yet suggesting you should download their DEB package on Arch Linux](\.github/discordarchexample.png)
+![Screenshot showing Discord complaining about being outdated yet suggesting you should download their DEB package on Arch Linux](discordarchexample.png)
 
 The idea is for SnapX to check for updates on startup. Since the goal is to have the application with one singular binary with no DLLs/.so files to worry about. Like Electron apps. It'll replace the application binary to the latest version that is the same major version. This will allow for easy updates and bug fixes to be distributed to users. Downgrades will not be allowed.
 
