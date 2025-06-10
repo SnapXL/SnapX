@@ -582,7 +582,7 @@ internal class Program
                 var errorOutput = process.StandardError.ReadToEnd();
                 Error($"Install command failed: {errorOutput}");
 
-                if (requiresElevationLikely || !errorOutput.Contains("Permission denied")) return;
+                if (requiresElevationLikely || !errorOutput.Contains("Permission denied", StringComparison.OrdinalIgnoreCase)) return;
                 Error("Retrying with elevated privileges (sudo)...");
                 requiresElevationLikely = true;
                 RunInstallCommand(installArguments);
