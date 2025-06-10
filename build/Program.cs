@@ -540,6 +540,7 @@ internal class Program
             var installArgs = $"-D -m {permissions} {source} {destination}";
             RunInstallCommand(installArgs);
 
+            if (OperatingSystem.IsMacOS() || Environment.GetEnvironmentVariable("SKIP_TOUCH") is not null) return;
             var touchArgs = $"-r {source} {destination}";
             RunInstallCommand(touchArgs, "touch");
         }
@@ -609,7 +610,7 @@ internal class Program
     bool RequiresElevationLikely(string installArguments)
     {
         if (Environment.GetEnvironmentVariable("ELEVATION_NOT_NEEDED") == "1") return false;
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
         {
             // On Windows, elevation is handled differently (e.g., run as admin).
             // This simple check is for Unix-like systems.
@@ -649,7 +650,7 @@ internal class Program
     }
     internal static bool IsAdmin()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
         {
             try
             {
@@ -670,7 +671,7 @@ internal class Program
 
     internal static int GetCurrentUid()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
         {
             return -1; // UID concept is not directly applicable in the same way.
         }
