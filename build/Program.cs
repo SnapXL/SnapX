@@ -533,14 +533,18 @@ internal class Program
     {
         if (File.Exists(source))
         {
-            var installArgs = $"-Dpm {permissions} {source} {destination}";
+            var installArgs = $"-D -m {permissions} {source} {destination}";
             RunInstallCommand(installArgs);
+
+            var touchArgs = $"-r {source} {destination}";
+            RunInstallCommand(touchArgs, "touch");
         }
         else
         {
             Information($"Source file not found: {source}");
         }
     }
+
     void RunInstallCommand(string installArguments, string executionCommand = "install")
     {
         var requiresElevationLikely = !IsAdmin() && RequiresElevationLikely(installArguments);
