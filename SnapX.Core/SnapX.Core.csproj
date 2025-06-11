@@ -1,19 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <AssemblyTitle>SnapX Core</AssemblyTitle>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Dapper.AOT</InterceptorsPreviewNamespaces>
 
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
-  <Target Name="CargoBuild"
-          BeforeTargets="BeforeBuild"
-          Condition="'$(nocargobuild)' == '' and $([MSBuild]::IsOsPlatform('OSX'))">
+  <Target Name="CargoBuild" BeforeTargets="BeforeBuild" Condition="'$(nocargobuild)' == '' and $([MSBuild]::IsOsPlatform('OSX'))">
     <Message Text="Compiling Rust intermediary library..." Importance="High" />
     <PropertyGroup>
       <RustLibName Condition="$([MSBuild]::IsOsPlatform('OSX'))">libsnapxrust.dylib</RustLibName>
@@ -22,24 +17,15 @@
     <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
   </Target>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-<!--    <TargetFrameworks>net9.0-windows10.0.26100.48;net9.0</TargetFrameworks>-->
     <!-- Windows 10 22H2 -->
-<!--    <TargetPlatformMinVersion>10.0.19045</TargetPlatformMinVersion>-->
+    <TargetPlatformMinVersion>10.0.19045.0</TargetPlatformMinVersion>
     <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref/10.0.26100.48 -->
-    <WindowsSdkPackageVersion>10.0.26100.48</WindowsSdkPackageVersion>
-    <CsWinRTWindowsMetadata>10.0.26100.0</CsWinRTWindowsMetadata>
-
-    <CsWinRTEnableLogging>true</CsWinRTEnableLogging>
-    <CsWinRTIncludes>Windows.Graphics;Windows.Foundation;Windows.Data;Windows.Devices;Windows.Security;Windows.Storage;Windows.System;Windows.Networking;Windows.Globalization;Windows.ApplicationModel;Windows.Web;Windows.UI;Windows.Perception;Windows.Media;Windows.Gaming;Windows.Services;Windows.Management</CsWinRTIncludes>
-    <CSWinRTExcludes>Windows.Foundation.PropertyType</CSWinRTExcludes>
-    <CsWinRTMessageImportance Condition="'$(CsWinRTMessageImportance)' == ''">normal</CsWinRTMessageImportance>
-    <CsWinRTCommandVerbosity Condition="'$(CsWinRTMessageImportance)' == 'high'">-verbose</CsWinRTCommandVerbosity>
-    <CsWinRTGenerateProjection>true</CsWinRTGenerateProjection>
-    <!-- Debugging source generators -->
-    <CsWinRTAotOptimizerEnabled>true</CsWinRTAotOptimizerEnabled>
-
-    <CsWinRTEmbedded>true</CsWinRTEmbedded>
-
+    <WindowsSdkPackageVersion>10.0.26100.57</WindowsSdkPackageVersion>
+    <DefineConstants>$(DefineConstants);WINDOWS;TARGET_WINDOWS</DefineConstants>
+<!--    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>-->
+<!--    <PLatform>x64</PLatform>-->
+<!--    <RuntimeIdentifier>win-x64</RuntimeIdentifier>-->
+<!--    <UseRIDGraph>true</UseRIDGraph>-->
   </PropertyGroup>
 
   <!-- Feature Flags -->
@@ -60,18 +46,12 @@
   <PropertyGroup Condition="'$(PKGTYPE)' != ''">
     <DefineConstants>$(DefineConstants);$(PKGTYPE)</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <DefineConstants>$(DefineConstants);WINDOWS;TARGET_WINDOWS</DefineConstants>
-    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
-  </PropertyGroup>
-  <!-- Exclude Windows-specific files from macOS and Linux -->
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Compile Remove="SharpCapture/Windows/*.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <!-- Google Photos Library from Microsoft employee -->
     <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
+    <!-- Privacy friendly user/feature analytics -->
+    <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.0" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Dapper.AOT" Version="1.0.48" />
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
@@ -92,7 +72,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" Condition="'$(OS)' == 'Windows_NT'" />
     <!-- Source generator dependency. It is just useful for keeping redudant code out of tree  -->
     <PackageReference Include="MimeTypes" Version="2.5.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -170,7 +149,12 @@
 <ItemGroup>
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
 </ItemGroup>
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+  <!-- Exclude Windows-specific files from macOS and Linux -->
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT' and $(Framework.ToLower()) != '*windows*'">
     <Compile Remove=".\Utils\Native\WindowsAPI.cs" />
   </ItemGroup>
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT' and $(Framework.ToLower()) != '*windows*'">
+    <Compile Remove="SharpCapture/Windows/*.cs" />
+  </ItemGroup>
+
 </Project>

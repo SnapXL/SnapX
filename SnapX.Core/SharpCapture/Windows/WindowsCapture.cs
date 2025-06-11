@@ -1,19 +1,17 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using Windows.Graphics.Capture;
+using Windows.Graphics.DirectX;
+using Windows.Graphics.DirectX.Direct3D11;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
-using Windows.Graphics.DirectX;
 using Windows.Win32;
 using WinRT;
-using Direct3D11CaptureFrame = Windows.Graphics.Capture.Direct3D11CaptureFrame;
-using Direct3D11CaptureFramePool = Windows.Graphics.Capture.Direct3D11CaptureFramePool;
-using GraphicsCaptureSession = Windows.Graphics.Capture.GraphicsCaptureSession;
-using IDirect3DDevice = Windows.Graphics.DirectX.Direct3D11.IDirect3DDevice;
-using IDirect3DSurface = Windows.Graphics.DirectX.Direct3D11.IDirect3DSurface;
+
 
 namespace SnapX.Core.SharpCapture.Windows;
 
