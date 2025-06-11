@@ -11,15 +11,15 @@ namespace SnapX.Core;
 // Sorry for the bad code, but, it works!
 
 [JsonSerializable(typeof(VersionEnforcer.LockFileContent))]
-internal partial class VersionEnforcerContext : JsonSerializerContext;
-public class VersionEnforcer : IDisposable
+internal sealed partial class VersionEnforcerContext : JsonSerializerContext;
+public sealed class VersionEnforcer : IDisposable
 {
-    private string _lockFilePath;
+    private readonly string _lockFilePath;
     private FileStream? _lockFileStream;
-    private string _currentVersion;
-    private int _currentPID;
-    private bool _startupFailed;
-    private bool _ownsLockFile = false;
+    private readonly string _currentVersion;
+    private readonly int _currentPID;
+    private readonly bool _startupFailed;
+    private bool _ownsLockFile;
     internal record LockFileContent
     {
         public int ProcessId { get; set; }
@@ -52,105 +52,149 @@ public class VersionEnforcer : IDisposable
     public void Enforce()
     {
         if (_startupFailed) return;
+        ThreadPool.QueueUserWorkItem(_ => AttemptEnforcementWithRetries());
+    }
+
+    private void AttemptEnforcementWithRetries()
+    {
         for (var i = 0; i < 2; i++)
         {
-            var lockFileInfo = ReadLockFileContent();
-            var existingVersion = lockFileInfo?.Version;
-            try
+            if (TryEnforceInternal())
             {
-                if (!string.IsNullOrEmpty(existingVersion))
-                {
-                    if (existingVersion != _currentVersion)
-                    {
-                        _lockFileStream.Dispose();
-                        throw new InvalidOperationException(
-                            $"Found existing instance with version '{existingVersion}', but current version is '{_currentVersion}'. Version mismatch detected.");
-                    }
-
-                    var previousInstance = lockFileInfo?.ProcessId;
-                    var isPreviousInstanceRunning = lockFileInfo is not null && IsProcessRunning(lockFileInfo.ProcessId);
-                    if (lockFileInfo is not null && !isPreviousInstanceRunning)
-                    {
-                        lockFileInfo = new LockFileContent
-                        {
-                            ProcessId = _currentPID,
-                            Version = _currentVersion
-                        };
-                        _ownsLockFile = true;
-                    }
-                    if (lockFileInfo?.ProcessId == _currentPID) _ownsLockFile = true;
-                    if (lockFileInfo is not null && _ownsLockFile) WriteVersionInfoToLockFile(lockFileInfo);
-                    var statement = !isPreviousInstanceRunning ? $"Took ownership from previous dead instance (same version, PID: {previousInstance})" : $"An existing instance (same version, PID: {lockFileInfo?.ProcessId}) was detected. This is supported. :)";
-                    DebugHelper.WriteLine(
-                        $"Application (Version: {_currentVersion}) started. {statement}");
-                }
-                else
-                {
-                    lockFileInfo ??= new LockFileContent
-                    {
-                        ProcessId = _currentPID,
-                        Version = _currentVersion,
-                    };
-                    _ownsLockFile = true;
-                    WriteVersionInfoToLockFile(lockFileInfo);
-                    DebugHelper.WriteLine(
-                        $"Application (Version: {_currentVersion}) started. First instance of this version (or lock file was empty).");
-                }
-
                 break;
             }
-            catch (IOException ex) when (ex.Message.Contains("locked by another process") ||
-                                         ex.Message.Contains("being used by another process") ||
-                                         ex.HResult == 32) // HResult 32 is common for SharingViolation
+        }
+    }
+
+    private bool TryEnforceInternal()
+    {
+        try
+        {
+            EnforceVersionAndOwnership();
+            return true;
+        }
+        catch (IOException ex) when (IsLockFileInUseException(ex))
+        {
+            HandleLockFileInUse();
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _lockFileStream?.Dispose();
+            throw new InvalidOperationException($"Fatal error during version enforcement: {ex.Message}.", ex);
+        }
+    }
+
+    private bool IsLockFileInUseException(IOException ex)
+    {
+        return ex.Message.Contains("locked by another process") ||
+               ex.Message.Contains("being used by another process") ||
+               ex.HResult == 32;
+    }
+
+    private void EnforceVersionAndOwnership()
+    {
+        var lockFileInfo = ReadLockFileContent();
+        var existingVersion = lockFileInfo?.Version;
+
+        if (!string.IsNullOrEmpty(existingVersion))
+        {
+            HandleExistingVersion(lockFileInfo, existingVersion);
+        }
+        else
+        {
+            HandleNoExistingVersion(ref lockFileInfo);
+        }
+    }
+
+    private void HandleExistingVersion(LockFileContent? lockFileInfo, string existingVersion)
+    {
+        if (existingVersion != _currentVersion)
+        {
+            _lockFileStream?.Dispose();
+            throw new InvalidOperationException(
+                $"Found existing instance with version '{existingVersion}', but current version is '{_currentVersion}'. Version mismatch detected.");
+        }
+
+        var previousInstance = lockFileInfo?.ProcessId;
+        var isPreviousInstanceRunning = lockFileInfo is not null && IsProcessRunning(lockFileInfo.ProcessId);
+
+        if (lockFileInfo is not null && !isPreviousInstanceRunning)
+        {
+            lockFileInfo = new LockFileContent
             {
-                DebugHelper.WriteLine(
-                    $"Application (Version: {_currentVersion}) detected another instance running which holds the lock. This instance will try to read its version.");
+                ProcessId = _currentPID,
+                Version = _currentVersion
+            };
+            _ownsLockFile = true;
+        }
 
-                try
-                {
-                    _lockFileStream = new FileStream(_lockFilePath, FileMode.Open, FileAccess.Read,
-                        FileShare.ReadWrite);
-                    lockFileInfo = ReadLockFileContent();
-                    var lockedVersion = lockFileInfo?.Version;
-                    if (string.IsNullOrEmpty(lockedVersion))
-                    {
-                        throw new InvalidOperationException(
-                            $"Lock file '{_lockFilePath}' exists but is empty or unreadable while locked. Cannot verify version.");
-                    }
+        if (lockFileInfo?.ProcessId == _currentPID) _ownsLockFile = true;
+        if (lockFileInfo is not null && _ownsLockFile) WriteVersionInfoToLockFile(lockFileInfo);
 
-                    if (lockedVersion != _currentVersion)
-                    {
-                        throw new InvalidOperationException(
-                            $"Found existing instance with version '{lockedVersion}', but current version is '{_currentVersion}'. Version mismatch detected.");
-                    }
+        var statement = !isPreviousInstanceRunning
+            ? $"Took ownership from previous dead instance (same version, PID: {previousInstance})"
+            : $"An existing instance (same version, PID: {lockFileInfo?.ProcessId}) was detected. This is supported. :)";
+        DebugHelper.WriteLine($"Application (Version: {_currentVersion}) started. {statement}");
+    }
 
-                    if (lockFileInfo is not null && !IsProcessRunning(lockFileInfo.ProcessId))
-                    {
-                        lockFileInfo = new LockFileContent()
-                        {
-                            ProcessId = _currentPID,
-                            Version = _currentVersion
-                        };
-                        _ownsLockFile = true;
-                        WriteVersionInfoToLockFile(lockFileInfo);
-                    }
-                    if (lockFileInfo?.ProcessId == _currentPID) _ownsLockFile = true;
-                    DebugHelper.WriteLine(
-                        $"Application Lock (Version: {_currentVersion}) is compatible with the running instance (same version). Running alongside.");
-                    break;
-                }
-                catch (Exception innerEx)
-                {
-                    throw new InvalidOperationException(
-                        $"Could not read version from existing lock file due to inner error: {innerEx.Message}. Exiting.",
-                        innerEx);
-                }
-            }
-            catch (Exception ex)
+    private void HandleNoExistingVersion(ref LockFileContent? lockFileInfo)
+    {
+        lockFileInfo ??= new LockFileContent
+        {
+            ProcessId = _currentPID,
+            Version = _currentVersion,
+        };
+        _ownsLockFile = true;
+        WriteVersionInfoToLockFile(lockFileInfo);
+        DebugHelper.WriteLine(
+            $"Application (Version: {_currentVersion}) started. First instance of this version (or lock file was empty).");
+    }
+
+    private void HandleLockFileInUse()
+    {
+        DebugHelper.WriteLine(
+            $"Application (Version: {_currentVersion}) detected another instance running which holds the lock. This instance will try to read its version.");
+
+        try
+        {
+            _lockFileStream = new FileStream(_lockFilePath, FileMode.Open, FileAccess.Read,
+                FileShare.ReadWrite);
+            var lockFileInfo = ReadLockFileContent();
+            var lockedVersion = lockFileInfo?.Version;
+
+            if (string.IsNullOrEmpty(lockedVersion))
             {
-                _lockFileStream?.Dispose();
-                throw new InvalidOperationException($"Fatal error during version enforcement: {ex.Message}.", ex);
+                throw new InvalidOperationException(
+                    $"Lock file '{_lockFilePath}' exists but is empty or unreadable while locked. Cannot verify version.");
             }
+
+            if (lockedVersion != _currentVersion)
+            {
+                throw new InvalidOperationException(
+                    $"Found existing instance with version '{lockedVersion}', but current version is '{_currentVersion}'. Version mismatch detected.");
+            }
+
+            if (lockFileInfo is not null && !IsProcessRunning(lockFileInfo.ProcessId))
+            {
+                lockFileInfo = new LockFileContent()
+                {
+                    ProcessId = _currentPID,
+                    Version = _currentVersion
+                };
+                _ownsLockFile = true;
+                WriteVersionInfoToLockFile(lockFileInfo);
+            }
+
+            if (lockFileInfo?.ProcessId == _currentPID) _ownsLockFile = true;
+            DebugHelper.WriteLine(
+                $"Application Lock (Version: {_currentVersion}) is compatible with the running instance (same version). Running alongside.");
+        }
+        catch (Exception innerEx)
+        {
+            throw new InvalidOperationException(
+                $"Could not read version from existing lock file due to inner error: {innerEx.Message}. Exiting.",
+                innerEx);
         }
     }
 
@@ -183,7 +227,10 @@ public class VersionEnforcer : IDisposable
             {
                 File.Delete(_lockFilePath);
             }
-            catch { }
+            catch
+            {
+                // Suppress any errors.
+            }
             // force downstream caller to redefine stream since it was deleted.
             _lockFileStream = null;
             return null;
@@ -197,7 +244,7 @@ public class VersionEnforcer : IDisposable
         }
     }
 
-    private bool IsProcessRunning(int pid)
+    private static bool IsProcessRunning(int pid)
     {
         if (pid == 0) return false;
 
@@ -259,6 +306,8 @@ public class VersionEnforcer : IDisposable
                 ? $"VersionEnforcer owns the lock file at {_lockFilePath} yet _lockFileStream is null! BUG!"
                 : $"VersionLock _lockFileStream is null! Lockfile at {_lockFilePath} ");
         }
+        var lockfileInfo = ReadLockFileContent();
+        if (lockfileInfo is not null && !IsProcessRunning(lockfileInfo.ProcessId)) _ownsLockFile = true;
         if (_ownsLockFile)
         {
             try
