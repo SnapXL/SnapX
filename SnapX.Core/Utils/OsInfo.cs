@@ -64,6 +64,7 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows")]
     static string GetWindowsVersion()
     {
+        #if WINDOWS
         try
         {
             using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
@@ -102,6 +103,9 @@ public static partial class OsInfo
             DebugHelper.WriteLine($"Error getting Windows version, hmm.{Environment.NewLine}{ex.ToString}");
             return $"Windows {Environment.OSVersion.Version}";
         }
+        #else
+        return "";
+        #endif
     }
 
     static string GetLinuxVersion()
