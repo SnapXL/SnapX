@@ -65,7 +65,7 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows")]
     static string GetWindowsVersion()
     {
-        #if WINDOWS
+#if WINDOWS
         try
         {
             using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
@@ -104,9 +104,9 @@ public static partial class OsInfo
             DebugHelper.WriteLine($"Error getting Windows version, hmm.{Environment.NewLine}{ex.ToString}");
             return $"Windows {Environment.OSVersion.Version}";
         }
-        #else
+#else
         return "";
-        #endif
+#endif
     }
 
     static string GetLinuxVersion()
@@ -183,7 +183,7 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows")]
     private static string GetProcessorNameWindows()
     {
-        #if WINDOWS
+#if WINDOWS
         try
         {
             using var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0");
@@ -197,7 +197,7 @@ public static partial class OsInfo
         {
             DebugHelper.WriteLine("Error reading registry: " + ex.Message);
         }
-        #endif
+#endif
         return "Unknown Processor";
     }
 
@@ -278,7 +278,9 @@ public static partial class OsInfo
     }
     public static (long totalMemory, long usedMemory) GetMemoryInfo()
     {
+        #if WINDOWS
         if (OperatingSystem.IsWindows()) return GetMemoryInfoWindows();
+        #endif
         if (OperatingSystem.IsLinux()) return GetMemoryInfoLinux();
         if (OperatingSystem.IsMacOS()) return GetMemoryInfoMacOS();
         if (OperatingSystem.IsFreeBSD()) return GetMemoryInfoFreeBSD();
@@ -288,7 +290,7 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows5.1.2600")]
     private static (long totalMemory, long usedMemory) GetMemoryInfoWindows()
     {
-        #if WINDOWS
+#if WINDOWS
         try
         {
             var status = new MEMORYSTATUSEX
@@ -311,13 +313,13 @@ public static partial class OsInfo
         {
             DebugHelper.WriteException("Error reading memory info on Windows: " + ex.Message);
         }
-        #endif
+#endif
         return (0, 0);
     }
     [SupportedOSPlatform("windows5.1.2600")]
     private static long GetAvailableMemoryWindows()
     {
-        #if WINDOWS
+#if WINDOWS
         var status = new MEMORYSTATUSEX
         {
             dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX))
@@ -328,7 +330,7 @@ public static partial class OsInfo
             return (long)status.ullAvailPhys;
         }
         DebugHelper.WriteException(new Exception("Unable to retrieve memory information."));
-        #endif
+#endif
         return -1;
     }
     [SupportedOSPlatform("linux")]
@@ -530,7 +532,7 @@ public static partial class OsInfo
     /// </summary>
     /// <returns>A GenericGraphicsInfo object containing GPU and monitor details,
     /// or null if an unhandled error occurs during retrieval.</returns>
-     public static GenericGraphicsInfo GetGenericGraphicsInfo()
+    public static GenericGraphicsInfo GetGenericGraphicsInfo()
     {
         if (OperatingSystem.IsWindows())
         {
@@ -809,10 +811,12 @@ public static partial class OsInfo
     }
     public static bool IsHdrSupported()
     {
+        #if WINDOWS
         if (OperatingSystem.IsWindows())
         {
             return CheckWindowsHdr();
         }
+        #endif
         return OperatingSystem.IsMacOS() && CheckMacOSHdr();
         // Detection of HDR on Linux is way too work.
         // If they're on Linux, they should know they're using things like HDR.
@@ -835,13 +839,13 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows5.0")]
     private static bool CheckWindowsHdr()
     {
-        #if WINDOWS
+#if WINDOWS
         var hdc = PInvoke.GetDC(new HWND(IntPtr.Zero));
         var bpp = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.BITSPIXEL);
         return bpp >= 30;
-        #else
+#else
         return false;
-        #endif
+#endif
     }
 
     private static bool CheckMacOSHdr()
