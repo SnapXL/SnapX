@@ -2,12 +2,28 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Gdi;
 using Microsoft.Win32;
 
 namespace SnapX.Core.Utils;
 
 public static partial class OsInfo
 {
+    public record WindowsGpuInfo(string Description, string DriverVersion);
+    public record WindowsMonitorInfo(string Name, string Position, string Resolution);
+    public record WindowsGraphicsInfo(List<WindowsGpuInfo> Gpus, List<WindowsMonitorInfo> Monitors);
+
+    public record LinuxGpuInfo(string Description, string Vendor, string DriverVersion);
+    public record LinuxMonitorInfo(string Name, string Resolution, string Coordinates);
+    public record LinuxGraphicsInfo(LinuxGpuInfo? Gpu, string? NvidiaDriverVersion, List<LinuxMonitorInfo> Monitors);
+
+    public record MacOSGraphicsInfo(string GpuChipset, string GpuDriverVersion, string MonitorResolution);
+    public record GenericGpuInfo(string Description, string DriverVersion, string? Vendor = null);
+    public record GenericMonitorInfo(string Name, string Resolution, string? Position = null);
+    public record GenericGraphicsInfo(List<GenericGpuInfo>? Gpus, List<GenericMonitorInfo>? Monitors, string OperatingSystemName, string? ErrorMessage = null);
+
     private static readonly Dictionary<string, string> BuildToFriendlyName = new()
     {
         // Windows 11
@@ -91,14 +107,14 @@ public static partial class OsInfo
     {
         try
         {
-            var osReleaseFile = "/etc/os-release";
+            const string osReleaseFile = "/etc/os-release";
             if (File.Exists(osReleaseFile))
             {
                 var lines = File.ReadAllLines(osReleaseFile);
 
                 var prettyName = lines.FirstOrDefault(line => line.StartsWith("PRETTY_NAME"))?.Split('=')[1]?.Trim('"');
 
-                if (string.IsNullOrEmpty(prettyName))
+                if (!string.IsNullOrEmpty(prettyName)) return prettyName;
                 {
                     prettyName = lines.FirstOrDefault(line => line.StartsWith("NAME"))?.Split('=')[1]?.Trim('"');
                     if (string.IsNullOrEmpty(prettyName))
@@ -109,7 +125,6 @@ public static partial class OsInfo
                     return prettyName + " " + lines.FirstOrDefault(line => line.StartsWith("VERSION"))?.Split('=')[1]?.Trim('"');
                 }
 
-                return prettyName;
             }
 
             return $"Linux {Environment.OSVersion.Version}";
@@ -135,13 +150,13 @@ public static partial class OsInfo
             };
             var process = Process.Start(processStartInfo);
             if (process == null) return RuntimeInformation.OSDescription; // Gracefully fail
-            var osName = process.StandardOutput.ReadLine().Trim();
+            var osName = process.StandardOutput.ReadLine()?.Trim();
             process.WaitForExit();
 
             processStartInfo.Arguments = "-productVersion";
             process = Process.Start(processStartInfo);
-            var version = process.StandardOutput.ReadLine().Trim();
-            process.WaitForExit();
+            var version = process?.StandardOutput.ReadLine()?.Trim();
+            process?.WaitForExit();
 
             return $"{osName} {version}";
         }
@@ -476,29 +491,111 @@ public static partial class OsInfo
     }
     public static void PrintGraphicsInfo()
     {
-        if (OperatingSystem.IsWindows())
+        // Now using the generic function for printing
+        var genericInfo = GetGenericGraphicsInfo();
+
+        if (genericInfo != null)
         {
-            PrintGraphicsInfoWindows();
-        }
-        else if (OperatingSystem.IsLinux())
-        {
-            PrintGraphicsInfoLinux();
-        }
-        else if (OperatingSystem.IsMacOS())
-        {
-            PrintGraphicsInfoMacOS();
+            DebugHelper.WriteLine($"Graphics Information for {genericInfo.OperatingSystemName}:");
+            if (genericInfo.Gpus != null && genericInfo.Gpus.Count != 0)
+            {
+                foreach (var gpu in genericInfo.Gpus)
+                {
+                    DebugHelper.WriteLine($"GPU: {gpu.Description}, Driver Version: {gpu.DriverVersion}{(gpu.Vendor != null ? $", Vendor: {gpu.Vendor}" : "")}");
+                }
+            }
+            else
+            {
+                DebugHelper.WriteLine("No GPU information found.");
+            }
+
+            if (genericInfo.Monitors != null && genericInfo.Monitors.Any())
+            {
+                foreach (var monitor in genericInfo.Monitors)
+                {
+                    DebugHelper.WriteLine($"Monitor: {monitor.Name}, Resolution: {monitor.Resolution}{(monitor.Position != null ? $", Position: {monitor.Position}" : "")}");
+                }
+            }
+            else
+            {
+                DebugHelper.WriteLine("No Monitor information found.");
+            }
+
+            if (!string.IsNullOrEmpty(genericInfo.ErrorMessage))
+            {
+                DebugHelper.WriteLine($"Error: {genericInfo.ErrorMessage}");
+            }
         }
         else
         {
-            DebugHelper.WriteLine("This platform is not supported for printing graphics information.");
+            DebugHelper.WriteLine("Failed to retrieve generic graphics information.");
+        }
+    }
+    /// <summary>
+    /// Retrieves graphics information in a generic, platform-agnostic format.
+    /// This function is suitable for telemetry as it provides a unified data structure.
+    /// </summary>
+    /// <returns>A GenericGraphicsInfo object containing GPU and monitor details,
+    /// or null if an unhandled error occurs during retrieval.</returns>
+     public static GenericGraphicsInfo GetGenericGraphicsInfo()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            var windowsInfo = GetGraphicsInfoWindows();
+            if (windowsInfo == null)
+                return new GenericGraphicsInfo([], [], "Windows",
+                    "Error retrieving Windows graphics info.");
+            var genericGpus = windowsInfo.Gpus.Select(g => new GenericGpuInfo(g.Description, g.DriverVersion)).ToList();
+            var genericMonitors = windowsInfo.Monitors.Select(m => new GenericMonitorInfo(m.Name, m.Resolution, m.Position)).ToList();
+            return new GenericGraphicsInfo(genericGpus, genericMonitors, "Windows");
+        }
+        else
+        {
+            if (OperatingSystem.IsLinux())
+            {
+                var linuxInfo = GetGraphicsInfoLinux();
+                if (linuxInfo == null)
+                    return new GenericGraphicsInfo([], [], "Linux",
+                        "Error retrieving Linux graphics info.");
+                var genericGpus = new List<GenericGpuInfo>();
+                if (linuxInfo.Gpu != null)
+                {
+                    genericGpus.Add(new GenericGpuInfo(linuxInfo.Gpu.Description, linuxInfo.Gpu.DriverVersion, linuxInfo.Gpu.Vendor));
+                }
+                // If a specific NVIDIA driver version from /proc is found, add it as another GPU entry for comprehensive data.
+                if (!string.IsNullOrEmpty(linuxInfo.NvidiaDriverVersion))
+                {
+                    genericGpus.Add(new GenericGpuInfo("NVIDIA Driver (Specific)", linuxInfo.NvidiaDriverVersion, "NVIDIA"));
+                }
+
+                var genericMonitorsLinux = linuxInfo.Monitors.Select(m => new GenericMonitorInfo(m.Name, m.Resolution, m.Coordinates)).ToList();
+
+                return new GenericGraphicsInfo(genericGpus, genericMonitorsLinux, "Linux");
+            }
+            if (!OperatingSystem.IsMacOS())
+                return new GenericGraphicsInfo([], [], "Unknown",
+                    "This platform is not supported for retrieving generic graphics information.");
+            var macosInfo = GetGraphicsInfoMacOS();
+            if (macosInfo == null)
+                return new GenericGraphicsInfo(new List<GenericGpuInfo>(), new List<GenericMonitorInfo>(), "macOS",
+                    "Error retrieving macOS graphics info.");
+            var genericGpusmacOS = new List<GenericGpuInfo>
+            {
+                new(macosInfo.GpuChipset, macosInfo.GpuDriverVersion)
+            };
+            // macOS `system_profiler` typically provides one resolution value for displays.
+            var genericMonitors = new List<GenericMonitorInfo>
+            {
+                new("Main Display", macosInfo.MonitorResolution)
+            };
+            return new GenericGraphicsInfo(genericGpusmacOS, genericMonitors, "macOS");
         }
     }
     [SupportedOSPlatform("windows")]
-    private static void PrintGraphicsInfoWindows()
+    public static WindowsGraphicsInfo? GetGraphicsInfoWindows()
     {
         try
         {
-            // PowerShell script to get GPU info and format driver version for NVIDIA GPUs
             const string gpuCommand = """
 
                                       $gpuInfo = Get-WmiObject Win32_VideoController | Select-Object Description, DriverVersion
@@ -507,39 +604,32 @@ public static partial class OsInfo
                                           $driverVersion = $gpu.DriverVersion
 
                                           if ($description -like '*nvidia*') {
-                                              # Check if it's an NVIDIA GPU
                                               if ($driverVersion.Length -ge 12) {
-                                                  # Check if driver version length is at least 12 characters (expected format length)
                                                   $versionParts = $driverVersion.Split('.')
                                                   if ($versionParts.Length -ge 4) {
-                                                      # Check if driver version has at least 4 parts separated by dots
-                                                      $buildNumberPart = $versionParts[2] # The 3rd part is assumed to be build number (e.g., "15")
-                                                      $revisionNumberPart = $versionParts[3] # The 4th part is assumed to be revision number (e.g., "7216")
+                                                      $buildNumberPart = $versionParts[2]
+                                                      $revisionNumberPart = $versionParts[3]
 
-                                                      $lastDigitOfBuild = $buildNumberPart.Substring($buildNumberPart.Length - 1, 1) # Extract last digit of build number
-                                                      $firstTwoDigitsOfRevision = $revisionNumberPart.Substring(0, 2)          # Extract first two digits of revision number
-                                                      $lastTwoDigitsOfRevision = $revisionNumberPart.Substring($revisionNumberPart.Length - 2, 2) # Extract last two digits of revision number
+                                                      $lastDigitOfBuild = $buildNumberPart.Substring($buildNumberPart.Length - 1, 1)
+                                                      $firstTwoDigitsOfRevision = $revisionNumberPart.Substring(0, 2)
+                                                      $lastTwoDigitsOfRevision = $revisionNumberPart.Substring($revisionNumberPart.Length - 2, 2)
 
-                                                      # Format the driver version as: (last digit of build).(first two digits of revision)(last two digits of revision)
                                                       $formattedDriverVersion = $lastDigitOfBuild + $firstTwoDigitsOfRevision + '.' + $lastTwoDigitsOfRevision
                                                       Write-Host "GPU: $($description), Driver Version: $($formattedDriverVersion)"
                                                   } else {
-                                                      # If less than 4 parts, output raw driver version
                                                       Write-Host "GPU: $($description), Driver Version: $($driverVersion)"
                                                   }
                                               } else {
-                                                  # If driver version length is less than 12 characters, output raw driver version
                                                   Write-Host "GPU: $($description), Driver Version: $($driverVersion)"
                                               }
                                           }
                                           else {
-                                              # For non-NVIDIA GPUs, output raw driver version
                                               Write-Host "GPU: $($description), Driver Version: $($driverVersion)"
                                           }
                                       }
                                       """;
-            var gpuInfo = RunPowerShellCommand(gpuCommand);
-            DebugHelper.WriteLine("GPU Info: " + gpuInfo);
+            var gpuRawOutput = RunPowerShellCommand(gpuCommand);
+
             const string monitorCommand = """
 
                                           Add-Type -AssemblyName System.Windows.Forms
@@ -553,20 +643,39 @@ public static partial class OsInfo
                                           }
 
                                           """;
+            var monitorRawOutput = RunPowerShellCommand(monitorCommand);
 
-            var monitorInfo = RunPowerShellCommand(monitorCommand);
-            DebugHelper.WriteLine("Monitor Info: " + monitorInfo);
+            var gpus = ParseWindowsGpuInfo(gpuRawOutput);
+            var monitors = ParseWindowsMonitorInfo(monitorRawOutput);
+
+            return new WindowsGraphicsInfo(gpus, monitors);
         }
-        catch (Exception ex)
+        catch
         {
-            DebugHelper.WriteLine("Error reading GPU info on Windows: " + ex.Message);
+            return null;
         }
+    }
+    private static List<WindowsGpuInfo> ParseWindowsGpuInfo(string rawOutput)
+    {
+        var lines = rawOutput.Trim().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+        DebugHelper.WriteLine("GPU Info for this computer:");
+        DebugHelper.WriteLine(string.Join("\n", lines));
+        var regex = WindowsGPUInfoRegex();
+
+        return (from line in lines select line.Trim() into trimmedLine select regex.Match(trimmedLine) into match where match.Success let name = match.Groups[1].Value.Trim() let driver = match.Groups[2].Value.Trim() select new WindowsGpuInfo(name, driver)).ToList();
+    }
+
+    private static List<WindowsMonitorInfo> ParseWindowsMonitorInfo(string rawOutput)
+    {
+        var lines = rawOutput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+        return (from line in lines where line.StartsWith("Monitor:") select line["Monitor: ".Length..].Split([", Position: ", ", Resolution: "], StringSplitOptions.RemoveEmptyEntries) into parts where parts.Length == 3 let name = parts[0] let positionPart = parts[1] let resolutionPart = parts[2] select new WindowsMonitorInfo(name, positionPart, resolutionPart)).ToList();
     }
     private static string RunPowerShellCommand(string command)
     {
+        var escapedCommand = command.Replace("\"", "`\"");
         var process = new Process();
         process.StartInfo.FileName = "powershell";
-        process.StartInfo.Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"";
+        process.StartInfo.Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{escapedCommand}\"";
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
@@ -574,113 +683,120 @@ public static partial class OsInfo
         process.Start();
         var output = process.StandardOutput.ReadToEnd();
         process.WaitForExit();
+        if (process.ExitCode != 0)
+        {
+            DebugHelper.WriteLine($"Error running PowerShell command: {output}");
+        }
         return output;
     }
-    private static void PrintGraphicsInfoLinux()
+    public static LinuxGraphicsInfo? GetGraphicsInfoLinux()
     {
         try
         {
-            var GpuInfo = RunShellCommand("lspci | grep -i 'vga'");
-            if (!string.IsNullOrWhiteSpace(GpuInfo))
+            LinuxGpuInfo? gpuInfo = null;
+            var GpuLspciInfo = RunShellCommand("lspci | grep -i 'vga'");
+            if (!string.IsNullOrWhiteSpace(GpuLspciInfo))
             {
-                DebugHelper.WriteLine("GPU: " + GpuInfo);
                 var glxInfo = RunShellCommand("glxinfo | grep -E 'OpenGL version|OpenGL vendor string'");
+                var glxLines = glxInfo.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
-                var lines = glxInfo.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
-                var driverVersion = lines.FirstOrDefault(line => line.Contains("OpenGL version")).Split(':')[1].Trim();
-                var vendor = lines.FirstOrDefault(line => line.Contains("OpenGL vendor string")).Split(':')[1].Trim();
-                DebugHelper.WriteLine($"Driver Version: {vendor} {driverVersion}");
+                var driverVersion = glxLines.FirstOrDefault(line => line.Contains("OpenGL version"))?.Split(':')[1]?.Trim();
+                var vendor = glxLines.FirstOrDefault(line => line.Contains("OpenGL vendor string"))?.Split(':')[1]?.Trim();
+                gpuInfo = new LinuxGpuInfo(GpuLspciInfo, vendor, driverVersion);
             }
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.WriteLine("Error reading GPU info on Linux: " + ex.Message);
-        }
 
-        try
-        {
-            var gpuInfo = File.ReadAllText("/proc/driver/nvidia/version");
-            var firstLine = gpuInfo.Split(Environment.NewLine)[0];
-            var match = Regex.Match(firstLine, @"\b(\d+\.\d+\.\d+)\b");
-            if (match.Success)
+            var nvidiaDriverVersion = string.Empty;
+            try
             {
-                DebugHelper.WriteLine("NVIDIA GPU Driver Version: " + match.Value);
+                var gpuFileContent = File.ReadAllText("/proc/driver/nvidia/version");
+                var firstLine = gpuFileContent.Split(Environment.NewLine)[0];
+                var match = NvidiaDriverVersionRegex().Match(firstLine);
+                if (match.Success)
+                {
+                    nvidiaDriverVersion = match.Value;
+                }
             }
+            catch
+            {
+                // Swallow errors
+            }
+
+            var monitors = new List<LinuxMonitorInfo>();
+            try
+            {
+                var xrandrOutput = RunShellCommand("xrandr --listmonitors");
+                var xrandrLines = xrandrOutput.Split('\n');
+
+                for (var i = 1; i < xrandrLines.Length; i++)
+                {
+                    var line = xrandrLines[i].Trim();
+                    if (string.IsNullOrEmpty(line) || !line.Contains('+')) continue;
+                    var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                    var monitorName = parts.Length > 3 ? parts[3] : string.Empty;
+
+                    var resolutionAndCoords = parts.Length > 2 ? parts[2] : string.Empty;
+
+                    // Extract resolution (e.g., "1920x1080") before the first '+' or '/'
+                    var resolution = string.Empty;
+                    var resolutionMatch = XRandrResolutionRegex().Match(resolutionAndCoords);
+                    if (resolutionMatch.Success)
+                    {
+                        resolution = resolutionMatch.Groups[1].Value;
+                    }
+
+                    // Extract coordinates (e.g., "+885+1080")
+                    var coordinateParts = resolutionAndCoords.Split('+');
+                    var x = coordinateParts.Length > 1 ? coordinateParts[1] : string.Empty;
+                    var y = coordinateParts.Length > 2 ? coordinateParts[2] : string.Empty;
+                    var coordinates = $"({x}, {y})";
+
+                    monitors.Add(new LinuxMonitorInfo(monitorName, resolution, coordinates));
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugHelper.WriteLine("Error while getting graphics info on Linux");
+                DebugHelper.WriteException(ex);
+            }
+
+            return new LinuxGraphicsInfo(gpuInfo, nvidiaDriverVersion, monitors);
         }
         catch
         {
-            // I acknowledge I am swallowing errors.
-        }
-
-        try
-        {
-            var output = RunShellCommand("xrandr --listmonitors");
-            var lines = output.Split('\n');
-
-            // Skip the first line (header)
-            for (var i = 1; i < lines.Length; i++)
-            {
-                var line = lines[i].Trim();
-                if (string.IsNullOrEmpty(line) || !line.Contains('+')) continue;
-                var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                var monitorName = parts[3];
-
-                // The coordinates are at the end of the resolution, typically in format +x+y
-                var resolutionAndCoords = parts[2];  // e.g., "1920/344x1080/193+885+1080"
-                var coordinates = resolutionAndCoords.Split('+');
-                var x = coordinates[1];
-                var y = coordinates[2];
-
-                DebugHelper.WriteLine($"Monitor: {monitorName}, Coordinates: ({x}, {y})");
-            }
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.WriteLine("Error reading X11 monitor info on Linux: " + ex.Message);
+            return null;
         }
     }
-
-    private static void PrintGraphicsInfoMacOS()
+    public static MacOSGraphicsInfo? GetGraphicsInfoMacOS()
     {
         try
         {
             var output = RunShellCommand("system_profiler SPDisplaysDataType");
+            string gpuChipset = string.Empty;
+            string gpuDriverVersion = string.Empty;
+            string monitorResolution = string.Empty;
+
             foreach (var line in output.Split('\n'))
             {
                 if (line.Contains("Chipset Model"))
                 {
-                    var gpu = line.Split(":")[1].Trim();
-                    DebugHelper.WriteLine($"GPU: {gpu}");
+                    gpuChipset = line.Split(":")[1].Trim();
                 }
-                if (line.Contains("Driver Version"))
+                else if (line.Contains("Driver Version"))
                 {
-                    var driverVersion = line.Split(":")[1].Trim();
-                    DebugHelper.WriteLine($"Driver Version: {driverVersion}");
+                    gpuDriverVersion = line.Split(":")[1].Trim();
+                }
+                else if (line.Contains("Resolution"))
+                {
+                    monitorResolution = line.Split(":")[1].Trim();
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.WriteLine("Error reading GPU info on macOS: " + ex.Message);
-        }
 
-        try
-        {
-            var output = RunShellCommand("system_profiler SPDisplaysDataType");
-            foreach (var line in output.Split('\n'))
-            {
-                if (line.Contains("Resolution"))
-                {
-                    var resolution = line.Split(":")[1].Trim();
-                    DebugHelper.WriteLine($"Monitor Resolution: {resolution}");
-                }
-            }
+            return new MacOSGraphicsInfo(gpuChipset, gpuDriverVersion, monitorResolution);
         }
-        catch (Exception ex)
+        catch
         {
-            DebugHelper.WriteLine("Error reading monitor info on macOS: " + ex.Message);
+            return null;
         }
     }
 
@@ -704,13 +820,9 @@ public static partial class OsInfo
         {
             return CheckWindowsHdr();
         }
-        if (OperatingSystem.IsMacOS())
-        {
-            return CheckMacOSHdr();
-        }
+        return OperatingSystem.IsMacOS() && CheckMacOSHdr();
         // Detection of HDR on Linux is way too work.
         // If they're on Linux, they should know they're using things like HDR.
-        return false;
     }
 
     [SupportedOSPlatform("linux")]
@@ -727,11 +839,11 @@ public static partial class OsInfo
             return false;
         }
     }
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows5.0")]
     private static bool CheckWindowsHdr()
     {
-        var hdc = GetDC(IntPtr.Zero);
-        var bpp = GetDeviceCaps(hdc, BITSPIXEL);
+        var hdc = PInvoke.GetDC(new HWND(IntPtr.Zero));
+        var bpp = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.BITSPIXEL);
         return bpp >= 30;
     }
 
@@ -754,11 +866,10 @@ public static partial class OsInfo
         return output;
     }
 
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    private static extern IntPtr GetDC(IntPtr hWnd);
-
-    [DllImport("gdi32.dll")]
-    private static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
-
-    private const int BITSPIXEL = 12;
+    [GeneratedRegex(@"\b(\d+\.\d+\.\d+)\b")]
+    private static partial Regex NvidiaDriverVersionRegex();
+    [GeneratedRegex(@"^(\d+x\d+)")]
+    private static partial Regex XRandrResolutionRegex();
+    [GeneratedRegex(@"^GPU:\s*(.*?)(?:,\s*|\s+)Driver Version:\s*(.+)$", RegexOptions.Compiled)]
+    private static partial Regex WindowsGPUInfoRegex();
 }

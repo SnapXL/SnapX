@@ -41,20 +41,4 @@ public class LoggingHttpMessageHandler : DelegatingHandler
             return new HttpResponseMessage();
         }
     }
-    static object GetProperty(object obj, string propertyName)
-        => GetMemberInfo(obj,
-                type => type.GetProperty(propertyName, bindingFlags)!)
-            .GetValue(obj)!;
-
-    static object GetField(object obj, string fieldName)
-        => GetMemberInfo(obj,
-                type => type.GetField(fieldName, bindingFlags)!)
-            .GetValue(obj)!;
-
-    static TMember GetMemberInfo<TMember>(object obj, Func<Type, TMember> getMemberInfo)
-        where TMember : MemberInfo
-        => getMemberInfo(obj.GetType());
-
-    static BindingFlags bindingFlags =
-        BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 }

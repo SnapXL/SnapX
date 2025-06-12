@@ -9,6 +9,8 @@ GetWindowRect
 GetWindow
 WindowFromPoint
 IsWindowVisible
+GetDeviceCaps
+GetDC
 GetWindowText
 GetWindowRgn
 GetCursorPos
