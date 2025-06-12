@@ -842,4 +842,52 @@ public class WindowsAPI : NativeAPI
 
         return false;
     }
+
+    public static void RegisterWindowsIntegrations()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    // TODO: Reimplement FirstTimeForm to give users chance to consent
+                    EnsureWindowsUploaderExtensions();
+                    EnsureWindowsShellIntegrations();
+                    EnsureBrowserExtensions();
+                }
+                catch (Exception ex)
+                {
+                    DebugHelper.WriteLine($"Windows API setup failed: {ex}");
+                }
+            });
+        }
+    }
+
+    private static void EnsureWindowsUploaderExtensions()
+    {
+        if (!CheckCustomUploaderExtension())
+            CreateCustomUploaderExtension(true);
+
+        if (!CheckImageEffectExtension())
+            CreateImageEffectExtension(true);
+    }
+
+    private static void EnsureWindowsShellIntegrations()
+    {
+        if (!CheckShellContextMenuButton())
+            CreateShellContextMenuButton(true);
+
+        if (!WindowsAPI.CheckSendToMenuButton())
+            WindowsAPI.CreateSendToMenuButton(true);
+    }
+
+    private static void EnsureBrowserExtensions()
+    {
+        if (!CheckChromeExtensionSupport())
+            CreateChromeExtensionSupport(true);
+
+        if (!CheckFirefoxAddonSupport())
+            CreateFirefoxAddonSupport(true);
+    }
 }

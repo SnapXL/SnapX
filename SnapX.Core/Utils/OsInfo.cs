@@ -842,9 +842,13 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows5.0")]
     private static bool CheckWindowsHdr()
     {
+        #if WINDOWS
         var hdc = PInvoke.GetDC(new HWND(IntPtr.Zero));
         var bpp = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.BITSPIXEL);
         return bpp >= 30;
+        #else
+        return false;
+        #endif
     }
 
     private static bool CheckMacOSHdr()

@@ -659,56 +659,8 @@ public class SnapX
         if (Portable || Sandbox) return;
 
 #if WINDOWS
-        RegisterWindowsIntegrations();
+        WindowsAPI.RegisterWindowsIntegrations();
 #endif
-    }
-
-    private static void RegisterWindowsIntegrations()
-    {
-        if (OperatingSystem.IsWindows())
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    // TODO: Reimplement FirstTimeForm to give users chance to consent
-                    EnsureWindowsUploaderExtensions();
-                    EnsureWindowsShellIntegrations();
-                    EnsureBrowserExtensions();
-                }
-                catch (Exception ex)
-                {
-                    DebugHelper.WriteLine($"Windows API setup failed: {ex}");
-                }
-            });
-        }
-    }
-
-    private static void EnsureWindowsUploaderExtensions()
-    {
-        if (!WindowsAPI.CheckCustomUploaderExtension())
-            WindowsAPI.CreateCustomUploaderExtension(true);
-
-        if (!WindowsAPI.CheckImageEffectExtension())
-            WindowsAPI.CreateImageEffectExtension(true);
-    }
-
-    private static void EnsureWindowsShellIntegrations()
-    {
-        if (!WindowsAPI.CheckShellContextMenuButton())
-            WindowsAPI.CreateShellContextMenuButton(true);
-
-        if (!WindowsAPI.CheckSendToMenuButton())
-            WindowsAPI.CreateSendToMenuButton(true);
-    }
-
-    private static void EnsureBrowserExtensions()
-    {
-        if (!WindowsAPI.CheckChromeExtensionSupport())
-            WindowsAPI.CreateChromeExtensionSupport(true);
-
-        if (!WindowsAPI.CheckFirefoxAddonSupport())
-            WindowsAPI.CreateFirefoxAddonSupport(true);
     }
 
     private static void MigratePersonalPathConfig()
