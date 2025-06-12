@@ -31,7 +31,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
