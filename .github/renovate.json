@@ -11,11 +11,36 @@
 	"branchConcurrentLimit": 20,
 	"branchPrefix": "dep/",
 	"branchPrefixOld": "renovate/",
-	"timezone": "America/New_York",
-	"packageRules": [
-		{
-			"matchDepTypes": ["action"],
-			"labels": ["actions"]
-		}
-	]
+    "minimumReleaseAge": "8 hours",
+    "timezone": "America/New_York",
+    "packageRules": [
+          {
+            "matchDepTypes": ["action"],
+            "labels": ["actions"],
+            "minimumReleaseAge": "2 days"
+          },
+          {
+            "matchDepNames": [".*[Dd]otnet.*", "Microsoft.Extensions*", "Microsoft.Data*"],
+            "minimumReleaseAge": "4 days"
+          },
+          {
+            "description": "Merge Brycen's amazing packages soon as possible",
+            "matchDepNames": ["*BrycensRanch*", "WaylandSharper"],
+            "minimumReleaseAge": "0 minutes"
+          },
+          {
+            "matchDepNames": ["*Wayland*", "*DBus*"],
+            "labels": ["linux"]
+          },
+          {
+            "matchDepNames": ["xcap", "*osx*"],
+            "labels": ["macOS"],
+            "minimumReleaseAge": "7 days"
+          },
+          {
+            "matchDepNames": [".*[Ww]indows.*", "*Vortice*", "*PowerShell*", "*Win32*", "*runtime.win*", "*win64*"],
+            "matchDepNamesCaseSensitive": false,
+            "labels": ["windows"]
+          }
+      ]
 }
