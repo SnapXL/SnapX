@@ -278,9 +278,9 @@ public static partial class OsInfo
     }
     public static (long totalMemory, long usedMemory) GetMemoryInfo()
     {
-        #if WINDOWS
+#if WINDOWS
         if (OperatingSystem.IsWindows()) return GetMemoryInfoWindows();
-        #endif
+#endif
         if (OperatingSystem.IsLinux()) return GetMemoryInfoLinux();
         if (OperatingSystem.IsMacOS()) return GetMemoryInfoMacOS();
         if (OperatingSystem.IsFreeBSD()) return GetMemoryInfoFreeBSD();
@@ -811,12 +811,12 @@ public static partial class OsInfo
     }
     public static bool IsHdrSupported()
     {
-        #if WINDOWS
+#if WINDOWS
         if (OperatingSystem.IsWindows())
         {
             return CheckWindowsHdr();
         }
-        #endif
+#endif
         return OperatingSystem.IsMacOS() && CheckMacOSHdr();
         // Detection of HDR on Linux is way too work.
         // If they're on Linux, they should know they're using things like HDR.
