@@ -18,7 +18,7 @@
 # This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
 
 
-%global version         0.2.0
+%global version         0.2.1
 # This build switch is not intended to be used as a method to make s390x and Ppc64le work
 %global build_with_aot  false
 %ifarch x86_64 aarch64
@@ -31,7 +31,7 @@
 
 Name:           snapx
 Version:        %{version}
-Release:        2%{?dist}
+Release:        1%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
@@ -96,10 +96,10 @@ export PKGTYPE=RPM
 %global build_extra_args --extra-args="-p:PublishAot=false"
 %endif
 
-./build.sh --configuration Release %{build_extra_args}
+./build.sh --no-color --no-extended-chars --configuration Release %{build_extra_args}
 
 %install
-./build.sh install --prefix %{_prefix} --lib-dir %{buildroot}%{_libdir} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
+./build.sh install --no-color --no-extended-chars --prefix %{_prefix} --lib-dir %{buildroot}%{_libdir} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
 
 %files
 %{_bindir}/libe_sqlite3.so

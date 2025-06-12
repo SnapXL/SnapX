@@ -533,14 +533,23 @@ internal class Program
     {
         if (File.Exists(source))
         {
-            var installArgs = $"-Dpm {permissions} {source} {destination}";
+            if (OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD())
+            {
+                RunInstallCommand($"-p {Path.GetDirectoryName(destination)}", "mkdir");
+            }
+            var installArgs = $"-D -m {permissions} {source} {destination}";
             RunInstallCommand(installArgs);
+
+            if (OperatingSystem.IsMacOS() || Environment.GetEnvironmentVariable("SKIP_TOUCH") is not null) return;
+            var touchArgs = $"-r {source} {destination}";
+            RunInstallCommand(touchArgs, "touch");
         }
         else
         {
             Information($"Source file not found: {source}");
         }
     }
+
     void RunInstallCommand(string installArguments, string executionCommand = "install")
     {
         var requiresElevationLikely = !IsAdmin() && RequiresElevationLikely(installArguments);
@@ -573,7 +582,7 @@ internal class Program
                 var errorOutput = process.StandardError.ReadToEnd();
                 Error($"Install command failed: {errorOutput}");
 
-                if (requiresElevationLikely || !errorOutput.Contains("Permission denied")) return;
+                if (requiresElevationLikely || !errorOutput.Contains("Permission denied", StringComparison.OrdinalIgnoreCase)) return;
                 Error("Retrying with elevated privileges (sudo)...");
                 requiresElevationLikely = true;
                 RunInstallCommand(installArguments);
@@ -600,7 +609,8 @@ internal class Program
 
     bool RequiresElevationLikely(string installArguments)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (Environment.GetEnvironmentVariable("ELEVATION_NOT_NEEDED") == "1") return false;
+        if (OperatingSystem.IsWindows())
         {
             // On Windows, elevation is handled differently (e.g., run as admin).
             // This simple check is for Unix-like systems.
@@ -640,7 +650,7 @@ internal class Program
     }
     internal static bool IsAdmin()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
         {
             try
             {
@@ -661,7 +671,7 @@ internal class Program
 
     internal static int GetCurrentUid()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
         {
             return -1; // UID concept is not directly applicable in the same way.
         }
