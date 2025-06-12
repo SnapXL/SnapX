@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
+using Aptabase.Core;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using SnapX.Core.CLI;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Job;
@@ -179,7 +181,7 @@ public class SnapX
     public static string LockDirectory => Path.Combine(BaseDirectory.RuntimeDir, AppName);
     public const string LogsFolderName = "Logs";
     // On Linux, strictly adhere to XDG BaseDirectory spec.
-    // On macOS, most of these XDG directories resolve to $HOME/Library/Application Support	anyways so it doesn't really matter.
+    // On macOS, most of these XDG directories resolve to $HOME/Library/Application Support	anyway so it doesn't really matter.
     public static string LogsFolder => OperatingSystem.IsLinux() ? Path.Combine(BaseDirectory.StateHome, AppName, LogsFolderName) : Path.Combine(PersonalFolder, LogsFolderName);
 
     public static string LogsFilePath
@@ -200,32 +202,23 @@ public class SnapX
     {
         get
         {
-            if (Settings != null && Settings.UseCustomScreenshotsPath)
+            if (Settings is not { UseCustomScreenshotsPath: true }) return Path.Combine(PersonalFolder, "Screenshots");
+            var path = Settings.CustomScreenshotsPath;
+            var path2 = Settings.CustomScreenshotsPath2;
+            if (!string.IsNullOrEmpty(path))
             {
-                string path = Settings.CustomScreenshotsPath;
-                string path2 = Settings.CustomScreenshotsPath2;
-                if (!string.IsNullOrEmpty(path))
+                path = FileHelpers.ExpandFolderVariables(path);
+
+                if (string.IsNullOrEmpty(path2) || Directory.Exists(path))
                 {
-                    path = FileHelpers.ExpandFolderVariables(path);
-
-                    if (string.IsNullOrEmpty(path2) || Directory.Exists(path))
-                    {
-                        return path;
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(path2))
-                {
-                    path2 = FileHelpers.ExpandFolderVariables(path2);
-
-                    if (Directory.Exists(path2))
-                    {
-                        return path2;
-                    }
+                    return path;
                 }
             }
 
-            return Path.Combine(PersonalFolder, "Screenshots");
+            if (string.IsNullOrEmpty(path2)) return Path.Combine(PersonalFolder, "Screenshots");
+            path2 = FileHelpers.ExpandFolderVariables(path2);
+
+            return Directory.Exists(path2) ? path2 : Path.Combine(PersonalFolder, "Screenshots");
         }
     }
 
@@ -253,7 +246,7 @@ public class SnapX
 
     public void start()
     {
-        start(Array.Empty<string>());
+        start([]);
     }
 
     public void silenceLogging()
@@ -307,7 +300,7 @@ public class SnapX
     // The code here is instance dependent thus cannot be called from static stuff yada yada yada.
     public void PlayNotificationSoundAsync(NotificationSound notificationSound, TaskSettings? taskSettings = null)
     {
-        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
+        taskSettings ??= TaskSettings.GetDefaultTaskSettings();
         switch (notificationSound)
         {
             case NotificationSound.Capture:
@@ -378,24 +371,31 @@ public class SnapX
         {
             DebugHelper.WriteLine("Personal path detection method: " + PersonalPathDetectionMethod);
         }
-        DebugHelper.WriteLine("Operating system: " + Helpers.GetOperatingSystemProductName(true));
+        DebugHelper.WriteLine("Operating system: " + SnapXResources.fancyOsName);
+
+        var sessionType = "";
+        var desktopEnvironment = "";
+        var kdePlasmaMajorVersion = "";
+
         if (OperatingSystem.IsLinux())
         {
-            var sessionType = Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") ?? "Unknown";
-            var desktopEnvironment = Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? "Unknown";
-            var kdePlasmaMajorVersion = Environment.GetEnvironmentVariable("KDE_SESSION_VERSION");
+            sessionType = Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") ?? "Unknown";
+            desktopEnvironment = Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? "Unknown";
+            kdePlasmaMajorVersion = Environment.GetEnvironmentVariable("KDE_SESSION_VERSION");
+
             DebugHelper.WriteLine($"Session Type: {sessionType}");
             DebugHelper.WriteLine($"Desktop Environment: {desktopEnvironment}{(desktopEnvironment == "KDE" ? $" {kdePlasmaMajorVersion}" : "")}");
         }
         DebugHelper.WriteLine($"Platform: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
         if (OperatingSystem.IsLinux() && OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
-        DebugHelper.WriteLine(".NET: " + RuntimeInformation.FrameworkDescription);
+        DebugHelper.WriteLine(".NET: " + SnapXResources.Dotnet);
         Settings.ApplicationVersion = Helpers.GetApplicationVersion();
-
+        long totalMemory = 0;
+        long usedMemory = 0;
         _ = Task.Run(() =>
         {
-            DebugHelper.WriteLine($"CPU: {OsInfo.GetProcessorName()} ({Environment.ProcessorCount})");
-            var (totalMemory, usedMemory) = OsInfo.GetMemoryInfo();
+            DebugHelper.WriteLine($"CPU: {SnapXResources.CPU} ({SnapXResources.CPUCount})");
+            (totalMemory, usedMemory) = OsInfo.GetMemoryInfo();
             DebugHelper.WriteLine($"Total Memory: {totalMemory} MiB");
             DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
             OsInfo.PrintGraphicsInfo();
@@ -460,6 +460,34 @@ public class SnapX
         };
         SettingManager.LoadSettings();
         if (TelemetryEnabled())
+        {
+            var logger = DebugHelper.Logger.ForContext<AptabaseClient>() as ILogger<AptabaseClient>;
+
+            var aptabaseClient = new AptabaseClient("A-US-4105716286", new AptabaseOptions()
+            {
+                EnablePersistence = true,
+#if DEBUG
+                IsDebugMode = true
+#else
+                IsDebugMode = false
+#endif
+            }, logger);
+            var telemetry = new Telemetry(DbConnection, aptabaseClient);
+            telemetry.TrackEvent("app_started", new Dictionary<string, object>
+            {
+                { "CPU", SnapXResources.CPU },
+                { "CPUCount", SnapXResources.CPUCount},
+                { "Build", nameof(Build) },
+                { "graphicsInfo", SnapXResources.graphicsInfo },
+                { "totalMemory", totalMemory },
+                { "usedMemory", usedMemory },
+                { "Dotnet", SnapXResources.Dotnet },
+                { "fancyOsName", SnapXResources.fancyOsName},
+                { "DbVersion", DbConnection.ServerVersion },
+                { "DesktopEnvironment", $"{desktopEnvironment}{(desktopEnvironment == "KDE" ? $" {kdePlasmaMajorVersion}" : "")}"},
+                { "SessionType", sessionType },
+                { "Flags", string.Join(",", Flags)}
+            });
             SentrySdk.Init(options =>
             {
                 // This allows end users to test themselves what data is sent to Sentry
@@ -471,10 +499,11 @@ public class SnapX
 
 #if DEBUG
                 options.Environment = "development";
+                options.CreateHttpMessageHandler = () => new LoggingHttpMessageHandler(new SentryHttpMessageHandler(), DebugHelper.Logger);
+                options.DisableSentryHttpMessageHandler = true;
 #else
                 options.Environment = "production";
 #endif
-
                 // VLCException includes multiple paths with username
                 // For full transparency, I discovered this issue on my computer.
                 // No other users are effected to my knowledge.
@@ -486,12 +515,17 @@ public class SnapX
                         if (sentryEvent.Exception.Message.Contains(Environment.UserName)) return null;
                     }
 
+                    var jsonSentryEvent = JsonSerializer.Serialize(sentryEvent, new JsonSerializerOptions
+                    {
+                        TypeInfoResolver = SentryContext.Default,
+                    });
+                    telemetry.LogTelemetry("Sentry", sentryEvent.TransactionName ?? sentryEvent.Exception?.Message ?? "SentryEvent", jsonSentryEvent);
+
                     return sentryEvent;
                 });
 
                 // Enabling this option is recommended for client applications only. It ensures all threads use the same global scope.
                 options.IsGlobalModeEnabled = true;
-
                 // This option is recommended. It enables Sentry's "Release Health" feature.
                 options.AutoSessionTracking = true;
 
@@ -508,6 +542,7 @@ public class SnapX
                 // This saves events for later when internet connectivity is poor/not working.
                 options.CacheDirectoryPath = Path.Combine(BaseDirectory.CacheHome, AppName);
             });
+        }
         if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
         // CleanupManager.CleanupAsync();
     }
@@ -546,7 +581,6 @@ public class SnapX
             DbConnection.CloseAsync().GetAwaiter().GetResult();
             DbConnection.Dispose();
         }
-        if (TelemetryEnabled()) SentrySdk.Close();
 
         DebugHelper.WriteLine("SnapX closed.");
         DebugHelper.FlushBufferedMessages();
@@ -623,39 +657,9 @@ public class SnapX
     private static void RegisterIntegrations()
     {
         if (Portable || Sandbox) return;
+
 #if WINDOWS
-        if (OperatingSystem.IsWindows())
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    // TODO: Reimplement FirstTimeForm to give users chance to consent
-                    if (!WindowsAPI.CheckCustomUploaderExtension())
-                        WindowsAPI.CreateCustomUploaderExtension(true);
-
-                    if (!WindowsAPI.CheckImageEffectExtension())
-                        WindowsAPI.CreateImageEffectExtension(true);
-
-                    if (!WindowsAPI.CheckShellContextMenuButton())
-                        WindowsAPI.CreateShellContextMenuButton(true);
-
-                    if (!WindowsAPI.CheckSendToMenuButton())
-                        WindowsAPI.CreateSendToMenuButton(true);
-
-                    if (!WindowsAPI.CheckChromeExtensionSupport())
-                        WindowsAPI.CreateChromeExtensionSupport(true);
-
-                    if (!WindowsAPI.CheckFirefoxAddonSupport())
-                        WindowsAPI.CreateFirefoxAddonSupport(true);
-                }
-                catch (Exception ex)
-                {
-                    // Consider logging the exception or notifying the user
-                    DebugHelper.WriteLine($"Windows API setup failed: {ex}");
-                }
-            });
-        }
+        WindowsAPI.RegisterWindowsIntegrations();
 #endif
     }
 
@@ -685,23 +689,22 @@ public class SnapX
                 DebugHelper.WriteException(e);
             }
         }
-        if (File.Exists(PreviousPersonalPathConfigFilePath))
+
+        if (!File.Exists(PreviousPersonalPathConfigFilePath)) return;
+        try
         {
-            try
+            if (!File.Exists(CurrentPersonalPathConfigFilePath))
             {
-                if (!File.Exists(CurrentPersonalPathConfigFilePath))
-                {
-                    FileHelpers.CreateDirectoryFromFilePath(CurrentPersonalPathConfigFilePath);
-                    FileHelpers.CreateDirectoryFromFilePath(ConfigFolder);
-                    File.Move(PreviousPersonalPathConfigFilePath, CurrentPersonalPathConfigFilePath);
-                }
-                File.Delete(PreviousPersonalPathConfigFilePath);
-                Directory.Delete(Path.GetDirectoryName(PreviousPersonalPathConfigFilePath));
+                FileHelpers.CreateDirectoryFromFilePath(CurrentPersonalPathConfigFilePath);
+                FileHelpers.CreateDirectoryFromFilePath(ConfigFolder);
+                File.Move(PreviousPersonalPathConfigFilePath, CurrentPersonalPathConfigFilePath);
             }
-            catch (Exception e)
-            {
-                e.ShowError();
-            }
+            File.Delete(PreviousPersonalPathConfigFilePath);
+            Directory.Delete(Path.GetDirectoryName(PreviousPersonalPathConfigFilePath)!);
+        }
+        catch (Exception e)
+        {
+            e.ShowError();
         }
     }
 
@@ -754,9 +757,8 @@ public class SnapX
 
         // Add the event handler for handling non-UI thread exceptions to the event
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        AppDomain.CurrentDomain.ProcessExit += ((_, _) => CloseSequence());
     }
-
-    private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) => OnError(e.Exception);
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) => OnError((Exception)e.ExceptionObject);
     private static void OnError(Exception e) => DebugHelper.WriteException(e);
 
@@ -779,17 +781,25 @@ public class SnapX
 
     private static void DebugWriteFlags()
     {
-        if (Settings.DevMode) Flags.Add(nameof(Settings.DevMode));
-        if (MultiInstance) Flags.Add(nameof(MultiInstance));
-        if (Portable) Flags.Add(nameof(Portable));
-        if (SilentRun) Flags.Add(nameof(SilentRun));
-        if (Sandbox) Flags.Add(nameof(Sandbox));
-        if (IgnoreHotkeyWarning) Flags.Add(nameof(IgnoreHotkeyWarning));
-        if (FeatureFlags.DisableTelemetry) Flags.Add(nameof(FeatureFlags.DisableTelemetry));
-        if (FeatureFlags.DisableAutoUpdates) Flags.Add(nameof(FeatureFlags.DisableAutoUpdates));
-        if (FeatureFlags.DisableUploads) Flags.Add(nameof(FeatureFlags.DisableUploads));
-        if (FeatureFlags.DisableOCR) Flags.Add(nameof(FeatureFlags.DisableOCR));
-        if (PuushMode) Flags.Add(nameof(PuushMode));
+        void AddFlagIfTrue(bool condition, string flagName)
+        {
+            if (condition)
+            {
+                Flags.Add(flagName);
+            }
+        }
+
+        AddFlagIfTrue(Settings.DevMode, nameof(Settings.DevMode));
+        AddFlagIfTrue(MultiInstance, nameof(MultiInstance));
+        AddFlagIfTrue(Portable, nameof(Portable));
+        AddFlagIfTrue(SilentRun, nameof(SilentRun));
+        AddFlagIfTrue(Sandbox, nameof(Sandbox));
+        AddFlagIfTrue(IgnoreHotkeyWarning, nameof(IgnoreHotkeyWarning));
+        AddFlagIfTrue(FeatureFlags.DisableTelemetry, nameof(FeatureFlags.DisableTelemetry));
+        AddFlagIfTrue(FeatureFlags.DisableAutoUpdates, nameof(FeatureFlags.DisableAutoUpdates));
+        AddFlagIfTrue(FeatureFlags.DisableUploads, nameof(FeatureFlags.DisableUploads));
+        AddFlagIfTrue(FeatureFlags.DisableOCR, nameof(FeatureFlags.DisableOCR));
+        AddFlagIfTrue(PuushMode, nameof(PuushMode));
 
         var output = string.Join(", ", Flags);
         DebugHelper.WriteLine("Flags: " + output);

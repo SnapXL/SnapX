@@ -3,44 +3,19 @@ using System.Management.Automation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using System.Security;
 using System.Text;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Media;
 using SnapX.Core.Utils.Extensions;
 using Windows.Win32;
 using Windows.Win32.Foundation;
-using Windows.Win32.Graphics.Gdi;
-using Windows.Win32.Storage.FileSystem;
 using Windows.Win32.System.Memory;
-using Windows.Win32.UI.Controls;
 using Windows.Win32.UI.Shell;
 using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace SnapX.Core.Utils.Native;
-
-
-[SecurityCritical]
-[SecuritySafeCritical]
-[SupportedOSPlatform("windows10.0.18362")]
-public sealed class SafeHICON : SafeHandle
-{
-    internal HICON Hicon;
-    internal SafeHICON(HICON Hicon, bool ownsHandle) : base(IntPtr.Zero, ownsHandle)
-    {
-        this.Hicon = Hicon;
-    }
-
-    public override bool IsInvalid => handle == IntPtr.Zero;
-
-    protected override bool ReleaseHandle()
-    {
-        return PInvoke.DestroyIcon(Hicon);
-    }
-}
 
 // Windows 10 version 1903
 [SupportedOSPlatform("windows10.0.18362")]
@@ -50,86 +25,6 @@ public class WindowsAPI : NativeAPI
     public const uint CF_TEXT = 1;
     private const uint CF_DIB = 8;
     private const uint CF_HDROP = 15;
-
-
-    internal static HICON GetFileIcon(string filePath, bool isSmallIcon)
-    {
-        unsafe
-        {
-            var shfi = new SHFILEINFOW();
-            var flags = SHGFI_FLAGS.SHGFI_ICON;
-
-            if (isSmallIcon)
-            {
-                flags |= SHGFI_FLAGS.SHGFI_SMALLICON;
-            }
-            else
-            {
-                flags |= SHGFI_FLAGS.SHGFI_LARGEICON;
-            }
-            var shfiPtr = Marshal.AllocHGlobal(sizeof(SHFILEINFOW));
-            var shfiUnsafe = (SHFILEINFOW*)shfiPtr;
-            PInvoke.SHGetFileInfo(filePath, FILE_FLAGS_AND_ATTRIBUTES.SECURITY_ANONYMOUS, shfiUnsafe,
-                (uint)Marshal.SizeOf(shfi), flags);
-
-            var icon = shfi.hIcon;
-            PInvoke.DestroyIcon(icon);
-            return icon;
-        }
-    }
-
-    public override Image GetJumboFileIcon(string filePath, bool jumboSize = true)
-    {
-        unsafe
-        {
-            SHFILEINFOW shfi;
-            PInvoke.SHGetFileInfo(filePath, FILE_FLAGS_AND_ATTRIBUTES.SECURITY_ANONYMOUS, &shfi, (uint)Marshal.SizeOf<SHFILEINFOW>(),
-                SHGFI_FLAGS.SHGFI_SYSICONINDEX | SHGFI_FLAGS.SHGFI_USEFILEATTRIBUTES);
-            var guid = new Guid("46EB5926-582E-4017-9FDF-E8998DAA0950");
-            PInvoke.SHGetImageList(jumboSize ? (int)PInvoke.SHIL_JUMBO : (int)PInvoke.SHIL_EXTRALARGE, in guid, out var pImageList);
-            HIMAGELIST imagelist = new((nint)pImageList);
-            var hIcon = PInvoke.ImageList_GetIcon(imagelist, shfi.iIcon,
-                IMAGE_LIST_DRAW_STYLE.ILD_TRANSPARENT | IMAGE_LIST_DRAW_STYLE.ILD_IMAGE);
-            var safeHIcon = new SafeHICON(hIcon, true);
-            PInvoke.GetIconInfo(safeHIcon, out var iconInfo);
-            var bmp = new BITMAP();
-            var width = 0;
-            var height = 0;
-            var bitsPerPixel = 0;
-            if (iconInfo.hbmColor != IntPtr.Zero)
-            {
-                var nWrittenBytes = PInvoke.GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
-                if (nWrittenBytes > 0)
-                {
-                    width = bmp.bmWidth;
-                    height = bmp.bmHeight;
-                    bitsPerPixel = bmp.bmBitsPixel;
-                }
-            }
-            else if (iconInfo.hbmMask != IntPtr.Zero)
-            {
-                var nWrittenBytes = PInvoke.GetObject(iconInfo.hbmMask, sizeof(BITMAP), &bmp);
-                if (nWrittenBytes > 0)
-                {
-                    width = bmp.bmWidth;
-                    height = bmp.bmHeight / 2;
-                    bitsPerPixel = 1;
-                }
-            }
-
-            var totalBytes = width * Math.Abs(height) * (bitsPerPixel / 8);
-
-            var managedArray = new byte[totalBytes];
-            Marshal.Copy((IntPtr)bmp.bmBits, managedArray, 0, totalBytes);
-
-            Image img = Image.LoadPixelData<Bgra32>(managedArray, width, height);
-            if (iconInfo.hbmColor != IntPtr.Zero) PInvoke.DeleteObject(iconInfo.hbmColor);
-            if (iconInfo.hbmMask != IntPtr.Zero) PInvoke.DeleteObject(iconInfo.hbmMask);
-
-            PInvoke.DestroyIcon(hIcon);
-            return img;
-        }
-    }
 
     public override void ShowWindow(WindowInfo Window)
     {
@@ -946,5 +841,53 @@ public class WindowsAPI : NativeAPI
         }
 
         return false;
+    }
+
+    public static void RegisterWindowsIntegrations()
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    // TODO: Reimplement FirstTimeForm to give users chance to consent
+                    EnsureWindowsUploaderExtensions();
+                    EnsureWindowsShellIntegrations();
+                    EnsureBrowserExtensions();
+                }
+                catch (Exception ex)
+                {
+                    DebugHelper.WriteLine($"Windows API setup failed: {ex}");
+                }
+            });
+        }
+    }
+
+    private static void EnsureWindowsUploaderExtensions()
+    {
+        if (!CheckCustomUploaderExtension())
+            CreateCustomUploaderExtension(true);
+
+        if (!CheckImageEffectExtension())
+            CreateImageEffectExtension(true);
+    }
+
+    private static void EnsureWindowsShellIntegrations()
+    {
+        if (!CheckShellContextMenuButton())
+            CreateShellContextMenuButton(true);
+
+        if (!WindowsAPI.CheckSendToMenuButton())
+            WindowsAPI.CreateSendToMenuButton(true);
+    }
+
+    private static void EnsureBrowserExtensions()
+    {
+        if (!CheckChromeExtensionSupport())
+            CreateChromeExtensionSupport(true);
+
+        if (!CheckFirefoxAddonSupport())
+            CreateFirefoxAddonSupport(true);
     }
 }

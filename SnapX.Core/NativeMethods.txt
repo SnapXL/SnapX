@@ -1,6 +1,4 @@
 ﻿GetObject
-GetIconInfo
-DestroyIcon
 CreateFile
 CreateIconIndirect
 ShowWindow
@@ -11,6 +9,9 @@ GetWindowRect
 GetWindow
 WindowFromPoint
 IsWindowVisible
+GetDeviceCaps
+GetDC
+GlobalMemoryStatusEx
 GetWindowText
 GetWindowRgn
 GetCursorPos
