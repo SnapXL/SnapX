@@ -2,10 +2,12 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
+#if WINDOWS
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 using Microsoft.Win32;
+#endif
 
 namespace SnapX.Core.Utils;
 
