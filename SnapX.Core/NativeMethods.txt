@@ -11,6 +11,7 @@ WindowFromPoint
 IsWindowVisible
 GetDeviceCaps
 GetDC
+GlobalMemoryStatusEx
 GetWindowText
 GetWindowRgn
 GetCursorPos

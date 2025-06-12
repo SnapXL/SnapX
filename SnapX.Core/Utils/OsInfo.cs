@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 #if WINDOWS
+using Windows.Win32.System.SystemInformation;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
@@ -182,6 +183,7 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows")]
     private static string GetProcessorNameWindows()
     {
+        #if WINDOWS
         try
         {
             using var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0");
@@ -195,7 +197,7 @@ public static partial class OsInfo
         {
             DebugHelper.WriteLine("Error reading registry: " + ex.Message);
         }
-
+        #endif
         return "Unknown Processor";
     }
 
@@ -283,17 +285,18 @@ public static partial class OsInfo
 
         return (0, 0);
     }
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows5.1.2600")]
     private static (long totalMemory, long usedMemory) GetMemoryInfoWindows()
     {
+        #if WINDOWS
         try
         {
             var status = new MEMORYSTATUSEX
             {
-                dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX))
+                dwLength = (uint)Marshal.SizeOf<MEMORYSTATUSEX>()
             };
 
-            if (GlobalMemoryStatusEx(ref status))
+            if (PInvoke.GlobalMemoryStatusEx(ref status))
             {
                 var totalMemory = (long)status.ullTotalPhys;
                 var freeMemory = GetAvailableMemoryWindows();
@@ -308,38 +311,24 @@ public static partial class OsInfo
         {
             DebugHelper.WriteException("Error reading memory info on Windows: " + ex.Message);
         }
-
+        #endif
         return (0, 0);
     }
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-    private static extern bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX lpBuffer);
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    private struct MEMORYSTATUSEX
-    {
-        public uint dwLength;
-        public uint dwMemoryLoad;
-        public ulong ullTotalPhys;
-        public ulong ullAvailPhys;
-        public ulong ullTotalPageFile;
-        public ulong ullAvailPageFile;
-        public ulong ullTotalVirtual;
-        public ulong ullAvailVirtual;
-        public ulong ullAvailExtendedVirtual;
-    }
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows5.1.2600")]
     private static long GetAvailableMemoryWindows()
     {
+        #if WINDOWS
         var status = new MEMORYSTATUSEX
         {
             dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX))
         };
 
-        if (GlobalMemoryStatusEx(ref status))
+        if (PInvoke.GlobalMemoryStatusEx(ref status))
         {
             return (long)status.ullAvailPhys;
         }
         DebugHelper.WriteException(new Exception("Unable to retrieve memory information."));
+        #endif
         return -1;
     }
     [SupportedOSPlatform("linux")]
