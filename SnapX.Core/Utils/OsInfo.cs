@@ -96,7 +96,6 @@ public static partial class OsInfo
             }
 
             return $"{productName} {currentBuild}";
-
         }
         catch (Exception ex)
         {
@@ -126,7 +125,6 @@ public static partial class OsInfo
 
                     return prettyName + " " + lines.FirstOrDefault(line => line.StartsWith("VERSION"))?.Split('=')[1]?.Trim('"');
                 }
-
             }
 
             return $"Linux {Environment.OSVersion.Version}";
