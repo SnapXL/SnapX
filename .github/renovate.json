@@ -39,7 +39,6 @@
           },
           {
             "matchDepNames": [".*[Ww]indows.*", "*Vortice*", "*PowerShell*", "*Win32*", "*runtime.win*", "*win64*"],
-            "matchDepNamesCaseSensitive": false,
             "labels": ["windows"]
           }
       ]
