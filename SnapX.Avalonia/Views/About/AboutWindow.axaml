@@ -1,188 +1,210 @@
 <windowing:AppWindow
-  Height="600"
-  Title="{Binding DialogTitle}"
-  Width="1100"
-  MinWidth="500"
-  MinHeight="560"
-  Loaded="Control_OnLoaded"
-  d:DesignHeight="450"
-  d:DesignWidth="800"
-  mc:Ignorable="d"
-  x:Class="SnapX.Avalonia.AboutWindow"
-  x:DataType="viewModels:AboutWindowViewModel"
-  xmlns="https://github.com/avaloniaui"
-  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
-  xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:avalonia="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia"
-  xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels">
-  <Design.DataContext>
-    <viewModels:AboutWindowViewModel />
-  </Design.DataContext>
-  <ScrollViewer>
-    <StackPanel Orientation="Vertical">
-      <Grid RowDefinitions="Auto,*">
-        <Grid
-          ColumnDefinitions="Auto,*"
-          Grid.Row="1"
-          IsVisible="True"
-          Margin="12,12,0,0"
-          RowDefinitions="Auto,*">
-          <StackPanel
-            Grid.Column="1"
-            Grid.Row="0"
-            Grid.RowSpan="2"
-            Margin="0,0,14,14">
-            <Grid HorizontalAlignment="Center" Margin="0,0,0,20" ColumnDefinitions="Auto,*">
-              <Image
-                Grid.Column="0"
-                Height="128"
-                Source="avares://snapx-ui/SnapX_Logo.png"
-                VerticalAlignment="Center"
-                Width="128" />
-              <StackPanel
-                Grid.Column="1"
-                Margin="12,0,0,12"
-                VerticalAlignment="Center">
-                <Grid ColumnDefinitions="Auto,Auto">
-                  <SelectableTextBlock
-                    FontSize="38"
-                    FontWeight="Bold"
-                    Grid.Column="0"
-                    Margin="0,0,8,0"
-                    Text="SnapX" />
-                  <SelectableTextBlock
-                    FontSize="28"
-                    FontWeight="SemiBold"
-                    Foreground="{DynamicResource AccentFillColorDefaultBrush}"
-                    Grid.Column="1"
-                    Margin="4,0,0,2"
-                    Text="{Binding Version}"
-                    ToolTip.Tip="{Binding BuildInformation}"
-                    VerticalAlignment="Bottom" />
+    Height="600"
+    Loaded="Control_OnLoaded"
+    MinHeight="560"
+    MinWidth="800"
+    Title="{Binding DialogTitle}"
+    Width="1100"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.AboutWindow"
+    x:DataType="viewModels:AboutWindowViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:avalonia="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
+    xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+    xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.DataContext>
+        <viewModels:AboutWindowViewModel />
+    </Design.DataContext>
+    <ScrollViewer>
+        <StackPanel Orientation="Vertical">
+            <Grid RowDefinitions="Auto,*">
+                <Grid
+                    ColumnDefinitions="Auto,*"
+                    Grid.Row="1"
+                    IsVisible="True"
+                    Margin="12,12,0,0"
+                    RowDefinitions="Auto,*">
+                    <StackPanel
+                        Grid.Column="1"
+                        Grid.Row="0"
+                        Grid.RowSpan="2"
+                        Margin="0,0,14,14">
+                        <Grid
+                            ColumnDefinitions="Auto,*"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,20">
+                            <Image
+                                Grid.Column="0"
+                                Height="128"
+                                Source="avares://snapx-ui/SnapX_Logo.png"
+                                VerticalAlignment="Center"
+                                Width="128" />
+                            <StackPanel
+                                Grid.Column="1"
+                                Margin="12,0,0,12"
+                                VerticalAlignment="Center">
+                                <Grid ColumnDefinitions="Auto,Auto">
+                                    <SelectableTextBlock
+                                        FontSize="38"
+                                        FontWeight="Bold"
+                                        Grid.Column="0"
+                                        Margin="0,0,8,0"
+                                        Text="SnapX" />
+                                    <SelectableTextBlock
+                                        FontSize="28"
+                                        FontWeight="SemiBold"
+                                        Foreground="{DynamicResource AccentFillColorDefaultBrush}"
+                                        Grid.Column="1"
+                                        Margin="4,0,0,2"
+                                        Text="{Binding Version}"
+                                        ToolTip.Tip="{Binding BuildInformation}"
+                                        VerticalAlignment="Bottom" />
+                                </Grid>
+                                <TextBlock
+                                    Foreground="{DynamicResource TextBoxDisabledForegroundThemeBrush}"
+                                    Opacity="0.6"
+                                    Text="{Binding Description}" />
+                                <SelectableTextBlock Text="{Binding SystemInformationText}" />
+                            </StackPanel>
+                        </Grid>
+                        <WrapPanel
+                            HorizontalAlignment="Stretch"
+                            ItemSpacing="8"
+                            MaxWidth="800"
+                            MinWidth="400"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <Button
+                                Click="DynamicURL_OnPointerPressed"
+                                Cursor="Hand"
+                                ToolTip.Tip="{Binding Website}">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <avalonia:FluentIcon
+                                        Icon="Code"
+                                        IconSize="Resizable"
+                                        IconVariant="Regular" />
+                                    <TextBlock HorizontalAlignment="Center" Text="GitHub Repository" />
+                                </StackPanel>
+                            </Button>
+                            <Button
+                                Click="DynamicURL_OnPointerPressed"
+                                Cursor="Hand"
+                                ToolTip.Tip="{Binding Documentation}">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <avalonia:FluentIcon
+                                        Icon="Info"
+                                        IconSize="Resizable"
+                                        IconVariant="Regular" />
+
+                                    <TextBlock HorizontalAlignment="Center" Text="Help &amp; Information" />
+                                </StackPanel>
+                            </Button>
+                            <Button
+                                Click="DynamicURL_OnPointerPressed"
+                                Cursor="Hand"
+                                ToolTip.Tip="{Binding License}">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <avalonia:FluentIcon
+                                        Icon="MoneyOff"
+                                        IconSize="Resizable"
+                                        IconVariant="Regular" />
+
+                                    <TextBlock HorizontalAlignment="Center" Text="License" />
+                                </StackPanel>
+                            </Button>
+                            <Button
+                                Click="DynamicURL_OnPointerPressed"
+                                ClickMode="Press"
+                                Cursor="Hand"
+                                ToolTip.Tip="{Binding Discord}">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <avalonia:FluentIcon
+                                        Icon="PeopleCommunity"
+                                        IconSize="Resizable"
+                                        IconVariant="Regular" />
+                                    <TextBlock HorizontalAlignment="Center" Text="Discord Server" />
+                                </StackPanel>
+                            </Button>
+                            <Button
+                                Click="DynamicURL_OnPointerPressed"
+                                ClickMode="Press"
+                                Cursor="Hand"
+                                ToolTip.Tip="{Binding Donate}">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <avalonia:FluentIcon
+                                        Icon="MoneyHand"
+                                        IconSize="Resizable"
+                                        IconVariant="Regular" />
+                                    <TextBlock HorizontalAlignment="Center" Text="Support SnapX" />
+                                </StackPanel>
+                            </Button>
+                        </WrapPanel>
+                        <TextBlock
+                            FontSize="28"
+                            FontWeight="SemiBold"
+                            HorizontalAlignment="Center"
+                            Margin="0,16,0,0"
+                            Text="Contributors" />
+                        <TextBlock
+                            Foreground="Gray"
+                            HorizontalAlignment="Center"
+                            Text="People who've helped us get here."
+                            TextWrapping="Wrap" />
+                        <Grid ColumnDefinitions="*,*,*,*" Margin="0,8,0,0">
+                            <Expander
+                                Grid.Column="0"
+                                Header="Code"
+                                IsExpanded="True"
+                                Margin="0,0,4,0">
+                                <StackPanel>
+                                    <mdxaml:MarkdownScrollViewer>[BrycensRanch (Lead)](https://github.com/BrycensRanch)</mdxaml:MarkdownScrollViewer>
+                                    <mdxaml:MarkdownScrollViewer>[Rune580 (KWin Screenshotting)](https://github.com/Rune580)</mdxaml:MarkdownScrollViewer>
+                                    <mdxaml:MarkdownScrollViewer>[ok-coder1 (Documentation)](https://github.com/ok-coder1)</mdxaml:MarkdownScrollViewer>
+                                    <mdxaml:MarkdownScrollViewer>[norz3n (Initial AUR package)](https://github.com/norz3n)</mdxaml:MarkdownScrollViewer>
+                                </StackPanel>
+                            </Expander>
+                            <Expander
+                                Grid.Column="1"
+                                Header="Donators"
+                                IsExpanded="True"
+                                Margin="0,0,4,0">
+                                <StackPanel>
+                                    <SelectableTextBlock Text="No donations yet." />
+                                </StackPanel>
+                            </Expander>
+                            <Expander
+                                Grid.Column="2"
+                                Header="Special thanks"
+                                IsExpanded="True"
+                                Margin="0,0,4,0">
+                                <StackPanel>
+                                    <mdxaml:MarkdownScrollViewer>[Jaex](https://github.com/Jaex)</mdxaml:MarkdownScrollViewer>
+                                    <mdxaml:MarkdownScrollViewer>[McoreD](https://github.com/Mcored)</mdxaml:MarkdownScrollViewer>
+                                    <mdxaml:MarkdownScrollViewer>[Bloxstrap](https://github.com/bloxstraplabs/bloxstrap)</mdxaml:MarkdownScrollViewer>
+                                    <mdxaml:MarkdownScrollViewer>[benbryant0 for .NET 8 PR](https://github.com/benbryant0)</mdxaml:MarkdownScrollViewer>
+                                </StackPanel>
+                            </Expander>
+                            <Expander
+                                Grid.Column="3"
+                                Header="Dependencies"
+                                IsExpanded="True"
+                                Margin="0,0,4,0">
+                                <StackPanel>
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                        <SelectableTextBlock Text="{Binding LoadedAssemblies}" TextWrapping="Wrap" />
+                                    </ScrollViewer>
+                                </StackPanel>
+                            </Expander>
+                        </Grid>
+                    </StackPanel>
                 </Grid>
-                <TextBlock Opacity="0.6" Foreground="{DynamicResource TextBoxDisabledForegroundThemeBrush}"
-                           Text="{Binding Description}" />
-                <SelectableTextBlock Text="{Binding SystemInformationText}" />
-              </StackPanel>
             </Grid>
-            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,8,8">
-              <Button Click="DynamicURL_OnPointerPressed" Margin="0,0,8,8" ToolTip.Tip="{Binding Website}"
-                      Cursor="Hand">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                  <avalonia:FluentIcon Icon="Code" IconVariant="Regular" IconSize="Resizable" />
-                  <TextBlock
-                    HorizontalAlignment="Center"
-                    Text="GitHub Repository" />
-                </StackPanel>
-              </Button>
-              <Button Click="DynamicURL_OnPointerPressed" Margin="0,0,8,8" ToolTip.Tip="{Binding Documentation}"
-                      Cursor="Hand">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                  <avalonia:FluentIcon Icon="Info" IconVariant="Regular" IconSize="Resizable" />
-
-                  <TextBlock
-                    HorizontalAlignment="Center"
-                    Text="Help &amp; Information" />
-                </StackPanel>
-              </Button>
-              <Button Click="DynamicURL_OnPointerPressed" Margin="0,0,8,8" ToolTip.Tip="{Binding License}"
-                      Cursor="Hand">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                  <avalonia:FluentIcon Icon="MoneyOff" IconVariant="Regular" IconSize="Resizable" />
-
-                  <TextBlock
-                    HorizontalAlignment="Center"
-                    Text="License" />
-                </StackPanel>
-              </Button>
-              <Button
-                Click="DynamicURL_OnPointerPressed"
-                ClickMode="Press"
-                ToolTip.Tip="{Binding Discord}"
-                Margin="0,0,8,8"
-                Cursor="Hand">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                  <avalonia:FluentIcon Icon="PeopleCommunity" IconVariant="Regular" IconSize="Resizable" />
-                  <TextBlock
-                    HorizontalAlignment="Center"
-                    Text="Discord Server" />
-                </StackPanel>
-              </Button>
-              <Button
-                Click="DynamicURL_OnPointerPressed"
-                ClickMode="Press"
-                ToolTip.Tip="{Binding Donate}"
-                Margin="0,0,0,8"
-                Cursor="Hand">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                  <avalonia:FluentIcon Icon="MoneyHand" IconVariant="Regular" IconSize="Resizable" />
-                  <TextBlock
-                    HorizontalAlignment="Center"
-                    Text="Support SnapX" />
-                </StackPanel>
-              </Button>
-            </WrapPanel>
-            <TextBlock
-              FontSize="28"
-              FontWeight="SemiBold"
-              HorizontalAlignment="Center"
-              Margin="0,16,0,0"
-              Text="Contributors" />
-            <TextBlock
-              Foreground="Gray"
-              HorizontalAlignment="Center"
-              Text="People who've helped us get here."
-              TextWrapping="Wrap" />
-            <Grid Margin="0,8,0,0" ColumnDefinitions="*,*,*,*">
-              <Expander
-                Grid.Column="0"
-                Header="Code"
-                IsExpanded="True"
-                Margin="0,0,4,0">
-                <StackPanel>
-                  <mdxaml:MarkdownScrollViewer>[BrycensRanch (Lead)](https://github.com/BrycensRanch)</mdxaml:MarkdownScrollViewer>
-                  <mdxaml:MarkdownScrollViewer>[Rune580 (KWin Screenshotting)](https://github.com/Rune580)</mdxaml:MarkdownScrollViewer>
-                  <mdxaml:MarkdownScrollViewer>[ok-coder1 (Documentation)](https://github.com/ok-coder1)</mdxaml:MarkdownScrollViewer>
-                  <mdxaml:MarkdownScrollViewer>[norz3n (Initial AUR package)](https://github.com/norz3n)</mdxaml:MarkdownScrollViewer>
-                </StackPanel>
-              </Expander>
-              <Expander
-                Grid.Column="1"
-                Header="Donators"
-                IsExpanded="True"
-                Margin="0,0,4,0">
-                <StackPanel>
-                  <SelectableTextBlock Text="No donations yet." />
-                </StackPanel>
-              </Expander>
-              <Expander
-                Grid.Column="2"
-                Header="Special thanks"
-                IsExpanded="True"
-                Margin="0,0,4,0">
-                <StackPanel>
-                  <mdxaml:MarkdownScrollViewer>[Jaex](https://github.com/Jaex)</mdxaml:MarkdownScrollViewer>
-                  <mdxaml:MarkdownScrollViewer>[McoreD](https://github.com/Mcored)</mdxaml:MarkdownScrollViewer>
-                  <mdxaml:MarkdownScrollViewer>[Bloxstrap](https://github.com/bloxstraplabs/bloxstrap)</mdxaml:MarkdownScrollViewer>
-                  <mdxaml:MarkdownScrollViewer>[benbryant0 for .NET 8 PR](https://github.com/benbryant0)</mdxaml:MarkdownScrollViewer>
-                </StackPanel>
-              </Expander>
-              <Expander
-                Grid.Column="3"
-                Header="Dependencies"
-                IsExpanded="True"
-                Margin="0,0,4,0">
-                <StackPanel>
-                  <SelectableTextBlock Text="{Binding LoadedAssemblies}" />
-                </StackPanel>
-              </Expander>
-            </Grid>
-          </StackPanel>
-        </Grid>
-      </Grid>
-    </StackPanel>
-  </ScrollViewer>
+        </StackPanel>
+    </ScrollViewer>
 </windowing:AppWindow>
