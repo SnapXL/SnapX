@@ -20,7 +20,7 @@
             "minimumReleaseAge": "2 days"
           },
           {
-            "matchDepNames": [".*[Dd]otnet.*", "Microsoft.Extensions*", "Microsoft.Data*"],
+            "matchDepNames": [".*[Dd]otnet.*", "*dotnet*", "Microsoft.Extensions*", "Microsoft.Data*"],
             "minimumReleaseAge": "4 days"
           },
           {
