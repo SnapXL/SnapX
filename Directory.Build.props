@@ -16,12 +16,11 @@
     <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
     <IncludeDebugSymbolsProjectOutputGroup>false</IncludeDebugSymbolsProjectOutputGroup>
     <Optimize>true</Optimize>
-    <IlcGenerateMstatFile>true</IlcGenerateMstatFile>
-    <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TargetFramework>net9.0</TargetFramework>
     <TargetFramework Condition="'$(OS)' == 'Windows_NT'">net9.0-windows10.0.26100.0</TargetFramework>
+    <RollForward>LatestMajor</RollForward>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) and
