@@ -33,9 +33,14 @@
             "labels": ["linux"]
           },
           {
-            "matchDepNames": ["xcap", "*osx*"],
+            "matchDepNames": ["xcap", "*osx*", "*uniffi*" ],
             "labels": ["macOS"],
             "minimumReleaseAge": "7 days"
+          },
+          {
+            "description": "Uniffi version bumps can break uniffi-bindgen-cs",
+            "matchDepNames": ["*uniffi*"],
+            "automerge": false
           },
           {
             "matchDepNames": [".*[Ww]indows.*", "*Vortice*", "*PowerShell*", "*Win32*", "*runtime.win*", "*win64*"],
