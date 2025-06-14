@@ -537,7 +537,7 @@ internal class Program
             {
                 RunInstallCommand($"-p {Path.GetDirectoryName(destination)}", "mkdir");
             }
-            var installArgs = $"-D -m {permissions} {source} {destination}";
+            var installArgs = $"-m {permissions} {source} {destination}";
             RunInstallCommand(installArgs);
 
             if (OperatingSystem.IsMacOS() || Environment.GetEnvironmentVariable("SKIP_TOUCH") is not null) return;
