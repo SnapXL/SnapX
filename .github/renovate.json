@@ -43,7 +43,7 @@
             "automerge": false
           },
           {
-            "matchDepNames": ["*Sdcb.Paddle*"],
+            "matchDepNames": ["*Sdcb.Paddle*", "*PaddleInference*"],
             "groupName" : "PaddleOCR"
           },
           {
