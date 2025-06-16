@@ -82,9 +82,12 @@ Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![Scree
 SnapX is not yet in a usable state. These packages are provided for making testing easier.
 
 SnapX is packaged on:
-[COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
-[AUR](https://aur.archlinux.org/packages/snapx-ui)
-[My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo) (Thank you @ok-coder1!)
+
+- [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
+
+- [AUR](https://aur.archlinux.org/packages/snapx-ui)
+
+- [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo) (Thank you [@ok-coder1](https://github.com/ok-coder1)!)
 
 Additionally, you can download builds from [here](https://nightly.link/BrycensRanch/SnapX/workflows/build/develop?preview)
 
