@@ -452,7 +452,7 @@ public class SnapX
             }
         }, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         DebugHelper.WriteLine($"DB: SQLite {DbConnection.ServerVersion}");
-        DebugHelper.WriteLine($"DB Path: {DbConnection.ConnectionString}");
+        DebugHelper.WriteLine($"DB Path: {ShortenPath(DbConnection.ConnectionString)}");
 
         DbConnection.StateChange += (_, Args) =>
         {
