@@ -162,6 +162,41 @@ One of the major benefits of this approach is the fact that it will **automatica
 - Every bugfix, feature, and change should have one commit associated with it. _Do not mix multiple bugs, features, etc., into one huge commit message. Keep your commit size small and commit often._
 - Your commit messages must follow the [conventional commit rules](https://www.conventionalcommits.org/) additionally, the Angular flavor is accepted as well.
 
+#### Versioning Rules
+
+- **MAJOR** version bumps are triggered by breaking changes, fundamental UX shifts, and massive internal rewrites.
+- **MINOR** version bumps are for backward-compatible feature additions.
+- **PATCH** version bumps are for bug fixes and small changes.
+
+For example:
+- `1.2.3` → `2.0.0` if there's a breaking config change or a removed feature.
+- `1.2.3` → `1.3.0` if a new tool is added to the UI.
+- `1.2.3` → `1.2.4` if a bug fix is made.
+
+#### When does a version bump happen?
+
+The version bump is automatically determined based on your commit messages. Here’s how it works:
+
+| Commit Message Contains         | Results In     | Example                                              |
+|--------------------------------|----------------|------------------------------------------------------|
+| `+semver: breaking` or `+semver: major` | MAJOR bump     | Breaking changes to CLI or saved config             |
+| `+semver: feature` or `+semver: minor` | MINOR bump     | New image export format, new setting, new shortcut   |
+| `+semver: fix` or `+semver: patch`     | PATCH bump     | Fix crash on launch, UI glitch, memory leak fix     |
+| `+semver: skip` or `+semver: none`     | No bump        | Chore, doc update, refactoring, test-only changes    |
+
+> 💡 You must use one of these annotations in **your commit message body or footer** for the automatic versioning to work correctly.
+
+### Contribution Guidelines
+
+- The `master` branch should always contain **stable and tested** code.
+  _Use Pull Requests for all features or bug fixes. Merge them only when ready._
+
+- Each bug fix, feature, or change should have **one commit** associated with it.
+  _Avoid mixing multiple changes into a single commit._
+
+- All commits must follow [Conventional Commit](https://www.conventionalcommits.org/) format.
+  _We accept the Angular flavor (e.g., `feat:`, `fix:`) and support semantic bump hints._
+
 ## One More Thing
 
 All commits from humans, i.e., (NOT GitHub Actions), should be signed. Please take some time to learn how to [sign your commits if you haven't already](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
