@@ -631,10 +631,16 @@ internal class Program
             {
                 RunInstallCommand($"-p {Path.GetDirectoryName(destination)}", "mkdir");
             }
-            var installArgs = $"-D -m {permissions} {source} {destination}";
+
+            if (source.Contains("dSYM", StringComparison.InvariantCultureIgnoreCase))
+            {
+                Information($"Source file {source} detected as macOS debug file. Ignoring.");
+                return;
+            }
+            var installArgs = $"-m {permissions} {source} {destination}";
             RunInstallCommand(installArgs);
 
-            if (OperatingSystem.IsMacOS() || Environment.GetEnvironmentVariable("SKIP_TOUCH") is not null) return;
+            if (Environment.GetEnvironmentVariable("SKIP_TOUCH") is not null) return;
             var touchArgs = $"-r {source} {destination}";
             RunInstallCommand(touchArgs, "touch");
         }

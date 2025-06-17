@@ -32,7 +32,7 @@ namespace SnapX.Core;
 internal partial class SentryContext : JsonSerializerContext;
 
 [JsonSourceGenerationOptions(WriteIndented = true)]
-[JsonSerializable(typeof(Dictionary<string,object>))]
+[JsonSerializable(typeof(Dictionary<string, object>))]
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(bool))]
@@ -67,7 +67,7 @@ public sealed class Telemetry(SqliteConnection Connection, AptabaseClient Aptaba
     }
 
 
-    public void TrackEvent(string EventName, Dictionary<string,object>? Envelope = null)
+    public void TrackEvent(string EventName, Dictionary<string, object>? Envelope = null)
     {
         if (string.IsNullOrWhiteSpace(EventName)) return;
         LogTelemetry("Aptabase", EventName, Envelope is not null ? JsonSerializer.Serialize(Envelope, new JsonSerializerOptions

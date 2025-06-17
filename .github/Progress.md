@@ -18,10 +18,10 @@
 - [ ] Integrate with Windows Share https://discussions.unity.com/t/calling-windows-shareui-dialog-from-unity-on-windows-10-11-on-non-uwp-build-target/1586504
 - [ ] Add to Microsoft Store
 - [ ] Add to Winget, Chocolately, and Scoop
-- [ ] Add to COPR
-- [ ] Add to Homebrew
+- [X] [Add to COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
+- [x] [Add to Homebrew](https://github.com/BrycensRanch/homebrew-repo)
 - [ ] Add to Itch.io
-- [ ] Add to AUR (see PR #56 for the initial PKGBUILD)
+- [x] [Add to AUR (see PR #56 for the initial PKGBUILD)](https://aur.archlinux.org/packages/snapx-ui)
 - [ ] Add to FOSS Torrents
 - [ ] Add to PortableApps.com
 - [ ] Add to AppImageHub

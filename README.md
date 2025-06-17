@@ -77,6 +77,20 @@ That's why SnapX.Avalonia was created.
 Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *should* look something like this. \
 Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![Screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
 
+## Packages for testers
+
+SnapX is not yet in a usable state. These packages are provided for making testing easier.
+
+SnapX is packaged on:
+
+- [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
+
+- [AUR](https://aur.archlinux.org/packages/snapx-ui)
+
+- [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo) (Thank you [@ok-coder1](https://github.com/ok-coder1)!)
+
+Additionally, you can download builds from [here](https://nightly.link/BrycensRanch/SnapX/workflows/build/develop?preview)
+
 ## Development Dependencies
 
 - `git`

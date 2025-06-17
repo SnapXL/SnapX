@@ -11,11 +11,44 @@
 	"branchConcurrentLimit": 20,
 	"branchPrefix": "dep/",
 	"branchPrefixOld": "renovate/",
-	"timezone": "America/New_York",
-	"packageRules": [
-		{
-			"matchDepTypes": ["action"],
-			"labels": ["actions"]
-		}
-	]
+    "minimumReleaseAge": "8 hours",
+    "timezone": "America/New_York",
+    "packageRules": [
+          {
+            "matchDepTypes": ["action"],
+            "labels": ["actions"],
+            "minimumReleaseAge": "2 days"
+          },
+          {
+            "matchDepNames": [".*[Dd]otnet.*", "*dotnet*", "Microsoft.Extensions*", "Microsoft.Data*"],
+            "minimumReleaseAge": "4 days"
+          },
+          {
+            "description": "Merge Brycen's amazing packages soon as possible",
+            "matchDepNames": ["*BrycensRanch*", "WaylandSharper"],
+            "minimumReleaseAge": "0 minutes"
+          },
+          {
+            "matchDepNames": ["*Wayland*", "*DBus*"],
+            "labels": ["linux"]
+          },
+          {
+            "matchDepNames": ["xcap", "*osx*", "*uniffi*" ],
+            "labels": ["macOS"],
+            "minimumReleaseAge": "7 days"
+          },
+          {
+            "description": "Uniffi version bumps can break uniffi-bindgen-cs",
+            "matchDepNames": ["*uniffi*"],
+            "automerge": false
+          },
+          {
+            "matchDepNames": ["*Sdcb.Paddle*", "*PaddleInference*"],
+            "groupName" : "PaddleOCR"
+          },
+          {
+            "matchDepNames": [".*[Ww]indows.*", "*Vortice*", "*PowerShell*", "*Win32*", "*runtime.win*", "*win64*"],
+            "labels": ["windows"]
+          }
+      ]
 }
