@@ -418,7 +418,7 @@ internal class Program
         // - Does NOT contain any backslashes (\)
         // - Does NOT contain a Windows drive letter (e.g., C:)
         // This is a heuristic and might not cover all edge cases, but covers common ones.
-        if (path.StartsWith("/") && !path.Contains("\\") && !Path.IsPathRooted(path.Substring(1)))
+        if (path.StartsWith("/") && !path.Contains('\\') && !Path.IsPathRooted(path.AsSpan(1)))
         {
             // It looks like a Unix-style path already (e.g., "/c/Users/...", "/usr/bin/").
             // Just ensure it's properly quoted for the shell.
