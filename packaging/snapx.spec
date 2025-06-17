@@ -102,7 +102,6 @@ export PKGTYPE=RPM
 ./build.sh install --no-color --no-extended-chars --prefix %{_prefix} --lib-dir %{buildroot}%{_libdir} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
 
 %files
-%{_bindir}/libe_sqlite3.so
 %{_bindir}/%{name}
 %{_libdir}/%{name}
 %{_datadir}/SnapX
@@ -110,8 +109,6 @@ export PKGTYPE=RPM
 %license LICENSE.md
 
 %files ui
-%{_bindir}/libHarfBuzzSharp.so
-%{_bindir}/libSkiaSharp.so
 %{_bindir}/%{name}-ui
 %{_datadir}/applications/io.github.BrycensRanch.SnapX.desktop
 %{_datadir}/metainfo/io.github.BrycensRanch.SnapX.metainfo.xml
