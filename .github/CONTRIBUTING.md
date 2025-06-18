@@ -4,7 +4,7 @@ First off, thank you for considering contributing to this project.
 
 Following these guidelines helps to communicate that you respect the time of the developers managing and developing this open-source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
 
-This is an open source project, and we love to receive contributions from our community — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the SnapX itself.
+This is an open source project, and we love to receive contributions from our community — **you**! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the SnapX itself.
 
 ## Ground Rules
 
@@ -177,14 +177,14 @@ For example:
 
 The version bump is automatically determined based on your commit messages. Here’s how it works:
 
-| Commit Message Contains         | Results In     | Example                                              |
-|--------------------------------|----------------|------------------------------------------------------|
-| `+semver: breaking` or `+semver: major` | MAJOR bump     | Breaking changes to CLI or saved config             |
-| `+semver: feature` or `+semver: minor` | MINOR bump     | New image export format, new setting, new shortcut   |
-| `+semver: fix` or `+semver: patch`     | PATCH bump     | Fix crash on launch, UI glitch, memory leak fix     |
-| `+semver: skip` or `+semver: none`     | No bump        | Chore, doc update, refactoring, test-only changes    |
+| Commit Type                          | Results In     | Example Commit Message                         | Example                                            |
+|--------------------------------------|----------------|------------------------------------------------|----------------------------------------------------|
+| `BREAKING CHANGE:` or `!` after type | **MAJOR bump** | `feat!: drop support for legacy config format` | Breaking changes to CLI or saved config            |
+| `feat:`                              | **MINOR bump** | `feat: add new image export option`            | New image export format, new setting, new shortcut |
+| `fix:`, `perf:`                      | **PATCH bump** | `fix: resolve crash on launch`                 | Fix crash on launch, UI glitch, memory leak fix    |
+| `chore:`, `docs:`, `refactor:`, etc. | **No bump**    | `chore: update build script`                   | Chore, doc update, refactoring, test-only changes  |
 
-> 💡 You must use one of these annotations in **your commit message body or footer** for the automatic versioning to work correctly.
+> 💡 Conventional Commits aren’t about rules — they’re about making history readable.  
 
 ### Contribution Guidelines
 

@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using Bullseye;
+using DefaultNamespace;
 using static Bullseye.Targets;
 using static SimpleExec.Command;
 
@@ -24,11 +25,11 @@ internal class Program
         set => _destdir = value ?? ""; // Ensure it's not set to null
     }
 
-    private string _prefix = "/usr/local"; // Initialize directly
+    private string _prefix = Path.Join("usr", "local"); // Initialize directly
     public string Prefix
     {
         get => _prefix;
-        set => _prefix = value ?? "/usr/local"; // Ensure it's not set to null, fallback to default
+        set => _prefix = value ?? Path.Join("usr", "local"); // Ensure it's not set to null, fallback to default
     }
 
     string BinDir => Path.Join(DestDir, Prefix, "bin");
@@ -39,11 +40,12 @@ internal class Program
     string Icondir => Path.Join(Datadir, "icons", "hicolor");
     string Runtime { get; set; } = RuntimeInformation.RuntimeIdentifier;
     string Metainfodir => Path.Join(Datadir, "metainfo");
-    public static readonly string RootDirectory = FindRoot();
+    // public static readonly string RootDirectory = FindRoot();
+    public static readonly string RootDirectory = Path.GetRelativePath(Directory.GetCurrentDirectory(), FindRoot());
     readonly string PackagingDirectory = Path.Combine(RootDirectory, "packaging");
     string Tarballdir => Path.Combine(PackagingDirectory, "tarball");
     string PackagingUsrDir => Path.Combine(PackagingDirectory, "usr");
-    private string NMHassemblyName => GetAssemblyNameFromProject(projectsToBuild[^1]);
+    private string NMHassemblyName => knownAssemblyNames[^1];
 
     public void ApplyCLIOverrides(string? destDir, string? prefix, string? libDir, string? docDir)
     {
@@ -59,13 +61,20 @@ internal class Program
 
     // SnapX.NativeMessagingHost must be compiled *last*
     static readonly string[] ProjectNames = ["Avalonia", "CLI", "NativeMessagingHost"];
-    readonly string[] projectsToBuild = ProjectNames
+    static readonly string[] projectsToBuild = ProjectNames
         .Where(projectName => OperatingSystem.IsLinux() || projectName != "GTK4")
-        .Select(projectName => Path.Combine(Path.GetRelativePath(Directory.GetCurrentDirectory(), RootDirectory), Namespace + projectName))
+        .Select(projectName => Path.Combine(
+            Path.GetRelativePath(Directory.GetCurrentDirectory(), RootDirectory),
+            Namespace + projectName))
         .ToArray();
+
+    static readonly string[] knownAssemblyNames = projectsToBuild
+        .Select(GetAssemblyNameFromProject)
+        .ToArray();
+
     public string LibDir
     {
-        get => _libdir ?? Path.Join(DestDir, Prefix, "lib");
+        get => _libdir ?? Path.Join(DestDir, Prefix, "lib", "snapx");
         set => _libdir = value;
     }
     private static readonly Dictionary<string, string> StepAliases = new(StringComparer.OrdinalIgnoreCase)
@@ -84,9 +93,7 @@ internal class Program
 
         foreach (var step in steps)
         {
-            var normalized = StepAliases.TryGetValue(step, out var canonical)
-                ? canonical
-                : step;
+            var normalized = StepAliases.GetValueOrDefault(step, step);
 
             _skippedSteps.Add(normalized);
         }
@@ -220,7 +227,7 @@ internal class Program
 
                 var assemblyName = GetAssemblyNameFromProject(project);
 
-                var ridPart = $"-r {RuntimeInformation.RuntimeIdentifier}";
+                var ridPart = $"-r {Runtime}";
 
                 var arch = RuntimeInformation.OSArchitecture.ToString().ToLowerInvariant();
 
@@ -285,11 +292,13 @@ internal class Program
                 Information($"Documentation directory: {Docdir}");
                 Information($"License directory: {Licensedir}");
                 Information($"Metainfo directory: {Metainfodir}");
-                Information($"Tarball directory: {Tarballdir}"); // Uses instance property
+                Information($"Tarball directory: {Tarballdir}");
                 Information($"Application directory: {Applicationsdir}");
                 Information($"Icon directory: {Icondir}");
-                Information($"Library directory: {LibDir}"); // Uses instance property
-                Information($"Packaging User Directory: {PackagingUsrDir}"); // Uses instance property
+                Information($"Library directory: {LibDir}");
+                Information($"Packaging User Directory: {PackagingUsrDir}");
+                Information($"Known Assemblies: {string.Join(", ", knownAssemblyNames)}");
+
                 var files = Directory.GetFiles(PackagingUsrDir, "*", SearchOption.AllDirectories);
                 foreach (var sourceFile in files)
                 {
@@ -330,43 +339,73 @@ internal class Program
                     if (docFile.ToLower().Contains("license")) continue;
                     InstallFile(docFile, Path.Join(Docdir, Path.GetFileName(docFile)), "0755");
                 }
+
                 var outputFiles = Directory.GetFiles(outputDir, "*", SearchOption.AllDirectories)
-                    .OrderBy(Path.GetFileName)
-                    .ToArray();
+                    .OrderBy(Path.GetFileName);
                 foreach (var outputFile in outputFiles)
                 {
                     var permissions = "0755";
-                    var destinationFile = Path.Join(BinDir, Path.GetFileName(outputFile));
-                    var AvaloniaAssemblyName = "snapx-ui" + (OperatingSystem.IsWindows() ? ".exe" : "");
-
+                    var rawRelativePath = Path.GetRelativePath(outputDir, outputFile);
+                    var relativePath = Path.Combine(
+                        rawRelativePath
+                            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                            .Where(part => !part.Contains("snapx", StringComparison.OrdinalIgnoreCase))
+                            .ToArray()
+                    );
+                    var fileName = Path.GetFileNameWithoutExtension(outputFile);
+                    var destinationFile = Path.Join(LibDir, relativePath);
                     switch (Path.GetFileNameWithoutExtension(destinationFile))
                     {
                         case var name when destinationFile.Contains(".dbg") || destinationFile.Contains(".pdb"):
                             continue;
-                        case var name when destinationFile.Contains(NMHassemblyName):
+                        case var name when name.Equals(NMHassemblyName):
                             destinationFile = NMHostPath;
                             Information($"Installing NMH Binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                             break;
-                        case var name when destinationFile.Contains(AvaloniaAssemblyName):
-                            destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
-                            Information($"Installing AVALONIABINARY: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
-                            break;
-                        case var name when (destinationFile.Contains(".dll") || destinationFile.Contains(".so") || destinationFile.Contains(".dylib")) && !destinationFile.Contains(AvaloniaAssemblyName):
-                            destinationFile = Path.Join(BinDir, Path.GetFileName(destinationFile));
+                        case var name when destinationFile.Contains(".dll") || destinationFile.Contains(".so") || destinationFile.Contains(".dylib"):
                             Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                             break;
-                        case var name when destinationFile.Contains(".json"):
+                        case var name when destinationFile.Contains(".json", StringComparison.OrdinalIgnoreCase) &&
+                                           destinationFile.Contains("host", StringComparison.OrdinalIgnoreCase):
                             destinationFile = Path.Join(Datadir, "SnapX", Path.GetFileName(destinationFile));
                             Information($"Installing {Path.GetExtension(destinationFile)}: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                             break;
                         default:
+                            if (knownAssemblyNames.Contains(fileName) && fileName != knownAssemblyNames[^1])
+                            {
+                                var scriptPath = Path.GetFullPath(Path.Combine(BinDir, fileName));
+
+                                EnsureDirectoryExists(Path.GetDirectoryName(scriptPath));
+                                var targetPath = Path.GetFullPath(Path.Combine(LibDir, relativePath, fileName));
+
+                                var script = $"""
+                                                  #!/usr/bin/env sh
+                                                  # SnapX version: {snapXVersion}
+                                                  exec env "{targetPath}" "$@"
+                                                  """;
+                                Information($"Attempting to write wrapper script\n{script}");
+                                if (OperatingSystem.IsWindows() && Environment.GetEnvironmentVariable("USE_INSTALL_FOR_WRAPPER_SCRIPT") == null)
+                                {
+                                    Information($"Writing to {scriptPath} using .NET directly since you're on Windows. Set environment variable USE_INSTALL_FOR_WRAPPER_SCRIPT=1 to use the normal install command.");
+                                    await File.WriteAllTextAsync(scriptPath, script).ConfigureAwait(false);
+                                }
+                                else
+                                {
+                                    RunInstallCommand($"-c 'cat > {scriptPath} <<EOF\n{script.Replace("$@", "\\$@")}\nEOF'", "sh");
+                                    RunInstallCommand($"+x {scriptPath}", "chmod");
+                                }
+                                Information($"Wrote wrapper script. Making it executable.");
+
+                                Information($"Installed wrapper script: {Path.GetRelativePath(RootDirectory, targetPath)} -> {scriptPath}");
+                            }
                             Information($"Installing binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                             break;
                     }
                     EnsureDirectoryExists(Path.GetDirectoryName(destinationFile));
                     InstallFile(outputFile, destinationFile, permissions);
                 }
-                await Task.CompletedTask; // To satisfy async
+                persistentBash?.Dispose();
+                await Task.CompletedTask;
             });
         Target("uninstall",
         dependsOn: [],
@@ -506,7 +545,37 @@ internal class Program
 
         await RunTargetsAndExitAsync(targetsToRun, bullseyeOptions);
     }
+    private static string ToUnixPath(string path)
+    {
+        if (!OperatingSystem.IsWindows()) return path;
+        // Heuristic to check if the path is ALREADY in a Unix-like format:
+        // - Starts with a forward slash (/)
+        // - Does NOT contain any backslashes (\)
+        // - Does NOT contain a Windows drive letter (e.g., C:)
+        // This is a heuristic and might not cover all edge cases, but covers common ones.
+        if (path.StartsWith("/") && !path.Contains('\\') && !Path.IsPathRooted(path.AsSpan(1)))
+        {
+            // It looks like a Unix-style path already (e.g., "/c/Users/...", "/usr/bin/").
+            // Just ensure it's properly quoted for the shell.
+            return $"\"{path.Replace("\"", "\\\"")}\"";
+        }
+        // 1. Convert backslashes to forward slashes
+        string unixStylePath = path.Replace('\\', '/');
 
+        // 2. Handle the drive letter (e.g., C:/ becomes /c/)
+        // This assumes standard Windows drive letters like C:, D:, etc.
+        if (unixStylePath.Length >= 2 && unixStylePath[1] == ':')
+        {
+            // Convert 'C:/' to '/c/'
+            // The drive letter is converted to lowercase as is common in Unix-like environments.
+            unixStylePath = "/" + unixStylePath[0].ToString().ToLowerInvariant() + unixStylePath.Substring(2);
+        }
+
+        // 3. Quote the path for shell script usage and escape any internal double quotes.
+        // This is crucial for paths containing spaces or other special shell characters.
+        // While file paths rarely contain double quotes, this ensures robustness.
+        return $"{unixStylePath.Replace("\"", "\\\"")}";
+    }
     internal static async Task<int> Main(string[] args)
     {
         var rootCommand = new RootCommand("Build and configure the application.");
@@ -660,10 +729,34 @@ internal class Program
     }
 
     // Logging helpers (can be static or instance, kept as instance for now)
-    void Error(string message) => Console.Error.WriteLine($"ERROR: {message}");
-    void Warning(string message) => Console.WriteLine($"WARNING: {message}");
-    void Information(string message) => Console.WriteLine(message);
-    void Debug(string message) => Console.WriteLine($"DEBUG: {message}");
+    void Error(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Error.WriteLine($"ERROR: {message}");
+        Console.ResetColor();
+    }
+
+    void Warning(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"WARNING: {message}");
+        Console.ResetColor();
+    }
+
+    void Information(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine(message);
+        Console.ResetColor();
+    }
+
+    void Debug(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine($"DEBUG: {message}");
+        Console.ResetColor();
+    }
+
 
     void InstallFile(string source, string destination, string permissions)
     {
@@ -691,26 +784,71 @@ internal class Program
             Information($"Source file not found: {source}");
         }
     }
-
+    static Process? bashProcess;
+    static StreamWriter? bashInput;
+    PersistentGitBash? persistentBash;
     void RunInstallCommand(string installArguments, string executionCommand = "install")
     {
         var requiresElevationLikely = !IsAdmin() && RequiresElevationLikely(installArguments);
-
         var executionArguments = installArguments;
+        var execCommand = executionCommand;
+
+        if (OperatingSystem.IsWindows())
+        {
+            var shellEnv = Environment.GetEnvironmentVariable("SHELL");
+
+            var isBashShell = shellEnv != null &&
+                              !shellEnv.Contains("powershell", StringComparison.OrdinalIgnoreCase) &&
+                              !shellEnv.Contains("cmd", StringComparison.OrdinalIgnoreCase);
+
+            if (!isBashShell)
+            {
+                installArguments = string.Join(" ", installArguments
+                    .Split(' ')
+                    .Select(ToUnixPath));
+
+                var rawArgs = requiresElevationLikely ? $"sudo {executionCommand} {installArguments}" : $"{executionCommand} {installArguments}";
+
+                if (persistentBash == null)
+                {
+                    persistentBash = new PersistentGitBash("bash.exe");
+                    Information("Initialized persistent git bash session for commands.");
+                }
+                Debug($"bash.exe -c \"{rawArgs}\"");
+
+                var task = persistentBash.RunCommandAsync(rawArgs).ConfigureAwait(false).GetAwaiter().GetResult();
+                var (success, output, error) = task;
+
+                if (!success)
+                {
+                    Error($"Install command failed: {error}");
+                    // if (requiresElevationLikely || !error.Contains("Permission denied", StringComparison.OrdinalIgnoreCase))
+                    //     return;
+                    // Error("Retrying with elevated privileges (sudo)...");
+                    // RunInstallCommand(installArguments);
+                }
+                else
+                {
+                    if (!output.Contains("__CMD_DONE__0")) Warning($"Install command succedded: {output}");
+                }
+                return;
+            }
+        }
 
         if (requiresElevationLikely)
         {
-            executionArguments = $"{executionCommand} " + installArguments;
-            executionCommand = "sudo";
+            executionArguments = $"{execCommand} {executionArguments}";
+            execCommand = "sudo";
         }
+        Debug($"{execCommand} {executionArguments}");
 
         var processStartInfo = new ProcessStartInfo
         {
-            FileName = executionCommand,
+            FileName = execCommand,
             Arguments = executionArguments,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            UseShellExecute = false
+            UseShellExecute = true
         };
 
         try
@@ -726,18 +864,16 @@ internal class Program
 
                 if (requiresElevationLikely || !errorOutput.Contains("Permission denied", StringComparison.OrdinalIgnoreCase)) return;
                 Error("Retrying with elevated privileges (sudo)...");
-                requiresElevationLikely = true;
                 RunInstallCommand(installArguments);
             }
             else
             {
-                Debug($"{processStartInfo.FileName} {processStartInfo.Arguments}");
-                Debug($"Install command succeeded. {process.StandardOutput.ReadToEnd()}");
+                var output = process.StandardOutput.ReadToEnd();
+                if (!string.IsNullOrWhiteSpace(output)) Debug($"Install command succeeded. {output}");
             }
         }
         catch (System.ComponentModel.Win32Exception ex)
         {
-            // Handle cases where sudo isn't available (e.g., on Windows)
             if (ex.Message.Contains("The system cannot find the file specified") && requiresElevationLikely)
             {
                 Error("Elevation utility (sudo) is not available. Ensure it's installed or run as root.");
@@ -748,7 +884,6 @@ internal class Program
             }
         }
     }
-
     bool RequiresElevationLikely(string installArguments)
     {
         if (Environment.GetEnvironmentVariable("ELEVATION_NOT_NEEDED") == "1") return false;

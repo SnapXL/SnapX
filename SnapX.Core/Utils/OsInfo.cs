@@ -812,7 +812,7 @@ public static partial class OsInfo
     public static bool IsHdrSupported()
     {
 #if WINDOWS
-        if (OperatingSystem.IsWindows())
+        if (OperatingSystem.IsWindowsVersionAtLeast(10))
         {
             return CheckWindowsHdr();
         }
