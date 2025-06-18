@@ -71,12 +71,54 @@ public class HistoryItem
             ? FilePath
             : URL ?? ThumbnailURL;
 
-    public override bool Equals(object? obj) =>
-        obj is HistoryItem other && Id == other.Id;
+    public override bool Equals(object? obj)
+    {
+        if (obj is not HistoryItem other)
+        {
+            return false;
+        }
 
+        return Id == other.Id &&
+               FileName == other.FileName &&
+               FilePath == other.FilePath &&
+               DateTime == other.DateTime &&
+               Type == other.Type &&
+               Hidden == other.Hidden &&
+               Host == other.Host &&
+               URL == other.URL &&
+               ThumbnailURL == other.ThumbnailURL &&
+               DeletionURL == other.DeletionURL &&
+               ShortenedURL == other.ShortenedURL &&
+               // Deep equality for Tags might be needed if you care about changes within the list
+               // This gets complex. Often, for lists, you might compare counts and then item-by-item,
+               // or just rely on a "LastModified" timestamp on the parent object.
+               (Tags?.SequenceEqual(other.Tags ?? Enumerable.Empty<Tag>()) ?? (other.Tags == null));
+    }
     public override int GetHashCode()
     {
-        throw new NotImplementedException();
+        var hash = new HashCode();
+
+        hash.Add(Id);
+        hash.Add(FileName);
+        hash.Add(FilePath);
+        hash.Add(DateTime);
+        hash.Add(Type);
+        hash.Add(Hidden);
+        hash.Add(Host);
+        hash.Add(URL);
+        hash.Add(ThumbnailURL);
+        hash.Add(DeletionURL);
+        hash.Add(ShortenedURL);
+
+        if (Tags != null)
+        {
+            foreach (var tag in Tags)
+            {
+                hash.Add(tag);
+            }
+        }
+
+        return hash.ToHashCode();
     }
 }
 
