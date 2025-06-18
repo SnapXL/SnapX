@@ -74,6 +74,7 @@ internal class Program
     };
 
     private HashSet<string> _skippedSteps = new(StringComparer.OrdinalIgnoreCase);
+    internal static readonly string[] action = new[] { "*.so", "*.dylib", "*.dll" };
 
     public void SetSkippedSteps(IEnumerable<string>? steps)
     {
@@ -362,10 +363,145 @@ internal class Program
                             Information($"Installing binary: {Path.GetRelativePath(RootDirectory, outputFile)} -> {destinationFile}");
                             break;
                     }
+                    EnsureDirectoryExists(Path.GetDirectoryName(destinationFile));
                     InstallFile(outputFile, destinationFile, permissions);
                 }
                 await Task.CompletedTask; // To satisfy async
             });
+        Target("uninstall",
+        dependsOn: [],
+        async () =>
+        {
+            Docdir ??= Path.Join(Datadir, "doc", "snapx");
+            Information($"--- Installation Paths ---");
+            Information($"Destination Directory (DESTDIR): {DestDir}");
+            Information($"Prefix: {Prefix}");
+            Information($"Install Root: {Path.Join(DestDir, Prefix)}");
+            Information($"Data directory: {Datadir}");
+            Information($"Bin directory: {BinDir}");
+            Information($"Documentation directory: {Docdir}");
+            Information($"License directory: {Licensedir}");
+            Information($"Metainfo directory: {Metainfodir}");
+            Information($"Tarball directory: {Tarballdir}"); // Uses instance property
+            Information($"Application directory: {Applicationsdir}");
+            Information($"Icon directory: {Icondir}");
+            Information($"Library directory: {LibDir}"); // Uses instance property
+            Information($"Packaging User Directory: {PackagingUsrDir}"); // Uses instance property
+            var InstallRoot = Path.Join(DestDir, Prefix);
+
+            // Helper: try to delete file and show message
+            void TryDeleteFile(string path)
+            {
+                if (!File.Exists(path)) return;
+                RunInstallCommand($"-f {path}", "rm");
+                Information($"Removed file: {path}");
+            }
+
+            void TryDeleteEmptyDir(string path)
+            {
+                if (!Directory.Exists(path) || Directory.EnumerateFileSystemEntries(path).Any()) return;
+                RunInstallCommand(path, "rmdir");
+                Information($"Removed empty directory: {path}");
+            }
+            // return;
+
+            if (Directory.Exists(BinDir))
+            {
+                string[] searchPatterns =
+                [
+                    "*snapx*",
+                    "libe_sqlite3.so",
+                    "libHarfBuzzSharp.so",
+                    "libSkiaSharp.so"
+                ];
+
+                var filesToDelete = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var pattern in searchPatterns)
+                {
+                    foreach (var file in Directory.GetFiles(BinDir, pattern, SearchOption.TopDirectoryOnly))
+                    {
+                        filesToDelete.Add(file);
+                    }
+                }
+
+                foreach (var file in filesToDelete)
+                {
+                    TryDeleteFile(file);
+                }
+            }
+
+            var libraryExtensions = action;
+
+            foreach (var pattern in libraryExtensions)
+            {
+                foreach (var file in Directory.GetFiles(outputDir, pattern, SearchOption.TopDirectoryOnly))
+                {
+                    var fileName = Path.GetFileName(file);
+                    var installedPath = Path.Combine(BinDir, fileName);
+                    TryDeleteFile(installedPath);
+                }
+            }
+
+            if (Directory.Exists(Applicationsdir))
+            {
+                foreach (var file in Directory.GetFiles(Applicationsdir, "io.github.BrycensRanch.SnapX.desktop",
+                             SearchOption.TopDirectoryOnly))
+                {
+                    TryDeleteFile(file);
+                }
+            }
+
+            if (Directory.Exists(Metainfodir))
+            {
+                foreach (var file in Directory.GetFiles(Metainfodir, "io.github.BrycensRanch.SnapX.metainfo.xml",
+                             SearchOption.TopDirectoryOnly))
+                {
+                    TryDeleteFile(file);
+                }
+            }
+
+            if (Directory.Exists(Docdir))
+            {
+                foreach (var file in Directory.GetFiles(Docdir, "*.md", SearchOption.TopDirectoryOnly))
+                {
+                    TryDeleteFile(file);
+                }
+            }
+
+            if (Directory.Exists(Licensedir))
+            {
+                foreach (var file in Directory.GetFiles(Licensedir, "LICENSE.md", SearchOption.TopDirectoryOnly))
+                {
+                    TryDeleteFile(file);
+                }
+            }
+
+            if (Directory.Exists(Datadir))
+            {
+                foreach (var file in Directory.GetFiles(Path.Join(Datadir, "SnapX"), "*.json",
+                             SearchOption.TopDirectoryOnly))
+                {
+                    TryDeleteFile(file);
+                }
+            }
+
+            // Remove NMH binary
+            TryDeleteFile(NMHostPath);
+
+            // Clean up empty directories (optional, and cautious)
+            TryDeleteEmptyDir(BinDir);
+            TryDeleteEmptyDir(Applicationsdir);
+            TryDeleteEmptyDir(Metainfodir);
+            TryDeleteEmptyDir(Docdir);
+            TryDeleteEmptyDir(Licensedir);
+            TryDeleteEmptyDir(Path.Join(Datadir, "SnapX"));
+
+            TryDeleteEmptyDir(Path.Join(DestDir, Prefix)); // Root of install
+
+            await Task.CompletedTask;
+        });
+
         Target("default", dependsOn: ["build"]);
 
         await RunTargetsAndExitAsync(targetsToRun, bullseyeOptions);
