@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text.Json;
@@ -167,7 +168,10 @@ internal class Program
             targetsToRun = ["default"]; // Default target if none specified
         }
 
-        var snapXVersion = ThisAssembly.AssemblyInformationalVersion;
+        var snapXVersion = Assembly
+            .GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+            .InformationalVersion;
         var hasLoggedInfo = false;
 
         var bullseyeOptions = new Options
@@ -391,7 +395,7 @@ internal class Program
                                 }
                                 else
                                 {
-                                    RunInstallCommand($"-c 'cat > {scriptPath} <<EOF\n{script.Replace("$@", "\\$@")}\nEOF'", "sh");
+                                    RunInstallCommand($"-c 'cat > {scriptPath} <<EOF\n{script}\nEOF'", "sh");
                                     RunInstallCommand($"+x {scriptPath}", "chmod");
                                 }
                                 Information($"Wrote wrapper script. Making it executable.");
@@ -516,7 +520,7 @@ internal class Program
                 }
             }
 
-            if (Directory.Exists(Datadir))
+            if (Directory.Exists(Path.Join(Datadir, "SnapX")))
             {
                 foreach (var file in Directory.GetFiles(Path.Join(Datadir, "SnapX"), "*.json",
                              SearchOption.TopDirectoryOnly))
