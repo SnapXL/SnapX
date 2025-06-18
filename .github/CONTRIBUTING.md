@@ -181,7 +181,7 @@ The version bump is automatically determined based on your commit messages. Here
 |--------------------------------------|----------------|------------------------------------------------|----------------------------------------------------|
 | `BREAKING CHANGE:` or `!` after type | **MAJOR bump** | `feat!: drop support for legacy config format` | Breaking changes to CLI or saved config            |
 | `feat:`                              | **MINOR bump** | `feat: add new image export option`            | New image export format, new setting, new shortcut |
-| `fix:`                               | **PATCH bump** | `fix: resolve crash on launch`                 | Fix crash on launch, UI glitch, memory leak fix    |
+| `fix:`, `perf:`                      | **PATCH bump** | `fix: resolve crash on launch`                 | Fix crash on launch, UI glitch, memory leak fix    |
 | `chore:`, `docs:`, `refactor:`, etc. | **No bump**    | `chore: update build script`                   | Chore, doc update, refactoring, test-only changes  |
 
 > 💡 Conventional Commits aren’t about rules — they’re about making history readable.  
