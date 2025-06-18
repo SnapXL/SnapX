@@ -848,7 +848,7 @@ internal class Program
             Arguments = executionArguments,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            UseShellExecute = true
+            UseShellExecute = false
         };
 
         try
