@@ -21,7 +21,7 @@ public partial class HomePageViewModel : ViewModelBase
     private int _failedRefreshTasks;
     private DateTime _lastCacheTime = DateTime.MinValue;
     private List<ListTaskTemplate> _cachedTasks;
-    private readonly TimeSpan _cacheDuration = TimeSpan.FromSeconds(2);
+    private readonly TimeSpan _cacheDuration = TimeSpan.FromSeconds(4);
 
     public void InvalidateCache()
     {
@@ -42,6 +42,8 @@ public partial class HomePageViewModel : ViewModelBase
         _refreshTimer.Start();
         RefreshTasks();
     }
+    public void StopTimer() => _refreshTimer.Stop();
+    public void StartTimer() => _refreshTimer.Start();
     private async void OnRefreshTimerElapsed(object sender, ElapsedEventArgs e)
     {
         if (_isRefreshing)
@@ -176,7 +178,7 @@ public partial class HomePageViewModel : ViewModelBase
         {
             newDesiredTasks = await Task.Run(async () =>
             {
-                var historyItems = await TaskManager.History.GetHistoryItemsAsync(3_000).ConfigureAwait(false);
+                var historyItems = await TaskManager.History.GetHistoryItemsAsync(30_000).ConfigureAwait(false);
                 return historyItems.AsParallel()
                     .Select(task => new ListTaskTemplate(typeofVM, task))
                     .ToList();
@@ -189,7 +191,7 @@ public partial class HomePageViewModel : ViewModelBase
 
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            if (newDesiredTasks.Count > 5000)
+            if (newDesiredTasks.Count > 50_000)
             {
                 recentTasks.ResetBehavior = ResetBehavior.Remove;
                 recentTasks.Clear();
@@ -212,6 +214,10 @@ public partial class HomePageViewModel : ViewModelBase
             {
                 if (currentTasksById.TryGetValue(newItem.task.Id, out var existingItem))
                 {
+                    if (existingItem.Equals(newItem))
+                    {
+                        continue;
+                    }
                     var index = recentTasks.IndexOf(existingItem);
                     if (index == -1) continue;
                     recentTasks.RemoveAt(index);
@@ -223,9 +229,5 @@ public partial class HomePageViewModel : ViewModelBase
                 }
             }
         });
-    }
-    public void stopTimer()
-    {
-        _refreshTimer.Stop();
     }
 }

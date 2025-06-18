@@ -38,7 +38,9 @@ public partial class HomePageView : UserControl
         if (Sender is not MenuFlyoutItem menuFlyoutItem) return;
         ViewModel.DeleteHistoryItemLocallyCommand.Execute(menuFlyoutItem.DataContext);
         ViewModel.InvalidateCache();
+        ViewModel.StopTimer();
         ViewModel.RefreshTasks();
+        ViewModel.StartTimer();
     }
 
     private void RemoveHistoryItem_OnClick(object? Sender, RoutedEventArgs E)
@@ -46,11 +48,18 @@ public partial class HomePageView : UserControl
         if (Sender is not MenuFlyoutItem menuFlyoutItem) return;
         ViewModel.RemoveHistoryItemCommand.Execute(menuFlyoutItem.DataContext);
         ViewModel.InvalidateCache();
+        ViewModel.StopTimer();
         ViewModel.RefreshTasks();
+        ViewModel.StartTimer();
     }
 
     private void Control_OnUnloaded(object? Sender, RoutedEventArgs E)
     {
-        ViewModel.stopTimer();
+        ViewModel.StopTimer();
+    }
+
+    private void Button_OnClick(object? Sender, RoutedEventArgs E)
+    {
+        ViewModel.StopTimer();
     }
 }
