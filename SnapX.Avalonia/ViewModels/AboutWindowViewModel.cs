@@ -10,10 +10,7 @@ namespace SnapX.Avalonia.ViewModels;
 public partial class AboutWindowViewModel : ViewModelBase
 {
     // Internal instance of the base class (SnapX.CommonUI.AboutDialog)
-    private AboutDialog _commonAboutDialog;
-    public AboutWindowViewModel()
-    {
-    }
+    private AboutDialog _commonAboutDialog = new();
 
     [UnconditionalSuppressMessage("Trimming",
          "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
@@ -21,11 +18,10 @@ public partial class AboutWindowViewModel : ViewModelBase
      RelayCommand]
     private Task InitDataAsync()
     {
-        _commonAboutDialog = new AboutDialog();
-        var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+        var combinedLoadedAssemblies = AppDomain.CurrentDomain.GetAssemblies()
             .Concat(App.SnapX.GetAssemblies())
             .Distinct();
-        LoadedAssemblies = string.Join(Environment.NewLine, loadedAssemblies
+        LoadedAssemblies = string.Join(Environment.NewLine, combinedLoadedAssemblies
             .Where(a => a.GetName().Name != null)
             .Where(a =>
                 !a.GetName().Name.StartsWith("System") &&

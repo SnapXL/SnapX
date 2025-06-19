@@ -1,6 +1,6 @@
 <windowing:AppWindow
     Height="600"
-    Loaded="Control_OnLoaded"
+    Initialized="AboutWindow_OnInitialized"
     MinHeight="560"
     MinWidth="800"
     Title="{Binding DialogTitle}"

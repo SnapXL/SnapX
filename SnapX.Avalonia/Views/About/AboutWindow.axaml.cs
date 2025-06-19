@@ -118,7 +118,7 @@ public partial class AboutWindow : AppWindow
         }
     }
 
-    private async void Control_OnLoaded(object? Sender, RoutedEventArgs E)
+    private async void AboutWindow_OnInitialized(object? Sender, EventArgs E)
     {
         await ViewModel.InitDataCommand.ExecuteAsync(this);
     }
