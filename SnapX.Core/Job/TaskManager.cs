@@ -250,5 +250,4 @@ public static class TaskManager
             };
     }
 
-    public static IEnumerable<HistoryItem> GetRecentHistoryItems(int MaxCount) => History?.GetHistoryItems().Take(MaxCount) ?? [];
 }
