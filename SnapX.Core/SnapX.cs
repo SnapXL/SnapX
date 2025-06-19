@@ -44,6 +44,10 @@ public class SnapX
             BuildType.Snap;
 #elif RUNFILE
             BuildType.Runfile;
+#elif HOMEBREW
+            BuildType.Homebrew;
+#elif PORTABLE
+            BuildType.Portable;
 #elif RELEASE
             BuildType.Release;
 #else
