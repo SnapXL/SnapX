@@ -89,7 +89,7 @@ SnapX is packaged on:
 
 - [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo) (Thank you [@ok-coder1](https://github.com/ok-coder1)!)
 
-Additionally, you can download builds from [here](https://nightly.link/BrycensRanch/SnapX/workflows/build/develop?preview)
+Additionally, you can download nightly builds from [here](https://nightly.link/BrycensRanch/SnapX/workflows/build/develop?preview).
 
 ## Development Dependencies
 
