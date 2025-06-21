@@ -20,6 +20,8 @@ public enum BuildType
     PKG,
     Arch, // btw
     APK, // Not to be confused with Android. For Alpine Linux
+    Homebrew,
+    Portable,
     Unknown
 }
 
