@@ -590,7 +590,7 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows")]
     public static WindowsGraphicsInfo? GetGraphicsInfoWindows()
     {
-        #if WINDOWS
+#if WINDOWS
         try
         {
             const string gpuCommand = """
