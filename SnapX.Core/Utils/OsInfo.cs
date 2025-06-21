@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 #if WINDOWS
+using SnapX.Core.Utils.Native;
 using Windows.Win32.System.SystemInformation;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -589,6 +590,7 @@ public static partial class OsInfo
     [SupportedOSPlatform("windows")]
     public static WindowsGraphicsInfo? GetGraphicsInfoWindows()
     {
+        #if WINDOWS
         try
         {
             const string gpuCommand = """
@@ -623,7 +625,7 @@ public static partial class OsInfo
                                           }
                                       }
                                       """;
-            var gpuRawOutput = RunPowerShellCommand(gpuCommand);
+            var gpuRawOutput = WindowsAPI.RunPowerShellCommand(gpuCommand);
 
             const string monitorCommand = """
 
@@ -649,6 +651,9 @@ public static partial class OsInfo
         {
             return null;
         }
+#else
+        return null;
+#endif
     }
     private static List<WindowsGpuInfo> ParseWindowsGpuInfo(string rawOutput)
     {
@@ -664,25 +669,6 @@ public static partial class OsInfo
     {
         var lines = rawOutput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
         return (from line in lines where line.StartsWith("Monitor:") select line["Monitor: ".Length..].Split([", Position: ", ", Resolution: "], StringSplitOptions.RemoveEmptyEntries) into parts where parts.Length == 3 let name = parts[0] let positionPart = parts[1] let resolutionPart = parts[2] select new WindowsMonitorInfo(name, positionPart, resolutionPart)).ToList();
-    }
-    private static string RunPowerShellCommand(string command)
-    {
-        var escapedCommand = command.Replace("\"", "`\"");
-        var process = new Process();
-        process.StartInfo.FileName = "powershell";
-        process.StartInfo.Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{escapedCommand}\"";
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.CreateNoWindow = true;
-
-        process.Start();
-        var output = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
-        if (process.ExitCode != 0)
-        {
-            DebugHelper.WriteLine($"Error running PowerShell command: {output}");
-        }
-        return output;
     }
     public static LinuxGraphicsInfo? GetGraphicsInfoLinux()
     {

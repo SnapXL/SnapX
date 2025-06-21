@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Management.Automation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -782,7 +781,25 @@ public class WindowsAPI : NativeAPI
 
         return Path.Combine(folderPath, shortcutName);
     }
+    public static string RunPowerShellCommand(string command)
+    {
+        var escapedCommand = command.Replace("\"", "`\"");
+        var process = new Process();
+        process.StartInfo.FileName = "powershell";
+        process.StartInfo.Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{escapedCommand}\"";
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = true;
 
+        process.Start();
+        var output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        if (process.ExitCode != 0)
+        {
+            DebugHelper.WriteLine($"Error running PowerShell command: {output}");
+        }
+        return output;
+    }
     private static bool CreateShortcut(string shortcutPath, string targetPath, string arguments = "")
     {
         if (!string.IsNullOrEmpty(shortcutPath) && !string.IsNullOrEmpty(targetPath) && File.Exists(targetPath))

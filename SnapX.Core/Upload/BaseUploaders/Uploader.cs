@@ -506,27 +506,22 @@ public class Uploader
 
     private ResponseInfo ProcessWebResponse(HttpResponseMessage response)
     {
-        if (response != null)
+        var responseInfo = new ResponseInfo
         {
-            var responseInfo = new ResponseInfo
-            {
-                StatusCode = response.StatusCode,
-                StatusDescription = response.ReasonPhrase ?? "OK",
-                ResponseURL = response.RequestMessage?.RequestUri?.OriginalString ?? string.Empty,
-                Headers = ConvertHeadersToDictionary(response)
-            };
+            StatusCode = response.StatusCode,
+            StatusDescription = response.ReasonPhrase ?? "OK",
+            ResponseURL = response.RequestMessage?.RequestUri?.OriginalString ?? string.Empty,
+            Headers = ConvertHeadersToDictionary(response)
+        };
 
-            using (var responseStream = response.Content.ReadAsStream())
-            using (var reader = new StreamReader(responseStream, Encoding.UTF8))
-            {
-                responseInfo.ResponseText = reader.ReadToEnd();
-            }
-
-            LastResponseInfo = responseInfo;
-            return responseInfo;
+        using (var responseStream = response.Content.ReadAsStream())
+        using (var reader = new StreamReader(responseStream, Encoding.UTF8))
+        {
+            responseInfo.ResponseText = reader.ReadToEnd();
         }
 
-        return null;
+        LastResponseInfo = responseInfo;
+        return responseInfo;
     }
 
 

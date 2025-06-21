@@ -78,8 +78,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="PaddleInference.runtime.osx-arm64" Version="2.5.2" />
-    <!-- I am doing my very best to not touch COM directly -->
-    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <!-- Cross platform OCR library -->
     <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas" Version="3.0.0.36" />
     <PackageReference Include="Sdcb.PaddleOCR" Version="3.0.0" />
