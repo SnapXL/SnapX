@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -815,9 +816,7 @@ public class WindowsAPI : NativeAPI
                              $Shortcut.Save()
                              """;
 
-            using var ps = PowerShell.Create();
-            ps.AddScript(script);
-            ps.Invoke();
+            RunPowerShellCommand(script)
 
             DebugHelper.WriteLine("Shortcut created successfully using PowerShell.");
 
@@ -835,13 +834,11 @@ public class WindowsAPI : NativeAPI
                          $Shortcut.TargetPath
                          """;
 
-        using var ps = PowerShell.Create();
-        ps.AddScript(script);
-        var result = ps.Invoke();
+        var result = RunPowerShellCommand(script)
 
-        if (result.Count > 0)
+        if (!string.IsNullOrWhiteSpace(result))
         {
-            return result[0].ToString();
+            return result;
         }
         else
         {
