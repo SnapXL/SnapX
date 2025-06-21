@@ -238,20 +238,20 @@ public sealed class BackblazeB2 : ImageUploader
     {
         NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(keyId, key);
 
-        using (HttpWebResponse res = GetResponse(HttpMethod.Get, B2AuthorizeAccountUrl, headers: headers, allowNon2xxResponses: true))
+        using var response = GetResponse(HttpMethod.Get, B2AuthorizeAccountUrl, null, null, null, headers, null, allowNon2xxResponses: true);
+        if (response == null || response.StatusCode != HttpStatusCode.OK)
         {
-            if (res.StatusCode != HttpStatusCode.OK)
-            {
-                error = StringifyB2Error(res);
-                return null;
-            }
-
-            string body = RequestHelpers.ResponseToString(res);
-
-            error = null;
-            return JsonSerializer.Deserialize<B2Authorization>(body);
+            // Use your helper that extracts error info from response
+            error = StringifyB2Error(response);
+            return null;
         }
+
+        var body = ProcessWebResponseText(response);
+
+        error = null;
+        return JsonSerializer.Deserialize<B2Authorization>(body);
     }
+
 
     /// <summary>
     /// Gets the bucket ID for the given bucket name. Requires <c>listBuckets</c> permission.
@@ -262,75 +262,74 @@ public sealed class BackblazeB2 : ImageUploader
     /// <returns>Null if an error occurs, and <c>error</c> will contain an error message. Otherwise, the bucket ID.</returns>
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public string B2ApiGetBucketId(B2Authorization auth, string bucketName, out string error)
+{
+    var headers = new NameValueCollection()
     {
-        NameValueCollection headers = new NameValueCollection()
-        {
-            ["Authorization"] = auth.authorizationToken
-        };
+        ["Authorization"] = auth.authorizationToken
+    };
 
-        Dictionary<string, string> reqBody = new Dictionary<string, string>
-        {
-            ["accountId"] = auth.accountId,
-            ["bucketName"] = bucketName
-        };
+    var reqBody = new Dictionary<string, string>
+    {
+        ["accountId"] = auth.accountId,
+        ["bucketName"] = bucketName
+    };
 
-        using (Stream data = CreateJsonBody(reqBody))
+    using (Stream data = CreateJsonBody(reqBody))
+    {
+        using var response = GetResponse(HttpMethod.Post, auth.apiUrl + B2ListBucketsPath,
+            data: data, contentType: ApplicationJson, headers: headers, allowNon2xxResponses: true);
+
+        if (response == null || response.StatusCode != HttpStatusCode.OK)
         {
-            using (HttpWebResponse res = GetResponse(HttpMethod.Post, auth.apiUrl + B2ListBucketsPath,
-                contentType: ApplicationJson, headers: headers, data: data, allowNon2xxResponses: true))
+            error = StringifyB2Error(response);
+            return null;
+        }
+
+        var body = ProcessWebResponseText(response);
+
+        JsonDocument jsonDocument;
+        try
+        {
+            jsonDocument = JsonDocument.Parse(body);
+        }
+        catch (JsonException e)
+        {
+            DebugHelper.WriteLine($"B2 uploader: Could not parse b2_list_buckets response: {e}");
+            error = "B2 upload failed: Couldn't parse b2_list_buckets response.";
+            return null;
+        }
+
+        var root = jsonDocument.RootElement;
+
+        string bucketId = null;
+
+        if (root.TryGetProperty("buckets", out var bucketsElement) && bucketsElement.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var bucket in bucketsElement.EnumerateArray())
             {
-                if (res.StatusCode != HttpStatusCode.OK)
+                if (bucket.TryGetProperty("bucketName", out JsonElement bucketNameElement) &&
+                    bucketNameElement.GetString() == bucketName)
                 {
-                    error = StringifyB2Error(res);
-                    return null;
-                }
-
-                var body = RequestHelpers.ResponseToString(res);
-
-                JsonDocument jsonDocument;
-
-                try
-                {
-                    jsonDocument = JsonDocument.Parse(body);
-                }
-                catch (JsonException e)
-                {
-                    DebugHelper.WriteLine($"B2 uploader: Could not parse b2_list_buckets response: {e}");
-                    error = "B2 upload failed: Couldn't parse b2_list_buckets response.";
-                    return null;
-                }
-
-                var root = jsonDocument.RootElement;
-
-                string bucketId = null;
-
-                if (root.TryGetProperty("buckets", out var bucketsElement) && bucketsElement.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var bucket in bucketsElement.EnumerateArray())
+                    if (bucket.TryGetProperty("bucketId", out JsonElement bucketIdElement))
                     {
-                        if (bucket.TryGetProperty("bucketName", out JsonElement bucketNameElement) &&
-                            bucketNameElement.GetString() == bucketName)
-                        {
-                            if (bucket.TryGetProperty("bucketId", out JsonElement bucketIdElement))
-                            {
-                                bucketId = bucketIdElement.GetString() ?? string.Empty;
-                            }
-                            break;
-                        }
+                        bucketId = bucketIdElement.GetString() ?? string.Empty;
                     }
+                    break;
                 }
-
-                if (!string.IsNullOrWhiteSpace(bucketId))
-                {
-                    error = null;
-                    return bucketId;
-                }
-
-                error = $"B2 upload failed: Couldn't find bucket {bucketName}.";
-                return null;
             }
         }
+
+        if (!string.IsNullOrWhiteSpace(bucketId))
+        {
+            error = null;
+            return bucketId;
+        }
+
+        error = $"B2 upload failed: Couldn't find bucket {bucketName}.";
+        return null;
     }
+}
+
 
     /// <summary>
     /// Gets a <see cref="B2UploadUrl"/> for the given bucket. Requires <c>writeFile</c> permission.
@@ -381,22 +380,21 @@ public sealed class BackblazeB2 : ImageUploader
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private B2UploadResult B2ApiUploadFile(B2UploadUrl b2UploadUrl, string destinationPath, Stream file)
     {
-        // we want to send 'Content-Disposition: inline; filename="screenshot.png"'
-        // this should display the uploaded data inline if possible, but if that fails, present a sensible filename
-        // conveniently, this class will handle this for us
-        ContentDisposition contentDisposition = new ContentDisposition("inline") { FileName = URLHelpers.GetFileName(destinationPath) };
+        // Content-Disposition header setup
+        ContentDisposition contentDisposition = new ContentDisposition("inline")
+        {
+            FileName = URLHelpers.GetFileName(destinationPath)
+        };
         DebugHelper.WriteLine($"B2 uploader: Content disposition is '{contentDisposition}'.");
 
-        // compute SHA1 hash without loading the file fully into memory
-        string sha1Hash;
+        // Compute SHA1 hash
         file.Seek(0, SeekOrigin.Begin);
         byte[] bytes = SHA1.HashData(file);
-        sha1Hash = BitConverter.ToString(bytes).Replace("-", "").ToLower();
+        string sha1Hash = BitConverter.ToString(bytes).Replace("-", "").ToLower();
         file.Seek(0, SeekOrigin.Begin);
         DebugHelper.WriteLine($"B2 uploader: SHA1 hash is '{sha1Hash}'.");
 
-        // it's showtime
-        // https://www.backblaze.com/b2/docs/b2_upload_file.html
+        // Prepare headers
         NameValueCollection headers = new NameValueCollection()
         {
             ["Authorization"] = b2UploadUrl.authorizationToken,
@@ -409,27 +407,26 @@ public sealed class BackblazeB2 : ImageUploader
 
         string contentType = MimeTypes.GetMimeType(destinationPath);
 
-        using (HttpWebResponse res = GetResponse(HttpMethod.Post, b2UploadUrl.uploadUrl,
-            contentType: contentType, headers: headers, data: file, allowNon2xxResponses: true))
+        using var response = GetResponse(HttpMethod.Post, b2UploadUrl.uploadUrl,
+            data: file, contentType: contentType, headers: headers, allowNon2xxResponses: true);
+
+        if (response == null)
         {
-            // if connection failed, res will be null, and here we -do- want to check explicitly for this
-            // since the server might be down
-            if (res == null)
-            {
-                return new B2UploadResult(-1, null, null);
-            }
-
-            if (res.StatusCode != HttpStatusCode.OK)
-            {
-                return new B2UploadResult((int)res.StatusCode, ParseB2Error(res), null);
-            }
-
-            string body = RequestHelpers.ResponseToString(res);
-            DebugHelper.WriteLine($"B2 uploader: B2ApiUploadFile() reports success! '{body}'");
-
-            return new B2UploadResult((int)res.StatusCode, null, JsonSerializer.Deserialize<B2Upload>(body));
+            return new B2UploadResult(-1, null, null);
         }
+
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            return new B2UploadResult((int)response.StatusCode, ParseB2Error(response), null);
+        }
+
+        string body = ProcessWebResponseText(response);
+        DebugHelper.WriteLine($"B2 uploader: B2ApiUploadFile() reports success! '{body}'");
+
+        var uploadResult = JsonSerializer.Deserialize<B2Upload>(body);
+        return new B2UploadResult((int)response.StatusCode, null, uploadResult);
     }
+
 
     /// <summary>
     /// Checks whether the authorization allows uploading to the specific bucket and path (without accessing the B2 API.)
@@ -481,18 +478,19 @@ public sealed class BackblazeB2 : ImageUploader
     /// </returns>
     /// <exception cref="IOException">If the response body cannot be read.</exception>
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
-    private static B2Error ParseB2Error(HttpWebResponse res)
+    private static B2Error ParseB2Error(HttpResponseMessage res)
     {
-        if (WebHelpers.IsSuccessStatusCode(res.StatusCode))
+        if (res == null || WebHelpers.IsSuccessStatusCode(res.StatusCode))
         {
             return null;
         }
 
         try
         {
-            string body = RequestHelpers.ResponseToString(res);
+            // Read response content as string synchronously
+            var body = res.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
             DebugHelper.WriteLine($"B2 uploader: ParseB2Error() got: {body}");
-            B2Error err = JsonSerializer.Deserialize<B2Error>(body);
+            var err = JsonSerializer.Deserialize<B2Error>(body);
             return err;
         }
         catch (JsonException)
@@ -501,18 +499,24 @@ public sealed class BackblazeB2 : ImageUploader
         }
     }
 
+
     /// <summary>
     /// Creates a user facing error message from a failed B2 request.
     /// </summary>
     /// <param name="res">A <see cref="HttpWebResponse"/> with a non-2xx status code.</param>
     /// <returns>A string describing the error.</returns>
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    private static string StringifyB2Error(HttpWebResponse res)
+    private static string StringifyB2Error(HttpResponseMessage res)
     {
+        if (res == null)
+        {
+            return "Response was null.";
+        }
+
         B2Error err = ParseB2Error(res);
         if (err == null)
         {
-            return $"Status {res.StatusCode}, unknown error.";
+            return $"Status {(int)res.StatusCode}, unknown error.";
         }
 
         string colonSpace = string.IsNullOrWhiteSpace(err.message) ? "" : ": ";

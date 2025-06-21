@@ -26,13 +26,10 @@ internal static class RequestHelpers
           long contentLength = 0,
           HttpContent content = null)
     {
-        // Create and configure the HttpRequestMessage
         var requestMessage = new HttpRequestMessage(method, url);
 
-        // Handle headers
         if (headers != null)
         {
-            // Parse specific headers like Accept, Content-Type, Content-Length, etc.
             if (headers["Accept"] != null)
             {
                 requestMessage.Headers.Accept.ParseAdd(headers["Accept"]);
@@ -51,7 +48,6 @@ internal static class RequestHelpers
                 headers.Remove("Content-Length");
             }
 
-            // Cookie handling
             if (headers["Cookie"] != null)
             {
                 cookies ??= [];
@@ -67,22 +63,18 @@ internal static class RequestHelpers
                 headers.Remove("Cookie");
             }
 
-            // Add remaining headers
             foreach (var key in headers.AllKeys)
             {
                 requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
             }
 
-            // Add cookies to the request header
             if (cookies != null)
             {
                 requestMessage.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
             }
 
-            // Add User-Agent header
             requestMessage.Headers.UserAgent.ParseAdd(SnapXResources.UserAgent);
 
-            // Handle Referer header
             if (headers["Referer"] != null)
             {
                 requestMessage.Headers.Referrer = new Uri(headers["Referer"]!);
@@ -90,7 +82,6 @@ internal static class RequestHelpers
             }
         }
 
-        // Handle content type and content
         if (!string.IsNullOrEmpty(contentType))
         {
             if (content == null) content = new StringContent(string.Empty, Encoding.UTF8, contentType);
@@ -166,14 +157,14 @@ internal static class RequestHelpers
         return Encoding.UTF8.GetBytes($"\r\n--{boundary}--\r\n");
     }
 
-    public static string ResponseToString(WebResponse response)
+    public static string ResponseToString(HttpResponseMessage response)
     {
-        using var responseStream = response?.GetResponseStream();
-        if (responseStream == null) return null;
+        if (response?.Content == null)
+            return null;
 
-        using var reader = new StreamReader(responseStream, Encoding.UTF8);
-        return reader.ReadToEnd();
+        return response.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
     }
+
 
 
     public static NameValueCollection CreateAuthenticationHeader(string username, string password)
