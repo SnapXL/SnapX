@@ -1,13 +1,13 @@
 <Application
+    Name="{x:Static core:SnapX.AppName}"
     x:Class="SnapX.Avalonia.App"
     x:DataType="avalonia:App"
-    Name="{x:Static core:SnapX.AppName}"
     xmlns="https://github.com/avaloniaui"
     xmlns:avalonia="clr-namespace:SnapX.Avalonia"
+    xmlns:core="clr-namespace:SnapX.Core;assembly=SnapX.Core"
     xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
     xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:core="clr-namespace:SnapX.Core;assembly=SnapX.Core">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Styles>
         <styling:FluentAvaloniaTheme
             PreferSystemTheme="True"

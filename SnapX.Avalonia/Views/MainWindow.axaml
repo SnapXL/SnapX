@@ -1,9 +1,9 @@
 <windowing:AppWindow
-    Icon="avares://snapx-ui/SnapX_Logo.png"
+    Icon="{Binding LogoResourcePath}"
     MinHeight="200"
-    MinWidth="512"
-    Title="{Binding MainWindowName}"
+    MinWidth="600"
     Opened="TopLevel_OnOpened"
+    Title="{Binding MainWindowName}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
