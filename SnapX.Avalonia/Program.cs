@@ -16,16 +16,10 @@ static AppBuilder BuildAvaloniaApp()
 
     if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
     {
+        builder.WithSystemFontSource(new Uri("avares://Avalonia.Fonts.Inter/Assets"));
         builder = builder.With(new FontManagerOptions
         {
             DefaultFamilyName = "Inter",
-            FontFallbacks =
-            [
-                new FontFallback
-                {
-                    FontFamily = new FontFamily("Inter")
-                }
-            ]
         });
     }
 
