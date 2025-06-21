@@ -333,7 +333,6 @@ public class Uploader
             var response = client.SendAsync(request).ConfigureAwait(false).GetAwaiter().GetResult();
 
             return response;
-
         }
         catch (WebException we) when (we.Response != null && allowNon2xxResponses)
         {
