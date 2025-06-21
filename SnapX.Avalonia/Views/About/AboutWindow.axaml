@@ -175,7 +175,8 @@
                                 IsExpanded="True"
                                 Margin="0,0,4,0">
                                 <StackPanel>
-                                    <SelectableTextBlock Text="No donations yet." />
+                                    <mdxaml:MarkdownScrollViewer Markdown="[Skorlok](https://github.com/Skorlok)" />
+                                    <mdxaml:MarkdownScrollViewer Markdown="[Abdullah16M](https://github.com/Abdullah16M)" />
                                 </StackPanel>
                             </Expander>
                             <Expander
