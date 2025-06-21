@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Dapper;
 #if WINDOWS
 using Esatto.Win32.Registry;
@@ -17,8 +18,16 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Zip;
 using SnapX.Core.Utils;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SnapX.Core;
+
+[JsonSerializable(typeof(RootConfiguration))]
+[JsonSerializable(typeof(IConfiguration))]
+[JsonSerializable(typeof(UploadersConfig))]
+[JsonSerializable(typeof(HotkeysConfig))]
+
+internal partial class SettingsContext : JsonSerializerContext;
 internal static class SettingManager
 {
     private const string ApplicationConfigFileName = "ApplicationConfig.json";
@@ -248,6 +257,70 @@ internal static class SettingManager
     //         DebugHelper.WriteException(ex);
     //     }
     // }
+    public static void SaveApplicationConfig()
+    {
+        if (SnapX.Sandbox)
+            return;
+
+        var configFilePath = ApplicationConfigFilePath;
+
+        try
+        {
+            var json = JsonSerializer.Serialize(Settings, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                TypeInfoResolver = SettingsContext.Default,
+                DefaultIgnoreCondition = JsonIgnoreCondition.Never
+            });
+            File.WriteAllText(configFilePath, json);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine($"Failed to save config file: {ex}");
+        }
+    }
+    public static void SaveUploadConfig()
+    {
+        if (SnapX.Sandbox)
+            return;
+
+        var configFilePath = UploadersConfigFilePath;
+
+        try
+        {
+            var json = JsonSerializer.Serialize(UploadersConfig, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                TypeInfoResolver = SettingsContext.Default
+            });
+            File.WriteAllText(configFilePath, json);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine($"Failed to save config file: {ex}");
+        }
+    }
+    public static void SaveHotkeysConfig()
+    {
+        if (SnapX.Sandbox)
+            return;
+
+        var configFilePath = HotkeysConfigFilePath;
+
+        try
+        {
+            var json = JsonSerializer.Serialize(HotkeysConfig, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                TypeInfoResolver = SettingsContext.Default
+            });
+            File.WriteAllText(configFilePath, json);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine($"Failed to save config file: {ex}");
+        }
+    }
     [DapperAot]
     private static void ApplicationConfigBackwardCompatibilityTasks()
     {
@@ -474,10 +547,9 @@ internal static class SettingManager
 
     public static void SaveAllSettings()
     {
-        // Settings.Save(ApplicationConfigFilePath);
-        // UploadersConfig.Save(UploadersConfigFilePath);
-        // CleanupHotkeysConfig();
-        // HotkeysConfig.Save(HotkeysConfigFilePath);
+        SaveApplicationConfig();
+        SaveUploadConfig();
+        SaveHotkeysConfig();
     }
 
     public static void SaveApplicationConfigAsync()
