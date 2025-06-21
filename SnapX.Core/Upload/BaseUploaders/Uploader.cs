@@ -4,7 +4,6 @@
 
 using System.Collections.Specialized;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
@@ -321,7 +320,7 @@ public class Uploader
             {
                 contentLength = data.Length;
             }
-            var request = RequestHelpers.CreateHttpRequest(method,  url, headers, cookies, contentType, contentLength).ConfigureAwait(false).GetAwaiter().GetResult();
+            var request = RequestHelpers.CreateHttpRequest(method, url, headers, cookies, contentType, contentLength).ConfigureAwait(false).GetAwaiter().GetResult();
             currentWebRequest = null;
 
             if (data != null && (method == HttpMethod.Post || method == HttpMethod.Put))
@@ -399,84 +398,84 @@ public class Uploader
         return !StopUploadRequested;
     }
 
-private string ProcessError(Exception e, string requestURL)
-{
-    string responseText = null;
-
-    if (e != null)
+    private string ProcessError(Exception e, string requestURL)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("Error message:");
-        sb.AppendLine(e.Message);
+        string responseText = null;
 
-        if (!string.IsNullOrEmpty(requestURL))
+        if (e != null)
         {
-            sb.AppendLine();
-            sb.AppendLine("Request URL:");
-            sb.AppendLine(requestURL);
-        }
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Error message:");
+            sb.AppendLine(e.Message);
 
-        switch (e)
-        {
-            case HttpRequestException httpRequestException:
+            if (!string.IsNullOrEmpty(requestURL))
             {
-                if (httpRequestException.Data["HttpResponseMessage"] is HttpResponseMessage response)
-                {
-                    try
-                    {
-                        ResponseInfo responseInfo = ProcessWebResponse(response);
-
-                        if (responseInfo != null)
-                        {
-                            responseText = responseInfo.ResponseText;
-
-                            sb.AppendLine();
-                            sb.AppendLine("Status code:");
-                            sb.AppendLine($"({(int)responseInfo.StatusCode}) {responseInfo.StatusDescription}");
-
-                            if (!string.IsNullOrEmpty(requestURL) && !requestURL.Equals(responseInfo.ResponseURL))
-                            {
-                                sb.AppendLine();
-                                sb.AppendLine("Response URL:");
-                                sb.AppendLine(responseInfo.ResponseURL);
-                            }
-
-                            if (responseInfo.Headers != null)
-                            {
-                                sb.AppendLine();
-                                sb.AppendLine("Headers:");
-                                sb.AppendLine(responseInfo.Headers.ToString().TrimEnd());
-                            }
-
-                            sb.AppendLine();
-                            sb.AppendLine("Response text:");
-                            sb.AppendLine(responseInfo.ResponseText);
-                        }
-                    }
-                    catch (Exception nested)
-                    {
-                        DebugHelper.WriteException(nested);
-                    }
-                }
-
-                break;
+                sb.AppendLine();
+                sb.AppendLine("Request URL:");
+                sb.AppendLine(requestURL);
             }
+
+            switch (e)
+            {
+                case HttpRequestException httpRequestException:
+                    {
+                        if (httpRequestException.Data["HttpResponseMessage"] is HttpResponseMessage response)
+                        {
+                            try
+                            {
+                                ResponseInfo responseInfo = ProcessWebResponse(response);
+
+                                if (responseInfo != null)
+                                {
+                                    responseText = responseInfo.ResponseText;
+
+                                    sb.AppendLine();
+                                    sb.AppendLine("Status code:");
+                                    sb.AppendLine($"({(int)responseInfo.StatusCode}) {responseInfo.StatusDescription}");
+
+                                    if (!string.IsNullOrEmpty(requestURL) && !requestURL.Equals(responseInfo.ResponseURL))
+                                    {
+                                        sb.AppendLine();
+                                        sb.AppendLine("Response URL:");
+                                        sb.AppendLine(responseInfo.ResponseURL);
+                                    }
+
+                                    if (responseInfo.Headers != null)
+                                    {
+                                        sb.AppendLine();
+                                        sb.AppendLine("Headers:");
+                                        sb.AppendLine(responseInfo.Headers.ToString().TrimEnd());
+                                    }
+
+                                    sb.AppendLine();
+                                    sb.AppendLine("Response text:");
+                                    sb.AppendLine(responseInfo.ResponseText);
+                                }
+                            }
+                            catch (Exception nested)
+                            {
+                                DebugHelper.WriteException(nested);
+                            }
+                        }
+
+                        break;
+                    }
+            }
+
+            sb.AppendLine();
+            sb.AppendLine("Stack trace:");
+            sb.Append(e.StackTrace);
+
+            var errorText = sb.ToString();
+
+            Errors ??= new UploaderErrorManager();
+            Errors.Add(errorText);
+
+            DebugHelper.WriteLine("Error:\r\n" + errorText);
         }
 
-        sb.AppendLine();
-        sb.AppendLine("Stack trace:");
-        sb.Append(e.StackTrace);
-
-        var errorText = sb.ToString();
-
-        Errors ??= new UploaderErrorManager();
-        Errors.Add(errorText);
-
-        DebugHelper.WriteLine("Error:\r\n" + errorText);
+        return responseText;
     }
-
-    return responseText;
-}
 
     private HttpRequestMessage CreateHttpRequest(HttpMethod method, string url, NameValueCollection headers = null, CookieCollection cookies = null,
         string contentType = null, long contentLength = 0)

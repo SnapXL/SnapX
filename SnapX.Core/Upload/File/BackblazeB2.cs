@@ -262,73 +262,73 @@ public sealed class BackblazeB2 : ImageUploader
     /// <returns>Null if an error occurs, and <c>error</c> will contain an error message. Otherwise, the bucket ID.</returns>
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public string B2ApiGetBucketId(B2Authorization auth, string bucketName, out string error)
-{
-    var headers = new NameValueCollection()
     {
-        ["Authorization"] = auth.authorizationToken
-    };
-
-    var reqBody = new Dictionary<string, string>
-    {
-        ["accountId"] = auth.accountId,
-        ["bucketName"] = bucketName
-    };
-
-    using (Stream data = CreateJsonBody(reqBody))
-    {
-        using var response = GetResponse(HttpMethod.Post, auth.apiUrl + B2ListBucketsPath,
-            data: data, contentType: ApplicationJson, headers: headers, allowNon2xxResponses: true);
-
-        if (response == null || response.StatusCode != HttpStatusCode.OK)
+        var headers = new NameValueCollection()
         {
-            error = StringifyB2Error(response);
-            return null;
-        }
+            ["Authorization"] = auth.authorizationToken
+        };
 
-        var body = ProcessWebResponseText(response);
-
-        JsonDocument jsonDocument;
-        try
+        var reqBody = new Dictionary<string, string>
         {
-            jsonDocument = JsonDocument.Parse(body);
-        }
-        catch (JsonException e)
+            ["accountId"] = auth.accountId,
+            ["bucketName"] = bucketName
+        };
+
+        using (Stream data = CreateJsonBody(reqBody))
         {
-            DebugHelper.WriteLine($"B2 uploader: Could not parse b2_list_buckets response: {e}");
-            error = "B2 upload failed: Couldn't parse b2_list_buckets response.";
-            return null;
-        }
+            using var response = GetResponse(HttpMethod.Post, auth.apiUrl + B2ListBucketsPath,
+                data: data, contentType: ApplicationJson, headers: headers, allowNon2xxResponses: true);
 
-        var root = jsonDocument.RootElement;
-
-        string bucketId = null;
-
-        if (root.TryGetProperty("buckets", out var bucketsElement) && bucketsElement.ValueKind == JsonValueKind.Array)
-        {
-            foreach (var bucket in bucketsElement.EnumerateArray())
+            if (response == null || response.StatusCode != HttpStatusCode.OK)
             {
-                if (bucket.TryGetProperty("bucketName", out JsonElement bucketNameElement) &&
-                    bucketNameElement.GetString() == bucketName)
+                error = StringifyB2Error(response);
+                return null;
+            }
+
+            var body = ProcessWebResponseText(response);
+
+            JsonDocument jsonDocument;
+            try
+            {
+                jsonDocument = JsonDocument.Parse(body);
+            }
+            catch (JsonException e)
+            {
+                DebugHelper.WriteLine($"B2 uploader: Could not parse b2_list_buckets response: {e}");
+                error = "B2 upload failed: Couldn't parse b2_list_buckets response.";
+                return null;
+            }
+
+            var root = jsonDocument.RootElement;
+
+            string bucketId = null;
+
+            if (root.TryGetProperty("buckets", out var bucketsElement) && bucketsElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var bucket in bucketsElement.EnumerateArray())
                 {
-                    if (bucket.TryGetProperty("bucketId", out JsonElement bucketIdElement))
+                    if (bucket.TryGetProperty("bucketName", out JsonElement bucketNameElement) &&
+                        bucketNameElement.GetString() == bucketName)
                     {
-                        bucketId = bucketIdElement.GetString() ?? string.Empty;
+                        if (bucket.TryGetProperty("bucketId", out JsonElement bucketIdElement))
+                        {
+                            bucketId = bucketIdElement.GetString() ?? string.Empty;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
-        }
 
-        if (!string.IsNullOrWhiteSpace(bucketId))
-        {
-            error = null;
-            return bucketId;
-        }
+            if (!string.IsNullOrWhiteSpace(bucketId))
+            {
+                error = null;
+                return bucketId;
+            }
 
-        error = $"B2 upload failed: Couldn't find bucket {bucketName}.";
-        return null;
+            error = $"B2 upload failed: Couldn't find bucket {bucketName}.";
+            return null;
+        }
     }
-}
 
 
     /// <summary>
