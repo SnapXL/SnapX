@@ -35,7 +35,6 @@ public static class TaskManager
             task.UploadCompleted += Task_UploadCompleted;
             task.TaskCompleted += Task_TaskCompleted;
             task.UploadersConfigWindowRequested += Task_UploadersConfigWindowRequested;
-
         }
 
         if (task.Status != TaskStatus.History)
@@ -100,7 +99,6 @@ public static class TaskManager
         string status = string.Format("Upload started. File name: {0}", info.FileName);
         if (!string.IsNullOrEmpty(info.FilePath)) status += ", File path: " + info.FilePath;
         DebugHelper.Logger?.Debug(status);
-
     }
 
     private static void Task_UploadProgressChanged(WorkerTask task)
@@ -150,7 +148,6 @@ public static class TaskManager
 
                 if (info != null && info.Result != null)
                 {
-
                     if (task.Status == TaskStatus.Stopped)
                     {
                         DebugHelper.WriteLine($"Task stopped. File name: {info.FileName}");
@@ -219,7 +216,6 @@ public static class TaskManager
         }
         finally
         {
-
             StartTasks();
 
             if (SnapX.Settings.SaveSettingsAfterTaskCompleted && !IsBusy)
@@ -249,5 +245,4 @@ public static class TaskManager
                 CreateWeeklyBackup = true
             };
     }
-
 }
