@@ -816,7 +816,7 @@ public class WindowsAPI : NativeAPI
                              $Shortcut.Save()
                              """;
 
-            RunPowerShellCommand(script)
+            RunPowerShellCommand(script);
 
             DebugHelper.WriteLine("Shortcut created successfully using PowerShell.");
 
@@ -834,7 +834,7 @@ public class WindowsAPI : NativeAPI
                          $Shortcut.TargetPath
                          """;
 
-        var result = RunPowerShellCommand(script)
+        var result = RunPowerShellCommand(script);
 
         if (!string.IsNullOrWhiteSpace(result))
         {
