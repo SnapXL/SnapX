@@ -640,7 +640,7 @@ public static partial class OsInfo
                                           }
 
                                           """;
-            var monitorRawOutput = RunPowerShellCommand(monitorCommand);
+            var monitorRawOutput = WindowsAPI.RunPowerShellCommand(monitorCommand);
 
             var gpus = ParseWindowsGpuInfo(gpuRawOutput);
             var monitors = ParseWindowsMonitorInfo(monitorRawOutput);
