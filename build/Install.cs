@@ -1,0 +1,161 @@
+namespace DefaultNamespace;
+
+public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileSystem, BuildConfig config)
+{
+    public async Task ProcessInstall()
+    {
+        LogInstallationPaths();
+        await InstallPackagingFiles();
+        await InstallDocumentationFiles();
+        await InstallBuildOutputFiles();
+    }
+
+    private void LogInstallationPaths()
+    {
+        Logger.Information($"--- Installation Paths ---");
+        Logger.Information($"Root directory: {config.RootDirectory}");
+        Logger.Information($"Destination Directory (DESTDIR): {config.DestDir}");
+        Logger.Information($"Prefix: {config.Prefix}");
+        Logger.Information($"Install Root: {Path.Join(config.DestDir, config.Prefix)}");
+        Logger.Information($"Data directory: {config.Datadir}");
+        Logger.Information($"Bin directory: {config.BinDir}");
+        Logger.Information($"Documentation directory: {config.Docdir}");
+        Logger.Information($"License directory: {config.Licensedir}");
+        Logger.Information($"Metainfo directory: {config.Metainfodir}");
+        Logger.Information($"Tarball directory: {config.Tarballdir}");
+        Logger.Information($"Application directory: {config.Applicationsdir}");
+        Logger.Information($"Icon directory: {config.Icondir}");
+        Logger.Information($"Library directory: {config.LibDir}");
+        Logger.Information($"Packaging User Directory: {config.PackagingUsrDir}");
+    }
+    private (string destination, string permissions) GetPackagingFileDestination(string sourceFile, string relativePath)
+    {
+        var destinationFile = Path.Combine(config.DestDir, config.Prefix, relativePath);
+        var permissions = "0644";
+
+        switch (sourceFile)
+        {
+            case var file when file.EndsWith(".desktop"):
+                permissions = "0755";
+                destinationFile = Path.Combine(config.Applicationsdir, Path.GetFileName(file));
+                break;
+            case var file when file.EndsWith(".metainfo.xml"):
+                destinationFile = Path.Combine(config.Metainfodir, Path.GetFileName(file));
+                break;
+            case var file when file.EndsWith(".md", StringComparison.OrdinalIgnoreCase):
+                destinationFile = Path.Combine(config.Docdir, Path.GetFileName(file));
+                break;
+        }
+
+        return (destinationFile, permissions);
+    }
+    private async Task InstallPackagingFiles()
+    {
+        if (!Directory.Exists(config.PackagingUsrDir)) return;
+
+        var files = Directory.GetFiles(config.PackagingUsrDir, "*", SearchOption.AllDirectories);
+        foreach (var sourceFile in files)
+        {
+            var relativePath = Path.GetRelativePath(config.PackagingUsrDir, sourceFile);
+            var (destinationFile, permissions) = GetPackagingFileDestination(sourceFile, relativePath);
+
+            await CommandRunner.InstallFile(sourceFile, destinationFile, permissions);
+        }
+    }
+    private async Task InstallDocumentationFiles()
+    {
+        await CommandRunner.InstallFile(Path.Combine(config.RootDirectory, "LICENSE.md"), Path.Combine(config.Licensedir, "LICENSE.md"), "0644");
+        var documentation = Directory.GetFiles(config.RootDirectory, "*.md", SearchOption.TopDirectoryOnly);
+
+        foreach (var docFile in documentation)
+        {
+            if (Path.GetFileName(docFile).Equals("LICENSE.md", StringComparison.OrdinalIgnoreCase)) continue;
+            await CommandRunner.InstallFile(docFile, Path.Combine(config.Docdir, Path.GetFileName(docFile)), "0644");
+        }
+    }
+    private async Task InstallBuildOutputFiles()
+    {
+        if (!Directory.Exists(config.OutputDir)) return;
+
+        var outputFiles = Directory.GetFiles(config.OutputDir, "*", SearchOption.AllDirectories).OrderBy(Path.GetFileName);
+        foreach (var outputFile in outputFiles)
+        {
+            var fileName = Path.GetFileName(outputFile);
+            if (fileName.EndsWith(".dbg") || fileName.EndsWith(".pdb")) continue;
+
+            var (destinationFile, permissions) = GetBuildOutputDestination(outputFile);
+
+            if (destinationFile == null) continue;
+
+            await CommandRunner.InstallFile(outputFile, destinationFile, permissions);
+
+            await CreateWrapperScriptIfApplicable(outputFile);
+        }
+    }
+
+    private (string? destination, string permissions) GetBuildOutputDestination(string outputFile)
+    {
+        string permissions = "0644";
+        string destinationFile;
+        var fileName = Path.GetFileName(outputFile);
+        var assemblyName = Path.GetFileNameWithoutExtension(outputFile);
+
+        var rawRelativePath = Path.GetRelativePath(config.OutputDir, outputFile);
+        var relativePath = Path.Combine(rawRelativePath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Skip(1).ToArray());
+
+        if (assemblyName.Equals(config.NMHassemblyName, StringComparison.OrdinalIgnoreCase))
+        {
+            destinationFile = config.NMHostPath;
+            permissions = "0755";
+        }
+        else if (fileName.EndsWith(".dll") || fileName.EndsWith(".so") || fileName.EndsWith(".dylib"))
+        {
+            destinationFile = Path.Combine(config.LibDir, relativePath);
+        }
+        else if (fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase) && fileName.Contains("host", StringComparison.OrdinalIgnoreCase))
+        {
+            destinationFile = Path.Join(config.Datadir, "SnapX", relativePath);
+        }
+        else
+        {
+            destinationFile = Path.Combine(config.LibDir, relativePath);
+            permissions = "0755";
+        }
+
+        return (destinationFile, permissions);
+    }
+
+    private async Task CreateWrapperScriptIfApplicable(string sourceFile)
+    {
+        var fileName = Path.GetFileNameWithoutExtension(sourceFile);
+        if (!config.knownAssemblyNames.Contains(fileName) || fileName == config.knownAssemblyNames[^1]) return;
+        var scriptPath = Path.GetFullPath(Path.Combine(config.BinDir, fileName));
+        var outputDir = Path.GetDirectoryName(sourceFile);
+        await FileSystem.EnsureDirectoryExistsAsync(Path.GetDirectoryName(scriptPath));
+        var rawRelativePath = Path.GetRelativePath(outputDir, sourceFile);
+        var relativePath = Path.Combine(
+            rawRelativePath
+                .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                .Where(part => !part.Contains("snapx", StringComparison.OrdinalIgnoreCase))
+                .ToArray()
+        );
+        var targetPath = Path.GetFullPath(Path.Combine(config.LibDir, relativePath, fileName));
+
+        var script = $"""
+                      #!/usr/bin/env sh
+                      # SnapX version: {config.SnapXVersion}
+                      exec env "{targetPath}" "$@"
+                      """;
+        Logger.Information($"Attempting to write wrapper script\n{script}");
+        if (OperatingSystem.IsWindows() && Environment.GetEnvironmentVariable("USE_INSTALL_FOR_WRAPPER_SCRIPT") == null)
+        {
+            Logger.Information($"Writing to {scriptPath} using .NET directly since you're on Windows. Set environment variable USE_INSTALL_FOR_WRAPPER_SCRIPT=1 to use the normal install command.");
+            await File.WriteAllTextAsync(scriptPath, script).ConfigureAwait(false);
+        }
+        else
+        {
+            await CommandRunner.RunInstallCommand($"-c \"cat > {scriptPath} <<EOF\n{script.Replace("$", "\\$")}\nEOF\"", "sh");
+            await CommandRunner.RunInstallCommand($"+x {scriptPath}", "chmod");
+        }
+    }
+}
