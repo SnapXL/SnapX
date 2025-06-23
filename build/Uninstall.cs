@@ -19,7 +19,6 @@ public class Uninstall(IBuildLogger Logger, ICommandRunner CommandRunner, FS Fil
             await FileSystem.TryDeleteMatchingFiles(config.BinDir, searchPatterns);
             // Previously, SnapX pooped out *.so files in the LibDir without the snapx directory.
             await FileSystem.TryDeleteMatchingFiles(Path.Combine(config.LibDir, ".."), searchPatterns);
-
         }
 
         if (Directory.Exists(config.OutputDir))
@@ -124,8 +123,6 @@ public class Uninstall(IBuildLogger Logger, ICommandRunner CommandRunner, FS Fil
         {
             await FileSystem.TryDeleteEmptyDir(config.DestDir);
         }
-
-
     }
     private void LogInstallationPaths()
     {

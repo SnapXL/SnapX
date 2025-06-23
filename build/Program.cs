@@ -91,5 +91,4 @@ internal class Program
         var program = new Program();
         return await cli.InvokeAsync(args, program.ExecuteAsync);
     }
-
 }
