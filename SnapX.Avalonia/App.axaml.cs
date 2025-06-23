@@ -1,3 +1,4 @@
+using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -14,9 +15,11 @@ using FluentAvalonia.UI.Windowing;
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using SkiaSharp;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views;
 using SnapX.Avalonia.Views.Settings;
+using SnapX.Avalonia.Views.Settings.Views;
 using SnapX.Core;
 using SnapX.Core.Capture;
 using SnapX.Core.Job;
@@ -108,10 +111,11 @@ public partial class App : Application
                 // Padding = new Thickness(10),
             });
         }
-
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        var semver = version.Major + "." + version.Minor + "." + version.Revision;
         stackPanel.Children.Add(new SelectableTextBlock
         {
-            Text = GetType().Assembly.GetName().Name + ": " + GetType().Assembly.GetName().Version,
+            Text = GetType().Assembly.GetName().Name + ": " + semver,
             FontWeight = FontWeight.SemiLight,
             FontSize = 16,
             FontFamily = new FontFamily("Consolas"),
@@ -405,7 +409,6 @@ public partial class App : Application
                             vlc.Dispose();
                         };
                     }
-
                     var Window = new MainWindow(vm);
 
                     Window.Show();
@@ -463,6 +466,24 @@ public partial class App : Application
             aboutWindow.Show();
         }
     }
+    public static void CreateSettingsWindowStatic()
+    {
+        var settingsWindow = Design.IsDesignMode
+            ? Activator.CreateInstance<SettingsWindow>()
+            : Ioc.Default.GetService<SettingsWindow>();
+        if (settingsWindow is null)
+        {
+            DebugHelper.WriteLine("Failed to create about window, got null back from IoC");
+            return;
+        }
+
+        if (MyMainWindow is not null && MyMainWindow.IsVisible) settingsWindow.Show(MyMainWindow);
+        else
+        {
+            settingsWindow.ShowAsDialog = false;
+            settingsWindow.Show();
+        }
+    }
 
 
     private void NativeMenuAboutSnapXClick(object? Sender, EventArgs E)
@@ -479,7 +500,10 @@ public partial class App : Application
         services.AddTransient<MainViewModel>();
         services.AddSingleton<MainWindow>();
         services.AddTransient<SettingsWindow>();
-        services.AddSingleton<SettingsWindowViewModel>();
+        services.AddTransient<SettingsMainView>();
+        services.AddTransient<SettingsMainViewVM>();
+        services.AddTransient<SettingsHomePageView>();
+        services.AddTransient<SettingsHomePageViewVM>();
 
         services.AddTransient<AboutWindow>();
         services.AddSingleton<AboutWindowViewModel>();
