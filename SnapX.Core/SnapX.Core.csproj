@@ -79,8 +79,8 @@
     </PackageReference>
     <PackageReference Include="PaddleInference.runtime.osx-arm64" Version="2.5.2" />
     <!-- Cross platform OCR library -->
-    <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas" Version="3.0.0.36" />
-    <PackageReference Include="Sdcb.PaddleOCR" Version="3.0.0" />
+    <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas" Version="3.0.0.51" />
+    <PackageReference Include="Sdcb.PaddleOCR" Version="3.0.1" />
     <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="3.0.1" />
     <!-- Please send help the application binaries are so huge & bloated AHHHHHH -->
     <PackageReference Include="OpenCvSharp4.runtime.osx_arm64" Version="4.8.1-rc" />
