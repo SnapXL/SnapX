@@ -30,7 +30,7 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
     }
     private (string destination, string permissions) GetPackagingFileDestination(string sourceFile, string relativePath)
     {
-        var destinationFile = Path.Combine(config.DestDir, config.Prefix, relativePath);
+        var destinationFile = Path.Join(config.DestDir, config.Prefix, relativePath);
         var permissions = "0644";
 
         switch (sourceFile)
