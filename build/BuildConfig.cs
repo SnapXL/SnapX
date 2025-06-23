@@ -125,5 +125,4 @@ public class BuildConfig
         var csprojFileName = Path.GetFileNameWithoutExtension(csprojPath);
         return assemblyNameElement?.Value?.Trim() ?? csprojFileName.Replace('.', '_');
     }
-
 }

@@ -7,5 +7,4 @@ public interface ICommandRunner
     // New method for file installation logic
     Task InstallFile(string source, string destination, string permissions);
     Task RunInstallCommand(string installArguments, string executionCommand = "install");
-
 }

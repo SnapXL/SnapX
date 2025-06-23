@@ -5,7 +5,6 @@ namespace DefaultNamespace;
 
 public class CommandRunner(IBuildLogger Logger) : ICommandRunner
 {
-
     public async Task RunAsync(string command, string args)
     {
         await SimpleExec.Command.RunAsync(command, args);
