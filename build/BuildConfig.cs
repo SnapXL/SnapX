@@ -82,6 +82,7 @@ public class BuildConfig
     public string[] SkippedStepsRaw { get; set; } = [];
     public string OutputDir { get; set; } = "Output";
     public string Configuration { get; set; } = "Release";
+    public bool EnableWrapperScriptFallback { get; set; }
     public string ExtraArgs { get; set; } = "";
     const string Namespace = "SnapX.";
     public readonly string SnapXVersion = Assembly

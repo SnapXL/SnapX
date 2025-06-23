@@ -147,6 +147,13 @@ public class CLI
             Arity = ArgumentArity.ExactlyOne
         };
         rootCommand.Options.Add(docDirOption);
+        var enableWrapperFallbackOption = new Option<bool>("--enable-wrapper-fallback")
+        {
+            Description = "Enable the fallback to the packaging DESTDIR path in the wrapper script.",
+            Arity = ArgumentArity.ZeroOrOne,
+            DefaultValueFactory = _ => false
+        };
+        rootCommand.Options.Add(enableWrapperFallbackOption);
 
         rootCommand.SetAction(async (parseResult, token) =>
         {
@@ -160,6 +167,7 @@ public class CLI
                 Configuration = parseResult.GetValue(configurationOption) ?? "Release",
                 ExtraArgs = parseResult.GetValue(extraArgsOption) ?? "",
                 SkippedStepsRaw = parseResult.GetValue(skipStepOption) ?? [],
+                EnableWrapperScriptFallback = parseResult.GetValue(enableWrapperFallbackOption),
                 BullseyeOptions = new Options
                 {
                     Clear = parseResult.GetValue(clearOption),
