@@ -195,6 +195,11 @@ Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
 
 Contributions are welcome. The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
 
+## Donators 💖
+- [Skorlok](https://github.com/Skorlok)
+- [Abdullah16M](https://github.com/Abdullah16M)
+Thank you so much!
+
 ### Roadmap
 
 See [Progress.md](./.github/Progress.md)
