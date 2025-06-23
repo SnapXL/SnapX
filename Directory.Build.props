@@ -25,6 +25,12 @@
     <RollForward>LatestMajor</RollForward>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
+  <PropertyGroup Condition="!Exists('.git')">
+    <UpdateAssemblyInfo>false</UpdateAssemblyInfo>
+    <DisableGitVersionTask>true</DisableGitVersionTask>
+
+    <Version Condition="'$(VERSION)' != ''">$(VERSION)</Version>
+  </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) and
                          ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
     <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>

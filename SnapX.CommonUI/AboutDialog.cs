@@ -12,7 +12,7 @@ public class AboutDialog
 
     public virtual string GetSystemInfo()
     {
-        return SnapX.Core.Utils.OsInfo.GetFancyOSNameAndVersion();
+        return Core.Utils.OsInfo.GetFancyOSNameAndVersion();
     }
     public virtual string GetTitle() => Core.SnapX.Title;
     public virtual string GetLicense() => "GPL v3 or Later";
@@ -32,27 +32,26 @@ public class AboutDialog
     public virtual string GetRuntime() => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
     public virtual string GetOsPlatform() => $"{Environment.OSVersion.Platform} {Environment.OSVersion.Version}";
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(GitVersionInformation))]
     [RequiresUnreferencedCode("Uses reflection to access properties that may be removed by the trimmer.")]
     public virtual string GetBuildInformation()
     {
         var title = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? Assembly.GetExecutingAssembly().FullName;
         var flags = string.Join(", ", Core.SnapX.Flags);
         var informationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
-
-        var type = typeof(GitVersionInformation);
-        var gitCommitId = type.GetField("Sha", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as string;
-        var commitDateStr = type.GetField("CommitDate", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as string;
+        var fileVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version ?? "Unknown";
+        var type = Type.GetType("GitVersionInformation");
+        var gitCommitId = type?.GetField("Sha", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as string;
+        var commitDateStr = type?.GetField("CommitDate", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as string;
         var gitCommitDate = DateTime.TryParse(commitDateStr, out var parsedDate)
             ? parsedDate
             : new DateTime();
-        var branchName = type.GetField("BranchName", BindingFlags.Public | BindingFlags.Static)?.GetValue(null)?.ToString();
+        var branchName = type?.GetField("BranchName", BindingFlags.Public | BindingFlags.Static)?.GetValue(null)?.ToString();
 
-        return $"{title} v{GitVersionInformation.AssemblySemFileVer}{Environment.NewLine}" +
+        return $"{title} v{fileVersion}{Environment.NewLine}" +
                $"Flags: {flags}{Environment.NewLine}" +
                $"Build: {Core.SnapX.Build}{Environment.NewLine}" +
                $"Informational Version: {informationalVersion} (Branch: {branchName}){Environment.NewLine}" +
-               $"Commit {gitCommitId} ({gitCommitDate})";
+               $"Commit {gitCommitId} ({gitCommitDate.ToLocalTime()})";
     }
     public virtual string GetOsArchitecture() => System.Runtime.InteropServices.RuntimeInformation.OSArchitecture.ToString();
 

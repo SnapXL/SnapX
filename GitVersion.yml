@@ -1,5 +1,5 @@
 assembly-informational-format: '{SemVer}+g{ShortSha}'
-commit-date-format: "yyyy-MM-dd HH:mm:ss zzzz"
+commit-date-format: "yyyy-MM-dd hh:mm:ss zzzz"
 update-build-number: true
 semantic-version-format: Strict
 mode: ContinuousDelivery
