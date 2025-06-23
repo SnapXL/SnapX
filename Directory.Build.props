@@ -32,7 +32,4 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <Platforms>x64;arm64</Platforms>
   </PropertyGroup>
-  <Target Name="PrintGitVersion" AfterTargets="GitVersion">
-    <Message Text="GitVersion_InformationalVersion: $(GitVersion_InformationalVersion)"/>
-  </Target>
 </Project>
