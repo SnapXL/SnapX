@@ -90,6 +90,7 @@ SnapX but with Avalonia. Works best on X11.
 export PATH=$PATH:/usr/local/bin
 export VERSION=%{version}
 export PKGTYPE=RPM
+export ELEVATION_NOT_NEEDED=1
 
 %global build_extra_args %{nil}
 %if "%{build_with_aot}" != "true"
