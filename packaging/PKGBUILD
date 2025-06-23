@@ -2,7 +2,7 @@
 pkgbase=snapx
 pkgname=(snapx snapx-ui)
 pkgver=0.2.1
-pkgrel=2
+pkgrel=3
 pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX)"
 arch=('x86_64' 'aarch64')
 url="https://github.com/BrycensRanch/SnapX"
@@ -16,6 +16,12 @@ makedepends=(
 
 source=("$pkgbase::git+https://github.com/BrycensRanch/SnapX.git")
 sha256sums=('SKIP')
+
+pkgver() {
+    cd "$pkgbase"
+    ver=$(./build.sh --version | grep -Eo '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?(\+[0-9A-Za-z.]+)?$')
+    echo "${ver//+/.}"
+}
 
 build() {
     cd "$pkgbase"
