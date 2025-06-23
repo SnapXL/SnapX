@@ -59,9 +59,9 @@ public class SnapX
         get
         {
             var version = Version.Parse(Helpers.GetApplicationVersion());
-            var versionString = $"{version.Major}.{version.Minor}.{version.Revision}";
-            if (version.Build > 0)
-                versionString += $".{version.Build}";
+            var versionString = $"{version.Major}.{version.Minor}.{version.Build}";
+            if (version.Revision > 0)
+                versionString += $".{version.Revision}";
             if (Settings.DevMode)
                 versionString += " Dev";
             if (Environment.GetEnvironmentVariable("CONTAINER")?.ToLower() == "flatpak")
