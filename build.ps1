@@ -23,6 +23,7 @@ $DotNetInstallUrl = "https://dot.net/v1/dotnet-install.ps1"
 $DotNetChannel = "STS"
 
 $env:AVALONIA_TELEMETRY_OPTOUT = 1
+$env:DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE = "true"
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = 1
 $env:DOTNET_NOLOGO = 1
 
@@ -62,5 +63,5 @@ else {
 
 Write-Output "Microsoft (R) .NET SDK version $(& $env:DOTNET_EXE --version)"
 
-ExecSafe { & $env:DOTNET_EXE build $BuildProjectFile -nodeReuse:false -p:UseSharedCompilation=false -nologo -clp:NoSummary --verbosity quiet }
+ExecSafe { & $env:DOTNET_EXE build $BuildProjectFile -nodeReuse:false -p:UseSharedCompilation=false -p:NoWarn=true -nologo -clp:NoSummary --verbosity quiet }
 ExecSafe { & $env:DOTNET_EXE run --project $BuildProjectFile --no-build -- $BuildArguments }
