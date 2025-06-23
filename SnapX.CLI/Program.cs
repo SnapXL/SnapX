@@ -1,3 +1,4 @@
+using System.Reflection;
 using SnapX.CLI;
 using SnapX.Core;
 using SnapX.Core.Utils;
@@ -23,6 +24,13 @@ if (args.Length == 0 || args[0] == "--help" || args[0] == "-h")
     changelog.Display();
 }
 
+if (args[0] == "--version" || args[0] == "-v")
+{
+    var informationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
+    Console.WriteLine(informationalVersion);
+    snapx.shutdown();
+    return;
+}
 var about = new CLIAbout();
 about.Show();
 
