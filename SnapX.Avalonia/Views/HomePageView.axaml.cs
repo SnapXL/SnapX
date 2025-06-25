@@ -1,4 +1,4 @@
-﻿using AsyncImageLoader.Loaders;
+using AsyncImageLoader.Loaders;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FluentAvalonia.UI.Controls;
@@ -118,6 +118,4 @@ public partial class HomePageView : UserControl
         var text = menuItem.Tag as string;
         ClipboardService.Owner.Clipboard?.SetTextAsync(text);
     }
-
-
 }
