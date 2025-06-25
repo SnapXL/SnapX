@@ -1,0 +1,37 @@
+<windowing:AppWindow
+    Closed="AppWindow_OnClosed"
+    Height="800"
+    Loaded="AppWindow_OnLoaded"
+    Title="Log Viewer"
+    Width="900"
+    x:Class="SnapX.Avalonia.Views.LogViewer"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
+    xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <DockPanel>
+        <StackPanel
+            DockPanel.Dock="Bottom"
+            HorizontalAlignment="Right"
+            Margin="10"
+            Orientation="Horizontal"
+            Spacing="8">
+            <Button Click="CopyButton_OnClick" Content="Copy" />
+            <Button Click="UploadLogButton_OnClick" Content="Upload" />
+            <Button Click="OpenLogFolderButton_OnClick" Content="Open Log Folder" />
+            <Button Click="ClearButton_OnClick" Content="Clear" />
+            <Button Click="Close_Click" Content="{x:Static utils:Lang.Close}" />
+        </StackPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" x:Name="ScrollViewer">
+            <StackPanel Margin="10" Spacing="10">
+                <SelectableTextBlock
+                    FontSize="16"
+                    SizeChanged="LogTextBlock_OnSizeChanged"
+                    TextWrapping="Wrap"
+                    x:Name="LogTextBlock" />
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</windowing:AppWindow>

@@ -1,102 +1,128 @@
 ﻿<UserControl
-  d:DesignHeight="700"
-  d:DesignWidth="450"
-  mc:Ignorable="d"
-  x:Class="SnapX.Avalonia.Views.MainView"
-  x:DataType="viewModels:MainViewModel"
-  xmlns="https://github.com/avaloniaui"
-  xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-  xmlns:converters="clr-namespace:SnapX.Avalonia.Converters"
-  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:models="clr-namespace:SnapX.Avalonia.Models"
-  xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
-  xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <Design.DataContext>
-    <viewModels:MainViewModel />
-  </Design.DataContext>
-  <Grid RowDefinitions="Auto, *">
-    <SplitView
-      Background="{DynamicResource SolidBackgroundFillColorBase}"
-      CompactPaneLength="46"
-      DisplayMode="CompactInline"
-      Grid.Row="1"
-      IsPaneOpen="{Binding IsPaneOpen}"
-      OpenPaneLength="170">
+    Initialized="MainView_OnInit"
+    d:DesignHeight="700"
+    d:DesignWidth="450"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.Views.MainView"
+    x:DataType="viewModels:MainViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:core="clr-namespace:SnapX.Core;assembly=SnapX.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:miscellaneous="clr-namespace:SnapX.Core.Utils.Miscellaneous;assembly=SnapX.Core"
+    xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
+    xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.DataContext>
+        <viewModels:MainViewModel />
+    </Design.DataContext>
+    <controls:NavigationView
+        Background="{DynamicResource SolidBackgroundFillColorBase}"
+        IsPaneOpen="{Binding IsPaneOpen}"
+        IsSettingsVisible="False"
+        OpenPaneLength="220"
+        PaneDisplayMode="Left"
+        PaneTitle="SnapX"
+        UseLayoutRounding="True">
 
-      <SplitView.Pane>
-        <controls:CommandBar
-          DefaultLabelPosition="Right"
-          IsDynamicOverflowEnabled="True"
-          IsOpen="{Binding IsPaneOpen}"
-          UseLayoutRounding="True">
-          <controls:CommandBar.PrimaryCommands>
-            <controls:CommandBarButton Command="{Binding TriggerPaneCommand}" IconSource="GlobalNavigationButton" />
-
-            <controls:CommandBarElementContainer>
-
-              <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedListItem}">
-                <ListBox.ItemTemplate>
-                  <DataTemplate DataType="{x:Type models:ListItemTemplate}">
-                    <StackPanel Orientation="Horizontal" Spacing="17">
-                      <PathIcon Data="{Binding IconKey, Converter={x:Static converters:TypeConverters.IconConverter}}"
-                                Width="16" />
-                      <TextBlock
-                        Text="{Binding Label}"
-                        TextTrimming="WordEllipsis"
-                        TextWrapping="Wrap" />
-                    </StackPanel>
-                  </DataTemplate>
-                </ListBox.ItemTemplate>
-              </ListBox>
-            </controls:CommandBarElementContainer>
-          </controls:CommandBar.PrimaryCommands>
-          <controls:CommandBar.SecondaryCommands>
-            <controls:CommandBarElementContainer>
-              <WrapPanel Orientation="Horizontal">
+        <controls:NavigationView.MenuItems>
+            <controls:NavigationViewItem>
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="Camera"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
                 <SplitButton x:Name="CaptureSplitButton">
-                  <WrapPanel Orientation="Horizontal">
-                    <controls:SymbolIcon Symbol="Camera" FontSize="20" />
                     <Label Content="Region" Name="RegionCaptureLabel" />
-                  </WrapPanel>
-                  <SplitButton.Flyout>
-                    <controls:FAMenuFlyout>
-                      <controls:ToggleMenuFlyoutItem
-                        Text="{x:Static utils:Lang.UI_Dropdown_Region}"
-                        IconSource="Camera" />
-                      <controls:ToggleMenuFlyoutItem
-                        Text="{x:Static utils:Lang.UI_Dropdown_RegionLight}" />
-                      <controls:ToggleMenuFlyoutItem
-                        Text="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" />
-                      <controls:ToggleMenuFlyoutItem
-                        Text="{x:Static utils:Lang.UI_Dropdown_Window}" />
-                      <controls:ToggleMenuFlyoutItem
-                        Text="{x:Static utils:Lang.UI_Dropdown_Monitor}" />
+                    <SplitButton.Flyout>
+                        <controls:FAMenuFlyout>
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Region}" />
+                            <controls:ToggleMenuFlyoutItem Text="{x:Static utils:Lang.UI_Dropdown_RegionLight}" />
+                            <controls:ToggleMenuFlyoutItem Text="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" />
+                            <controls:ToggleMenuFlyoutItem Text="{x:Static utils:Lang.UI_Dropdown_Window}" />
+                            <controls:ToggleMenuFlyoutItem Text="{x:Static utils:Lang.UI_Dropdown_Monitor}" />
 
 
-                    </controls:FAMenuFlyout>
-                  </SplitButton.Flyout>
+                        </controls:FAMenuFlyout>
+                    </SplitButton.Flyout>
                 </SplitButton>
-              </WrapPanel>
-            </controls:CommandBarElementContainer>
-            <controls:CommandBarButton
-              Command="{Binding OpenSettingsWindowCommand}"
-              IconSource="Settings"
-              Label="{x:Static utils:Lang.UI_Settings}" />
-            <controls:CommandBarButton
-              Command="{Binding OpenAboutWindowCommand}"
-              IconSource="Favorite"
-              Label="{x:Static utils:Lang.AboutSnapX}" />
-          </controls:CommandBar.SecondaryCommands>
-        </controls:CommandBar>
-      </SplitView.Pane>
-
-
-      <Border>
-        <TransitioningContentControl Content="{Binding CurrentPage}" />
-      </Border>
-    </SplitView>
-
-  </Grid>
+            </controls:NavigationViewItem>
+            <controls:NavigationViewItem
+                Content="Screenshot Folder"
+                PointerPressed="DynamicURL_OnPointerPressed"
+                ToolTip.Tip="{x:Static core:SnapX.ScreenshotsParentFolder}">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="Folder"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+            </controls:NavigationViewItem>
+        </controls:NavigationView.MenuItems>
+        <controls:NavigationView.FooterMenuItems>
+            <controls:NavigationViewItem Content="About" PointerPressed="AboutItem_Pressed">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="InfoSparkle"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+            </controls:NavigationViewItem>
+            <controls:NavigationViewItem
+                Content="Donate"
+                PointerPressed="DynamicURL_OnPointerPressed"
+                ToolTip.Tip="{x:Static miscellaneous:Links.Donate}">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="PersonHeart"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+            </controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Debug">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="BoxSearch"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+                <controls:NavigationView.MenuItems>
+                    <controls:NavigationViewItem
+                        Content="Log"
+                        IconSource="Repair"
+                        PointerPressed="OpenDebugLog" />
+                    <!-- <controls:NavigationViewItem Content="Test image upload"> -->
+                    <!--     <controls:NavigationViewItem.IconSource> -->
+                    <!--  <fluent:FluentIconSource  -->
+                    <!--  Icon="ImageGlobe"  -->
+                    <!--  IconSize="Size32"  -->
+                    <!--  IconVariant="Regular" />  -->
+                    <!--     </controls:NavigationViewItem.IconSource> -->
+                    <!--    -->
+                    <!-- </controls:NavigationViewItem> -->
+                </controls:NavigationView.MenuItems>
+            </controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Settings" PointerPressed="SettingsItem_Pressed">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="Settings"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+            </controls:NavigationViewItem>
+        </controls:NavigationView.FooterMenuItems>
+        <controls:NavigationView.AutoCompleteBox>
+            <!--
+                See AutoSuggestBox documentation for
+                more info about how to implement search.
+            -->
+            <AutoCompleteBox x:Name="NavViewSearchBox" />
+        </controls:NavigationView.AutoCompleteBox>
+        <Border>
+            <TransitioningContentControl Content="{Binding CurrentPage}" />
+        </Border>
+    </controls:NavigationView>
 </UserControl>
