@@ -18,7 +18,7 @@
 # This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
 
 
-%global version         0.2.1
+%global version         0.3.0
 # This build switch is not intended to be used as a method to make s390x and Ppc64le work
 %global build_with_aot  false
 %ifarch x86_64 aarch64
@@ -100,7 +100,7 @@ export PKGTYPE=RPM
 
 %install
 export ELEVATION_NOT_NEEDED=1
-./build.sh install --no-color --no-extended-chars --prefix %{_prefix} --lib-dir %{buildroot}%{_libdir} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
+./build.sh install --no-color --no-extended-chars --prefix %{_prefix} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
 
 %files
 %{_bindir}/%{name}

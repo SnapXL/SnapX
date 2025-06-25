@@ -74,7 +74,7 @@ public class FS(IBuildLogger Logger, CommandRunner CommandRunner) : IFileSystem
     {
         DirectoryInfo dir = new(path);
         var directories = dir.GetDirectories(searchPattern, searchOption);
-        return directories.Select((dir) => dir.FullName).ToArray();
+        return directories.Select(DirectoryInfo => DirectoryInfo.FullName).ToArray();
     }
 
     public async Task<string> FileReadAllTextAsync(string path)
