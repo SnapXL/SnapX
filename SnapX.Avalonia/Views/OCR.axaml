@@ -1,0 +1,62 @@
+<windowing:AppWindow
+    Height="600"
+    Loaded="Control_OnLoaded"
+    Title="OCR Result"
+    Width="900"
+    x:Class="SnapX.Avalonia.Views.OCR"
+    x:DataType="viewModels:OCRViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+    xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Design.DataContext>
+        <viewModels:OCRViewModel />
+    </Design.DataContext>
+
+    <Grid
+        Margin="20"
+        RowDefinitions="Auto,*,Auto"
+        RowSpacing="15">
+
+        <!--  Language Selection Row  -->
+        <Grid
+            ColumnDefinitions="Auto, *"
+            ColumnSpacing="10"
+            Row="0">
+            <Label Content="Language:" VerticalAlignment="Center" />
+            <ComboBox
+                Grid.Column="1"
+                ItemsSource="{Binding LanguageDisplayNames}"
+                SelectedIndex="{Binding SelectedLanguageIndex}"
+                SelectionChanged="LanguageSelector_SelectionChanged"
+                ToolTip.Tip="Select the language for OCR..."
+                Width="200"
+                x:Name="LanguageSelector" />
+        </Grid>
+
+        <Border
+            BorderBrush="{DynamicResource SystemAccentColor}"
+            BorderThickness="1"
+            CornerRadius="6"
+            Grid.Row="1">
+            <TextBox
+                AcceptsReturn="True"
+                FontSize="14"
+                IsReadOnly="True"
+                Padding="10"
+                TextWrapping="Wrap"
+                x:Name="ResultText" />
+        </Border>
+
+        <!--  Action Buttons  -->
+        <StackPanel
+            Grid.Row="2"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal"
+            Spacing="10">
+            <Button Click="CopyResult_Click" Content="Copy" />
+        </StackPanel>
+
+    </Grid>
+</windowing:AppWindow>

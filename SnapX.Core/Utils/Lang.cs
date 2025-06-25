@@ -16,6 +16,7 @@ public static class Lang
     public static string Error => Get("Error");
     public static string Ok => Get("Ok");
     public static string Close => Get("Close");
+    public static string Processing => Get("Processing");
     public static string ReportErrorToDeveloper => Get("ReportErrorToDeveloper");
     public static string CreateGitHubIssue => Get("CreateGitHubIssue");
     public static string CopyErrorToClipboard => Get("CopyErrorToClipboard");
@@ -77,7 +78,6 @@ public static class Lang
     public static string UI_RemoveTask_ToolTip => Get("UI_RemoveTask_ToolTip");
     public static string UI_DeleteFileLocally => Get("UI_DeleteFileLocally");
     public static string UI_DeleteFileLocally_ToolTip => Get("UI_DeleteFileLocally_ToolTip");
-
     #endregion
 
 }
