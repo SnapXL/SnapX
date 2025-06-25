@@ -5,7 +5,6 @@ using Avalonia.Dialogs;
 using Avalonia.Media;
 using SnapX.Avalonia;
 
-Console.WriteLine("Initializing Avalonia");
 BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
 
