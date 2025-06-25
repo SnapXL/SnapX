@@ -10,6 +10,7 @@ using System.Text;
 using OpenCvSharp;
 using Sdcb.PaddleInference;
 using Sdcb.PaddleOCR;
+using Sdcb.PaddleOCR.Models;
 using Sdcb.PaddleOCR.Models.Local;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
@@ -419,9 +420,9 @@ public static class TaskHelpers
     {
         using (ImageData imageData = PrepareImage(img, taskSettings))
         {
-            string screenshotsFolder = GetScreenshotsFolder(taskSettings);
-            string fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), img);
-            string filePath = Path.Combine(screenshotsFolder, fileName);
+            string? screenshotsFolder = GetScreenshotsFolder(taskSettings);
+            string? fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), img);
+            string? filePath = Path.Combine(screenshotsFolder, fileName);
 
             if (!overwriteFile)
             {
@@ -435,7 +436,7 @@ public static class TaskHelpers
             }
         }
     }
-    public static string HandleExistsFile(string filePath, TaskSettings taskSettings)
+    public static string? HandleExistsFile(string? filePath, TaskSettings taskSettings)
     {
         if (File.Exists(filePath))
         {
@@ -455,20 +456,20 @@ public static class TaskHelpers
 
         return filePath;
     }
-    public static string HandleExistsFile(string folderPath, string fileName, TaskSettings taskSettings)
+    public static string? HandleExistsFile(string? folderPath, string? fileName, TaskSettings taskSettings)
     {
         var filePath = Path.Combine(folderPath, fileName);
         return HandleExistsFile(filePath, taskSettings);
     }
-    public static string GetFileName(TaskSettings taskSettings, string extension, Image bmp)
+    public static string? GetFileName(TaskSettings taskSettings, string extension, Image bmp)
     {
         var metadata = new TaskMetadata(bmp);
         return GetFileName(taskSettings, extension, metadata);
     }
 
-    public static string GetFileName(TaskSettings taskSettings, string extension = null, TaskMetadata metadata = null)
+    public static string? GetFileName(TaskSettings taskSettings, string extension = null, TaskMetadata metadata = null)
     {
-        string fileName;
+        string? fileName;
 
         NameParser nameParser = new NameParser(NameParserType.FileName)
         {
@@ -509,11 +510,11 @@ public static class TaskHelpers
         return fileName;
     }
 
-    public static string GetScreenshotsFolder(TaskSettings taskSettings = null, TaskMetadata metadata = null, DateTime? date = null)
+    public static string? GetScreenshotsFolder(TaskSettings taskSettings = null, TaskMetadata metadata = null, DateTime? date = null)
     {
         date ??= DateTime.Now;
         var dt = date.Value;
-        string screenshotsFolder;
+        string? screenshotsFolder;
 
         NameParser nameParser = new NameParser(NameParserType.FilePath);
 
@@ -535,7 +536,7 @@ public static class TaskHelpers
         }
         else
         {
-            string subFolderPattern;
+            string? subFolderPattern;
 
             if (!string.IsNullOrEmpty(SnapX.Settings.SaveImageSubFolderPatternWindow) && !string.IsNullOrEmpty(nameParser.WindowText))
             {
@@ -546,7 +547,7 @@ public static class TaskHelpers
                 subFolderPattern = SnapX.Settings.SaveImageSubFolderPattern;
             }
 
-            string subFolderPath = nameParser.Parse(subFolderPattern, dt);
+            string? subFolderPath = nameParser.Parse(subFolderPattern, dt);
             screenshotsFolder = Path.Combine(SnapX.ScreenshotsParentFolder, subFolderPath);
         }
 
@@ -612,7 +613,7 @@ public static class TaskHelpers
 
     public static void OpenScreenshotsFolder()
     {
-        string screenshotsFolder = GetScreenshotsFolder();
+        string? screenshotsFolder = GetScreenshotsFolder();
 
         if (Directory.Exists(screenshotsFolder))
         {
@@ -648,44 +649,49 @@ public static class TaskHelpers
         }
     }
 
-    public static void SearchImageUsingGoogleLens(string url)
+    public static void SearchImageUsingGoogleLens(string? url)
     {
         new GoogleLensSharingService().CreateSharer(null, null).ShareURL(url);
     }
 
-    public static void SearchImageUsingBing(string url)
+    public static void SearchImageUsingBing(string? url)
     {
         new BingVisualSearchSharingService().CreateSharer(null, null).ShareURL(url);
     }
 
-    public static async Task<string> OCRImage(string filePath)
+    public static async Task<string> OCRImage(string? filePath)
     {
         if (string.IsNullOrEmpty(filePath)) return string.Empty;
         var img = await Image.LoadAsync(filePath);
         return await OCRImage(img, TaskSettings.GetDefaultTaskSettings());
     }
 
-    public static async Task<string> OCRImage(TaskSettings taskSettings = null)
+    public static async Task<string> OCRImage(TaskSettings? taskSettings = null)
     {
-        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
+        taskSettings ??= TaskSettings.GetDefaultTaskSettings();
         var img = RegionCaptureTasks.GetRegionImage(taskSettings.CaptureSettings.SurfaceOptions);
         return await OCRImage(img, taskSettings);
     }
 
-    public static async Task<string> OCRImage(Image image, TaskSettings taskSettings = null)
+    public static async Task<string> OCRImage(Image image, TaskSettings? taskSettings = null)
     {
         return await OCRImage(image, null, taskSettings);
     }
 
-    public static async Task<string> OCRImage(Image image, string filePath = null, TaskSettings taskSettings = null)
+    public static async Task<string> OCRImage(Image? image, string? filePath = null, TaskSettings? taskSettings = null, FullOcrModel? model = null)
     {
-        var model = LocalFullModels.EnglishV4;
+#if DISABLE_OCR
+        DebugHelper.WriteException(new ConstraintException("This build of SnapX was built with DISABLE_OCR build time constant."));
+        return string.Empty;
+#endif
+        if (model is null) model = LocalFullModels.EnglishV4;
         using var ms = new MemoryStream();
+        if (filePath is not null) image = await Image.LoadAsync(filePath);
         await image.SaveAsPngAsync(ms);
         DebugHelper.WriteLine(filePath);
-        if (OperatingSystem.IsLinux())
+        if (OperatingSystem.IsFreeBSD())
         {
-            DebugHelper.WriteException(new ConstraintException("PaddleOCR is not supported on Linux. It is only supported on Windows X64, ARM64, and macOS ARM64"));
+            DebugHelper.WriteException(new ConstraintException("PaddleOCR is not supported on FreeBSD."));
             return string.Empty;
         }
         var config = PaddleDevice.Onnx();
@@ -718,7 +724,7 @@ public static class TaskHelpers
         throw new NotImplementedException("TweetMessage is not implemented");
     }
 
-    public static EDataType FindDataType(string filePath, TaskSettings taskSettings)
+    public static EDataType FindDataType(string? filePath, TaskSettings taskSettings)
     {
         if (FileHelpers.CheckExtension(filePath, taskSettings.AdvancedSettings.ImageExtensions))
         {
@@ -768,7 +774,7 @@ public static class TaskHelpers
         return screenshot;
     }
 
-    public static void ImportCustomUploader(string filePath)
+    public static void ImportCustomUploader(string? filePath)
     {
         if (SnapX.UploadersConfig != null)
         {
@@ -844,7 +850,7 @@ public static class TaskHelpers
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public static void ImportImageEffect(string json)
+    public static void ImportImageEffect(string? json)
     {
         ImageEffectPreset preset = null;
 
@@ -864,7 +870,7 @@ public static class TaskHelpers
         }
     }
 
-    public static async Task HandleNativeMessagingInput(string filePath, TaskSettings taskSettings = null)
+    public static async Task HandleNativeMessagingInput(string? filePath, TaskSettings taskSettings = null)
     {
         if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
         {

@@ -22,7 +22,7 @@ public class TransfershFileUploaderService : FileUploaderService
 
 public sealed class Transfersh : FileUploader
 {
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var result = SendRequestFile("https://transfer.sh", stream, fileName, "file");
 

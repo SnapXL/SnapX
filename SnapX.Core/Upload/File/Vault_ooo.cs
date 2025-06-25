@@ -32,7 +32,7 @@ public class Vault_oooFileUploaderService : FileUploaderService
 internal partial class Vault_oooContext : JsonSerializerContext;
 public sealed class Vault_ooo : FileUploader
 {
-    private const string APIURL = "https://vault.ooo";
+    private const string? APIURL = "https://vault.ooo";
     private const int PBKDF2_ITERATIONS = 10000;
     private const int AES_KEY_SIZE = 256; // Bits
     private const int AES_BLOCK_SIZE = 128; // Bits
@@ -41,7 +41,7 @@ public sealed class Vault_ooo : FileUploader
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         #region Calculating sizes
 
@@ -88,8 +88,8 @@ public sealed class Vault_ooo : FileUploader
         #endregion
 
         // Prepare for the initial POST request
-        var requestHeaders = new Dictionary<string, string>
-    {
+        var requestHeaders = new Dictionary<string, string?>
+        {
         { "X-Get-Raw-File", "1" }
     };
 
@@ -237,7 +237,7 @@ public sealed class Vault_ooo : FileUploader
     public class Vault_oooMetaInfo
     {
         [JsonPropertyName("urlPathName")]
-        public string UrlPathName { get; set; }
+        public string? UrlPathName { get; set; }
 
         [JsonPropertyName("token")]
         public string Token { get; set; }

@@ -22,7 +22,7 @@ public class UguuFileUploaderService : FileUploaderService
 
 public class Uguu : FileUploader
 {
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var result = SendRequestFile("https://uguu.se/upload.php?output=text", stream, fileName, "files[]");
 

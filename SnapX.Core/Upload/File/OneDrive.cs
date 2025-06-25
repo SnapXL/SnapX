@@ -44,11 +44,11 @@ internal partial class OneDriveContext : JsonSerializerContext;
 
 public sealed class OneDrive : FileUploader, IOAuth2
 {
-    private const string AuthorizationEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
-    private const string TokenEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+    private const string? AuthorizationEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
+    private const string? TokenEndpoint = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
     private const int MaxSegmentSize = 64 * 1024 * 1024; // 64 MiB
     public OAuth2Info AuthInfo { get; set; }
-    public string FolderID { get; set; }
+    public string? FolderID { get; set; }
     public bool AutoCreateShareableLink { get; set; }
     public bool UseDirectLink { get; set; }
     private JsonSerializerOptions Options { get; set; } = new()
@@ -68,9 +68,9 @@ public sealed class OneDrive : FileUploader, IOAuth2
         AuthInfo = authInfo;
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "scope", "offline_access files.readwrite" },
@@ -88,9 +88,9 @@ public sealed class OneDrive : FileUploader, IOAuth2
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public bool GetAccessToken(string code)
+    public bool GetAccessToken(string? code)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "redirect_uri", Links.Callback },
@@ -119,7 +119,7 @@ public sealed class OneDrive : FileUploader, IOAuth2
     {
         if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token)) return false;
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "client_secret", AuthInfo.Client_Secret },
@@ -162,11 +162,11 @@ public sealed class OneDrive : FileUploader, IOAuth2
         new() { { "Authorization", $"Bearer {AuthInfo.Token.access_token}" } };
 
 
-    private string GetFolderUrl(string folderID) =>
+    private string? GetFolderUrl(string? folderID) =>
         string.IsNullOrEmpty(folderID) ? "me/drive/root" : URLHelpers.CombineURL("me/drive/items", folderID);
 
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
-    private string CreateSession(string fileName)
+    private string? CreateSession(string? fileName)
     {
         var json = JsonSerializer.Serialize(new
         {
@@ -187,7 +187,7 @@ public sealed class OneDrive : FileUploader, IOAuth2
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (!CheckAuthorization()) return null;
 
@@ -225,7 +225,7 @@ public sealed class OneDrive : FileUploader, IOAuth2
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public string CreateShareableLink(string id, OneDriveLinkType linkType = OneDriveLinkType.Read)
+    public string? CreateShareableLink(string id, OneDriveLinkType linkType = OneDriveLinkType.Read)
     {
         var linkTypeValue = linkType switch
         {
@@ -242,12 +242,12 @@ public sealed class OneDrive : FileUploader, IOAuth2
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public OneDriveFileList GetPathInfo(string id)
+    public OneDriveFileList GetPathInfo(string? id)
     {
         if (!CheckAuthorization()) return null;
 
         var folderPath = GetFolderUrl(id);
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "select", "id,name" },
             { "filter", "folder ne null" }
@@ -263,7 +263,7 @@ public class OneDriveFileInfo
 {
     public string id { get; set; }
     public string name { get; set; }
-    public string webUrl { get; set; }
+    public string? webUrl { get; set; }
 }
 
 public class OneDrivePermission
@@ -273,7 +273,7 @@ public class OneDrivePermission
 
 public class OneDriveShareableLink
 {
-    public string webUrl { get; set; }
+    public string? webUrl { get; set; }
     public string webHtml { get; set; }
 }
 
@@ -284,7 +284,7 @@ public class OneDriveFileList
 
 public class OneDriveUploadSession
 {
-    public string uploadUrl { get; set; }
+    public string? uploadUrl { get; set; }
     public string[] nextExpectedRanges { get; set; }
 }
 

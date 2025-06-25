@@ -47,7 +47,7 @@ public class BackblazeB2UploaderService : FileUploaderService
 [Localizable(false)]
 public sealed class BackblazeB2 : ImageUploader
 {
-    private const string B2AuthorizeAccountUrl = "https://api.backblazeb2.com/b2api/v1/b2_authorize_account";
+    private const string? B2AuthorizeAccountUrl = "https://api.backblazeb2.com/b2api/v1/b2_authorize_account";
 
     // after we authorize, we'll get an api url that we need to prepend here
     private const string B2GetUploadUrlPath = "/b2api/v1/b2_get_upload_url";
@@ -57,12 +57,12 @@ public sealed class BackblazeB2 : ImageUploader
 
     public string ApplicationKeyId { get; }
     public string ApplicationKey { get; }
-    public string BucketName { get; }
-    public string UploadPath { get; }
+    public string? BucketName { get; }
+    public string? UploadPath { get; }
     public bool UseCustomUrl { get; }
-    public string CustomUrl { get; }
+    public string? CustomUrl { get; }
 
-    public BackblazeB2(string applicationKeyId, string applicationKey, string bucketName, string uploadPath, bool useCustomUrl, string customUrl)
+    public BackblazeB2(string applicationKeyId, string applicationKey, string? bucketName, string? uploadPath, bool useCustomUrl, string? customUrl)
     {
         ApplicationKeyId = applicationKeyId;
         ApplicationKey = applicationKey;
@@ -73,7 +73,7 @@ public sealed class BackblazeB2 : ImageUploader
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var parsedUploadPath = NameParser.Parse(NameParserType.FilePath, UploadPath);
         var destinationPath = URLHelpers.CombineURL(parsedUploadPath, fileName);
@@ -200,8 +200,8 @@ public sealed class BackblazeB2 : ImageUploader
             //         or
             //           $customUrl/$uploadPath
 
-            string encodedFileName = URLHelpers.URLEncode(uploadResult.Upload.fileName, true);
-            string remoteLocation = URLHelpers.CombineURL(auth.downloadUrl, "file", URLHelpers.URLEncode(BucketName), encodedFileName);
+            string? encodedFileName = URLHelpers.URLEncode(uploadResult.Upload.fileName, true);
+            string? remoteLocation = URLHelpers.CombineURL(auth.downloadUrl, "file", URLHelpers.URLEncode(BucketName), encodedFileName);
 
             DebugHelper.WriteLine($"B2 uploader: Successful upload! File should be at: {remoteLocation}");
 
@@ -261,14 +261,14 @@ public sealed class BackblazeB2 : ImageUploader
     /// <param name="error">Will be set to a non-null value on failure.</param>
     /// <returns>Null if an error occurs, and <c>error</c> will contain an error message. Otherwise, the bucket ID.</returns>
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public string B2ApiGetBucketId(B2Authorization auth, string bucketName, out string error)
+    public string B2ApiGetBucketId(B2Authorization auth, string? bucketName, out string error)
     {
         var headers = new NameValueCollection()
         {
             ["Authorization"] = auth.authorizationToken
         };
 
-        var reqBody = new Dictionary<string, string>
+        var reqBody = new Dictionary<string, string?>
         {
             ["accountId"] = auth.accountId,
             ["bucketName"] = bucketName
@@ -344,7 +344,7 @@ public sealed class BackblazeB2 : ImageUploader
     {
         var headers = new NameValueCollection() { ["Authorization"] = auth.authorizationToken };
 
-        var reqBody = new Dictionary<string, string> { ["bucketId"] = bucketId };
+        var reqBody = new Dictionary<string, string?> { ["bucketId"] = bucketId };
 
         using var data = CreateJsonBody(reqBody);
         using var res = GetResponse(HttpMethod.Post, auth.apiUrl + B2GetUploadUrlPath,
@@ -378,7 +378,7 @@ public sealed class BackblazeB2 : ImageUploader
     ///     </ul>
     /// </returns>
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
-    private B2UploadResult B2ApiUploadFile(B2UploadUrl b2UploadUrl, string destinationPath, Stream file)
+    private B2UploadResult B2ApiUploadFile(B2UploadUrl b2UploadUrl, string? destinationPath, Stream file)
     {
         // Content-Disposition header setup
         ContentDisposition contentDisposition = new ContentDisposition("inline")
@@ -420,7 +420,7 @@ public sealed class BackblazeB2 : ImageUploader
             return new B2UploadResult((int)response.StatusCode, ParseB2Error(response), null);
         }
 
-        string body = ProcessWebResponseText(response);
+        string? body = ProcessWebResponseText(response);
         DebugHelper.WriteLine($"B2 uploader: B2ApiUploadFile() reports success! '{body}'");
 
         var uploadResult = JsonSerializer.Deserialize<B2Upload>(body);
@@ -437,7 +437,7 @@ public sealed class BackblazeB2 : ImageUploader
     /// <param name="error">Will be set to a non-null value on failure.</param>
     /// <returns>True if we have authorization for uploading, otherwise, false. Iff false, <c>error</c> will be set
     /// to an error message describing why there is no permission.</returns>
-    private static bool IsAuthorizedForUpload(B2Authorization auth, string bucketId, string destinationPath, out string error)
+    private static bool IsAuthorizedForUpload(B2Authorization auth, string bucketId, string? destinationPath, out string error)
     {
         string allowedBucketId = auth.allowed?.bucketId;
         if (allowedBucketId != null && bucketId != allowedBucketId)
@@ -530,7 +530,7 @@ public sealed class BackblazeB2 : ImageUploader
     /// <param name="args"></param>
     /// <returns></returns>
     [RequiresUnreferencedCode("Uploader")]
-    public static Stream CreateJsonBody(Dictionary<string, string> args)
+    public static Stream CreateJsonBody(Dictionary<string, string?> args)
     {
         var body = JsonSerializer.Serialize(args);
         return new MemoryStream(Encoding.UTF8.GetBytes(body));
@@ -591,11 +591,11 @@ public sealed class BackblazeB2 : ImageUploader
         public string accountId { get; }
         public string apiUrl { get; }
         public string authorizationToken { get; }
-        public string downloadUrl { get; }
+        public string? downloadUrl { get; }
         public int minimumPartSize { get; }
         public B2Allowed allowed { get; } // optional
 
-        public B2Authorization(string accountId, string apiUrl, string authorizationToken, string downloadUrl, int minimumPartSize, B2Allowed allowed)
+        public B2Authorization(string accountId, string apiUrl, string authorizationToken, string? downloadUrl, int minimumPartSize, B2Allowed allowed)
         {
             this.accountId = accountId;
             this.apiUrl = apiUrl;
@@ -629,10 +629,10 @@ public sealed class BackblazeB2 : ImageUploader
     public class B2UploadUrl
     {
         public string bucketId { get; }
-        public string uploadUrl { get; }
+        public string? uploadUrl { get; }
         public string authorizationToken { get; }
 
-        public B2UploadUrl(string bucketId, string uploadUrl, string authorizationToken)
+        public B2UploadUrl(string bucketId, string? uploadUrl, string authorizationToken)
         {
             this.bucketId = bucketId;
             this.uploadUrl = uploadUrl;
@@ -646,7 +646,7 @@ public sealed class BackblazeB2 : ImageUploader
     public class B2Upload
     {
         public string fileId { get; }
-        public string fileName { get; }
+        public string? fileName { get; }
         public string accountId { get; }
         public string bucketId { get; }
         public int contentLength { get; }
@@ -654,7 +654,7 @@ public sealed class BackblazeB2 : ImageUploader
         public string contentType { get; }
         public Dictionary<string, string> fileInfo { get; }
 
-        public B2Upload(string fileId, string fileName, string accountId, string bucketId,
+        public B2Upload(string fileId, string? fileName, string accountId, string bucketId,
             int contentLength, string contentSha1, string contentType, Dictionary<string, string> fileInfo)
         {
             this.fileId = fileId;

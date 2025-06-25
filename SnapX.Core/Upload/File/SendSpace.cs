@@ -33,28 +33,28 @@ public class SendSpaceFileUploaderService : FileUploaderService
 
 public sealed class SendSpace : FileUploader
 {
-    private string APIKey;
+    private string? APIKey;
 
-    private const string APIURL = "https://api.sendspace.com/rest/";
+    private const string? APIURL = "https://api.sendspace.com/rest/";
     private const string APIVersion = "1.0";
 
     public AccountType AccountType { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
+    public string? Username { get; set; }
+    public string? Password { get; set; }
 
     /// <summary>
     /// Upload speed limit in kilobytes, 0 for unlimited
     /// </summary>
     public int SpeedLimit = 0;
 
-    public string AppVersion = "1.0";
+    public string? AppVersion = "1.0";
 
-    public SendSpace(string apiKey)
+    public SendSpace(string? apiKey)
     {
         APIKey = apiKey;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (AccountType == AccountType.User)
         {
@@ -85,7 +85,7 @@ public sealed class SendSpace : FileUploader
         public XElement Result { get; set; }
     }
 
-    private ResponsePacket ParseResponse(string response)
+    private ResponsePacket ParseResponse(string? response)
     {
         ResponsePacket packet = new ResponsePacket();
 
@@ -107,7 +107,7 @@ public sealed class SendSpace : FileUploader
         return packet;
     }
 
-    private UploadResponsePacket ParseUploadResponse(string response)
+    private UploadResponsePacket ParseUploadResponse(string? response)
     {
         XDocument xml = XDocument.Parse(response);
         XElement xe = xml.Root;
@@ -127,9 +127,9 @@ public sealed class SendSpace : FileUploader
 
     public class UploadResponsePacket
     {
-        public string DownloadURL { get; set; }
+        public string? DownloadURL { get; set; }
 
-        public string DeleteURL { get; set; }
+        public string? DeleteURL { get; set; }
     }
 
     public class LoginInfo
@@ -137,15 +137,15 @@ public sealed class SendSpace : FileUploader
         /// <summary>
         /// Session key to be sent with all method calls, user information, including the user account's capabilities
         /// </summary>
-        public string SessionKey { get; set; }
+        public string? SessionKey { get; set; }
 
-        public string Username { get; set; }
+        public string? Username { get; set; }
 
-        public string EMail { get; set; }
+        public string? EMail { get; set; }
 
-        public string MembershipType { get; set; }
+        public string? MembershipType { get; set; }
 
-        public string MembershipEnds { get; set; }
+        public string? MembershipEnds { get; set; }
 
         public bool CapableUpload { get; set; }
 
@@ -159,13 +159,13 @@ public sealed class SendSpace : FileUploader
 
         public bool CapableAddressBook { get; set; }
 
-        public string BandwidthLeft { get; set; }
+        public string? BandwidthLeft { get; set; }
 
-        public string DiskSpaceLeft { get; set; }
+        public string? DiskSpaceLeft { get; set; }
 
-        public string DiskSpaceUsed { get; set; }
+        public string? DiskSpaceUsed { get; set; }
 
-        public string Points { get; set; }
+        public string? Points { get; set; }
 
         public LoginInfo()
         {
@@ -193,15 +193,15 @@ public sealed class SendSpace : FileUploader
 
     public class UploadInfo
     {
-        public string URL { get; set; }
+        public string? URL { get; set; }
 
-        public string ProgressURL { get; set; }
+        public string? ProgressURL { get; set; }
 
-        public string MaxFileSize { get; set; }
+        public string? MaxFileSize { get; set; }
 
-        public string UploadIdentifier { get; set; }
+        public string? UploadIdentifier { get; set; }
 
-        public string ExtraInfo { get; set; }
+        public string? ExtraInfo { get; set; }
 
         public UploadInfo()
         {
@@ -231,9 +231,9 @@ public sealed class SendSpace : FileUploader
     /// <param name="email">Valid email address required</param>
     /// <param name="password">Can be left empty and the API will create a unique password or enter one with 4-20 chars</param>
     /// <returns>true = success, false = error</returns>
-    public bool AuthRegister(string username, string fullname, string email, string password)
+    public bool AuthRegister(string? username, string? fullname, string? email, string? password)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "method", "auth.register" },
             { "api_key", APIKey },
@@ -243,7 +243,7 @@ public sealed class SendSpace : FileUploader
             { "password", password }
         };
 
-        string response = SendRequestMultiPart(APIURL, args);
+        string? response = SendRequestMultiPart(APIURL, args);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -258,9 +258,9 @@ public sealed class SendSpace : FileUploader
     /// http://www.sendspace.com/dev_method.html?method=auth.createToken
     /// </summary>
     /// <returns>A token to be used with the auth.login method</returns>
-    public string AuthCreateToken()
+    public string? AuthCreateToken()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "method", "auth.createToken" },
             { "api_key", APIKey }, // Received from sendspace
@@ -269,7 +269,7 @@ public sealed class SendSpace : FileUploader
             { "response_format", "xml" } // Value must be: XML
         };
 
-        string response = SendRequestMultiPart(APIURL, args);
+        string? response = SendRequestMultiPart(APIURL, args);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -292,19 +292,19 @@ public sealed class SendSpace : FileUploader
     /// <param name="username">Registered user name</param>
     /// <param name="password">Registered password</param>
     /// <returns>Account informations including session key</returns>
-    public LoginInfo AuthLogin(string token, string username, string password)
+    public LoginInfo AuthLogin(string? token, string? username, string? password)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "method", "auth.login" },
             { "token", token },
             { "user_name", username }
         };
         // lowercase(md5(token+lowercase(md5(password)))) - md5 values should always be lowercase.
-        string passwordHash = TranslatorHelper.TextToHash(password, HashType.MD5);
+        string? passwordHash = TranslatorHelper.TextToHash(password, HashType.MD5);
         args.Add("tokened_password", TranslatorHelper.TextToHash(token + passwordHash, HashType.MD5));
 
-        string response = SendRequestMultiPart(APIURL, args);
+        string? response = SendRequestMultiPart(APIURL, args);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -328,13 +328,13 @@ public sealed class SendSpace : FileUploader
     /// <returns>true = success, false = error</returns>
     public bool AuthCheckSession(string sessionKey)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "method", "auth.checkSession" },
             { "session_key", sessionKey }
         };
 
-        string response = SendRequestMultiPart(APIURL, args);
+        string? response = SendRequestMultiPart(APIURL, args);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -342,7 +342,7 @@ public sealed class SendSpace : FileUploader
 
             if (!packet.Error)
             {
-                string session = packet.Result.GetElementValue("session");
+                string? session = packet.Result.GetElementValue("session");
 
                 if (!string.IsNullOrEmpty(session))
                 {
@@ -362,13 +362,13 @@ public sealed class SendSpace : FileUploader
     /// <returns>true = success, false = error</returns>
     public bool AuthLogout(string sessionKey)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "method", "auth.logout" },
             { "session_key", sessionKey }
         };
 
-        string response = SendRequestMultiPart(APIURL, args);
+        string? response = SendRequestMultiPart(APIURL, args);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -388,16 +388,16 @@ public sealed class SendSpace : FileUploader
     /// </summary>
     /// <param name="sessionKey">Received from auth.login</param>
     /// <returns>URL to upload the file to, progress_url for real-time progress information, max_file_size for max size current user can upload, upload_identifier & extra_info to be passed with the upload form</returns>
-    public UploadInfo UploadGetInfo(string sessionKey)
+    public UploadInfo UploadGetInfo(string? sessionKey)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "method", "upload.getInfo" },
             { "session_key", sessionKey },
             { "speed_limit", SpeedLimit.ToString() }
         };
 
-        string response = SendRequest(HttpMethod.Get, APIURL, args);
+        string? response = SendRequest(HttpMethod.Get, APIURL, args);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -419,7 +419,7 @@ public sealed class SendSpace : FileUploader
     /// <returns>URL to upload the file to, progress_url for real-time progress information, max_file_size for max size current user can upload, upload_identifier & extra_info to be passed in the upload form</returns>
     public UploadInfo AnonymousUploadGetInfo()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "method", "anonymous.uploadGetInfo" },
             { "speed_limit", SpeedLimit.ToString() },
@@ -428,7 +428,7 @@ public sealed class SendSpace : FileUploader
             { "app_version", AppVersion }
         };
 
-        string response = SendRequest(HttpMethod.Get, APIURL, args);
+        string? response = SendRequest(HttpMethod.Get, APIURL, args);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -457,10 +457,10 @@ public sealed class SendSpace : FileUploader
     /// <param name="notify_uploader">0/1 - should the uploader be notified?</param>
     /// <param name="redirect_url">page to redirect after upload will be attached upload_status=ok/fail&file_id=XXXX</param>
     /// <returns></returns>
-    public Dictionary<string, string> PrepareArguments(string max_file_size, string upload_identifier, string extra_info,
-        string description, string password, string folder_id, string recipient_email, string notify_uploader, string redirect_url)
+    public Dictionary<string, string?> PrepareArguments(string? max_file_size, string? upload_identifier, string? extra_info,
+        string? description, string? password, string? folder_id, string? recipient_email, string? notify_uploader, string? redirect_url)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "MAX_FILE_SIZE", max_file_size },
             { "UPLOAD_IDENTIFIER", upload_identifier },
@@ -479,18 +479,18 @@ public sealed class SendSpace : FileUploader
         return args;
     }
 
-    public Dictionary<string, string> PrepareArguments(string max_file_size, string upload_identifier, string extra_info)
+    public Dictionary<string, string?> PrepareArguments(string? max_file_size, string? upload_identifier, string? extra_info)
     {
         return PrepareArguments(max_file_size, upload_identifier, extra_info, null, null, null, null, null, null);
     }
 
-    public UploadResult Upload(Stream stream, string fileName, UploadInfo uploadInfo)
+    public UploadResult Upload(Stream stream, string? fileName, UploadInfo uploadInfo)
     {
         UploadResult result = null;
 
         if (uploadInfo != null)
         {
-            Dictionary<string, string> args = PrepareArguments(uploadInfo.MaxFileSize, uploadInfo.UploadIdentifier, uploadInfo.ExtraInfo);
+            Dictionary<string, string?> args = PrepareArguments(uploadInfo.MaxFileSize, uploadInfo.UploadIdentifier, uploadInfo.ExtraInfo);
 
             result = SendRequestFile(uploadInfo.URL, stream, fileName, "userfile", args);
 
@@ -516,11 +516,11 @@ public sealed class SendSpace : FileUploader
     public class CheckProgress : IDisposable
     {
         private SendSpace sendSpace;
-        private string url;
+        private string? url;
         private int interval = 1000;
         private CancellationTokenSource cts;
 
-        public CheckProgress(string progressURL, SendSpace sendSpace)
+        public CheckProgress(string? progressURL, SendSpace sendSpace)
         {
             url = progressURL;
             this.sendSpace = sendSpace;
@@ -539,7 +539,7 @@ public sealed class SendSpace : FileUploader
                 time = DateTime.Now;
                 try
                 {
-                    string response = sendSpace.SendRequest(HttpMethod.Post, url);
+                    string? response = sendSpace.SendRequest(HttpMethod.Post, url);
 
                     progressInfo.ParseResponse(response);
 
@@ -564,24 +564,24 @@ public sealed class SendSpace : FileUploader
 
         private class ProgressInfo
         {
-            public string Status { get; set; }
-            public string ETA { get; set; }
-            public string Speed { get; set; }
-            public string UploadedBytes { get; set; }
-            public string TotalSize { get; set; }
-            public string Elapsed { get; set; }
-            public string Meter { get; set; }
+            public string? Status { get; set; }
+            public string? ETA { get; set; }
+            public string? Speed { get; set; }
+            public string? UploadedBytes { get; set; }
+            public string? TotalSize { get; set; }
+            public string? Elapsed { get; set; }
+            public string? Meter { get; set; }
 
             public ProgressInfo()
             {
             }
 
-            public ProgressInfo(string response)
+            public ProgressInfo(string? response)
             {
                 ParseResponse(response);
             }
 
-            public void ParseResponse(string response)
+            public void ParseResponse(string? response)
             {
                 XDocument xml = XDocument.Parse(response);
                 XElement element = xml.Element("progress");

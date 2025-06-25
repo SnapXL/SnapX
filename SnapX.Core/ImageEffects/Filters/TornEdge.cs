@@ -97,7 +97,7 @@ internal class TornEdge : ImageEffect
         return (x < depth + offset || x > depth + offset || y < depth + offset || y > depth + offset);
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return $"{Depth}, {Range}";
     }

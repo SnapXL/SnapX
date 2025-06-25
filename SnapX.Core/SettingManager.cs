@@ -50,7 +50,7 @@ internal static class SettingManager
         {
             if (SnapX.Sandbox) return "";
 
-            string uploadersConfigFolder;
+            string? uploadersConfigFolder;
 
             if (!string.IsNullOrEmpty(Settings.CustomUploadersConfigPath))
             {
@@ -73,7 +73,7 @@ internal static class SettingManager
         {
             if (SnapX.Sandbox) return "";
 
-            string hotkeysConfigFolder;
+            string? hotkeysConfigFolder;
 
             if (!string.IsNullOrEmpty(Settings.CustomHotkeysConfigPath))
             {
@@ -88,7 +88,7 @@ internal static class SettingManager
         }
     }
 
-    public static string SnapshotFolder => Path.Combine(SnapX.PersonalFolder, "Snapshots");
+    public static string? SnapshotFolder => Path.Combine(SnapX.PersonalFolder, "Snapshots");
 
     private static RootConfiguration Settings { get => SnapX.Settings; set => SnapX.Settings = value; }
     private static TaskSettings DefaultTaskSettings { get => SnapX.DefaultTaskSettings; set => SnapX.DefaultTaskSettings = value; }
@@ -452,6 +452,8 @@ internal static class SettingManager
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static async Task MigrateHistoryFile()
     {
+        if (SnapX.Sandbox)
+            return;
         if (!File.Exists(SnapX.HistoryFilePathOld)) return;
 
         TaskManager.InitHistoryManager();
@@ -591,7 +593,7 @@ internal static class SettingManager
         LoadHotkeysConfig(false);
     }
 
-    public static bool Export(string archivePath, bool settings, bool history)
+    public static bool Export(string? archivePath, bool settings, bool history)
     {
         MemoryStream msApplicationConfig = null, msUploadersConfig = null, msHotkeysConfig = null;
 

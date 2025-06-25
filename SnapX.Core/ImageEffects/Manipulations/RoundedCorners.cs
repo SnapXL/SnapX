@@ -39,7 +39,7 @@ internal class RoundedCorners : ImageEffect
         return ImageHelpers.RoundedCorners(img, CornerRadius);
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return CornerRadius.ToString();
     }

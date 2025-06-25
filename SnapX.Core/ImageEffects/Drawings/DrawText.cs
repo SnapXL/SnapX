@@ -18,7 +18,7 @@ namespace SnapX.Core.ImageEffects.Drawings;
 public class DrawText : ImageEffect
 {
     [DefaultValue("Text watermark")]
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     [DefaultValue(AnchorStyles.BottomRight)]
     public AnchorStyles Placement { get; set; }
@@ -117,7 +117,7 @@ public class DrawText : ImageEffect
         parser.ImageWidth = img.Width;
         parser.ImageHeight = img.Height;
 
-        string parsedText = parser.Parse(Text);
+        string? parsedText = parser.Parse(Text);
 
         // Measure the text size
         var font = TextFont;
@@ -184,7 +184,7 @@ public class DrawText : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         if (!string.IsNullOrEmpty(Text))
         {

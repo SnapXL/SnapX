@@ -12,17 +12,17 @@ public class FileSonic : FileUploader
 {
     public string Username { get; set; }
 
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
-    private const string APIURL = "https://api.filesonic.com/upload";
+    private const string? APIURL = "https://api.filesonic.com/upload";
 
-    public FileSonic(string username, string password)
+    public FileSonic(string username, string? password)
     {
         Username = username;
         Password = password;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         UploadResult result = null;
 
@@ -45,9 +45,9 @@ public class FileSonic : FileUploader
         return result;
     }
 
-    public string GetUploadURL()
+    public string? GetUploadURL()
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "method", "getUploadUrl" },
             { "format", "xml" },

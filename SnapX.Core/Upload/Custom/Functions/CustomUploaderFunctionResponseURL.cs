@@ -9,7 +9,7 @@ internal class CustomUploaderFunctionResponseURL : CustomUploaderFunction
 {
     public override string Name { get; } = "responseurl";
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
         return parser.ResponseInfo.ResponseURL;
     }

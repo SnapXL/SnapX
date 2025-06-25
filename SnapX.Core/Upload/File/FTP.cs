@@ -139,13 +139,13 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         UploadResult result = new UploadResult();
 
-        string subFolderPath = Account.GetSubFolderPath(null, NameParserType.FilePath);
-        string path = URLHelpers.CombineURL(subFolderPath, fileName);
-        string url = Account.GetUriPath(fileName, subFolderPath);
+        string? subFolderPath = Account.GetSubFolderPath(null, NameParserType.FilePath);
+        string? path = URLHelpers.CombineURL(subFolderPath, fileName);
+        string? url = Account.GetUriPath(fileName, subFolderPath);
 
         OnEarlyURLCopyRequested(url);
 
@@ -203,7 +203,7 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public bool UploadData(Stream localStream, string remotePath)
+    public bool UploadData(Stream localStream, string? remotePath)
     {
         if (Connect())
         {
@@ -228,7 +228,7 @@ public sealed class FTP : FileUploader, IDisposable
         return false;
     }
 
-    private bool UploadDataInternal(Stream localStream, string remotePath)
+    private bool UploadDataInternal(Stream localStream, string? remotePath)
     {
         bool result;
         using (Stream remoteStream = client.OpenWrite(remotePath))
@@ -239,7 +239,7 @@ public sealed class FTP : FileUploader, IDisposable
         return result && ftpReply.Success;
     }
 
-    public void UploadData(byte[] data, string remotePath)
+    public void UploadData(byte[] data, string? remotePath)
     {
         using (MemoryStream stream = new MemoryStream(data, false))
         {
@@ -247,7 +247,7 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public void UploadFile(string localPath, string remotePath)
+    public void UploadFile(string localPath, string? remotePath)
     {
         using (FileStream stream = new FileStream(localPath, FileMode.Open))
         {
@@ -255,7 +255,7 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public void UploadImage(Image<Rgba64> image, string remotePath)
+    public void UploadImage(Image<Rgba64> image, string? remotePath)
     {
         using (MemoryStream stream = new MemoryStream())
         {
@@ -264,7 +264,7 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public void UploadText(string text, string remotePath)
+    public void UploadText(string text, string? remotePath)
     {
         using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(text), false))
         {
@@ -272,13 +272,13 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public void UploadFiles(string[] localPaths, string remotePath)
+    public void UploadFiles(string[] localPaths, string? remotePath)
     {
         foreach (string file in localPaths)
         {
             if (!string.IsNullOrEmpty(file))
             {
-                string fileName = Path.GetFileName(file);
+                string? fileName = Path.GetFileName(file);
 
                 if (System.IO.File.Exists(file))
                 {
@@ -287,7 +287,7 @@ public sealed class FTP : FileUploader, IDisposable
                 else if (Directory.Exists(file))
                 {
                     List<string> filesList = [.. Directory.GetFiles(file), .. Directory.GetDirectories(file)];
-                    string path = URLHelpers.CombineURL(remotePath, fileName);
+                    string? path = URLHelpers.CombineURL(remotePath, fileName);
                     CreateDirectory(path);
                     UploadFiles(filesList.ToArray(), path);
                 }
@@ -342,7 +342,7 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public FtpListItem[] GetListing(string remotePath)
+    public FtpListItem[] GetListing(string? remotePath)
     {
         return client.GetListing(remotePath);
     }
@@ -357,7 +357,7 @@ public sealed class FTP : FileUploader, IDisposable
         return false;
     }
 
-    public bool CreateDirectory(string remotePath)
+    public bool CreateDirectory(string? remotePath)
     {
         if (Connect())
         {
@@ -375,11 +375,11 @@ public sealed class FTP : FileUploader, IDisposable
         return false;
     }
 
-    public List<string> CreateMultiDirectory(string remotePath)
+    public List<string?> CreateMultiDirectory(string? remotePath)
     {
-        List<string> paths = URLHelpers.GetPaths(remotePath);
+        List<string?> paths = URLHelpers.GetPaths(remotePath);
 
-        foreach (string path in paths)
+        foreach (string? path in paths)
         {
             if (CreateDirectory(path))
             {
@@ -424,11 +424,11 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public void DeleteDirectory(string remotePath)
+    public void DeleteDirectory(string? remotePath)
     {
         if (Connect())
         {
-            string fileName = URLHelpers.GetFileName(remotePath);
+            string? fileName = URLHelpers.GetFileName(remotePath);
             if (fileName == "." || fileName == "..")
             {
                 return;

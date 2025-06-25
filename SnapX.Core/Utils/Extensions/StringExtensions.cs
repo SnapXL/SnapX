@@ -14,14 +14,14 @@ public static class StringExtensions
         return str.IndexOf(value, comparisonType) >= 0;
     }
 
-    public static string Left(this string str, int length)
+    public static string? Left(this string? str, int length)
     {
         if (length < 1) return "";
         if (length < str.Length) return str.Substring(0, length);
         return str;
     }
 
-    public static string Right(this string str, int length)
+    public static string? Right(this string? str, int length)
     {
         if (length < 1) return "";
         if (length < str.Length) return str.Substring(str.Length - length);
@@ -140,7 +140,7 @@ public static class StringExtensions
         return true;
     }
 
-    public static string ReplaceAll(this string text, string search, Func<string> replace)
+    public static string? ReplaceAll(this string? text, string search, Func<string?> replace)
     {
         while (true)
         {
@@ -154,7 +154,7 @@ public static class StringExtensions
         return text;
     }
 
-    public static string BatchReplace(this string text, Dictionary<string, string> replace, StringComparison comparisonType = StringComparison.CurrentCulture)
+    public static string? BatchReplace(this string? text, Dictionary<string, string?> replace, StringComparison comparisonType = StringComparison.CurrentCulture)
     {
         StringBuilder sb = new StringBuilder();
 
@@ -164,7 +164,7 @@ public static class StringExtensions
 
             bool replaced = false;
 
-            foreach (KeyValuePair<string, string> entry in replace)
+            foreach (KeyValuePair<string, string?> entry in replace)
             {
                 if (current.StartsWith(entry.Key, comparisonType))
                 {
@@ -200,7 +200,7 @@ public static class StringExtensions
         return new string(chars);
     }
 
-    public static string Truncate(this string str, int maxLength)
+    public static string? Truncate(this string? str, int maxLength)
     {
         if (!string.IsNullOrEmpty(str) && str.Length > maxLength)
         {
@@ -210,7 +210,7 @@ public static class StringExtensions
         return str;
     }
 
-    public static string Truncate(this string str, int maxLength, string endings, bool truncateFromRight = true)
+    public static string? Truncate(this string? str, int maxLength, string endings, bool truncateFromRight = true)
     {
         if (!string.IsNullOrEmpty(str) && str.Length > maxLength)
         {
@@ -268,7 +268,7 @@ public static class StringExtensions
         return int.TryParse(text, out _);
     }
 
-    public static string[] Lines(this string text)
+    public static string[] Lines(this string? text)
     {
         return text.Split(["\r\n", "\n"], StringSplitOptions.None);
     }
@@ -278,7 +278,7 @@ public static class StringExtensions
         return Regex.Replace(text, @"\r\n?|\n", replacement);
     }
 
-    public static IEnumerable<Tuple<string, string>> ForEachBetween(this string text, string front, string back)
+    public static IEnumerable<Tuple<string, string>> ForEachBetween(this string? text, string front, string back)
     {
         int f = 0;
         int b;

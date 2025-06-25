@@ -12,5 +12,5 @@ internal abstract class CustomUploaderFunction
 
     public virtual int MinParameterCount { get; } = 0;
 
-    public abstract string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters);
+    public abstract string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters);
 }

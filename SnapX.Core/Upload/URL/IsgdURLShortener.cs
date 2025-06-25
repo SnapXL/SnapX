@@ -22,15 +22,15 @@ public class IsgdURLShortenerService : URLShortenerService
 
 public class IsgdURLShortener : URLShortener
 {
-    protected virtual string APIURL => "https://is.gd/create.php";
+    protected virtual string? APIURL => "https://is.gd/create.php";
 
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
 
         if (string.IsNullOrEmpty(url)) return result;
 
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "format", "simple" },
             { "url", url }

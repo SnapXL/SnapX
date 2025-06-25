@@ -97,7 +97,7 @@ internal class ForceProportions : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return $"{ProportionalWidth}, {ProportionalHeight}";
     }

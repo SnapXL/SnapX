@@ -50,7 +50,7 @@ public sealed class Paste_ee : TextUploader
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         if (string.IsNullOrEmpty(APIKey))
         {
@@ -110,7 +110,7 @@ public class Paste_eeSubmitRequestBodySection
 {
     public string name { get; set; }
     public string syntax { get; set; }
-    public string contents { get; set; }
+    public string? contents { get; set; }
 }
 
 public class Paste_eeSubmitResponse

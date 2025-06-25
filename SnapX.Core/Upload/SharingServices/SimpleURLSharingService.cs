@@ -30,7 +30,7 @@ public sealed class SimpleURLSharer : URLSharer
         URLFormatString = urlFormatString;
     }
 
-    public override UploadResult ShareURL(string url)
+    public override UploadResult ShareURL(string? url)
     {
         var result = new UploadResult { URL = url, IsURLExpected = false };
 

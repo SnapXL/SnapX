@@ -32,18 +32,18 @@ public class PolrURLShortenerService : URLShortenerService
 
 public sealed class PolrURLShortener : URLShortener
 {
-    public string Host { get; set; }
-    public string Key { get; set; }
+    public string? Host { get; set; }
+    public string? Key { get; set; }
     public bool IsSecret { get; set; }
     public bool UseAPIv1 { get; set; }
 
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
 
         Host = URLHelpers.FixPrefix(Host);
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "url", url }
         };

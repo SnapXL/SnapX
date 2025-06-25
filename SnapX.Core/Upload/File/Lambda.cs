@@ -42,15 +42,15 @@ public sealed class Lambda : FileUploader
         Config = config;
     }
 
-    private const string uploadUrl = "https://lbda.net/api/upload";
+    private const string? uploadUrl = "https://lbda.net/api/upload";
 
     public static string[] UploadURLs = ["https://lbda.net/", "https://lambda.sx/"];
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "api_key", Config.UserAPIKey }
         };
@@ -72,7 +72,7 @@ public sealed class Lambda : FileUploader
         }
         else
         {
-            foreach (string e in response.errors)
+            foreach (string? e in response.errors)
             {
                 Errors.Add(e);
             }
@@ -84,7 +84,7 @@ public sealed class Lambda : FileUploader
     internal class LambdaResponse
     {
         public string url { get; set; }
-        public List<string> errors { get; set; }
+        public List<string?> errors { get; set; }
     }
 
     internal class LambdaFile

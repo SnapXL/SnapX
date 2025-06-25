@@ -22,7 +22,7 @@ public class MacOSAPI : NativeAPI
         CopyImage(image, GenerateFastString(8) + ".png");
     }
 
-    public override void CopyImage(Image image, string fileName)
+    public override void CopyImage(Image image, string? fileName)
     {
         var tempPath = Path.Combine(Path.GetTempPath(), $"{Path.GetFileNameWithoutExtension(fileName)}.jpg");
         image.Save(tempPath, new JpegEncoder());
@@ -56,7 +56,7 @@ public class MacOSAPI : NativeAPI
     {
         // Escape quotes in the text to ensure AppleScript handles them correctly
         // 1. Escape double quotes by replacing `"` with `""` for AppleScript
-        string escapedText = text.Replace("\"", "\"\"");
+        var escapedText = text.Replace("\"", "\"\"");
 
         // 2. Escape backslashes by replacing `\` with `\\` (for C# string formatting)
         escapedText = "\"" + Regex.Replace(escapedText, @"(\\+)$", @"$1$1") + "\""; ;

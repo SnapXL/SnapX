@@ -6,5 +6,5 @@ namespace SnapX.Core.Upload.BaseUploaders;
 
 public abstract class GenericUploader : Uploader
 {
-    public abstract UploadResult Upload(Stream stream, string fileName);
+    public abstract UploadResult Upload(Stream stream, string? fileName);
 }

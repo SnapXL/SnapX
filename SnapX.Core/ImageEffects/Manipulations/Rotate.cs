@@ -40,7 +40,7 @@ internal class Rotate : ImageEffect
         }
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Angle + "°";
     }

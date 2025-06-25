@@ -39,16 +39,18 @@ public class MediaFireFileUploaderService : FileUploaderService
 internal partial class MediaFireContext : JsonSerializerContext;
 public sealed class MediaFire : FileUploader
 {
-    public string UploadPath { get; set; }
+    public string? UploadPath { get; set; }
     public bool UseLongLink { get; set; }
 
     private static readonly string apiUrl = "https://www.mediafire.com/api/";
     private static readonly int pollInterval = 1000;
-    private readonly string appId, apiKey, user, pasw;
+    private readonly string? appId;
+    private readonly string apiKey, user;
+    private readonly string? pasw;
     private string sessionToken, signatureTime;
     private int signatureKey;
 
-    public MediaFire(string appId, string apiKey, string user, string pasw)
+    public MediaFire(string? appId, string apiKey, string user, string? pasw)
     {
         this.appId = appId;
         this.apiKey = apiKey;
@@ -56,14 +58,14 @@ public sealed class MediaFire : FileUploader
         this.pasw = pasw;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         AllowReportProgress = false;
         GetSessionToken();
         AllowReportProgress = true;
         var key = SimpleUpload(stream, fileName);
         AllowReportProgress = false;
-        string url;
+        string? url;
         while ((url = PollUpload(key, fileName)) == null)
         {
             Thread.Sleep(pollInterval);
@@ -74,7 +76,7 @@ public sealed class MediaFire : FileUploader
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private void GetSessionToken()
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "email", user },
             { "password", pasw },
@@ -97,9 +99,9 @@ public sealed class MediaFire : FileUploader
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    private string SimpleUpload(Stream stream, string fileName)
+    private string? SimpleUpload(Stream stream, string? fileName)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "session_token", sessionToken },
             { "path", UploadPath },
@@ -122,9 +124,9 @@ public sealed class MediaFire : FileUploader
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    private string PollUpload(string uploadKey, string fileName)
+    private string? PollUpload(string? uploadKey, string? fileName)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "session_token", sessionToken },
             { "key", uploadKey },
@@ -159,7 +161,7 @@ public sealed class MediaFire : FileUploader
         if (resp.new_key == "yes") NextSignatureKey();
     }
 
-    private string GetInitSignature()
+    private string? GetInitSignature()
     {
         var signatureStr = user + pasw + appId + apiKey;
         using var sha1Gen = SHA1.Create();
@@ -168,7 +170,7 @@ public sealed class MediaFire : FileUploader
     }
 
 
-    private string GetSignature(string urlSuffix, Dictionary<string, string> args)
+    private string? GetSignature(string urlSuffix, Dictionary<string, string?> args)
     {
         var keyStr = (signatureKey % 256).ToString(CultureInfo.InvariantCulture);
         var urlStr = CreateNonEscapedQuery("/api/" + urlSuffix, args);
@@ -187,7 +189,7 @@ public sealed class MediaFire : FileUploader
 
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
-    private T DeserializeResponse<T>(string s) where T : new()
+    private T DeserializeResponse<T>(string? s) where T : new()
     {
         // Deserialize the string into a JSON object
         var jsonDoc = JsonDocument.Parse(s);
@@ -205,7 +207,7 @@ public sealed class MediaFire : FileUploader
         return (char)(x - 10 + 'a');
     }
 
-    private static string BytesToString(byte[] b)
+    private static string? BytesToString(byte[] b)
     {
         var res = new char[b.Length * 2];
         for (var i = 0; i < b.Length; ++i)
@@ -216,7 +218,7 @@ public sealed class MediaFire : FileUploader
         return new string(res);
     }
 
-    private static string CreateNonEscapedQuery(string url, Dictionary<string, string> args)
+    private static string CreateNonEscapedQuery(string url, Dictionary<string, string?> args)
     {
         if (args != null && args.Count > 0)
             return url + "?" + string.Join("&", args.Select(x => x.Key + "=" + x.Value).ToArray());
@@ -245,7 +247,7 @@ public sealed class MediaFire : FileUploader
         public class DoUpload
         {
             public int? result { get; set; }
-            public string key { get; set; }
+            public string? key { get; set; }
         }
     }
 
@@ -259,8 +261,8 @@ public sealed class MediaFire : FileUploader
             public int? status { get; set; }
             public string description { get; set; }
             public int? fileerror { get; set; }
-            public string quickkey { get; set; }
-            public string filename { get; set; }
+            public string? quickkey { get; set; }
+            public string? filename { get; set; }
         }
     }
 }

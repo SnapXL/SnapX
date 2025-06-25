@@ -8,9 +8,9 @@ namespace SnapX.Core.Upload.File;
 
 public sealed class FileBin : FileUploader
 {
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "MAX_FILE_SIZE", "82428800" }
         };

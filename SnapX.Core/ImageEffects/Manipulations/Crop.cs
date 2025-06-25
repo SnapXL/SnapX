@@ -46,5 +46,5 @@ internal class Crop : ImageEffect
         return ImageHelpers.CropImage(img, new Rectangle(Margin.Left, Margin.Top, img.Width - Margin.Top, img.Height - Margin.Bottom));
     }
 
-    protected override string GetSummary() => Margin.ToString();
+    protected override string? GetSummary() => Margin.ToString();
 }

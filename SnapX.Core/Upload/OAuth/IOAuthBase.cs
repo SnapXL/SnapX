@@ -6,8 +6,8 @@ namespace SnapX.Core.Upload.OAuth;
 
 public interface IOAuthBase
 {
-    string GetAuthorizationURL();
+    string? GetAuthorizationURL();
 
-    bool GetAccessToken(string code);
+    bool GetAccessToken(string? code);
 }
 

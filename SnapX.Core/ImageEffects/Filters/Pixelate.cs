@@ -57,7 +57,7 @@ internal class Pixelate : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Size.ToString();
     }

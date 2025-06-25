@@ -10,9 +10,9 @@ namespace SnapX.Core.ImageEffects;
 
 public static class ImageEffectPackager
 {
-    private const string ConfigFileName = "Config.json";
+    private const string? ConfigFileName = "Config.json";
 
-    public static string Package(string outputFilePath, string configJson, string assetsFolderPath)
+    public static string? Package(string? outputFilePath, string configJson, string assetsFolderPath)
     {
         if (!string.IsNullOrEmpty(outputFilePath))
         {
@@ -27,9 +27,9 @@ public static class ImageEffectPackager
                 string parentFolderPath = Directory.GetParent(assetsFolderPath).FullName;
                 int entryNamePosition = parentFolderPath.Length + 1;
 
-                foreach (string assetPath in Directory.EnumerateFiles(assetsFolderPath, "*.*", SearchOption.AllDirectories).Where(x => FileHelpers.IsImageFile(x)))
+                foreach (string? assetPath in Directory.EnumerateFiles(assetsFolderPath, "*.*", SearchOption.AllDirectories).Where(x => FileHelpers.IsImageFile(x)))
                 {
-                    string entryName = assetPath.Substring(entryNamePosition);
+                    string? entryName = assetPath.Substring(entryNamePosition);
                     entries.Add(new ZipEntryInfo(assetPath, entryName));
                 }
             }
@@ -42,7 +42,7 @@ public static class ImageEffectPackager
         return null;
     }
 
-    public static string ExtractPackage(string packageFilePath, string destination)
+    public static string ExtractPackage(string packageFilePath, string? destination)
     {
         string configJson = null;
 

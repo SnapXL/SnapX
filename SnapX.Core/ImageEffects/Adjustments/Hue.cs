@@ -27,7 +27,7 @@ internal class Hue : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Angle + "°";
     }

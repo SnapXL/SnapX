@@ -6,7 +6,7 @@ namespace SnapX.Core.Watch;
 
 public class WatchFolderSettings
 {
-    public string FolderPath { get; set; }
+    public string? FolderPath { get; set; }
     public string Filter { get; set; }
     public bool IncludeSubdirectories { get; set; }
     public bool MoveFilesToScreenshotsFolder { get; set; }

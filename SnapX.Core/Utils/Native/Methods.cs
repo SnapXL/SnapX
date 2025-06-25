@@ -38,7 +38,7 @@ public static class Methods
             return new WindowsCapture();
 #else
             if (IsMacOS) return new macOSCapture();
-            if (IsLinux) return new LinuxCapture();
+            if (IsLinux || IsFreeBSD) return new LinuxCapture();
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
 #endif
         }
@@ -62,7 +62,7 @@ public static class Methods
 
     public static Rectangle GetScreen(Point pos) => SharpCapture.GetScreen(pos).GetAwaiter().GetResult();
 
-    public static void CopyImage(Image image, string fileName) => NativeAPI.CopyImage(image, fileName);
+    public static void CopyImage(Image image, string? fileName) => NativeAPI.CopyImage(image, fileName);
 
 
     public static Point GetCursorPosition()

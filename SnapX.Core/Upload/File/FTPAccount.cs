@@ -19,7 +19,7 @@ public class FTPAccount : ICloneable
     public FTPProtocol Protocol { get; set; }
 
     [Category("FTP"), Description("Host, e.g. google.com")]
-    public string Host { get; set; }
+    public string? Host { get; set; }
 
     [Category("FTP"), Description("Port number"), DefaultValue(21)]
     public int Port { get; set; }
@@ -49,7 +49,7 @@ public class FTPAccount : ICloneable
     public bool HttpHomePathNoExtension { get; set; }
 
     [Category("FTP"), Description("Protocol://Host:Port"), Browsable(false)]
-    public string FTPAddress
+    public string? FTPAddress
     {
         get
         {
@@ -78,13 +78,13 @@ public class FTPAccount : ICloneable
         }
     }
 
-    private string exampleFileName = "example.png";
+    private string? exampleFileName = "example.png";
 
     [Category("FTP"), Description("Preview of the FTP path based on the settings above")]
-    public string PreviewFtpPath => GetFtpPath(exampleFileName);
+    public string? PreviewFtpPath => GetFtpPath(exampleFileName);
 
     [Category("FTP"), Description("Preview of the HTTP path based on the settings above")]
-    public string PreviewHttpPath
+    public string? PreviewHttpPath
     {
         get
         {
@@ -127,15 +127,15 @@ public class FTPAccount : ICloneable
         FTPSCertificateLocation = "";
     }
 
-    public string GetSubFolderPath(string fileName = null, NameParserType nameParserType = NameParserType.URL)
+    public string? GetSubFolderPath(string? fileName = null, NameParserType nameParserType = NameParserType.URL)
     {
-        string path = NameParser.Parse(nameParserType, SubFolderPath.Replace("%host", Host));
+        string? path = NameParser.Parse(nameParserType, SubFolderPath.Replace("%host", Host));
         return URLHelpers.CombineURL(path, fileName);
     }
 
-    public string GetHttpHomePath()
+    public string? GetHttpHomePath()
     {
-        string homePath = HttpHomePath.Replace("%host", Host);
+        string? homePath = HttpHomePath.Replace("%host", Host);
 
         ShareXCustomUploaderSyntaxParser parser = new ShareXCustomUploaderSyntaxParser();
         parser.UseNameParser = true;
@@ -143,7 +143,7 @@ public class FTPAccount : ICloneable
         return parser.Parse(homePath);
     }
 
-    public string GetUriPath(string fileName, string subFolderPath = null)
+    public string? GetUriPath(string? fileName, string? subFolderPath = null)
     {
         if (string.IsNullOrEmpty(Host))
         {
@@ -164,11 +164,11 @@ public class FTPAccount : ICloneable
 
         UriBuilder httpHomeUri;
 
-        string httpHomePath = GetHttpHomePath();
+        string? httpHomePath = GetHttpHomePath();
 
         if (string.IsNullOrEmpty(httpHomePath))
         {
-            string url = Host;
+            string? url = Host;
 
             if (url.StartsWith("ftp."))
             {
@@ -189,10 +189,10 @@ public class FTPAccount : ICloneable
         {
             //Parse HttpHomePath in to host, port, path and query components
             int firstSlash = httpHomePath.IndexOf('/');
-            string httpHome = firstSlash >= 0 ? httpHomePath.Substring(0, firstSlash) : httpHomePath;
+            string? httpHome = firstSlash >= 0 ? httpHomePath.Substring(0, firstSlash) : httpHomePath;
             int portSpecifiedAt = httpHome.LastIndexOf(':');
 
-            string httpHomeHost = portSpecifiedAt >= 0 ? httpHome.Substring(0, portSpecifiedAt) : httpHome;
+            string? httpHomeHost = portSpecifiedAt >= 0 ? httpHome.Substring(0, portSpecifiedAt) : httpHome;
             int httpHomePort = -1;
             string httpHomePathAndQuery = firstSlash >= 0 ? httpHomePath.Substring(firstSlash + 1) : "";
             int querySpecifiedAt = httpHomePathAndQuery.LastIndexOf('?');
@@ -236,7 +236,7 @@ public class FTPAccount : ICloneable
         return httpHomeUri.Uri.OriginalString;
     }
 
-    public string GetFtpPath(string fileName)
+    public string? GetFtpPath(string? fileName)
     {
         if (string.IsNullOrEmpty(FTPAddress))
         {

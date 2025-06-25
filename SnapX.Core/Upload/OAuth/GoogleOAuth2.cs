@@ -18,15 +18,15 @@ internal partial class GoogleContext : JsonSerializerContext
 
 public class GoogleOAuth2 : IOAuth2Loopback
 {
-    private const string AuthorizationEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
-    private const string TokenEndpoint = "https://oauth2.googleapis.com/token";
-    private const string UserInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
+    private const string? AuthorizationEndpoint = "https://accounts.google.com/o/oauth2/v2/auth";
+    private const string? TokenEndpoint = "https://oauth2.googleapis.com/token";
+    private const string? UserInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
 
     public OAuth2Info AuthInfo { get; private set; }
     private Uploader GoogleUploader { get; set; }
-    public string RedirectURI { get; set; }
-    public string State { get; set; }
-    public string Scope { get; set; }
+    public string? RedirectURI { get; set; }
+    public string? State { get; set; }
+    public string? Scope { get; set; }
 
     public GoogleOAuth2(OAuth2Info oauth, Uploader uploader)
     {
@@ -34,9 +34,9 @@ public class GoogleOAuth2 : IOAuth2Loopback
         GoogleUploader = uploader;
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "response_type", "code" },
             { "client_id", AuthInfo.Client_ID },
@@ -50,9 +50,9 @@ public class GoogleOAuth2 : IOAuth2Loopback
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public bool GetAccessToken(string code)
+    public bool GetAccessToken(string? code)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "code", code },
             { "client_id", AuthInfo.Client_ID },
@@ -80,7 +80,7 @@ public class GoogleOAuth2 : IOAuth2Loopback
         if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token))
             return false;
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "refresh_token", AuthInfo.Token.refresh_token },
             { "client_id", AuthInfo.Client_ID },

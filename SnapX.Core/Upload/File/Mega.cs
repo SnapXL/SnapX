@@ -97,7 +97,7 @@ public sealed class Mega : FileUploader, IWebClient
             ? megaClient.GetNodes().SingleOrDefault(n => n.Type == NodeType.Root)
             : megaClient.GetNodes().SingleOrDefault(n => n.Id == parentNodeId);
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         Login();
 
@@ -118,12 +118,12 @@ public sealed class Mega : FileUploader, IWebClient
         throw new NotImplementedException();
     }
 
-    public string PostRequestJson(Uri url, string jsonData)
+    public string? PostRequestJson(Uri url, string? jsonData)
     {
         return SendRequest(HttpMethod.Post, url.ToString(), jsonData, RequestHelpers.ContentTypeJSON);
     }
 
-    public string PostRequestRaw(Uri url, Stream dataStream)
+    public string? PostRequestRaw(Uri url, Stream dataStream)
     {
         try
         {

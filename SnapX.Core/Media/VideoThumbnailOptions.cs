@@ -14,7 +14,7 @@ public class VideoThumbnailOptions
     public ThumbnailLocationType OutputLocation { get; set; }
 
     [Category("Thumbnails"), DefaultValue(""), Description("Output folder where thumbnails will get saved.")]
-    public string CustomOutputDirectory { get; set; }
+    public string? CustomOutputDirectory { get; set; }
 
     [Category("Thumbnails"), DefaultValue(EImageFormat.PNG), Description("Thumbnail image format to save.")]
     public EImageFormat ImageFormat { get; set; }
@@ -64,7 +64,8 @@ public class VideoThumbnailOptions
     [Category("Thumbnails / Combined"), DefaultValue(true), Description("Draw border around thumbnails.")]
     public bool DrawBorder { get; set; }
 
-    public string DefaultOutputDirectory, LastVideoPath;
+    public string? DefaultOutputDirectory;
+    public string LastVideoPath;
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public VideoThumbnailOptions()

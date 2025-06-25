@@ -30,7 +30,7 @@ internal class AutoCrop : ImageEffect
         return ImageHelpers.AutoCropImage(img, true, Sides, Padding);
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         if (Padding > 0)
         {

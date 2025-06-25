@@ -13,7 +13,7 @@ public class ScreenRecordingOptions
     public bool IsRecording { get; set; }
     public bool IsLossless { get; set; }
     public string InputPath { get; set; }
-    public string OutputPath { get; set; }
+    public string? OutputPath { get; set; }
     public int FPS { get; set; }
     public Rectangle CaptureArea { get; set; }
     public float Duration { get; set; }

@@ -13,7 +13,7 @@ public sealed class TwitSnapsUploader : ImageUploader
 {
     public OAuthInfo AuthInfo { get; set; }
 
-    private const string APIURL = "https://twitsnaps.com/dev/image/upload.xml";
+    private const string? APIURL = "https://twitsnaps.com/dev/image/upload.xml";
 
     private string APIKey;
 
@@ -23,7 +23,7 @@ public sealed class TwitSnapsUploader : ImageUploader
         AuthInfo = oauth;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         throw new NotImplementedException("Twitsnaps upload not implemented");
         // using (TwitterTweetForm msgBox = new TwitterTweetForm())
@@ -33,9 +33,9 @@ public sealed class TwitSnapsUploader : ImageUploader
         // }
     }
 
-    private UploadResult Upload(Stream stream, string fileName, string msg)
+    private UploadResult Upload(Stream stream, string? fileName, string? msg)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "appKey", APIKey },
             { "consumerKey", AuthInfo.ConsumerKey },
@@ -64,7 +64,7 @@ public sealed class TwitSnapsUploader : ImageUploader
 
             if (xe != null)
             {
-                string id = xe.GetElementValue("id");
+                string? id = xe.GetElementValue("id");
                 result.URL = "https://twitsnaps.com/snap/" + id;
                 result.ThumbnailURL = "https://twitsnaps.com/thumb/" + id;
             }

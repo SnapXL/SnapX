@@ -39,13 +39,13 @@ public sealed class Paste2 : TextUploader
         this.settings = settings;
     }
 
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();
 
         if (string.IsNullOrEmpty(text)) return ur;
 
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "code", text },
             { "lang", settings.TextFormat },
@@ -62,9 +62,9 @@ public sealed class Paste2 : TextUploader
 
 public class Paste2Settings
 {
-    public string TextFormat { get; set; }
+    public string? TextFormat { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public Paste2Settings()
     {

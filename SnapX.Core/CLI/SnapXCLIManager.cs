@@ -7,7 +7,7 @@ namespace SnapX.Core.CLI;
 
 public class SnapXCLIManager : CLIManager
 {
-    public SnapXCLIManager(string[] arguments) : base(arguments)
+    public SnapXCLIManager(string?[] arguments) : base(arguments)
     {
     }
 

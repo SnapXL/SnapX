@@ -53,7 +53,7 @@ public sealed class CustomTextUploader : TextUploader
         uploader = customUploaderItem;
     }
 
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         var result = new UploadResult();
         var input = new CustomUploaderInput(fileName, text);

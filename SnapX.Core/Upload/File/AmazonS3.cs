@@ -91,7 +91,7 @@ public sealed class AmazonS3 : FileUploader
         Settings = settings;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var isPathStyleRequest = Settings.UsePathStyle;
 
@@ -240,7 +240,7 @@ public sealed class AmazonS3 : FileUploader
         return serviceAndRegion.Substring(separatorIndex + 1);
     }
 
-    private string GetUploadPath(string fileName)
+    private string? GetUploadPath(string? fileName)
     {
         var path = NameParser.Parse(NameParserType.FilePath, Settings.ObjectPrefix.Trim('/'));
 
@@ -254,13 +254,13 @@ public sealed class AmazonS3 : FileUploader
         return URLHelpers.CombineURL(path, fileName);
     }
 
-    public string GenerateURL(string uploadPath)
+    public string? GenerateURL(string? uploadPath)
     {
         if (!string.IsNullOrEmpty(Settings.Endpoint) && !string.IsNullOrEmpty(Settings.Bucket))
         {
             uploadPath = URLHelpers.URLEncode(uploadPath, true, HelpersOptions.URLEncodeIgnoreEmoji);
 
-            string url;
+            string? url;
 
             if (Settings.UseCustomCNAME && !string.IsNullOrEmpty(Settings.CustomDomain))
             {
@@ -279,7 +279,7 @@ public sealed class AmazonS3 : FileUploader
         return "";
     }
 
-    public string GetPreviewURL()
+    public string? GetPreviewURL()
     {
         var uploadPath = GetUploadPath("example.png");
         return GenerateURL(uploadPath);

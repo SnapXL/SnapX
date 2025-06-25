@@ -9,7 +9,7 @@ namespace SnapX.Core.Utils.Extensions;
 
 public static class XMLExtensions
 {
-    public static XElement GetNode(this XContainer element, string path)
+    public static XElement GetNode(this XContainer element, string? path)
     {
         path = path.Trim().Trim('/');
 
@@ -62,7 +62,7 @@ public static class XMLExtensions
 
             if (index > -1)
             {
-                string leftPath = path.Left(index);
+                string? leftPath = path.Left(index);
                 string lastPath = path.RemoveLeft(index + 1);
 
                 XElement lastNode = element.GetNode(leftPath);
@@ -77,7 +77,7 @@ public static class XMLExtensions
         return null;
     }
 
-    public static string GetValue(this XContainer element, string path, string defaultValue = null)
+    public static string? GetValue(this XContainer element, string? path, string? defaultValue = null)
     {
         XElement xe = element.GetNode(path);
 
@@ -125,7 +125,7 @@ public static class XMLExtensions
         return null;
     }
 
-    public static string GetElementValue(this XElement xe, XName name)
+    public static string? GetElementValue(this XElement xe, XName name)
     {
         if (xe != null)
         {
@@ -136,7 +136,7 @@ public static class XMLExtensions
         return "";
     }
 
-    public static string GetAttributeValue(this XElement xe, string name)
+    public static string? GetAttributeValue(this XElement xe, string name)
     {
         if (xe != null)
         {
@@ -147,9 +147,9 @@ public static class XMLExtensions
         return "";
     }
 
-    public static string GetAttributeFirstValue(this XElement xe, params string[] names)
+    public static string? GetAttributeFirstValue(this XElement xe, params string[] names)
     {
-        string value;
+        string? value;
         foreach (string name in names)
         {
             value = xe.GetAttributeValue(name);

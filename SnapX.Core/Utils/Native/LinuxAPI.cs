@@ -8,21 +8,12 @@ using WaylandSharp;
 
 namespace SnapX.Core.Utils.Native;
 
-public class LinuxAPI : NativeAPI
+public partial class LinuxAPI : NativeAPI
 {
-    internal const string LibX11 = "libX11.so.6";
+    private const string LibX11 = "libX11.so.6";
     internal static bool IsWayland()
     {
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
-        using var wlDisplay = WlDisplay.Connect();
-        using var wlRegistry = wlDisplay.GetRegistry();
-
-        wlRegistry.Global += (_, e) =>
-        {
-            DebugHelper.WriteLine($"{e.Name}:{e.Interface}:{e.Version}");
-        };
-
-        wlDisplay.Roundtrip();
         return !string.IsNullOrEmpty(display);
     }
 
@@ -38,38 +29,33 @@ public class LinuxAPI : NativeAPI
         return !string.IsNullOrEmpty(sessionVersion) && sessionVersion.Contains("gnome", StringComparison.OrdinalIgnoreCase);
     }
 
-    public static Rectangle GetWindowRectangle(IntPtr windowHandle)
+    public override Rectangle GetWindowRectangle(IntPtr windowHandle)
     {
         return GetWindowRectangleX11(windowHandle);
     }
-    public override Screen GetScreen(Point pos)
+    public override Screen? GetScreen(Point pos)
     {
-        IntPtr display = XOpenDisplay(null);
+        var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
-            Console.WriteLine("Unable to open X11 display.");
+            DebugHelper.WriteLine("Unable to open X11 display.");
             return null;
         }
 
-        int screenCount = XScreenCount(display);
-        for (int i = 0; i < screenCount; i++)
+        var screenCount = XScreenCount(display);
+        for (var i = 0; i < screenCount; i++)
         {
-            IntPtr rootWindow = XRootWindow(display, i);
-            IntPtr geometryRoot;
-            int x, y;
-            uint width, height, borderWidth, depth;
-            XGetGeometry(display, rootWindow, out geometryRoot, out x, out y, out width, out height, out borderWidth, out depth);
+            var rootWindow = XRootWindow(display, i);
+            XGetGeometry(display, rootWindow, out _, out var x, out var y, out var width, out var height, out _, out _);
 
-            if (pos.X >= x && pos.X <= x + (int)width && pos.Y >= y && pos.Y <= y + (int)height)
+            if (pos.X < x || pos.X > x + (int)width || pos.Y < y || pos.Y > y + (int)height) continue;
+            DebugHelper.Logger?.Debug("Point {Pos} is within screen {I} bounds", pos, i);
+            return new Screen()
             {
-                DebugHelper.Logger?.Debug($"Point {pos} is within screen {i} bounds.");
-                return new Screen()
-                {
-                    Bounds = new Rectangle(x, y, (int)width, (int)height),
-                    Name = "NotImplementedName",
-                    Id = "NotImplementedID"
-                };
-            }
+                Bounds = new Rectangle(x, y, (int)width, (int)height),
+                Name = "NotImplementedName",
+                Id = "NotImplementedID"
+            };
         }
 
         XCloseDisplay(display);
@@ -83,11 +69,13 @@ public class LinuxAPI : NativeAPI
         {
             if (IsPlasma())
             {
+                // Interact with Plasmashell over DBus
                 return windows;
             }
 
             if (IsGNOME())
             {
+                // Interact with GNOME Shell
                 return windows;
             }
 
@@ -97,47 +85,33 @@ public class LinuxAPI : NativeAPI
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
-            DebugHelper.Logger?.Debug("Unable to open X display.");
+            DebugHelper.Logger?.Debug("Unable to open X display");
             return windows;
         }
 
         var root = XDefaultRootWindow(display);  // Get the root window of the X display
-        IntPtr parent;
-        IntPtr windowsPtr;
-        uint nchildren;
 
         // Get all the child windows of the root window
-        int status = XQueryTree(display, root, out root, out parent, out windowsPtr, out nchildren);
+        var status = XQueryTree(display, root, out root, out _, out var windowsPtr, out var nchildren);
         if (status == 0)
         {
-            DebugHelper.Logger?.Debug("XQueryTree failed.");
+            DebugHelper.Logger?.Debug("XQueryTree failed");
             XCloseDisplay(display);
             return windows;
         }
 
-        // Iterate through the list of child windows
         for (uint i = 0; i < nchildren; i++)
         {
-            IntPtr window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
-            string title = GetWindowTitle(display, window);
-            IntPtr namePtr = IntPtr.Zero;
-            IntPtr propReturn;
-            uint nitems;
-            uint bytesAfter;
-            int format;
-            int x, y;
-            XWindowAttributes attributes;
-            uint width, height, borderWidth, depth;
-            XGetGeometry(display, window, out root, out x, out y, out width, out height, out borderWidth, out depth);
+            var window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
+            var title = GetWindowTitle(display, window);
+            XGetGeometry(display, window, out root, out _, out _, out _, out _, out _, out _);
 
-            XGetWindowAttributes(display, window, out attributes);
-            bool isVisible = attributes.is_colormap_installed;
+            XGetWindowAttributes(display, window, out var attributes);
+            var isVisible = attributes.is_colormap_installed;
 
             // Active window
-            IntPtr focusWindow;
-            int revertTo;
-            XGetInputFocus(display, out focusWindow, out revertTo);
-            bool isActive = focusWindow == window;
+            XGetInputFocus(display, out var focusWindow, out _);
+            var isActive = focusWindow == window;
             var rect = GetWindowRectangle(window);
             windows.Add(new WindowInfo
             {
@@ -150,98 +124,93 @@ public class LinuxAPI : NativeAPI
             });
         }
 
-        XCloseDisplay(display);  // Close the display connection
+        XCloseDisplay(display);
         return windows;
     }
-    [DllImport(LibX11)]
-    private static extern IntPtr XOpenDisplay(string? display);
+    [LibraryImport(LibX11, StringMarshalling = StringMarshalling.Utf16)]
+    private static partial IntPtr XOpenDisplay(string? display);
 
-    [DllImport(LibX11)]
-    private static extern IntPtr XRootWindow(IntPtr display, int screen_number);
-    [DllImport(LibX11)]
-    private static extern IntPtr XDefaultRootWindow(IntPtr display);
-    [DllImport(LibX11)]
-    private static extern IntPtr XScreenOfDisplay(IntPtr display, int screeenNumber);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XRootWindow(IntPtr display, int screen_number);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XDefaultRootWindow(IntPtr display);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XScreenOfDisplay(IntPtr display, int screeenNumber);
 
-    [DllImport(LibX11)]
-    private static extern int XWidthOfScreen(IntPtr screen);
+    [LibraryImport(LibX11)]
+    private static partial int XWidthOfScreen(IntPtr screen);
 
-    [DllImport(LibX11)]
-    private static extern int XHeightOfScreen(IntPtr screen);
-    [DllImport(LibX11)]
-    private static extern int XScreenCount(IntPtr display);
+    [LibraryImport(LibX11)]
+    private static partial int XHeightOfScreen(IntPtr screen);
+    [LibraryImport(LibX11)]
+    private static partial int XScreenCount(IntPtr display);
 
-    [DllImport(LibX11)]
-    private static extern IntPtr XRootWindowOfScreen(IntPtr screen);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XRootWindowOfScreen(IntPtr screen);
 
-    [DllImport(LibX11)]
-    private static extern IntPtr XDefaultScreenOfDisplay(IntPtr display);
-    [DllImport(LibX11)]
-    private static extern IntPtr XGetImage(IntPtr display, IntPtr drawable, int x, int y, uint width, uint height, long planeMask, int format);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XDefaultScreenOfDisplay(IntPtr display);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XGetImage(IntPtr display, IntPtr drawable, int x, int y, uint width, uint height, long planeMask, int format);
 
-    [DllImport(LibX11)]
-    private static extern int XGetGeometry(IntPtr display, IntPtr window, out IntPtr root, out int x, out int y, out uint width, out uint height, out uint border_width, out uint depth);
+    [LibraryImport(LibX11)]
+    private static partial int XGetGeometry(IntPtr display, IntPtr window, out IntPtr root, out int x, out int y, out uint width, out uint height, out uint border_width, out uint depth);
 
-    [DllImport(LibX11)]
-    private static extern IntPtr XGetInputFocus(IntPtr display, out IntPtr focus_window, out int revert_to);
-    [DllImport(LibX11)]
-    private static extern IntPtr XGetWindowProperty(IntPtr display, IntPtr window, IntPtr property, long offset, long length, bool delete, IntPtr type, out IntPtr prop_return, out uint nitems, out uint bytes_after, out int format);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XGetInputFocus(IntPtr display, out IntPtr focus_window, out int revert_to);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XGetWindowProperty(IntPtr display, IntPtr window, IntPtr property, long offset, long length, [MarshalAs(UnmanagedType.Bool)] bool delete, IntPtr type, out IntPtr prop_return, out uint nitems, out uint bytes_after, out int format);
 
-    [DllImport(LibX11)]
-    private static extern IntPtr XGetWMName(IntPtr display, IntPtr window, out IntPtr name);
-    [DllImport(LibX11)]
-    private static extern IntPtr XGetSubImage(IntPtr display, IntPtr drawable, int x, int y, uint width, uint height, long planeMask, int format, IntPtr image, int destX, int dextY);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XGetWMName(IntPtr display, IntPtr window, out IntPtr name);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XGetSubImage(IntPtr display, IntPtr drawable, int x, int y, uint width, uint height, long planeMask, int format, IntPtr image, int destX, int dextY);
+    [LibraryImport(LibX11)]
+    private static partial int XGetWMState(IntPtr display, IntPtr window, out IntPtr state);
 
+    [LibraryImport(LibX11)]
+    private static partial void XStoreBytes(IntPtr display, IntPtr property, byte[] data, int length);
 
-    [DllImport(LibX11)]
-    private static extern int XGetWMState(IntPtr display, IntPtr window, out IntPtr state);
-
-    [DllImport(LibX11)]
-    private static extern void XStoreBytes(IntPtr display, IntPtr property, byte[] data, int length);
-
-    [DllImport(LibX11)]
-    private static extern int XFlush(IntPtr display);
+    [LibraryImport(LibX11)]
+    private static partial int XFlush(IntPtr display);
     private static bool IsWindowMinimized(IntPtr display, IntPtr hwnd)
     {
-        IntPtr state;
-        XGetWMState(display, hwnd, out state);
+        XGetWMState(display, hwnd, out var state);
         // Minimal state is often represented as iconified
         return state != IntPtr.Zero;
     }
-    internal const long ALL_PLANES = -1;
-    internal const int ZPIXMAP = 2;
+
+    private const long ALL_PLANES = -1;
+    public const int ZPIXMAP = 2;
     internal static Image TakeScreenshotWithX11(Screen screen)
     {
-        IntPtr display = XOpenDisplay(null);
+        var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
             throw new Exception("Unable to open X display.");
         }
 
-        IntPtr screenPtr = XScreenOfDisplay(display, 0);
+        var screenPtr = XScreenOfDisplay(display, 0);
         if (screenPtr == IntPtr.Zero)
         {
             throw new Exception("Unable to open XScreen 0");
         }
-        DebugHelper.Logger?.Debug(screenPtr.ToString());
-        IntPtr rootWindow = XRootWindowOfScreen(screenPtr);
+        var rootWindow = XRootWindowOfScreen(screenPtr);
         if (rootWindow == IntPtr.Zero)
         {
             throw new Exception("Unable to open root xwindow");
         }
-        DebugHelper.Logger?.Debug(rootWindow.ToString());
 
-        var attributes = new XWindowAttributes();
-        XGetWindowAttributes(display, rootWindow, out attributes);
-        DebugHelper.Logger?.Debug($"x: {attributes.x}");
-        DebugHelper.Logger?.Debug($"y: {attributes.y}");
-        DebugHelper.Logger?.Debug($"width: {attributes.width}");
-        DebugHelper.Logger?.Debug($"height: {attributes.height}");
-        DebugHelper.Logger?.Debug($"border_width: {attributes.border_width}");
-        DebugHelper.Logger?.Debug($"depth: {attributes.depth}");
-        DebugHelper.Logger?.Debug($"visual: {attributes.visual}");
-        DebugHelper.Logger?.Debug($"root: {attributes.root}");
-        DebugHelper.Logger?.Debug($"colormap: {attributes.colormap}");
+        XGetWindowAttributes(display, rootWindow, out var attributes);
+        DebugHelper.Logger?.Debug("x: {AttributesX}", attributes.x);
+        DebugHelper.Logger?.Debug("y: {AttributesY}", attributes.y);
+        DebugHelper.Logger?.Debug("width: {AttributesWidth}", attributes.width);
+        DebugHelper.Logger?.Debug("height: {AttributesHeight}", attributes.height);
+        DebugHelper.Logger?.Debug("border_width: {AttributesBorderWidth}", attributes.border_width);
+        DebugHelper.Logger?.Debug("depth: {AttributesDepth}", attributes.depth);
+        DebugHelper.Logger?.Debug("visual: {AttributesVisual}", attributes.visual);
+        DebugHelper.Logger?.Debug("root: {AttributesRoot}", attributes.root);
+        DebugHelper.Logger?.Debug("colormap: {AttributesColormap}", attributes.colormap);
         var screenBounds = screen.Bounds;
         IntPtr imagePtr = XGetImage(display, rootWindow, screenBounds.X, screenBounds.Y, (uint)screenBounds.Width, (uint)screenBounds.Height, ALL_PLANES, ZPIXMAP);
         if (imagePtr == IntPtr.Zero)
@@ -258,37 +227,33 @@ public class LinuxAPI : NativeAPI
     }
     private static string GetWindowTitle(IntPtr display, IntPtr window)
     {
-        IntPtr windowTitlePtr = XFetchName(display, window);
-        if (windowTitlePtr != IntPtr.Zero)
-        {
-            return Marshal.PtrToStringAnsi(windowTitlePtr);
-        }
-        return "Untitled";
+        var windowTitlePtr = XFetchName(display, window);
+        return windowTitlePtr != IntPtr.Zero ? Marshal.PtrToStringAnsi(windowTitlePtr) ?? "Untitled" : "Untitled";
     }
-    [DllImport(LibX11)]
-    private static extern IntPtr XGetSelectionOwner(IntPtr display, IntPtr selection);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XGetSelectionOwner(IntPtr display, IntPtr selection);
 
-    [DllImport(LibX11)]
-    private static extern void XSetSelectionOwner(IntPtr display, IntPtr selection, IntPtr owner, uint time);
-    [DllImport(LibX11, CharSet = CharSet.Auto)]
-    private static extern IntPtr XInternAtom(IntPtr display, string type, bool only_if_exists);
+    [LibraryImport(LibX11)]
+    private static partial void XSetSelectionOwner(IntPtr display, IntPtr selection, IntPtr owner, uint time);
+    [LibraryImport(LibX11, StringMarshalling = StringMarshalling.Utf16)]
+    private static partial IntPtr XInternAtom(IntPtr display, string type, [MarshalAs(UnmanagedType.Bool)] bool only_if_exists);
 
-    [DllImport(LibX11)]
-    private static extern int XQueryTree(IntPtr display, IntPtr window, out IntPtr root, out IntPtr parent, out IntPtr windows, out uint nchildren);
+    [LibraryImport(LibX11)]
+    private static partial int XQueryTree(IntPtr display, IntPtr window, out IntPtr root, out IntPtr parent, out IntPtr windows, out uint nchildren);
 
-    [DllImport(LibX11)]
-    private static extern IntPtr XFetchName(IntPtr display, IntPtr window);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XFetchName(IntPtr display, IntPtr window);
 
-    [DllImport(LibX11)]
-    private static extern void XCloseDisplay(IntPtr display);
-    [DllImport(LibX11)]
-    private static extern IntPtr XCreateSimpleWindow(IntPtr display, IntPtr parent, int x, int y, uint width, uint height, uint border_width, ulong border, ulong background);
-    [DllImport(LibX11)]
-    private static extern int XSendEvent(IntPtr display, IntPtr window, bool propagate, int event_mask, ref XEvent xevent);
-    [DllImport(LibX11)]
-    private static extern int XNextEvent(IntPtr display, out XEvent xevent);
-    [DllImport(LibX11)]
-    private static extern int XChangeProperty(IntPtr display, IntPtr window, IntPtr property, IntPtr type, int format, int mode, byte[] data, int nelements);
+    [LibraryImport(LibX11)]
+    private static partial void XCloseDisplay(IntPtr display);
+    [LibraryImport(LibX11)]
+    private static partial IntPtr XCreateSimpleWindow(IntPtr display, IntPtr parent, int x, int y, uint width, uint height, uint border_width, ulong border, ulong background);
+    [LibraryImport(LibX11)]
+    private static partial int XSendEvent(IntPtr display, IntPtr window, [MarshalAs(UnmanagedType.Bool)] bool propagate, int event_mask, ref XEvent xevent);
+    [LibraryImport(LibX11)]
+    private static partial int XNextEvent(IntPtr display, out XEvent xevent);
+    [LibraryImport(LibX11)]
+    private static partial int XChangeProperty(IntPtr display, IntPtr window, IntPtr property, IntPtr type, int format, int mode, byte[] data, int nelements);
 
 
 
@@ -317,8 +282,8 @@ public class LinuxAPI : NativeAPI
         public int time;
     }
     // X11 Constants
-    private static readonly IntPtr XA_PRIMARY = 1;
-    private static readonly IntPtr XA_CLIPBOARD = 2;
+    // private static readonly IntPtr XA_PRIMARY = 1;
+    private const IntPtr XA_CLIPBOARD = 2;
 
 
     public override void CopyText(string text)
@@ -326,49 +291,70 @@ public class LinuxAPI : NativeAPI
         if (IsWayland())
         {
             // call dbus to copy text to clipboard
-        }
-        IntPtr display = XOpenDisplay(null);
-        if (display == IntPtr.Zero)
-        {
-            DebugHelper.Logger?.Debug("Unable to open X11 display.");
+            DebugHelper.WriteLine("This code will crash SnapX on Wayland.");
+            using var wlDisplay = WlDisplay.Connect();
+            using var wlRegistry = wlDisplay.GetRegistry();
+
+            wlRegistry.Global += (_, e) =>
+            {
+                if (e.Interface.Contains(WlInterface.WlOutput.Name))
+                {
+                    using var wlOutput = wlRegistry.Bind<WlOutput>(e.Name, e.Interface);
+                    DebugHelper.WriteLine("inside the wl_output interface");
+                    wlOutput.Name += (_, name) =>
+                    {
+                        // This code will execute whenever the 'Name' event is raised
+                        DebugHelper.WriteLine($"WlOutput name received: {name}");
+                        // You might store this name in a property of your own object
+                        // For example: this.OutputActualName = name;
+                    };
+                }
+                DebugHelper.WriteLine($"{e.Name}:{e.Interface}:{e.Version}");
+            };
+
+
+            wlDisplay.Roundtrip();
             return;
         }
-        IntPtr root = XDefaultRootWindow(display);
-        IntPtr window = XCreateSimpleWindow(display, root, 0, 0, 1, 1, 0, 0, 0);
-        IntPtr clipboard = XInternAtom(display, "CLIPBOARD", false);
+        var display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+        {
+            DebugHelper.Logger?.Debug("Unable to open X11 display");
+            return;
+        }
+        var root = XDefaultRootWindow(display);
+        var window = XCreateSimpleWindow(display, root, 0, 0, 1, 1, 0, 0, 0);
+        var clipboard = XInternAtom(display, "CLIPBOARD", false);
         XSetSelectionOwner(display, clipboard, window, CurrentTime);
         if (XGetSelectionOwner(display, clipboard) != window)
         {
             DebugHelper.WriteLine($"Failed to set X11 selection owner... :(");
             return;
         }
-        byte[] textBytes = Encoding.UTF8.GetBytes(text);
-        IntPtr utf8 = XInternAtom(display, "UTF8_STRING", false);
+        var textBytes = Encoding.UTF8.GetBytes(text);
+        var utf8 = XInternAtom(display, "UTF8_STRING", false);
         while (true)
         {
-            XEvent ev;
-            XNextEvent(display, out ev);
-            if (ev.type == SelectionRequest)
+            XNextEvent(display, out var ev);
+            if (ev.type != SelectionRequest) continue;
+            var req = ev.xselectionrequest;
+            var response = new XEvent();
+            response.type = SelectionNotify;
+            response.xselectionrequest.display = req.display;
+            response.xselectionrequest.requestor = req.requestor;
+            response.xselectionrequest.selection = req.selection;
+            response.xselectionrequest.target = req.target;
+            response.xselectionrequest.property = req.property;
+            if (req.target == utf8 || req.target == XA_STRING)
             {
-                XSelectionRequestEvent req = ev.xselectionrequest;
-                XEvent response = new XEvent();
-                response.type = SelectionNotify;
-                response.xselectionrequest.display = req.display;
-                response.xselectionrequest.requestor = req.requestor;
-                response.xselectionrequest.selection = req.selection;
-                response.xselectionrequest.target = req.target;
-                response.xselectionrequest.property = req.property;
-                if (req.target == utf8 || req.target == XA_STRING)
-                {
-                    XChangeProperty(display, req.requestor, req.property, req.target, 8, PropModeReplace, textBytes, textBytes.Length);
-                }
-                else
-                {
-                    response.xselectionrequest.property = IntPtr.Zero;
-                }
-                XSendEvent(display, req.requestor, false, 0, ref response);
-                XFlush(display);
+                XChangeProperty(display, req.requestor, req.property, req.target, 8, PropModeReplace, textBytes, textBytes.Length);
             }
+            else
+            {
+                response.xselectionrequest.property = IntPtr.Zero;
+            }
+            XSendEvent(display, req.requestor, false, 0, ref response);
+            XFlush(display);
         }
     }
 
@@ -403,7 +389,7 @@ public class LinuxAPI : NativeAPI
             XCloseDisplay(display);
         }
     }
-    public override void CopyImage(Image image, string filename = null)
+    public override void CopyImage(Image image, string? filename)
     {
         using var ms = new MemoryStream();
         if (image.Metadata.DecodedImageFormat != null && !(image.Metadata.DecodedImageFormat is BmpFormat))
@@ -431,7 +417,7 @@ public class LinuxAPI : NativeAPI
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
-            DebugHelper.Logger?.Debug("Unable to open X11 display.");
+            DebugHelper.Logger?.Debug("Unable to open X11 display");
             return;
         }
 
@@ -465,8 +451,8 @@ public class LinuxAPI : NativeAPI
 
         throw new InvalidOperationException("Unable to get window attributes.");
     }
-    [DllImport(LibX11)]
-    private static extern int XQueryPointer(
+    [LibraryImport(LibX11)]
+    private static partial int XQueryPointer(
         IntPtr display,
         IntPtr window,
         out IntPtr root,
@@ -480,21 +466,19 @@ public class LinuxAPI : NativeAPI
 
     public override Point GetCursorPosition()
     {
-        DebugHelper.Logger?.Debug("Get cursor position.");
-        IntPtr display = XOpenDisplay(null);
+        DebugHelper.Logger?.Debug("Get cursor position");
+        var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
             DebugHelper.WriteException(new InvalidOperationException("Unable to open X11 display."));
         }
 
-        IntPtr rootWindow = XDefaultRootWindow(display);
+        var rootWindow = XDefaultRootWindow(display);
 
-        int rootX, rootY, winX, winY, mask;
-        IntPtr root, child;
-        XQueryPointer(display, rootWindow, out root, out child, out rootX, out rootY, out winX, out winY, out mask);
+        XQueryPointer(display, rootWindow, out _, out _, out var rootX, out var rootY, out var winX, out var winY, out var mask);
 
         XCloseDisplay(display);
-        DebugHelper.Logger?.Debug($"Cursor position: {rootX}, {rootY}, {winX}, {winY}, {mask}");
+        DebugHelper.Logger?.Debug("Cursor position: {RootX}, {RootY}, {WinX}, {WinY}, {Mask}", rootX, rootY, winX, winY, mask);
         return new Point(rootX, rootY);
     }
     [DllImport(LibX11)]

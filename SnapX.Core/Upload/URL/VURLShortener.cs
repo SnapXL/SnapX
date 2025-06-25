@@ -22,13 +22,13 @@ public class VURLShortenerService : URLShortenerService
 
 public sealed class VURLShortener : URLShortener
 {
-    private const string API_ENDPOINT = "https://vurl.com/api.php";
+    private const string? API_ENDPOINT = "https://vurl.com/api.php";
 
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
 
-        var args = new Dictionary<string, string> { { "url", url } };
+        var args = new Dictionary<string, string?> { { "url", url } };
 
         var response = SendRequest(HttpMethod.Get, API_ENDPOINT, args);
 

@@ -25,13 +25,13 @@ public sealed class SFTP : FileUploader, IDisposable
         Account = account;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         UploadResult result = new UploadResult();
 
-        string subFolderPath = Account.GetSubFolderPath();
-        string path = URLHelpers.CombineURL(subFolderPath, fileName);
-        string url = Account.GetUriPath(fileName, subFolderPath);
+        string? subFolderPath = Account.GetSubFolderPath();
+        string? path = URLHelpers.CombineURL(subFolderPath, fileName);
+        string? url = Account.GetUriPath(fileName, subFolderPath);
 
         OnEarlyURLCopyRequested(url);
 
@@ -124,7 +124,7 @@ public sealed class SFTP : FileUploader, IDisposable
         }
     }
 
-    public void ChangeDirectory(string path, bool autoCreateDirectory = false)
+    public void ChangeDirectory(string? path, bool autoCreateDirectory = false)
     {
         if (Connect())
         {
@@ -140,7 +140,7 @@ public sealed class SFTP : FileUploader, IDisposable
         }
     }
 
-    public bool DirectoryExists(string path)
+    public bool DirectoryExists(string? path)
     {
         if (Connect())
         {
@@ -150,7 +150,7 @@ public sealed class SFTP : FileUploader, IDisposable
         return false;
     }
 
-    public void CreateDirectory(string path, bool createMultiDirectory = false)
+    public void CreateDirectory(string? path, bool createMultiDirectory = false)
     {
         if (Connect())
         {
@@ -170,13 +170,13 @@ public sealed class SFTP : FileUploader, IDisposable
         }
     }
 
-    public List<string> CreateMultiDirectory(string path)
+    public List<string?> CreateMultiDirectory(string? path)
     {
-        List<string> directoryList = [];
+        List<string?> directoryList = [];
 
-        List<string> paths = URLHelpers.GetPaths(path);
+        List<string?> paths = URLHelpers.GetPaths(path);
 
-        foreach (string directory in paths)
+        foreach (string? directory in paths)
         {
             if (!DirectoryExists(directory))
             {
@@ -188,7 +188,7 @@ public sealed class SFTP : FileUploader, IDisposable
         return directoryList;
     }
 
-    private bool UploadStream(Stream stream, string remotePath, bool autoCreateDirectory = false)
+    private bool UploadStream(Stream stream, string? remotePath, bool autoCreateDirectory = false)
     {
         if (Connect())
         {

@@ -9,19 +9,19 @@ namespace SnapX.Core.Upload;
 
 public class UploadInfoParser : NameParser
 {
-    public const string HTMLLink = "<a href=\"$url\">$url</a>";
-    public const string HTMLImage = "<img src=\"$url\">";
-    public const string HTMLLinkedImage = "<a href=\"$url\"><img src=\"$thumbnailurl\"></a>";
-    public const string ForumLink = "[url]$url[/url]";
-    public const string ForumImage = "[img]$url[/img]";
-    public const string ForumLinkedImage = "[url=$url][img]$thumbnailurl[/img][/url]";
+    public const string? HTMLLink = "<a href=\"$url\">$url</a>";
+    public const string? HTMLImage = "<img src=\"$url\">";
+    public const string? HTMLLinkedImage = "<a href=\"$url\"><img src=\"$thumbnailurl\"></a>";
+    public const string? ForumLink = "[url]$url[/url]";
+    public const string? ForumImage = "[img]$url[/img]";
+    public const string? ForumLinkedImage = "[url=$url][img]$thumbnailurl[/img][/url]";
     public const string WikiImage = "[$url]";
     public const string WikiLinkedImage = "[$url $thumbnailurl]";
-    public const string MarkdownLink = "[$url]($url)";
-    public const string MarkdownImage = "![]($url)";
-    public const string MarkdownLinkedImage = "[![]($thumbnailurl)]($url)";
+    public const string? MarkdownLink = "[$url]($url)";
+    public const string? MarkdownImage = "![]($url)";
+    public const string? MarkdownLinkedImage = "[![]($thumbnailurl)]($url)";
 
-    public string Parse(TaskInfo info, string pattern)
+    public string? Parse(TaskInfo info, string? pattern)
     {
         if (info != null && !string.IsNullOrEmpty(pattern))
         {
@@ -29,7 +29,7 @@ public class UploadInfoParser : NameParser
 
             if (info.Result != null)
             {
-                string result = info.Result.ToString();
+                string? result = info.Result.ToString();
 
                 if (string.IsNullOrEmpty(result) && !string.IsNullOrEmpty(info.FilePath))
                 {

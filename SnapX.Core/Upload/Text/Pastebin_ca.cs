@@ -9,7 +9,7 @@ namespace SnapX.Core.Upload.Text;
 
 public sealed class Pastebin_ca : TextUploader
 {
-    private const string APIURL = "https://pastebin.ca/quiet-paste.php";
+    private const string? APIURL = "https://pastebin.ca/quiet-paste.php";
 
     private string APIKey;
 
@@ -27,14 +27,14 @@ public sealed class Pastebin_ca : TextUploader
         this.settings = settings;
     }
 
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();
 
         if (string.IsNullOrEmpty(text))
             return ur;
 
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "api", APIKey },
             { "content", text },
@@ -74,30 +74,30 @@ public class PastebinCaSettings
 {
     /// <summary>name</summary>
     [Description("Name / Title")]
-    public string Author { get; set; }
+    public string? Author { get; set; }
 
     /// <summary>description</summary>
     [Description("Description / Question")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>tags</summary>
     [Description("Tags (space separated, optional)")]
-    public string Tags { get; set; }
+    public string? Tags { get; set; }
 
     /// <summary>type</summary>
     [Description("Content Type"), DefaultValue("1")]
-    public string TextFormat { get; set; }
+    public string? TextFormat { get; set; }
 
     /// <summary>expiry</summary>
     [Description("Expire this post in ..."), DefaultValue("1 month")]
-    public string ExpireTime { get; set; }
+    public string? ExpireTime { get; set; }
 
     /// <summary>encrypt</summary>
     [Description("Encrypt this paste")]
     public bool Encrypt { get; set; }
 
     /// <summary>encryptpw</summary>
-    public string EncryptPassword { get; set; }
+    public string? EncryptPassword { get; set; }
 
     public PastebinCaSettings()
     {

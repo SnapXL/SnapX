@@ -43,8 +43,8 @@ internal partial class BitlyContext : JsonSerializerContext;
 public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
 {
     private const string URLAPI = "https://api-ssl.bitly.com/";
-    private const string URLAccessToken = URLAPI + "oauth/access_token";
-    private const string URLShorten = URLAPI + "v4/shorten";
+    private const string? URLAccessToken = URLAPI + "oauth/access_token";
+    private const string? URLShorten = URLAPI + "v4/shorten";
 
     public OAuth2Info AuthInfo { get; private set; }
     public string Domain { get; set; }
@@ -54,9 +54,9 @@ public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
         AuthInfo = oauth;
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "redirect_uri", Links.Callback }
@@ -65,9 +65,9 @@ public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
         return URLHelpers.CreateQueryString("https://bitly.com/oauth/authorize", args);
     }
 
-    public bool GetAccessToken(string code)
+    public bool GetAccessToken(string? code)
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "client_secret", AuthInfo.Client_Secret },
@@ -75,7 +75,7 @@ public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
             { "redirect_uri", Links.Callback }
         };
 
-        string response = SendRequestURLEncoded(HttpMethod.Post, URLAccessToken, args);
+        string? response = SendRequestURLEncoded(HttpMethod.Post, URLAccessToken, args);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -102,7 +102,7 @@ public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
 
@@ -129,7 +129,7 @@ public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
 
     private class BitlyShortenRequestBody
     {
-        public string long_url { get; set; }
+        public string? long_url { get; set; }
         public string domain { get; set; } = "bit.ly";
     }
 
@@ -137,7 +137,7 @@ public sealed class BitlyURLShortener : URLShortener, IOAuth2Basic
     {
         public DateTime created_at { get; set; }
         public string id { get; set; }
-        public string link { get; set; }
+        public string? link { get; set; }
         public string long_url { get; set; }
     }
 }

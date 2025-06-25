@@ -55,14 +55,14 @@ public sealed class Pastebin : TextUploader
             return false;
         }
 
-        var loginArgs = new Dictionary<string, string>
+        var loginArgs = new Dictionary<string, string?>
         {
             { "api_dev_key", APIKey },
             { "api_user_name", Settings.Username },
             { "api_user_password", Settings.Password }
         };
 
-        string loginResponse = SendRequestMultiPart("https://pastebin.com/api/api_login.php", loginArgs);
+        string? loginResponse = SendRequestMultiPart("https://pastebin.com/api/api_login.php", loginArgs);
 
         if (!string.IsNullOrEmpty(loginResponse) && !loginResponse.StartsWith("Bad API request"))
         {
@@ -76,13 +76,13 @@ public sealed class Pastebin : TextUploader
     }
 
 
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();
 
         if (string.IsNullOrEmpty(text) || Settings == null) return ur;
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "api_dev_key", APIKey }, // Your unique API Developer Key
             { "api_option", "paste" }, // Action set to 'paste' to create a new paste
@@ -120,7 +120,7 @@ public sealed class Pastebin : TextUploader
     }
 
 
-    private string GetPrivacy(PastebinPrivacy privacy)
+    private string? GetPrivacy(PastebinPrivacy privacy)
     {
         return privacy switch
         {
@@ -131,7 +131,7 @@ public sealed class Pastebin : TextUploader
         };
     }
 
-    private string GetExpiration(PastebinExpiration expiration) =>
+    private string? GetExpiration(PastebinExpiration expiration) =>
         expiration switch
         {
             PastebinExpiration.N => "N",
@@ -458,13 +458,13 @@ public class PastebinSyntaxInfo
 
 public class PastebinSettings
 {
-    public string Username { get; set; }
-    public string Password { get; set; }
+    public string? Username { get; set; }
+    public string? Password { get; set; }
     public PastebinPrivacy Exposure { get; set; } = PastebinPrivacy.Unlisted;
     public PastebinExpiration Expiration { get; set; } = PastebinExpiration.N;
-    public string Title { get; set; }
-    public string TextFormat { get; set; } = "text";
-    public string UserKey { get; set; }
+    public string? Title { get; set; }
+    public string? TextFormat { get; set; } = "text";
+    public string? UserKey { get; set; }
     public bool RawURL { get; set; }
 }
 

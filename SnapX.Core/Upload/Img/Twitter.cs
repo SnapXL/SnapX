@@ -53,19 +53,19 @@ public class Twitter : ImageUploader, IOAuth
         AuthInfo = oauth;
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
         return GetAuthorizationURL("https://api.twitter.com/oauth/request_token", "https://api.twitter.com/oauth/authorize", AuthInfo);
     }
 
-    public bool GetAccessToken(string verificationCode)
+    public bool GetAccessToken(string? verificationCode)
     {
         AuthInfo.AuthVerifier = verificationCode;
         return GetAccessToken("https://api.twitter.com/oauth/access_token", AuthInfo);
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         string message = DefaultMessage;
 
@@ -91,7 +91,7 @@ public class Twitter : ImageUploader, IOAuth
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public TwitterStatusResponse TweetMessage(string message)
+    public TwitterStatusResponse TweetMessage(string? message)
     {
         if (message.Length > MessageLimit)
             message = message.Remove(MessageLimit);
@@ -99,7 +99,7 @@ public class Twitter : ImageUploader, IOAuth
         var url = $"https://api.twitter.com/{APIVersion}/statuses/update.json";
         var query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "status", message }
         };
@@ -118,7 +118,7 @@ public class Twitter : ImageUploader, IOAuth
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public UploadResult TweetMessageWithMedia(string message, Stream stream, string fileName)
+    public UploadResult TweetMessageWithMedia(string message, Stream stream, string? fileName)
     {
         if (message.Length > MessageMediaLimit)
             message = message.Remove(MessageMediaLimit);
@@ -126,7 +126,7 @@ public class Twitter : ImageUploader, IOAuth
         var url = $"https://api.twitter.com/{APIVersion}/statuses/update_with_media.json";
         var query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "status", message }
         };
@@ -147,11 +147,11 @@ public class Twitter : ImageUploader, IOAuth
         return result;
     }
 
-    private string GetConfiguration()
+    private string? GetConfiguration()
     {
-        string url = string.Format("https://api.twitter.com/{0}/help/configuration.json", APIVersion);
-        string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Get, AuthInfo);
-        string response = SendRequest(HttpMethod.Get, query);
+        string? url = string.Format("https://api.twitter.com/{0}/help/configuration.json", APIVersion);
+        string? query = OAuthManager.GenerateQuery(url, null, HttpMethod.Get, AuthInfo);
+        string? response = SendRequest(HttpMethod.Get, query);
         return response;
     }
 }
@@ -163,7 +163,7 @@ public class TwitterStatusResponse
     public string in_reply_to_screen_name { get; set; }
     public TwitterStatusUser user { get; set; }
 
-    public string GetTweetURL()
+    public string? GetTweetURL()
     {
         return string.Format("https://twitter.com/{0}/status/{1}", user.screen_name, id);
     }

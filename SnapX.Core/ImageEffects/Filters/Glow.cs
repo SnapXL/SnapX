@@ -73,7 +73,7 @@ internal class Glow : ImageEffect
         return ImageHelpers.AddGlow(img, Size, Strength, Color, Offset, UseGradient ? Gradient : null);
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Size.ToString();
     }

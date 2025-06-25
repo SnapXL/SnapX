@@ -8,12 +8,12 @@ namespace SnapX.Core.Upload.URL;
 
 public sealed class NlcmURLShortener : URLShortener
 {
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
         if (string.IsNullOrEmpty(url)) return result;
 
-        var arguments = new Dictionary<string, string> { { "url", url } };
+        var arguments = new Dictionary<string, string?> { { "url", url } };
 
         result.Response = result.ShortenedURL = SendRequest(HttpMethod.Get, "https://nl.cm/api/", arguments);
 

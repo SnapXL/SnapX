@@ -67,7 +67,7 @@ public class DrawCheckerboard : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return $"{Size}x{Size}";
     }

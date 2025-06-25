@@ -17,14 +17,14 @@ public class OAuthInfo : ICloneable
     public string Description { get; set; }
 
     [Browsable(false)]
-    public string OAuthVersion { get; set; }
+    public string? OAuthVersion { get; set; }
 
     [Browsable(false)]
-    public string ConsumerKey { get; set; }
+    public string? ConsumerKey { get; set; }
 
     // Used for HMAC_SHA1 signature
     [Browsable(false)]
-    public string ConsumerSecret { get; set; }
+    public string? ConsumerSecret { get; set; }
 
     // Used for RSA_SHA1 signature
     [Browsable(false)]
@@ -34,19 +34,19 @@ public class OAuthInfo : ICloneable
     public OAuthInfoSignatureMethod SignatureMethod { get; set; }
 
     [Browsable(false)]
-    public string AuthToken { get; set; }
+    public string? AuthToken { get; set; }
 
     [Browsable(false)]
-    public string AuthSecret { get; set; }
+    public string? AuthSecret { get; set; }
 
     [Description("Verification Code from the Authorization Page")]
-    public string AuthVerifier { get; set; }
+    public string? AuthVerifier { get; set; }
 
     [Browsable(false)]
-    public string UserToken { get; set; }
+    public string? UserToken { get; set; }
 
     [Browsable(false)]
-    public string UserSecret { get; set; }
+    public string? UserSecret { get; set; }
 
     public OAuthInfo()
     {
@@ -54,18 +54,18 @@ public class OAuthInfo : ICloneable
         OAuthVersion = "1.0";
     }
 
-    public OAuthInfo(string consumerKey) : this()
+    public OAuthInfo(string? consumerKey) : this()
     {
         ConsumerKey = consumerKey;
     }
 
-    public OAuthInfo(string consumerKey, string consumerSecret) : this()
+    public OAuthInfo(string? consumerKey, string? consumerSecret) : this()
     {
         ConsumerKey = consumerKey;
         ConsumerSecret = consumerSecret;
     }
 
-    public OAuthInfo(string consumerKey, string consumerSecret, string userToken, string userSecret) : this(consumerKey, consumerSecret)
+    public OAuthInfo(string? consumerKey, string? consumerSecret, string? userToken, string? userSecret) : this(consumerKey, consumerSecret)
     {
         UserToken = userToken;
         UserSecret = userSecret;

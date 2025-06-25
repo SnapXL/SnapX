@@ -12,7 +12,7 @@ namespace SnapX.Core.Utils;
 
 public static class WebHelpers
 {
-    public static async Task DownloadFileAsync(string url, string filePath)
+    public static async Task DownloadFileAsync(string url, string? filePath)
     {
         if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(filePath))
         {
@@ -36,7 +36,7 @@ public static class WebHelpers
         await responseStream.CopyToAsync(fileStream);
     }
 
-    public static async Task<Image> DataURLToImage(string url)
+    public static async Task<Image> DataURLToImage(string? url)
     {
         // Ensure the URL is valid and starts with "data:"
         if (url == null || !url.ToString().StartsWith("data:"))
@@ -82,7 +82,7 @@ public static class WebHelpers
 
 
 
-    public static async Task<string> GetFileNameFromWebServerAsync(string url)
+    public static async Task<string?> GetFileNameFromWebServerAsync(string url)
     {
         if (string.IsNullOrEmpty(url)) return null;
 
@@ -95,7 +95,7 @@ public static class WebHelpers
     }
 
 
-    public static async Task<Image> DownloadImageAsync(string url)
+    public static async Task<Image> DownloadImageAsync(string? url)
     {
         if (string.IsNullOrEmpty(url)) return null;
 

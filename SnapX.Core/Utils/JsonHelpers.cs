@@ -93,7 +93,7 @@ public static class JsonHelpers
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public static T DeserializeFromString<T>(string json, JsonSerializerOptions? options = null)
+    public static T DeserializeFromString<T>(string? json, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
         return !string.IsNullOrEmpty(json) ? JsonSerializer.Deserialize<T>(json, options) : default;
@@ -108,7 +108,7 @@ public static class JsonHelpers
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public static T DeserializeFromFile<T>(string filePath, JsonSerializerOptions? options = null)
+    public static T DeserializeFromFile<T>(string? filePath, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return default;

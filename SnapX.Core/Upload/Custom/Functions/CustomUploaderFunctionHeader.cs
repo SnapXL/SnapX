@@ -11,9 +11,9 @@ internal class CustomUploaderFunctionHeader : CustomUploaderFunction
 
     public override int MinParameterCount { get; } = 1;
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
-        string header = parameters[0];
+        string? header = parameters[0];
 
         if (parser.ResponseInfo.Headers != null && parser.ResponseInfo.Headers.ContainsKey(header))
         {

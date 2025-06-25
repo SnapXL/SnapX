@@ -40,7 +40,7 @@ public sealed class CustomURLSharer : URLSharer
         uploader = customUploaderItem;
     }
 
-    public override UploadResult ShareURL(string url)
+    public override UploadResult ShareURL(string? url)
     {
         var result = new UploadResult { URL = url, IsURLExpected = false };
         var input = new CustomUploaderInput("", url);

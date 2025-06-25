@@ -14,10 +14,10 @@ public enum OAuth2ChallengeMethod
 
 public class OAuth2ProofKey
 {
-    public string CodeVerifier { get; private set; }
-    public string CodeChallenge { get; private set; }
+    public string? CodeVerifier { get; private set; }
+    public string? CodeChallenge { get; private set; }
     private OAuth2ChallengeMethod Method;
-    public string ChallengeMethod
+    public string? ChallengeMethod
     {
         get
         {
@@ -47,7 +47,7 @@ public class OAuth2ProofKey
         CodeChallenge = CleanBase64(hash);
     }
 
-    private string CleanBase64(byte[] buffer)
+    private string? CleanBase64(byte[] buffer)
     {
         return Convert.ToBase64String(buffer)
             .Replace('+', '-')

@@ -21,7 +21,7 @@ public class CustomUploaderItem
     public string Version { get; set; }
 
     [DefaultValue("")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public bool ShouldSerializeName() => !string.IsNullOrEmpty(Name) && Name != URLHelpers.GetHostName(RequestURL);
 
@@ -35,15 +35,15 @@ public class CustomUploaderItem
     private HttpMethod RequestType { set => RequestMethod = value; }
 
     [DefaultValue("")]
-    public string RequestURL { get; set; }
+    public string? RequestURL { get; set; }
 
     [DefaultValue(null)]
-    public Dictionary<string, string> Parameters { get; set; }
+    public Dictionary<string, string?> Parameters { get; set; }
 
     public bool ShouldSerializeParameters() => Parameters != null && Parameters.Count > 0;
 
     [DefaultValue(null)]
-    public Dictionary<string, string> Headers { get; set; }
+    public Dictionary<string, string?> Headers { get; set; }
 
     public bool ShouldSerializeHeaders() => Headers != null && Headers.Count > 0;
 
@@ -51,7 +51,7 @@ public class CustomUploaderItem
     public CustomUploaderBody Body { get; set; }
 
     [DefaultValue(null)]
-    public Dictionary<string, string> Arguments { get; set; }
+    public Dictionary<string, string?>? Arguments { get; set; }
 
     public bool ShouldSerializeArguments() => (Body == CustomUploaderBody.MultipartFormData || Body == CustomUploaderBody.FormURLEncoded) &&
         Arguments != null && Arguments.Count > 0;
@@ -62,7 +62,7 @@ public class CustomUploaderItem
     public bool ShouldSerializeFileFormName() => Body == CustomUploaderBody.MultipartFormData && !string.IsNullOrEmpty(FileFormName);
 
     [DefaultValue("")]
-    public string Data { get; set; }
+    public string? Data { get; set; }
 
     public bool ShouldSerializeData() => (Body == CustomUploaderBody.JSON || Body == CustomUploaderBody.XML) && !string.IsNullOrEmpty(Data);
 
@@ -70,39 +70,41 @@ public class CustomUploaderItem
     public ResponseType ResponseType { private get; set; }
 
     [DefaultValue("")]
-    public string URL { get; set; }
+    public string? URL { get; set; }
 
     [DefaultValue("")]
-    public string ThumbnailURL { get; set; }
+    public string? ThumbnailURL { get; set; }
 
     [DefaultValue("")]
-    public string DeletionURL { get; set; }
+    public string? DeletionURL { get; set; }
 
     [DefaultValue("")]
-    public string ErrorMessage { get; set; }
+    public string? ErrorMessage { get; set; }
 
-    private CustomUploaderItem()
+    public CustomUploaderItem()
     {
+        Version = Helpers.GetApplicationVersion();
+        Body = CustomUploaderBody.None;
     }
 
-    public static CustomUploaderItem Init()
-    {
-        return new CustomUploaderItem()
-        {
-            Version = Helpers.GetApplicationVersion(),
-            RequestMethod = HttpMethod.Post,
-            Body = CustomUploaderBody.MultipartFormData
-        };
-    }
+    // public static CustomUploaderItem Init()
+    // {
+    //     return new CustomUploaderItem()
+    //     {
+    //         Version = Helpers.GetApplicationVersion(),
+    //         RequestMethod = HttpMethod.Post,
+    //         Body = CustomUploaderBody.MultipartFormData
+    //     };
+    // }
 
-    public override string ToString()
+    public override string? ToString()
     {
         if (!string.IsNullOrEmpty(Name))
         {
             return Name;
         }
 
-        string name = URLHelpers.GetHostName(RequestURL);
+        string? name = URLHelpers.GetHostName(RequestURL);
 
         if (!string.IsNullOrEmpty(name))
         {
@@ -117,7 +119,7 @@ public class CustomUploaderItem
         return ToString() + ".sxcu";
     }
 
-    public string GetRequestURL(CustomUploaderInput input)
+    public string? GetRequestURL(CustomUploaderInput input)
     {
         if (string.IsNullOrEmpty(RequestURL))
         {
@@ -126,24 +128,24 @@ public class CustomUploaderItem
 
         ShareXCustomUploaderSyntaxParser parser = new ShareXCustomUploaderSyntaxParser(input);
         parser.URLEncode = true;
-        string url = parser.Parse(RequestURL);
+        string? url = parser.Parse(RequestURL);
 
         url = URLHelpers.FixPrefix(url);
 
-        Dictionary<string, string> parameters = GetParameters(input);
+        Dictionary<string, string?> parameters = GetParameters(input);
         return URLHelpers.CreateQueryString(url, parameters);
     }
 
-    public Dictionary<string, string> GetParameters(CustomUploaderInput input)
+    public Dictionary<string, string?> GetParameters(CustomUploaderInput input)
     {
-        Dictionary<string, string> parameters = [];
+        Dictionary<string, string?> parameters = [];
 
         if (Parameters != null)
         {
             ShareXCustomUploaderSyntaxParser parser = new ShareXCustomUploaderSyntaxParser(input);
             parser.UseNameParser = true;
 
-            foreach (KeyValuePair<string, string> parameter in Parameters)
+            foreach (KeyValuePair<string, string?> parameter in Parameters)
             {
                 parameters.Add(parameter.Key, parser.Parse(parameter.Value));
             }
@@ -171,12 +173,12 @@ public class CustomUploaderItem
         return null;
     }
 
-    public string GetData(CustomUploaderInput input)
+    public string? GetData(CustomUploaderInput input)
     {
         var nameParser = new NameParser(NameParserType.Text);
-        string result = nameParser.Parse(Data);
+        string? result = nameParser.Parse(Data);
 
-        Dictionary<string, string> replace = new Dictionary<string, string>
+        Dictionary<string, string?> replace = new Dictionary<string, string?>
         {
             { "{input}", EncodeBodyData(input.Input) },
             { "{filename}", EncodeBodyData(input.FileName) }
@@ -187,7 +189,7 @@ public class CustomUploaderItem
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    private string EncodeBodyData(string input)
+    private string? EncodeBodyData(string? input)
     {
         if (!string.IsNullOrEmpty(input))
         {
@@ -214,16 +216,16 @@ public class CustomUploaderItem
         return FileFormName;
     }
 
-    public Dictionary<string, string> GetArguments(CustomUploaderInput input)
+    public Dictionary<string, string?> GetArguments(CustomUploaderInput input)
     {
-        Dictionary<string, string> arguments = [];
+        Dictionary<string, string?> arguments = [];
 
         if (Arguments != null)
         {
             var parser = new ShareXCustomUploaderSyntaxParser(input);
             parser.UseNameParser = true;
 
-            foreach (KeyValuePair<string, string> arg in Arguments)
+            foreach (KeyValuePair<string, string?> arg in Arguments)
             {
                 arguments.Add(arg.Key, parser.Parse(arg.Value));
             }
@@ -241,7 +243,7 @@ public class CustomUploaderItem
             var parser = new ShareXCustomUploaderSyntaxParser(input);
             parser.UseNameParser = true;
 
-            foreach (KeyValuePair<string, string> header in Headers)
+            foreach (KeyValuePair<string, string?> header in Headers)
             {
                 collection.Add(header.Key, parser.Parse(header.Value));
             }
@@ -272,7 +274,7 @@ public class CustomUploaderItem
 
             if (responseInfo.IsSuccess)
             {
-                string url;
+                string? url;
 
                 if (!string.IsNullOrEmpty(URL))
                 {
@@ -304,7 +306,7 @@ public class CustomUploaderItem
             {
                 if (!string.IsNullOrEmpty(ErrorMessage))
                 {
-                    string parsedErrorMessage = parser.Parse(ErrorMessage);
+                    string? parsedErrorMessage = parser.Parse(ErrorMessage);
 
                     if (!string.IsNullOrEmpty(parsedErrorMessage))
                     {
@@ -356,7 +358,7 @@ public class CustomUploaderItem
                         Parameters = [];
                     }
 
-                    foreach (KeyValuePair<string, string> pair in Arguments)
+                    foreach (KeyValuePair<string, string?> pair in Arguments)
                     {
                         if (!Parameters.ContainsKey(pair.Key))
                         {
@@ -428,8 +430,11 @@ public class CustomUploaderItem
                 }
             }
 
-            Data = Data.Replace("$input$", "{input}", StringComparison.OrdinalIgnoreCase).
-                Replace("$filename$", "{filename}", StringComparison.OrdinalIgnoreCase);
+            if (Data != null)
+            {
+                Data = Data.Replace("$input$", "{input}", StringComparison.OrdinalIgnoreCase).
+                    Replace("$filename$", "{filename}", StringComparison.OrdinalIgnoreCase);
+            }
             URL = MigrateOldSyntax(URL);
             ThumbnailURL = MigrateOldSyntax(ThumbnailURL);
             DeletionURL = MigrateOldSyntax(DeletionURL);
@@ -439,7 +444,7 @@ public class CustomUploaderItem
         }
     }
 
-    private string MigrateOldSyntax(string input)
+    private string? MigrateOldSyntax(string? input)
     {
         if (string.IsNullOrEmpty(input))
         {

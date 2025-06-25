@@ -59,7 +59,7 @@ internal class Outline : ImageEffect
         return ImageHelpers.Outline(img, Size, Color, Padding, OutlineOnly);
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Size.ToString();
     }

@@ -52,7 +52,7 @@ public sealed class CustomFileUploader : FileUploader
         uploader = customUploaderItem;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         UploadResult result = new UploadResult();
         CustomUploaderInput input = new CustomUploaderInput(fileName, "");

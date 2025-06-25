@@ -11,7 +11,7 @@ namespace SnapX.Core.Upload.Zip;
 
 public static class ZipManager
 {
-    public static void Extract(string archivePath, string destination, bool retainDirectoryStructure = true, Func<ZipArchiveEntry, bool> filter = null,
+    public static void Extract(string archivePath, string? destination, bool retainDirectoryStructure = true, Func<ZipArchiveEntry, bool> filter = null,
         long maxUncompressedSize = 0)
     {
         using var archive = ZipFile.OpenRead(archivePath);
@@ -81,7 +81,7 @@ public static class ZipManager
         ZipFile.CreateFromDirectory(source, archivePath, compression, false);
     }
 
-    public static void Compress(string archivePath, List<ZipEntryInfo> entries, CompressionLevel compression = CompressionLevel.Optimal)
+    public static void Compress(string? archivePath, List<ZipEntryInfo> entries, CompressionLevel compression = CompressionLevel.Optimal)
     {
         FileHelpers.CreateDirectoryFromFilePath(archivePath);
 
@@ -118,7 +118,7 @@ public static class ZipManager
     }
 
 
-    private static ZipArchiveEntry CreateEntryFromStream(this ZipArchive archive, Stream stream, string entryName, CompressionLevel compressionLevel)
+    private static ZipArchiveEntry CreateEntryFromStream(this ZipArchive archive, Stream stream, string? entryName, CompressionLevel compressionLevel)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(stream);

@@ -11,7 +11,7 @@ public abstract class Indexer
     {
         settings = indexerSettings;
     }
-    public string Index(string folderPath)
+    public string? Index(string? folderPath)
     {
         Indexer indexer = null;
 
@@ -33,7 +33,7 @@ public abstract class Indexer
 
         return indexer?.Index(folderPath);
     }
-    public static string Index(string folderPath, IndexerSettings settings)
+    public static string? Index(string? folderPath, IndexerSettings settings)
     {
         Indexer indexer = null;
 

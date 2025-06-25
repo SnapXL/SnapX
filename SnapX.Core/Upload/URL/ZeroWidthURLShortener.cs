@@ -32,7 +32,7 @@ public class ZeroWidthURLShortenerService : URLShortenerService
 internal partial class ZeroWidthContext : JsonSerializerContext;
 public sealed class ZeroWidthURLShortener : URLShortener
 {
-    public string RequestURL { get; set; }
+    public string? RequestURL { get; set; }
     public string Token { get; set; }
 
     private NameValueCollection GetAuthHeaders()
@@ -44,7 +44,7 @@ public sealed class ZeroWidthURLShortener : URLShortener
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
 
@@ -80,7 +80,7 @@ public sealed class ZeroWidthURLShortener : URLShortener
 
 public class ZeroWidthURLShortenerResponse
 {
-    public string Short { get; set; }
-    public string URL { get; set; }
+    public string? Short { get; set; }
+    public string? URL { get; set; }
 }
 

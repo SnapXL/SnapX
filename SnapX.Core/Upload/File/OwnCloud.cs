@@ -41,10 +41,10 @@ public class OwnCloudFileUploaderService : FileUploaderService
 internal partial class OwnCloudContext : JsonSerializerContext;
 public sealed class OwnCloud : FileUploader
 {
-    public string Host { get; set; }
+    public string? Host { get; set; }
     public string Username { get; set; }
     public string Password { get; set; }
-    public string Path { get; set; }
+    public string? Path { get; set; }
     public int AutoExpireTime { get; set; }
     public bool CreateShare { get; set; }
     public bool AppendFileNameToURL { get; set; }
@@ -53,7 +53,7 @@ public sealed class OwnCloud : FileUploader
     public bool IsCompatibility81 { get; set; }
     public bool AutoExpire { get; set; }
 
-    public OwnCloud(string host, string username, string password)
+    public OwnCloud(string? host, string username, string password)
     {
         Host = host;
         Username = username;
@@ -61,7 +61,7 @@ public sealed class OwnCloud : FileUploader
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (string.IsNullOrEmpty(Host))
         {
@@ -112,9 +112,9 @@ public sealed class OwnCloud : FileUploader
     // https://doc.owncloud.org/server/10.0/developer_manual/core/ocs-share-api.html#create-a-new-share
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public string ShareFile(string path, string fileName)
+    public string? ShareFile(string? path, string? fileName)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "path", path },
             { "shareType", "3" },
@@ -191,7 +191,7 @@ public sealed class OwnCloud : FileUploader
     public class OwnCloudShareResponseData
     {
         public int id { get; set; }
-        public string url { get; set; }
+        public string? url { get; set; }
         public string token { get; set; }
     }
 }

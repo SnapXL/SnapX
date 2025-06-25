@@ -32,13 +32,13 @@ public class HastebinTextUploaderService : TextUploaderService
 internal partial class HastebinContext : JsonSerializerContext;
 public sealed class Hastebin : TextUploader
 {
-    public string CustomDomain { get; set; }
+    public string? CustomDomain { get; set; }
     public string SyntaxHighlighting { get; set; }
     public bool UseFileExtension { get; set; }
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();
         if (string.IsNullOrEmpty(text)) return ur;
@@ -80,7 +80,7 @@ public sealed class Hastebin : TextUploader
 
     public class HastebinResponse
     {
-        public string Key { get; set; }
+        public string? Key { get; set; }
     }
 }
 

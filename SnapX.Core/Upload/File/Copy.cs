@@ -16,21 +16,21 @@ public sealed class Copy : FileUploader, IOAuth
 {
     public OAuthInfo AuthInfo { get; set; }
     public CopyAccountInfo AccountInfo { get; set; }
-    public string UploadPath { get; set; }
+    public string? UploadPath { get; set; }
     public CopyURLType URLType { get; set; }
 
     private const string APIVersion = "1";
 
     private const string URLAPI = "https://api.copy.com/rest";
 
-    private const string URLAccountInfo = URLAPI + "/user";
-    private const string URLFiles = URLAPI + "/files";
-    private const string URLMetaData = URLAPI + "/meta/";
-    private const string URLLinks = URLAPI + "/links";
+    private const string? URLAccountInfo = URLAPI + "/user";
+    private const string? URLFiles = URLAPI + "/files";
+    private const string? URLMetaData = URLAPI + "/meta/";
+    private const string? URLLinks = URLAPI + "/links";
 
-    private const string URLRequestToken = "https://api.copy.com/oauth/request";
+    private const string? URLRequestToken = "https://api.copy.com/oauth/request";
     private const string URLAuthorize = "https://www.copy.com/applications/authorize";
-    private const string URLAccessToken = "https://api.copy.com/oauth/access";
+    private const string? URLAccessToken = "https://api.copy.com/oauth/access";
 
     private readonly NameValueCollection APIHeaders = new NameValueCollection { { "X-Api-Version", APIVersion } };
 
@@ -46,9 +46,9 @@ public sealed class Copy : FileUploader, IOAuth
 
     // https://developers.copy.com/documentation#authentication/oauth-handshake
     // https://developers.copy.com/console
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "oauth_callback", Links.Callback }
         };
@@ -56,7 +56,7 @@ public sealed class Copy : FileUploader, IOAuth
         return GetAuthorizationURL(URLRequestToken, URLAuthorize, AuthInfo, args);
     }
 
-    public bool GetAccessToken(string verificationCode = null)
+    public bool GetAccessToken(string? verificationCode = null)
     {
         AuthInfo.AuthVerifier = verificationCode;
         return GetAccessToken(URLAccessToken, AuthInfo);
@@ -73,9 +73,9 @@ public sealed class Copy : FileUploader, IOAuth
 
         if (OAuthInfo.CheckOAuth(AuthInfo))
         {
-            string query = OAuthManager.GenerateQuery(URLAccountInfo, null, HttpMethod.Get, AuthInfo);
+            string? query = OAuthManager.GenerateQuery(URLAccountInfo, null, HttpMethod.Get, AuthInfo);
 
-            string response = SendRequest(HttpMethod.Get, query, null, APIHeaders);
+            string? response = SendRequest(HttpMethod.Get, query, null, APIHeaders);
 
             if (!string.IsNullOrEmpty(response))
             {
@@ -97,12 +97,12 @@ public sealed class Copy : FileUploader, IOAuth
 
     // https://developers.copy.com/documentation#api-calls/filesystem - Download Raw File Conents
     // GET https://api.copy.com/rest/files/PATH/TO/FILE
-    public bool DownloadFile(string path, Stream downloadStream)
+    public bool DownloadFile(string? path, Stream downloadStream)
     {
         if (!string.IsNullOrEmpty(path) && OAuthInfo.CheckOAuth(AuthInfo))
         {
-            string url = URLHelpers.CombineURL(URLFiles, URLHelpers.URLEncode(path, true));
-            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Get, AuthInfo);
+            string? url = URLHelpers.CombineURL(URLFiles, URLHelpers.URLEncode(path, true));
+            string? query = OAuthManager.GenerateQuery(url, null, HttpMethod.Get, AuthInfo);
             return SendRequestDownload(HttpMethod.Get, query, downloadStream);
         }
 
@@ -113,7 +113,7 @@ public sealed class Copy : FileUploader, IOAuth
     // POST https://api.copy.com/rest/files/PATH/TO/FILE?overwrite=true
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public UploadResult UploadFile(Stream stream, string path, string fileName)
+    public UploadResult UploadFile(Stream stream, string? path, string? fileName)
     {
         if (!OAuthInfo.CheckOAuth(AuthInfo))
         {
@@ -121,14 +121,14 @@ public sealed class Copy : FileUploader, IOAuth
             return null;
         }
 
-        string url = URLHelpers.CombineURL(URLFiles, URLHelpers.URLEncode(path, true));
+        string? url = URLHelpers.CombineURL(URLFiles, URLHelpers.URLEncode(path, true));
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "overwrite", "true" }
         };
 
-        string query = OAuthManager.GenerateQuery(url, args, HttpMethod.Post, AuthInfo);
+        string? query = OAuthManager.GenerateQuery(url, args, HttpMethod.Post, AuthInfo);
 
         // There's a 1GB and 5 hour(max time for a single upload) limit to all uploads through the API.
         UploadResult result = SendRequestFile(query, stream, fileName, "file", headers: APIHeaders);
@@ -150,17 +150,17 @@ public sealed class Copy : FileUploader, IOAuth
     // https://developers.copy.com/documentation#api-calls/filesystem - Read Root Directory
     // GET https://api.copy.com/rest/meta/copy
     [RequiresUnreferencedCode("Uploader")]
-    public CopyContentInfo GetMetadata(string path)
+    public CopyContentInfo GetMetadata(string? path)
     {
         CopyContentInfo contentInfo = null;
 
         if (OAuthInfo.CheckOAuth(AuthInfo))
         {
-            string url = URLHelpers.CombineURL(URLMetaData, URLHelpers.URLEncode(path, true));
+            string? url = URLHelpers.CombineURL(URLMetaData, URLHelpers.URLEncode(path, true));
 
-            string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Get, AuthInfo);
+            string? query = OAuthManager.GenerateQuery(url, null, HttpMethod.Get, AuthInfo);
 
-            string response = SendRequest(HttpMethod.Get, query);
+            string? response = SendRequest(HttpMethod.Get, query);
 
             if (!string.IsNullOrEmpty(response))
             {
@@ -174,14 +174,14 @@ public sealed class Copy : FileUploader, IOAuth
     #endregion Files and metadata
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         return UploadFile(stream, UploadPath, fileName);
     }
 
-    public string GetLinkURL(CopyLinksInfo link, string path, CopyURLType urlType = CopyURLType.Default)
+    public string? GetLinkURL(CopyLinksInfo link, string? path, CopyURLType urlType = CopyURLType.Default)
     {
-        string fileName = URLHelpers.URLEncode(URLHelpers.GetFileName(path));
+        string? fileName = URLHelpers.URLEncode(URLHelpers.GetFileName(path));
 
         switch (urlType)
         {
@@ -196,22 +196,22 @@ public sealed class Copy : FileUploader, IOAuth
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public string CreatePublicURL(string path, CopyURLType urlType = CopyURLType.Default)
+    public string? CreatePublicURL(string? path, CopyURLType urlType = CopyURLType.Default)
     {
         path = path.Trim('/');
 
-        string url = URLHelpers.CombineURL(URLLinks, URLHelpers.URLEncode(path, true));
+        string? url = URLHelpers.CombineURL(URLLinks, URLHelpers.URLEncode(path, true));
 
-        string query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
+        string? query = OAuthManager.GenerateQuery(url, null, HttpMethod.Post, AuthInfo);
 
         CopyLinkRequest publicLink = new CopyLinkRequest();
         publicLink.@public = true;
         publicLink.name = "SnapX";
         publicLink.paths = [path];
 
-        string content = JsonSerializer.Serialize(publicLink);
+        string? content = JsonSerializer.Serialize(publicLink);
 
-        string response = SendRequest(HttpMethod.Post, query, content, headers: APIHeaders);
+        string? response = SendRequest(HttpMethod.Post, query, content, headers: APIHeaders);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -224,7 +224,7 @@ public sealed class Copy : FileUploader, IOAuth
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public string GetPublicURL(string path, CopyURLType urlType = CopyURLType.Default)
+    public string? GetPublicURL(string? path, CopyURLType urlType = CopyURLType.Default)
     {
         path = path.Trim('/');
 
@@ -278,7 +278,7 @@ public class CopyLinkRequest
 {
     public bool @public { get; set; }
     public string name { get; set; }
-    public string[] paths { get; set; }
+    public string?[] paths { get; set; }
 }
 
 public class CopyLinksInfo
@@ -300,7 +300,7 @@ public class CopyLinksInfo
 public class CopyContentInfo // https://api.copy.com/rest/meta also works on 'rest/files'
 {
     public string id { get; set; } // Internal copy name
-    public string path { get; set; } // file path
+    public string? path { get; set; } // file path
     public string name { get; set; } // Human readable (Filesystem) folder name
     public string type { get; set; } // "inbox", "root", "copy", "dir", "file"?
     public bool stub { get; set; } // 'The stub attribute you see on all of the nodes represents if the specified node is incomplete, that is, if the children have not all been delivered to you. Basically, they will always be a stub, unless you are looking at that item directly.'

@@ -54,8 +54,8 @@ public sealed class Box : FileUploader, IOAuth2
         ShareAccessLevel = BoxShareAccessLevel.Open;
     }
 
-    public string GetAuthorizationURL() =>
-        URLHelpers.CreateQueryString("https://www.box.com/api/oauth2/authorize", new Dictionary<string, string>
+    public string? GetAuthorizationURL() =>
+        URLHelpers.CreateQueryString("https://www.box.com/api/oauth2/authorize", new Dictionary<string, string?>
         {
             { "response_type", "code" },
             { "client_id", AuthInfo.Client_ID }
@@ -63,9 +63,9 @@ public sealed class Box : FileUploader, IOAuth2
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public bool GetAccessToken(string pin)
+    public bool GetAccessToken(string? pin)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "grant_type", "authorization_code" },
             { "code", pin },
@@ -88,7 +88,7 @@ public sealed class Box : FileUploader, IOAuth2
     {
         if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token)) return false;
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "grant_type", "refresh_token" },
             { "refresh_token", AuthInfo.Token.refresh_token },
@@ -146,7 +146,7 @@ public sealed class Box : FileUploader, IOAuth2
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public string CreateSharedLink(string id, BoxShareAccessLevel accessLevel)
+    public string? CreateSharedLink(string id, BoxShareAccessLevel accessLevel)
     {
         var response = SendRequest(HttpMethod.Put, $"https://api.box.com/2.0/files/{id}",
             $"{{\"shared_link\": {{\"access\": \"{accessLevel.ToString().ToLower()}\"}}}}", headers: GetAuthHeaders());
@@ -158,13 +158,13 @@ public sealed class Box : FileUploader, IOAuth2
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (!CheckAuthorization()) return null;
 
         FolderID ??= "0"; // Use FolderID if set, otherwise default to "0"
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "parent_id", FolderID }
         };
@@ -205,7 +205,7 @@ public class BoxFileEntry
 
 public class BoxFileSharedLink
 {
-    public string url { get; set; }
+    public string? url { get; set; }
 }
 
 public class BoxFolder

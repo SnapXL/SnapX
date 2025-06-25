@@ -13,7 +13,7 @@ public class WatchFolder : IDisposable
     public WatchFolderSettings Settings { get; set; }
     public TaskSettings TaskSettings { get; set; }
 
-    public delegate void FileWatcherTriggerEventHandler(string path);
+    public delegate void FileWatcherTriggerEventHandler(string? path);
 
     public event FileWatcherTriggerEventHandler FileWatcherTrigger;
 
@@ -25,7 +25,7 @@ public class WatchFolder : IDisposable
     {
         Dispose();
 
-        string folderPath = FileHelpers.ExpandFolderVariables(Settings.FolderPath);
+        string? folderPath = FileHelpers.ExpandFolderVariables(Settings.FolderPath);
 
         if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
         {
@@ -39,7 +39,7 @@ public class WatchFolder : IDisposable
         }
     }
 
-    protected void OnFileWatcherTrigger(string path)
+    protected void OnFileWatcherTrigger(string? path)
     {
         FileWatcherTrigger?.Invoke(path);
     }
@@ -48,7 +48,7 @@ public class WatchFolder : IDisposable
     {
         CleanElapsedTimers();
 
-        string path = e.FullPath;
+        string? path = e.FullPath;
 
         foreach (WatchFolderDuplicateEventTimer timer in timers)
         {
@@ -111,7 +111,7 @@ public class WatchFolderDuplicateEventTimer
     private const int expireTime = 1000;
 
     private Stopwatch timer;
-    private string path;
+    private string? path;
 
     public bool IsElapsed
     {
@@ -121,13 +121,13 @@ public class WatchFolderDuplicateEventTimer
         }
     }
 
-    public WatchFolderDuplicateEventTimer(string path)
+    public WatchFolderDuplicateEventTimer(string? path)
     {
         timer = Stopwatch.StartNew();
         this.path = path;
     }
 
-    public bool IsDuplicateEvent(string path)
+    public bool IsDuplicateEvent(string? path)
     {
         bool result = path == this.path && !IsElapsed;
         if (result)

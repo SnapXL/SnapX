@@ -22,6 +22,6 @@ public class VgdURLShortenerService : URLShortenerService
 
 public class VgdURLShortener : IsgdURLShortener
 {
-    protected override string APIURL => "https://v.gd/create.php";
+    protected override string? APIURL => "https://v.gd/create.php";
 }
 

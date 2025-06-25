@@ -523,7 +523,7 @@ public static class ImageHelpers
     }
     public static Image DrawBackgroundImage(
         Image img,
-        string imageFilePath,
+        string? imageFilePath,
         bool center,
         bool tile)
     {

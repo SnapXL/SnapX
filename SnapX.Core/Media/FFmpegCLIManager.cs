@@ -31,7 +31,7 @@ public class FFmpegCLIManager : ExternalCLIManager
     public delegate void EncodeProgressChangedEventHandler(float percentage);
     public event EncodeProgressChangedEventHandler EncodeProgressChanged;
 
-    public string FFmpegPath { get; private set; }
+    public string? FFmpegPath { get; private set; }
     public StringBuilder Output { get; private set; }
     public bool IsEncoding { get; set; }
     public bool ShowError { get; set; }
@@ -43,7 +43,7 @@ public class FFmpegCLIManager : ExternalCLIManager
 
     private int closeTryCount = 0;
 
-    public FFmpegCLIManager(string ffmpegPath)
+    public FFmpegCLIManager(string? ffmpegPath)
     {
         FFmpegPath = ffmpegPath;
         Output = new StringBuilder();
@@ -56,7 +56,7 @@ public class FFmpegCLIManager : ExternalCLIManager
         return Run(FFmpegPath, args);
     }
 
-    protected bool Run(string path, string args)
+    protected bool Run(string? path, string args)
     {
         StopRequested = false;
         int errorCode = Open(path, args);

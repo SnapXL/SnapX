@@ -29,13 +29,13 @@ public class VgymeImageUploaderService : ImageUploaderService
 internal partial class VgymeContext : JsonSerializerContext;
 public sealed class VgymeUploader : ImageUploader
 {
-    public string UserKey { get; set; }
+    public string? UserKey { get; set; }
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
-        Dictionary<string, string> args = [];
+        Dictionary<string, string?> args = [];
         if (!string.IsNullOrEmpty(UserKey)) args.Add("userkey", UserKey);
 
         var result = SendRequestFile("https://vgy.me/upload", stream, fileName, "file", args);
@@ -62,10 +62,10 @@ public sealed class VgymeUploader : ImageUploader
     {
         public bool Error { get; set; }
         public string URL { get; set; }
-        public string Image { get; set; }
+        public string? Image { get; set; }
         public long Size { get; set; }
         public string Filename { get; set; }
         public string Ext { get; set; }
-        public string Delete { get; set; }
+        public string? Delete { get; set; }
     }
 }

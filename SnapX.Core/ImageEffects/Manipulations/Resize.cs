@@ -51,7 +51,7 @@ public class Resize : ImageEffect
         return ImageHelpers.ResizeImage(img, size);
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         var summary = Width.ToString();
 

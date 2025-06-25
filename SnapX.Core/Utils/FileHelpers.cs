@@ -21,7 +21,7 @@ public static class FileHelpers
     public static readonly string[] VideoFileExtensions = [ "mp4", "webm", "mkv", "avi", "vob", "ogv", "ogg", "mov", "qt", "wmv", "m4p",
         "m4v", "mpg", "mp2", "mpeg", "mpe", "mpv", "m2v", "m4v", "flv", "f4v" ];
 
-    public static string GetFileNameExtension(string filePath, bool includeDot = false, bool checkSecondExtension = true)
+    public static string GetFileNameExtension(string? filePath, bool includeDot = false, bool checkSecondExtension = true)
     {
         var extension = "";
         if (string.IsNullOrEmpty(filePath)) return extension;
@@ -55,7 +55,7 @@ public static class FileHelpers
         return extension;
     }
 
-    public static string GetFileNameSafe(string filePath)
+    public static string? GetFileNameSafe(string? filePath)
     {
         if (string.IsNullOrEmpty(filePath)) return filePath;
 
@@ -69,7 +69,7 @@ public static class FileHelpers
         return pos >= 0 ? filePath.Substring(pos + 1) : filePath;
     }
 
-    public static string ChangeFileNameExtension(string fileName, string extension)
+    public static string? ChangeFileNameExtension(string? fileName, string extension)
     {
         if (string.IsNullOrEmpty(fileName)) return fileName;
         if (string.IsNullOrEmpty(extension)) return fileName;
@@ -106,12 +106,12 @@ public static class FileHelpers
         return filePath + text;
     }
 
-    public static string AppendExtension(string filePath, string extension)
+    public static string? AppendExtension(string filePath, string extension)
     {
         return filePath.TrimEnd('.') + '.' + extension.TrimStart('.');
     }
 
-    public static bool CheckExtension(string filePath, IEnumerable<string> extensions)
+    public static bool CheckExtension(string? filePath, IEnumerable<string> extensions)
     {
         var ext = GetFileNameExtension(filePath);
         if (string.IsNullOrEmpty(ext)) return false;
@@ -119,22 +119,22 @@ public static class FileHelpers
         return extensions.Any(x => ext.Equals(x, StringComparison.OrdinalIgnoreCase));
     }
 
-    public static bool IsImageFile(string filePath)
+    public static bool IsImageFile(string? filePath)
     {
         return CheckExtension(filePath, ImageFileExtensions);
     }
 
-    public static bool IsTextFile(string filePath)
+    public static bool IsTextFile(string? filePath)
     {
         return CheckExtension(filePath, TextFileExtensions);
     }
 
-    public static bool IsVideoFile(string filePath)
+    public static bool IsVideoFile(string? filePath)
     {
         return CheckExtension(filePath, VideoFileExtensions);
     }
 
-    public static EDataType FindDataType(string filePath)
+    public static EDataType FindDataType(string? filePath)
     {
         if (IsImageFile(filePath))
         {
@@ -149,7 +149,7 @@ public static class FileHelpers
         return EDataType.File;
     }
 
-    public static string GetAbsolutePath(string path)
+    public static string? GetAbsolutePath(string? path)
     {
         path = ExpandFolderVariables(path);
 
@@ -226,7 +226,7 @@ public static class FileHelpers
         return null;
     }
 
-    public static string GetPathRoot(string path)
+    public static string GetPathRoot(string? path)
     {
         var separator = path.IndexOf(":\\");
         if (separator < 0) return "";
@@ -234,13 +234,13 @@ public static class FileHelpers
         return path.Substring(0, separator + 2);
     }
 
-    public static string SanitizeFileName(string fileName, string replaceWith = "")
+    public static string? SanitizeFileName(string? fileName, string replaceWith = "")
     {
         var invalidChars = Path.GetInvalidFileNameChars();
         return SanitizeFileName(fileName, replaceWith, invalidChars);
     }
 
-    private static string SanitizeFileName(string fileName, string replaceWith, char[] invalidChars)
+    private static string? SanitizeFileName(string? fileName, string replaceWith, char[] invalidChars)
     {
         fileName = fileName.Trim();
 
@@ -249,7 +249,7 @@ public static class FileHelpers
         return fileName;
     }
 
-    public static string SanitizePath(string path, string replaceWith = "")
+    public static string? SanitizePath(string? path, string replaceWith = "")
     {
         var root = GetPathRoot(path);
 
@@ -264,7 +264,7 @@ public static class FileHelpers
         return root + path;
     }
 
-    public static bool OpenFile(string filePath)
+    public static bool OpenFile(string? filePath)
     {
         if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
         {
@@ -298,7 +298,7 @@ public static class FileHelpers
         return false;
     }
 
-    public static bool OpenFolder(string folderPath, bool allowMessageBox = true)
+    public static bool OpenFolder(string? folderPath, bool allowMessageBox = true)
     {
         if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
         {
@@ -337,7 +337,7 @@ public static class FileHelpers
         return false;
     }
 
-    public static bool OpenFolderWithFile(string filePath)
+    public static bool OpenFolderWithFile(string? filePath)
     {
         if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
         {
@@ -361,7 +361,7 @@ public static class FileHelpers
         return false;
     }
 
-    public static string GetUniqueFilePath(string filePath)
+    public static string? GetUniqueFilePath(string? filePath)
     {
         if (!System.IO.File.Exists(filePath)) return filePath;
 
@@ -389,7 +389,7 @@ public static class FileHelpers
 
         return filePath;
     }
-    public static string GetVariableFolderPath(string path, bool supportCustomSpecialFolders = false)
+    public static string? GetVariableFolderPath(string? path, bool supportCustomSpecialFolders = false)
     {
         if (string.IsNullOrEmpty(path)) return path;
         try
@@ -416,7 +416,7 @@ public static class FileHelpers
         return path;
     }
 
-    public static string ExpandFolderVariables(string path, bool supportCustomSpecialFolders = false)
+    public static string? ExpandFolderVariables(string? path, bool supportCustomSpecialFolders = false)
     {
         if (string.IsNullOrEmpty(path)) return path;
 
@@ -457,7 +457,7 @@ public static class FileHelpers
         return sb.ToString();
     }
 
-    public static bool IsFileLocked(string filePath)
+    public static bool IsFileLocked(string? filePath)
     {
         try
         {
@@ -472,7 +472,7 @@ public static class FileHelpers
         return false;
     }
 
-    public static long GetFileSize(string filePath)
+    public static long GetFileSize(string? filePath)
     {
         try
         {
@@ -486,14 +486,14 @@ public static class FileHelpers
         return -1;
     }
 
-    public static string GetFileSizeReadable(string filePath, bool binaryUnits = false)
+    public static string GetFileSizeReadable(string? filePath, bool binaryUnits = false)
     {
         var fileSize = GetFileSize(filePath);
 
         return fileSize >= 0 ? fileSize.ToSizeString(binaryUnits) : string.Empty;
     }
 
-    public static void CreateDirectory(string directoryPath)
+    public static void CreateDirectory(string? directoryPath)
     {
         if (string.IsNullOrEmpty(directoryPath) || Directory.Exists(directoryPath)) return;
 
@@ -507,7 +507,7 @@ public static class FileHelpers
         }
     }
 
-    public static void CreateDirectoryFromFilePath(string filePath)
+    public static void CreateDirectoryFromFilePath(string? filePath)
     {
         if (string.IsNullOrEmpty(filePath)) return;
 
@@ -532,7 +532,7 @@ public static class FileHelpers
         return fi != null;
     }
 
-    public static string CopyFile(string filePath, string destinationFolder, bool overwrite = true)
+    public static string CopyFile(string filePath, string? destinationFolder, bool overwrite = true)
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath) || string.IsNullOrEmpty(destinationFolder))
         {
@@ -619,7 +619,7 @@ public static class FileHelpers
         }
     }
 
-    public static string MoveFile(string filePath, string destinationFolder, bool overwrite = true)
+    public static string MoveFile(string filePath, string? destinationFolder, bool overwrite = true)
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath) ||
             string.IsNullOrEmpty(destinationFolder)) return null;
@@ -681,7 +681,7 @@ public static class FileHelpers
         return false;
     }
 
-    public static string BackupFileWeekly(string filePath, string destinationFolder)
+    public static string BackupFileWeekly(string filePath, string? destinationFolder)
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return null;
 
@@ -698,7 +698,7 @@ public static class FileHelpers
         return newFilePath;
     }
 
-    public static void BackupFileMonthly(string filePath, string destinationFolder)
+    public static void BackupFileMonthly(string? filePath, string? destinationFolder)
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return;
 
@@ -727,7 +727,7 @@ public static class FileHelpers
         System.IO.File.Create(filePath).Dispose();
     }
 
-    public static IEnumerable<string> GetFilesByExtensions(string directoryPath, params string[] extensions)
+    public static IEnumerable<string> GetFilesByExtensions(string? directoryPath, params string[] extensions)
     {
         return GetFilesByExtensions(new DirectoryInfo(directoryPath), extensions);
     }

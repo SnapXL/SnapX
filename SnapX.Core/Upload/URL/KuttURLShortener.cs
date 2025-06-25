@@ -38,7 +38,7 @@ public sealed class KuttURLShortener : URLShortener
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
         result.ShortenedURL = Submit(url);
@@ -47,7 +47,7 @@ public sealed class KuttURLShortener : URLShortener
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public string Submit(string url)
+    public string? Submit(string? url)
     {
         if (string.IsNullOrEmpty(Settings.Host))
         {
@@ -88,7 +88,7 @@ public sealed class KuttURLShortener : URLShortener
     private class KuttShortenLinkBody
     {
         /// <summary>Original long URL to be shortened.</summary>
-        public string target { get; set; }
+        public string? target { get; set; }
 
         /// <summary>(optional) Set a password.</summary>
         public string password { get; set; }
@@ -108,13 +108,13 @@ public sealed class KuttURLShortener : URLShortener
         public string id { get; set; }
 
         /// <summary>The shortened link</summary>
-        public string link { get; set; }
+        public string? link { get; set; }
     }
 }
 
 public class KuttSettings
 {
-    public string Host { get; set; } = "https://kutt.it";
+    public string? Host { get; set; } = "https://kutt.it";
     public string APIKey { get; set; }
     public string Password { get; set; }
     public bool Reuse { get; set; }

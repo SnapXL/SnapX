@@ -88,20 +88,20 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
         return OAuth2.CheckAuthorization();
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
         return OAuth2.GetAuthorizationURL();
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public bool GetAccessToken(string code)
+    public bool GetAccessToken(string? code)
     {
         return OAuth2.GetAccessToken(code);
     }
 
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
-    private string GetMetadata(string name, string parentID, string driveID = "")
+    private string GetMetadata(string? name, string parentID, string driveID = "")
     {
         object metadata;
 
@@ -140,9 +140,9 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
     {
         if (!CheckAuthorization()) return;
 
-        string url = string.Format("https://www.googleapis.com/drive/v3/files/{0}/permissions?supportsAllDrives=true", fileID);
+        string? url = string.Format("https://www.googleapis.com/drive/v3/files/{0}/permissions?supportsAllDrives=true", fileID);
 
-        string json = JsonSerializer.Serialize(new
+        string? json = JsonSerializer.Serialize(new
         {
             role = role.ToString(),
             type = type.ToString(),
@@ -153,7 +153,7 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public List<GoogleDriveFile> GetFolders(string driveID = "", bool trashed = false, bool writer = true)
+    public List<GoogleDriveFile> GetFolders(string? driveID = "", bool trashed = false, bool writer = true)
     {
         if (!CheckAuthorization()) return null;
 
@@ -169,7 +169,7 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
             query += " and 'me' in writers";
         }
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "q", query },
             { "fields", "nextPageToken,files(id,name,description)" }
@@ -183,13 +183,13 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
         }
 
         List<GoogleDriveFile> folders = [];
-        string pageToken = "";
+        string? pageToken = "";
 
         // Make sure we get all the pages of results
         do
         {
             args["pageToken"] = pageToken;
-            string response = SendRequest(HttpMethod.Get, "https://www.googleapis.com/drive/v3/files", args, OAuth2.GetAuthHeaders());
+            string? response = SendRequest(HttpMethod.Get, "https://www.googleapis.com/drive/v3/files", args, OAuth2.GetAuthHeaders());
             pageToken = "";
 
             if (!string.IsNullOrEmpty(response))
@@ -213,15 +213,15 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
     {
         if (!CheckAuthorization()) return null;
 
-        Dictionary<string, string> args = [];
+        Dictionary<string, string?> args = [];
         List<GoogleDriveSharedDrive> drives = [];
-        string pageToken = "";
+        string? pageToken = "";
 
         // Make sure we get all the pages of results
         do
         {
             args["pageToken"] = pageToken;
-            string response = SendRequest(HttpMethod.Get, "https://www.googleapis.com/drive/v3/drives", args, OAuth2.GetAuthHeaders());
+            string? response = SendRequest(HttpMethod.Get, "https://www.googleapis.com/drive/v3/drives", args, OAuth2.GetAuthHeaders());
             pageToken = "";
 
             if (!string.IsNullOrEmpty(response))
@@ -241,7 +241,7 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (!CheckAuthorization()) return null;
 
@@ -288,7 +288,7 @@ public sealed class GoogleDrive : FileUploader, IOAuth2
 public class GoogleDriveFile
 {
     public string id { get; set; }
-    public string webViewLink { get; set; }
+    public string? webViewLink { get; set; }
     public string webContentLink { get; set; }
     public string name { get; set; }
     public string description { get; set; }
@@ -297,7 +297,7 @@ public class GoogleDriveFile
 public class GoogleDriveFileList
 {
     public List<GoogleDriveFile> files { get; set; }
-    public string nextPageToken { get; set; }
+    public string? nextPageToken { get; set; }
 }
 
 public class GoogleDriveSharedDrive
@@ -314,5 +314,5 @@ public class GoogleDriveSharedDrive
 public class GoogleDriveSharedDriveList
 {
     public List<GoogleDriveSharedDrive> drives { get; set; }
-    public string nextPageToken { get; set; }
+    public string? nextPageToken { get; set; }
 }

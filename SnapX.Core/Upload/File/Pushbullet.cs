@@ -36,33 +36,35 @@ public class PushbulletFileUploaderService : FileUploaderService
 [JsonSerializable(typeof(Pushbullet.PushbulletResponsePush))]
 [JsonSerializable(typeof(Pushbullet.PushbulletResponseFileUploadData))]
 internal partial class PushbulletContext : JsonSerializerContext;
-public sealed class Pushbullet : FileUploader
+public sealed class Pushbullet(PushbulletSettings Config) : FileUploader
 {
-    public PushbulletSettings Config { get; private set; }
+    public PushbulletSettings Config { get; private set; } = Config;
 
     private JsonSerializerOptions Options = new()
     {
         TypeInfoResolver = PushbulletContext.Default
     };
-    public Pushbullet(PushbulletSettings config)
-    {
-        Config = config;
-    }
 
     private const string
         wwwPushesURL = "https://www.pushbullet.com/pushes",
-        apiURL = "https://api.pushbullet.com/v2",
-        apiGetDevicesURL = apiURL + "/devices",
-        apiSendPushURL = apiURL + "/pushes",
+        apiURL = "https://api.pushbullet.com/v2";
+
+    private const string?
+        apiGetDevicesURL = apiURL + "/devices";
+
+    private const string?
+        apiSendPushURL = apiURL + "/pushes";
+
+    private const string?
         apiRequestFileUploadURL = apiURL + "/upload-request";
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public UploadResult PushFile(Stream stream, string fileName)
+    public UploadResult PushFile(Stream stream, string? fileName)
     {
         var headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
 
-        Dictionary<string, string> pushArgs, upArgs = new Dictionary<string, string>
+        Dictionary<string, string?> upArgs = new Dictionary<string, string?>
         {
             { "file_name", fileName }
         };
@@ -75,9 +77,9 @@ public sealed class Pushbullet : FileUploader
 
         if (fileInfo == null) return null;
 
-        pushArgs = upArgs;
+        var pushArgs = upArgs;
 
-        upArgs = new Dictionary<string, string>
+        upArgs = new Dictionary<string, string?>
         {
             { "awsaccesskeyid", fileInfo.data.awsaccesskeyid },
             { "acl", fileInfo.data.acl },
@@ -110,11 +112,11 @@ public sealed class Pushbullet : FileUploader
     }
 
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
-    private string Push(string pushType, string valueType, string value, string title)
+    private string Push(string? pushType, string valueType, string? value, string? title)
     {
         NameValueCollection headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "device_iden", Config.CurrentDevice.Key },
             { "type", pushType },
@@ -124,10 +126,7 @@ public sealed class Pushbullet : FileUploader
 
         if (valueType != "body")
         {
-            if (pushType == "link")
-                args.Add("body", value);
-            else
-                args.Add("body", "Sent via SnapX");
+            args.Add("body", pushType == "link" ? value : "Sent via SnapX");
         }
 
         var response = SendRequestMultiPart(apiSendPushURL, args, headers);
@@ -143,19 +142,19 @@ public sealed class Pushbullet : FileUploader
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public string PushNote(string note, string title)
+    public string PushNote(string? note, string? title)
     {
         return Push("note", "body", note, title);
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public string PushLink(string link, string title)
+    public string PushLink(string? link, string? title)
     {
         return Push("link", "url", link, title);
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (string.IsNullOrEmpty(Config.UserAPIKey)) throw new Exception("Missing API key.");
         if (Config.CurrentDevice == null) throw new Exception("No device set to push to.");
@@ -169,21 +168,16 @@ public sealed class Pushbullet : FileUploader
     {
         var headers = RequestHelpers.CreateAuthenticationHeader(Config.UserAPIKey, "");
 
-        string response = SendRequest(HttpMethod.Get, apiGetDevicesURL, headers: headers);
+        var response = SendRequest(HttpMethod.Get, apiGetDevicesURL, headers: headers);
 
         var devicesResponse = JsonSerializer.Deserialize<PushbulletResponseDevices>(response, Options);
 
-        if (devicesResponse != null && devicesResponse.devices != null)
-        {
-            return devicesResponse.devices.Where(x => !string.IsNullOrEmpty(x.nickname)).Select(x1 => new PushbulletDevice { Key = x1.iden, Name = x1.nickname }).ToList();
-        }
-
-        return [];
+        return devicesResponse is { devices: not null } ? devicesResponse.devices.Where(x => !string.IsNullOrEmpty(x.nickname)).Select(x1 => new PushbulletDevice { Key = x1.iden, Name = x1.nickname }).ToList() : [];
     }
 
     public class PushbulletResponseDevices
     {
-        public List<PushbulletResponseDevice> devices { get; set; }
+        public List<PushbulletResponseDevice>? devices { get; set; }
     }
 
     public class PushbulletResponseDevice
@@ -209,47 +203,36 @@ public sealed class Pushbullet : FileUploader
 
     public class PushbulletResponseFileUpload
     {
-        public string file_type { get; set; }
+        public string? file_type { get; set; }
         public string file_name { get; set; }
-        public string file_url { get; set; }
-        public string upload_url { get; set; }
+        public string? file_url { get; set; }
+        public string? upload_url { get; set; }
         public PushbulletResponseFileUploadData data { get; set; }
     }
 
     public class PushbulletResponseFileUploadData
     {
         public string awsaccesskeyid { get; set; }
-        public string acl { get; set; }
-        public string key { get; set; }
-        public string signature { get; set; }
-        public string policy { get; set; }
+        public string? acl { get; set; }
+        public string? key { get; set; }
+        public string? signature { get; set; }
+        public string? policy { get; set; }
         [JsonPropertyName("content-type")]
-        public string content_type { get; set; }
+        public string? content_type { get; set; }
     }
 }
 
 public class PushbulletDevice
 {
-    public string Key { get; set; }
+    public string? Key { get; set; }
     public string Name { get; set; }
 }
 
 public class PushbulletSettings
 {
     public string UserAPIKey { get; set; } = "";
-    public List<PushbulletDevice> DeviceList { get; set; } = [];
+    public List<PushbulletDevice?> DeviceList { get; set; } = [];
     public int SelectedDevice { get; set; } = 0;
 
-    public PushbulletDevice CurrentDevice
-    {
-        get
-        {
-            if (DeviceList.IsValidIndex(SelectedDevice))
-            {
-                return DeviceList[SelectedDevice];
-            }
-
-            return null;
-        }
-    }
+    public PushbulletDevice? CurrentDevice => DeviceList.IsValidIndex(SelectedDevice) ? DeviceList[SelectedDevice] : null;
 }

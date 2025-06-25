@@ -13,7 +13,7 @@ public class HistoryManagerSQLite : HistoryManager
     }
     private SqliteConnection _connection;
     [DapperAot]
-    protected override List<HistoryItem> Load(string filePath)
+    protected override List<HistoryItem> Load(string? filePath)
     {
         const string sql = "SELECT * FROM HistoryItems";
         return _connection.Query<HistoryItem>(sql).AsList();
@@ -27,7 +27,7 @@ public class HistoryManagerSQLite : HistoryManager
     }
 
     [DapperAot]
-    protected override bool Save(string filePath, IEnumerable<HistoryItem> historyItems)
+    protected override bool Save(string? filePath, IEnumerable<HistoryItem> historyItems)
     {
         const string updateSql = @"
         UPDATE HistoryItems SET
@@ -98,16 +98,16 @@ public class HistoryManagerSQLite : HistoryManager
     }
 
     [DapperAot]
-    protected override bool Append(string filePath, IEnumerable<HistoryItem> historyItems)
+    protected override bool Append(string? filePath, IEnumerable<HistoryItem> historyItems)
     {
         using var tx = _connection.BeginTransaction();
-        DebugHelper.WriteLine("JSON -> SQLite Migration: Beginning SQL transaction");
+        DebugHelper.WriteLine("SQLite: Beginning SQL transaction");
         try
         {
             var processedHistoryItems = new List<HistoryItem>();
             foreach (var historyItem in historyItems)
             {
-                DebugHelper.WriteLine($"JSON -> SQLite Migration: Processing {historyItem.FileName ?? historyItem.FilePath} ({historyItem.Type}, {historyItem.Host ?? "No Host"})");
+                DebugHelper.WriteLine($"SQLite: Processing {historyItem.FileName ?? historyItem.FilePath} ({historyItem.Type}, {historyItem.Host ?? "No Host"})");
 
                 // I swear I'm not paranoid!!!
 #pragma warning disable CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
@@ -115,25 +115,25 @@ public class HistoryManagerSQLite : HistoryManager
 #pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 if (historyItem.DateTime > DateTime.Now)
                 {
-                    DebugHelper.WriteLine($"JSON -> SQLite Migration: WARN Date '{historyItem.DateTime:D}' is in the future. System clock misconfigured?? Still saving it.");
+                    DebugHelper.WriteLine($"SQLite: WARN Date '{historyItem.DateTime:D}' is in the future. System clock misconfigured?? Still saving it.");
                 }
 
                 if (historyItem.FilePath == null)
                 {
-                    DebugHelper.WriteLine($"JSON -> SQLite Migration: WARN {historyItem.FileName ?? historyItem.FilePath} has a NULL FilePath. Still saving it.");
+                    DebugHelper.WriteLine($"SQLite: WARN {historyItem.FileName ?? historyItem.FilePath} has a NULL FilePath. Still saving it.");
                 }
 
 
                 if (historyItem.FilePath != null && !File.Exists(historyItem.FilePath))
                 {
-                    DebugHelper.WriteLine($"JSON -> SQLite Migration: WARN {historyItem.FileName ?? historyItem.FilePath} does not exist on the filesystem. Still saving it.");
+                    DebugHelper.WriteLine($"SQLite: WARN {historyItem.FileName ?? historyItem.FilePath} does not exist on the filesystem. Still saving it.");
                 }
 
                 var ShareXCreationDate = new DateTime(2007, 8, 22);
                 // This is an Easter egg
                 if (historyItem.DateTime < ShareXCreationDate)
                 {
-                    DebugHelper.WriteLine($"JSON -> SQLite Migration: WARN Date '{historyItem.DateTime:D}' indicates that this screenshot was taken before ShareX's creation??? Still saving, but what the heck!");
+                    DebugHelper.WriteLine($"SQLite: WARN Date '{historyItem.DateTime:D}' indicates that this screenshot was taken before ShareX's creation??? Still saving, but what the heck!");
                 }
                 historyItem.FileName ??= Path.GetFileName(historyItem.FilePath);
 
@@ -151,7 +151,7 @@ public class HistoryManagerSQLite : HistoryManager
                     transaction: tx
                 );
                 processedHistoryItems.Add(processedHistoryItem);
-                DebugHelper.WriteLine($"JSON -> SQLite Migration: Processed {processedHistoryItem.FileName}");
+                DebugHelper.WriteLine($"SQLite: Processed {processedHistoryItem.FileName}");
             }
 
             var allTags = processedHistoryItems

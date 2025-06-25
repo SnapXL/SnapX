@@ -16,7 +16,7 @@ namespace SnapX.Core.Upload;
 
 public static class UploadManager
 {
-    public static void UploadFile(string filePath, TaskSettings? taskSettings = null)
+    public static void UploadFile(string? filePath, TaskSettings? taskSettings = null)
     {
         if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
@@ -29,13 +29,13 @@ public static class UploadManager
             }
             else if (Directory.Exists(filePath))
             {
-                var files = Directory.GetFiles(filePath, "*.*", SearchOption.AllDirectories);
+                string?[] files = Directory.GetFiles(filePath, "*.*", SearchOption.AllDirectories);
                 UploadFile(files, taskSettings);
             }
         }
     }
 
-    public static void UploadFile(string[] files, TaskSettings? taskSettings = null)
+    public static void UploadFile(string?[] files, TaskSettings? taskSettings = null)
     {
         taskSettings ??= TaskSettings.GetDefaultTaskSettings();
 
@@ -125,7 +125,7 @@ public static class UploadManager
         }
     }
 
-    public static void ProcessTextUpload(string text, TaskSettings taskSettings)
+    public static void ProcessTextUpload(string? text, TaskSettings taskSettings)
     {
         if (string.IsNullOrEmpty(text))
             return;
@@ -163,7 +163,7 @@ public static class UploadManager
         }
     }
 
-    public static void ProcessFilesUpload(string[] files, TaskSettings taskSettings)
+    public static void ProcessFilesUpload(string?[] files, TaskSettings taskSettings)
     {
         if (files?.Length > 0)
         {
@@ -196,7 +196,7 @@ public static class UploadManager
             }
             else if (Clipboard.ContainsFileDropList())
             {
-                string[] files = Clipboard.GetFileDropList().Cast<string>().ToArray();
+                string?[] files = Clipboard.GetFileDropList().Cast<string>().ToArray();
 
                 ProcessFilesUpload(files, taskSettings);
             }
@@ -214,13 +214,13 @@ public static class UploadManager
         }
     }
 
-    public static void UploadURL(TaskSettings taskSettings = null, string url = null)
+    public static void UploadURL(TaskSettings taskSettings = null, string? url = null)
     {
         if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
-        string inputText = null;
+        string? inputText = null;
 
-        string text = Clipboard.GetText();
+        string? text = Clipboard.GetText();
 
         if (URLHelpers.IsValidURL(text))
         {
@@ -304,7 +304,7 @@ public static class UploadManager
             RunImageTask(image, taskSettings);
         }
     }
-    public static void UploadText(string text, TaskSettings? taskSettings = null, bool allowCustomText = false)
+    public static void UploadText(string? text, TaskSettings? taskSettings = null, bool allowCustomText = false)
     {
         taskSettings ??= TaskSettings.GetDefaultTaskSettings();
 
@@ -329,7 +329,7 @@ public static class UploadManager
         TaskManager.Start(task);
     }
 
-    public static void UploadImageStream(Stream stream, string fileName, TaskSettings taskSettings = null)
+    public static void UploadImageStream(Stream stream, string? fileName, TaskSettings taskSettings = null)
     {
         taskSettings ??= TaskSettings.GetDefaultTaskSettings();
 
@@ -341,7 +341,7 @@ public static class UploadManager
     }
 
 
-    public static void ShortenURL(string url, TaskSettings taskSettings = null)
+    public static void ShortenURL(string? url, TaskSettings taskSettings = null)
     {
         if (string.IsNullOrEmpty(url))
             return;
@@ -352,7 +352,7 @@ public static class UploadManager
     }
 
 
-    public static void ShortenURL(string url, UrlShortenerType urlShortener)
+    public static void ShortenURL(string? url, UrlShortenerType urlShortener)
     {
         if (string.IsNullOrEmpty(url))
             return;
@@ -365,7 +365,7 @@ public static class UploadManager
     }
 
 
-    public static void ShareURL(string url, TaskSettings taskSettings = null)
+    public static void ShareURL(string? url, TaskSettings taskSettings = null)
     {
         if (string.IsNullOrEmpty(url))
             return;
@@ -377,7 +377,7 @@ public static class UploadManager
     }
 
 
-    public static void ShareURL(string url, URLSharingServices urlSharingService)
+    public static void ShareURL(string? url, URLSharingServices urlSharingService)
     {
         if (string.IsNullOrEmpty(url))
             return;
@@ -389,13 +389,13 @@ public static class UploadManager
         TaskManager.Start(task);
     }
 
-    public static void DownloadFile(string url, TaskSettings taskSettings = null)
+    public static void DownloadFile(string? url, TaskSettings taskSettings = null)
         => DownloadFile(url, false, taskSettings);
 
-    public static void DownloadAndUploadFile(string url, TaskSettings taskSettings = null)
+    public static void DownloadAndUploadFile(string? url, TaskSettings taskSettings = null)
         => DownloadFile(url, true, taskSettings);
 
-    private static void DownloadFile(string url, bool upload, TaskSettings? taskSettings = null)
+    private static void DownloadFile(string? url, bool upload, TaskSettings? taskSettings = null)
     {
         DebugHelper.WriteLine($"Downloading file {url}");
         DebugHelper.WriteLine($"Upload: {upload}");
@@ -411,14 +411,14 @@ public static class UploadManager
         }
     }
 
-    public static void IndexFolder(string folderPath, TaskSettings? taskSettings = null)
+    public static void IndexFolder(string? folderPath, TaskSettings? taskSettings = null)
     {
         if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath)) return;
 
         taskSettings ??= TaskSettings.GetDefaultTaskSettings();
         taskSettings.ToolsSettings.IndexerSettings.BinaryUnits = SnapX.Settings.BinaryUnits;
 
-        string source = null;
+        string? source = null;
 
         Task.Run(() =>
         {

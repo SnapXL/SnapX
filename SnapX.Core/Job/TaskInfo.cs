@@ -40,9 +40,9 @@ public class TaskInfo
 
     public ProgressManager Progress { get; set; }
 
-    private string filePath;
+    private string? filePath;
 
-    public string FilePath
+    public string? FilePath
     {
         get
         {
@@ -63,8 +63,8 @@ public class TaskInfo
         }
     }
 
-    public string FileName { get; set; }
-    public string ThumbnailFilePath { get; set; }
+    public string? FileName { get; set; }
+    public string? ThumbnailFilePath { get; set; }
     public EDataType DataType { get; set; }
     public TaskMetadata Metadata { get; set; }
 
@@ -162,9 +162,9 @@ public class TaskInfo
     }
 
 
-    public override string ToString()
+    public override string? ToString()
     {
-        string text = Result.ToString();
+        string? text = Result.ToString();
 
         if (string.IsNullOrEmpty(text) && !string.IsNullOrEmpty(FilePath))
         {

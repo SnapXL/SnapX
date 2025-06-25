@@ -21,8 +21,8 @@ public class NameParser
     public int AutoIncrementNumber { get; set; } // %i, %ia, %ib, %iAa, %ix
     public int ImageWidth { get; set; } // %width
     public int ImageHeight { get; set; } // %height
-    public string WindowText { get; set; } // %t
-    public string ProcessName { get; set; } // %pn
+    public string? WindowText { get; set; } // %t
+    public string? ProcessName { get; set; } // %pn
     public TimeZoneInfo CustomTimeZone { get; set; }
 
     // If we're trying to preview via TaskSettings or not
@@ -39,17 +39,17 @@ public class NameParser
         Type = nameParserType;
     }
 
-    public static string Parse(NameParserType nameParserType, string pattern)
+    public static string? Parse(NameParserType nameParserType, string? pattern)
     {
         return new NameParser(nameParserType).Parse(pattern);
     }
 
-    public string Parse(string pattern)
+    public string? Parse(string? pattern)
     {
         return Parse(pattern, DateTime.Now);
     }
 
-    public string Parse(string pattern, DateTime dt)
+    public string? Parse(string? pattern, DateTime dt)
     {
         if (string.IsNullOrEmpty(pattern))
         {
@@ -227,7 +227,7 @@ public class NameParser
             {
                 try
                 {
-                    string path = entry.Item2;
+                    string? path = entry.Item2;
 
                     if (FileHelpers.IsTextFile(path))
                     {
@@ -306,7 +306,7 @@ public class NameParser
         return result;
     }
 
-    private string SanitizeInput(string input)
+    private string? SanitizeInput(string? input)
     {
         input = input.Trim().Replace(' ', '_');
 
@@ -318,7 +318,7 @@ public class NameParser
         return input;
     }
 
-    private IEnumerable<Tuple<string, string[]>> ListEntryWithArguments(string text, string entry, int elements)
+    private IEnumerable<Tuple<string, string[]>> ListEntryWithArguments(string? text, string entry, int elements)
     {
         foreach (var o in text.ForEachBetween(entry + "{", "}"))
         {
@@ -331,15 +331,15 @@ public class NameParser
         }
     }
 
-    private IEnumerable<Tuple<string, string>> ListEntryWithArgument(string text, string entry)
+    private IEnumerable<Tuple<string, string?>> ListEntryWithArgument(string? text, string entry)
     {
         foreach (Tuple<string, string[]> o in ListEntryWithArguments(text, entry, 1))
         {
-            yield return new Tuple<string, string>(o.Item1, o.Item2[0]);
+            yield return new Tuple<string, string?>(o.Item1, o.Item2[0]);
         }
     }
 
-    private IEnumerable<Tuple<string, int[]>> ListEntryWithValues(string text, string entry, int elements)
+    private IEnumerable<Tuple<string, int[]>> ListEntryWithValues(string? text, string entry, int elements)
     {
         foreach (Tuple<string, string[]> o in ListEntryWithArguments(text, entry, elements))
         {
@@ -355,7 +355,7 @@ public class NameParser
         }
     }
 
-    private IEnumerable<Tuple<string, int>> ListEntryWithValue(string text, string entry)
+    private IEnumerable<Tuple<string, int>> ListEntryWithValue(string? text, string entry)
     {
         foreach (var o in ListEntryWithValues(text, entry, 1))
         {

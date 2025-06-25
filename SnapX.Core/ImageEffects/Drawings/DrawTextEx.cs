@@ -80,7 +80,7 @@ public class DrawTextEx : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         if (!string.IsNullOrEmpty(Text))
         {

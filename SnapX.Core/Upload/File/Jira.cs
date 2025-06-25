@@ -141,11 +141,11 @@ public class Jira : FileUploader, IOAuth
         InitUris();
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
         using (new SSLBypassHelper())
         {
-            var args = new Dictionary<string, string>
+            var args = new Dictionary<string, string?>
             {
                 { OAuthManager.ParameterCallback, "oob" }
             };
@@ -159,7 +159,7 @@ public class Jira : FileUploader, IOAuth
     }
 
 
-    public bool GetAccessToken(string verificationCode)
+    public bool GetAccessToken(string? verificationCode)
     {
         using (new SSLBypassHelper())
         {
@@ -171,7 +171,7 @@ public class Jira : FileUploader, IOAuth
         }
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         // TODO: Reimplement Jira
         throw new NotImplementedException("Jira Upload is not implemented");
@@ -217,7 +217,7 @@ public class Jira : FileUploader, IOAuth
     {
         using var bypasser = new SSLBypassHelper();
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "jql", $"issueKey='{issueId}'" },
             { "maxResults", "10" },

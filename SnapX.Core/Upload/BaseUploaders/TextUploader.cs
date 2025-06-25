@@ -8,7 +8,7 @@ namespace SnapX.Core.Upload.BaseUploaders;
 
 public abstract class TextUploader : GenericUploader
 {
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         using (StreamReader sr = new StreamReader(stream, Encoding.UTF8))
         {
@@ -16,7 +16,7 @@ public abstract class TextUploader : GenericUploader
         }
     }
 
-    public abstract UploadResult UploadText(string text, string fileName);
+    public abstract UploadResult UploadText(string? text, string? fileName);
 
     public UploadResult UploadTextFile(string filePath)
     {

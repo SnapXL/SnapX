@@ -14,7 +14,7 @@ public sealed class ImmioUploader : ImageUploader
 {
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var result = SendRequestFile("https://imm.io/store/", stream, fileName, "image");
         if (!result.IsSuccess) return result;
@@ -33,7 +33,7 @@ public sealed class ImmioUploader : ImageUploader
     public class ImmioPayload
     {
         public string Uid { get; set; }
-        public string Uri { get; set; }
+        public string? Uri { get; set; }
         public string Link { get; set; }
         public string Name { get; set; }
         public string Format { get; set; }

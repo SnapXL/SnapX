@@ -40,7 +40,7 @@ public class Pomf : FileUploader
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var result = SendRequestFile(Uploader.UploadURL, stream, fileName, "files[]");
 
@@ -79,7 +79,7 @@ public class Pomf : FileUploader
     {
         public string hash { get; set; }
         public string name { get; set; }
-        public string url { get; set; }
+        public string? url { get; set; }
         public string size { get; set; }
     }
 }

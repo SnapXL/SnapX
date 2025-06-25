@@ -15,7 +15,7 @@ namespace SnapX.Core.ImageEffects.Drawings;
 public class DrawImage : ImageEffect
 {
     [DefaultValue("")]
-    public string ImageLocation { get; set; }
+    public string? ImageLocation { get; set; }
 
     [DefaultValue(AnchorStyles.TopLeft)]
     public AnchorStyles Placement { get; set; }
@@ -155,6 +155,6 @@ public class DrawImage : ImageEffect
         return img;
     }
 
-    protected override string GetSummary() =>
+    protected override string? GetSummary() =>
         string.IsNullOrEmpty(ImageLocation) ? FileHelpers.GetFileNameSafe(ImageLocation) : null;
 }

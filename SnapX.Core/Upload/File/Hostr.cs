@@ -44,7 +44,7 @@ public sealed class Hostr : FileUploader
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         UploadResult result = null;
 
@@ -82,7 +82,7 @@ public sealed class Hostr : FileUploader
     {
         public string added { get; set; }
         public string name { get; set; }
-        public string href { get; set; }
+        public string? href { get; set; }
         public int size { get; set; }
         public string type { get; set; }
         public HostrFileUploadResponseDirect direct { get; set; }
@@ -92,7 +92,7 @@ public sealed class Hostr : FileUploader
     public class HostrFileUploadResponseDirect
     {
         [JsonPropertyName("150x")]
-        public string direct_150x { get; set; }
+        public string? direct_150x { get; set; }
 
         [JsonPropertyName("150x")]
         public string direct_930x { get; set; }

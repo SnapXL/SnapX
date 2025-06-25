@@ -19,7 +19,7 @@ internal static class RequestHelpers
 
     public static async Task<HttpRequestMessage> CreateHttpRequest(
           HttpMethod method,
-          string url,
+          string? url,
           NameValueCollection headers = null,
           CookieCollection cookies = null,
           string contentType = null,
@@ -112,7 +112,7 @@ internal static class RequestHelpers
         return Encoding.UTF8.GetBytes(content);
     }
 
-    public static byte[] MakeInputContent(string boundary, Dictionary<string, string> contents, bool isFinal = true)
+    public static byte[] MakeInputContent(string boundary, Dictionary<string, string?> contents, bool isFinal = true)
     {
         if (string.IsNullOrEmpty(boundary))
             boundary = CreateBoundary();
@@ -137,14 +137,14 @@ internal static class RequestHelpers
     }
 
 
-    public static byte[] MakeFileInputContentOpen(string boundary, string fileFormName, string fileName)
+    public static byte[] MakeFileInputContentOpen(string boundary, string fileFormName, string? fileName)
     {
         var mimeType = MimeTypes.GetMimeType(fileName);
         var content = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{fileFormName}\"; filename=\"{fileName}\"\r\nContent-Type: {mimeType}\r\n\r\n";
         return Encoding.UTF8.GetBytes(content);
     }
 
-    public static byte[] MakeRelatedFileInputContentOpen(string boundary, string contentType, string relatedData, string fileName)
+    public static byte[] MakeRelatedFileInputContentOpen(string boundary, string contentType, string relatedData, string? fileName)
     {
         var mimeType = MimeTypes.GetMimeType(fileName);
         var content = $"--{boundary}\r\nContent-Type: {contentType}\r\n\r\n{relatedData}\r\n\r\n";

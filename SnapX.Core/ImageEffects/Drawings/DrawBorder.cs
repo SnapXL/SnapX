@@ -119,7 +119,7 @@ public class DrawBorder : ImageEffect
     }
 
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Size + "px";
     }

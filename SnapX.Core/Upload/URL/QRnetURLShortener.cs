@@ -27,15 +27,15 @@ public class QRnetURLShortenerService : URLShortenerService
 internal partial class QRnetContext : JsonSerializerContext;
 public sealed class QRnetURLShortener : URLShortener
 {
-    private const string API_ENDPOINT = "https://qr.net/api/short";
+    private const string? API_ENDPOINT = "https://qr.net/api/short";
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "longurl", url }
         };
@@ -64,7 +64,7 @@ public class QRnetURLShortenerResponse
     public string facebook_url { get; set; }
     public string stat_url { get; set; }
     public string twitter_url { get; set; }
-    public string url { get; set; }
+    public string? url { get; set; }
     public string target_host { get; set; }
     public string host { get; set; }
 }

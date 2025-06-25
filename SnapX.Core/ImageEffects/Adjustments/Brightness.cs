@@ -30,7 +30,7 @@ internal class Brightness : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Value.ToString();
     }

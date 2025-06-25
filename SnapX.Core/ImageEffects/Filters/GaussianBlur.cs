@@ -40,7 +40,7 @@ internal class GaussianBlur : ImageEffect
         }
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Radius.ToString();
     }

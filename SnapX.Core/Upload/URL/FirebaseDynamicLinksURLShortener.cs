@@ -40,8 +40,8 @@ public class FirebaseRequest
 
 public class DynamicLinkInfo
 {
-    public string dynamicLinkDomain { get; set; }
-    public string link { get; set; }
+    public string? dynamicLinkDomain { get; set; }
+    public string? link { get; set; }
 }
 
 public class FirebaseSuffix
@@ -52,19 +52,19 @@ public class FirebaseSuffix
 internal partial class FirebaseContext : JsonSerializerContext;
 public class FirebaseResponse
 {
-    public string shortLink { get; set; }
+    public string? shortLink { get; set; }
     public string previewLink { get; set; }
 }
 
 public sealed class FirebaseDynamicLinksURLShortener : URLShortener
 {
     public string WebAPIKey { get; set; }
-    public string DynamicLinkDomain { get; set; }
+    public string? DynamicLinkDomain { get; set; }
     public bool IsShort { get; set; }
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
 
@@ -85,7 +85,7 @@ public sealed class FirebaseDynamicLinksURLShortener : URLShortener
             };
         }
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "key", WebAPIKey },
             { "fields", "shortLink" }

@@ -43,7 +43,7 @@ public class WorkerTask : IDisposable
     public Stream Data { get; private set; }
     public Image Image { get; private set; }
     public bool KeepImage { get; set; }
-    public string Text { get; private set; }
+    public string? Text { get; private set; }
 
     private ThreadWorker threadWorker;
     private GenericUploader uploader;
@@ -57,7 +57,7 @@ public class WorkerTask : IDisposable
         Info = new TaskInfo(taskSettings);
     }
 
-    public static WorkerTask CreateDataUploaderTask(EDataType dataType, Stream stream, string fileName, TaskSettings taskSettings)
+    public static WorkerTask CreateDataUploaderTask(EDataType dataType, Stream stream, string? fileName, TaskSettings taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = TaskJob.DataUpload;
@@ -67,7 +67,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateFileUploaderTask(string filePath, TaskSettings taskSettings)
+    public static WorkerTask CreateFileUploaderTask(string? filePath, TaskSettings taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.FilePath = filePath;
@@ -118,7 +118,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateTextUploaderTask(string text, TaskSettings taskSettings)
+    public static WorkerTask CreateTextUploaderTask(string? text, TaskSettings taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = TaskJob.TextUpload;
@@ -128,7 +128,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateURLShortenerTask(string url, TaskSettings taskSettings)
+    public static WorkerTask CreateURLShortenerTask(string? url, TaskSettings taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = TaskJob.ShortenURL;
@@ -138,7 +138,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateShareURLTask(string url, TaskSettings taskSettings)
+    public static WorkerTask CreateShareURLTask(string? url, TaskSettings taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = TaskJob.ShareURL;
@@ -148,7 +148,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateFileJobTask(string filePath, TaskMetadata metadata, TaskSettings taskSettings, string customFileName = null)
+    public static WorkerTask CreateFileJobTask(string? filePath, TaskMetadata metadata, TaskSettings taskSettings, string customFileName = null)
     {
         var task = new WorkerTask(taskSettings);
         task.Info.FilePath = filePath;
@@ -176,12 +176,12 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateDownloadTask(string url, bool upload, TaskSettings taskSettings)
+    public static WorkerTask CreateDownloadTask(string? url, bool upload, TaskSettings taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = upload ? TaskJob.DownloadUpload : TaskJob.Download;
 
-        string fileName = URLHelpers.URLDecode(url, 10);
+        string? fileName = URLHelpers.URLDecode(url, 10);
         fileName = URLHelpers.GetFileName(fileName);
         fileName = FileHelpers.SanitizeFileName(fileName);
 
@@ -400,7 +400,7 @@ public class WorkerTask : IDisposable
         }
     }
 
-    private bool DoUpload(Stream data, string fileName, int retry = 0)
+    private bool DoUpload(Stream data, string? fileName, int retry = 0)
     {
         bool isError = false;
 
@@ -489,7 +489,7 @@ public class WorkerTask : IDisposable
         Info.Result.Errors.Add(errors);
     }
 
-    private void AddErrorMessage(string error)
+    private void AddErrorMessage(string? error)
     {
         if (Info.Result == null)
         {
@@ -621,8 +621,8 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.SaveImageToFile))
             {
-                string screenshotsFolder = TaskHelpers.GetScreenshotsFolder(Info.TaskSettings, Info.Metadata);
-                string filePath = TaskHelpers.HandleExistsFile(screenshotsFolder, Info.FileName, Info.TaskSettings);
+                string? screenshotsFolder = TaskHelpers.GetScreenshotsFolder(Info.TaskSettings, Info.Metadata);
+                string? filePath = TaskHelpers.HandleExistsFile(screenshotsFolder, Info.FileName, Info.TaskSettings);
 
                 if (!string.IsNullOrEmpty(filePath))
                 {
@@ -639,7 +639,8 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.SaveThumbnailImageToFile))
             {
-                string thumbnailFileName, thumbnailFolder;
+                string? thumbnailFileName;
+                string? thumbnailFolder;
 
                 if (!string.IsNullOrEmpty(Info.FilePath))
                 {
@@ -675,11 +676,11 @@ public class WorkerTask : IDisposable
                 if (actions.Count() > 0)
                 {
                     bool isFileModified = false;
-                    string fileName = Info.FileName;
+                    string? fileName = Info.FileName;
 
                     foreach (ExternalProgram fileAction in actions)
                     {
-                        string modifiedPath = fileAction.Run(Info.FilePath);
+                        string? modifiedPath = fileAction.Run(Info.FilePath);
 
                         if (!string.IsNullOrEmpty(modifiedPath))
                         {
@@ -730,8 +731,8 @@ public class WorkerTask : IDisposable
     {
         if (Info.TaskSettings.AdvancedSettings.TextTaskSaveAsFile)
         {
-            string screenshotsFolder = TaskHelpers.GetScreenshotsFolder(Info.TaskSettings);
-            string filePath = TaskHelpers.HandleExistsFile(screenshotsFolder, Info.FileName, Info.TaskSettings);
+            string? screenshotsFolder = TaskHelpers.GetScreenshotsFolder(Info.TaskSettings);
+            string? filePath = TaskHelpers.HandleExistsFile(screenshotsFolder, Info.FileName, Info.TaskSettings);
 
             if (!string.IsNullOrEmpty(filePath))
             {
@@ -790,7 +791,7 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterUploadJob.HasFlag(AfterUploadTasks.CopyURLToClipboard))
             {
-                string txt;
+                string? txt;
 
                 if (!string.IsNullOrEmpty(Info.TaskSettings.AdvancedSettings.ClipboardContentFormat))
                 {
@@ -809,7 +810,7 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterUploadJob.HasFlag(AfterUploadTasks.OpenURL))
             {
-                string result;
+                string? result;
 
                 if (!string.IsNullOrEmpty(Info.TaskSettings.AdvancedSettings.OpenURLFormat))
                 {
@@ -835,7 +836,7 @@ public class WorkerTask : IDisposable
         }
     }
 
-    public UploadResult UploadData(IGenericUploaderService service, Stream stream, string fileName)
+    public UploadResult UploadData(IGenericUploaderService service, Stream stream, string? fileName)
     {
         if (!service.CheckConfig(SnapX.UploadersConfig))
         {
@@ -878,7 +879,7 @@ public class WorkerTask : IDisposable
         return null;
     }
 
-    private bool CheckUploadFilters(Stream stream, string fileName)
+    private bool CheckUploadFilters(Stream stream, string? fileName)
     {
         if (Info.TaskSettings.UploadSettings.UploaderFilters != null && !string.IsNullOrEmpty(fileName) && stream != null)
         {
@@ -900,28 +901,28 @@ public class WorkerTask : IDisposable
         return false;
     }
 
-    public UploadResult UploadImage(Stream stream, string fileName)
+    public UploadResult UploadImage(Stream stream, string? fileName)
     {
         ImageUploaderService service = UploaderFactory.ImageUploaderServices[Info.TaskSettings.ImageDestination];
 
         return UploadData(service, stream, fileName);
     }
 
-    public UploadResult UploadText(Stream stream, string fileName)
+    public UploadResult UploadText(Stream stream, string? fileName)
     {
         TextUploaderService service = UploaderFactory.TextUploaderServices[Info.TaskSettings.TextDestination];
 
         return UploadData(service, stream, fileName);
     }
 
-    public UploadResult UploadFile(Stream stream, string fileName)
+    public UploadResult UploadFile(Stream stream, string? fileName)
     {
         FileUploaderService service = UploaderFactory.FileUploaderServices[Info.TaskSettings.GetFileDestinationByDataType(Info.DataType)];
 
         return UploadData(service, stream, fileName);
     }
 
-    public UploadResult ShortenURL(string url)
+    public UploadResult ShortenURL(string? url)
     {
         URLShortenerService service = UploaderFactory.URLShortenerServices[Info.TaskSettings.URLShortenerDestination];
 
@@ -940,7 +941,7 @@ public class WorkerTask : IDisposable
         return null;
     }
 
-    public UploadResult ShareURL(string url)
+    public UploadResult ShareURL(string? url)
     {
         if (!string.IsNullOrEmpty(url))
         {
@@ -966,7 +967,7 @@ public class WorkerTask : IDisposable
     {
         UploadResult ur = new UploadResult();
 
-        string message = string.Format("{0} configuration is invalid or missing. Please check \"Destination settings\" window to configure it.",
+        string? message = string.Format("{0} configuration is invalid or missing. Please check \"Destination settings\" window to configure it.",
             uploaderService.ServiceName);
         DebugHelper.WriteLine(message);
         ur.Errors.Add(message);
@@ -985,7 +986,7 @@ public class WorkerTask : IDisposable
         {
             try
             {
-                string fileName = WebHelpers.GetFileNameFromWebServerAsync(url).GetAwaiter().GetResult();
+                string? fileName = WebHelpers.GetFileNameFromWebServerAsync(url).GetAwaiter().GetResult();
 
                 if (!string.IsNullOrEmpty(fileName))
                 {
@@ -998,7 +999,7 @@ public class WorkerTask : IDisposable
             }
         }
 
-        string screenshotsFolder = TaskHelpers.GetScreenshotsFolder(Info.TaskSettings);
+        string? screenshotsFolder = TaskHelpers.GetScreenshotsFolder(Info.TaskSettings);
         Info.FilePath = TaskHelpers.HandleExistsFile(screenshotsFolder, Info.FileName, Info.TaskSettings);
 
         if (!string.IsNullOrEmpty(Info.FilePath))

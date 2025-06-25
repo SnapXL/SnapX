@@ -32,7 +32,7 @@ public class CLICommandAction
         return false;
     }
 
-    private void ExecuteAction(string parameter)
+    private void ExecuteAction(string? parameter)
     {
         if (DefaultAction != null)
         {

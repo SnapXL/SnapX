@@ -12,5 +12,5 @@ public struct Padding
         Bottom = bottom;
     }
 
-    public override string ToString() => $"{Left}, {Top}, {Right}, {Bottom}";
+    public override string? ToString() => $"{Left}, {Top}, {Right}, {Bottom}";
 }

@@ -8,7 +8,7 @@ public class NeedFileOpenerEvent
     public string Directory { get; set; } = UserDirectory.PicturesDir;
     public string? FileName { get; set; }
     public List<string>? AcceptedExtensions { get; set; }
-    public string Title { get; set; } = SnapX.AppName;
+    public string? Title { get; set; } = SnapX.AppName;
     public bool Multiselect { get; set; } = false;
     public TaskSettings TaskSettings { get; set; }
 }

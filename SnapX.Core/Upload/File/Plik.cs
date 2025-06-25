@@ -40,7 +40,7 @@ public sealed class Plik : FileUploader
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (string.IsNullOrEmpty(Settings.URL))
         {
@@ -142,7 +142,7 @@ public sealed class Plik : FileUploader
 public class UploadMetadataRequestFile
 {
     [JsonPropertyName("fileName")]
-    public string FileName { get; set; }
+    public string? FileName { get; set; }
     [JsonPropertyName("fileType")]
     public string FileType { get; set; }
     [JsonPropertyName("fileSize")]
@@ -176,7 +176,7 @@ public class UploadMetadataRequest
 public class UploadMetadataResponseFile
 {
     public string id { get; set; }
-    public string fileName { get; set; }
+    public string? fileName { get; set; }
     public string fileMd5 { get; set; }
     public string status { get; set; }
     public string fileType { get; set; }

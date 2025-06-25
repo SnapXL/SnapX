@@ -11,7 +11,7 @@ internal class CustomUploaderFunctionInput : CustomUploaderFunction
 {
     public override string Name { get; } = "input";
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
         if (parser.URLEncode)
         {

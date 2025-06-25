@@ -131,7 +131,7 @@ public static class Helpers
         }
     }
 
-    public static string GetRandomString(string chars, int length)
+    public static string? GetRandomString(string chars, int length)
     {
         var sb = new StringBuilder();
 
@@ -143,12 +143,12 @@ public static class Helpers
         return sb.ToString();
     }
 
-    public static string GetRandomNumber(int length)
+    public static string? GetRandomNumber(int length)
     {
         return GetRandomString(Numbers, length);
     }
 
-    public static string GetRandomAlphanumeric(int length)
+    public static string? GetRandomAlphanumeric(int length)
     {
         return GetRandomString(Alphanumeric, length);
     }
@@ -163,7 +163,7 @@ public static class Helpers
         return Encoding.UTF8.GetString(Enumerable.Range(1, 255).Select(i => (byte)i).ToArray());
     }
 
-    public static string GetRandomLine(string text)
+    public static string? GetRandomLine(string text)
     {
         var lines = text.Trim().Lines();
 
@@ -175,13 +175,13 @@ public static class Helpers
         return RandomCrypto.Pick(lines);
     }
 
-    public static string GetRandomLineFromFile(string filePath)
+    public static string? GetRandomLineFromFile(string? filePath)
     {
         var text = File.ReadAllText(filePath, Encoding.UTF8);
         return GetRandomLine(text);
     }
 
-    public static string GetValidURL(string url, bool replaceSpace = false)
+    public static string? GetValidURL(string? url, bool replaceSpace = false)
     {
         if (replaceSpace) url = url.Replace(' ', '_');
         return HttpUtility.UrlPathEncode(url);
@@ -510,7 +510,7 @@ public static class Helpers
 
     }
 
-    public static byte[] ComputeHMACSHA256(string data, string key)
+    public static byte[] ComputeHMACSHA256(string? data, string key)
     {
         return ComputeHMACSHA256(Encoding.UTF8.GetBytes(data), Encoding.UTF8.GetBytes(key));
     }
@@ -587,7 +587,7 @@ public static class Helpers
         result += GetNextRomanNumeralStep(ref num, 1, "I");
         return result;
     }
-    public static string RepeatGenerator(int count, Func<string> generator)
+    public static string? RepeatGenerator(int count, Func<string> generator)
     {
         return string.Concat(Enumerable.Repeat(0, count).Select(_ => generator()));
     }

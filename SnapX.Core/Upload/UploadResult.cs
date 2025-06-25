@@ -10,10 +10,10 @@ namespace SnapX.Core.Upload;
 
 public class UploadResult
 {
-    public string URL { get; set; }
-    public string ThumbnailURL { get; set; }
-    public string DeletionURL { get; set; }
-    public string ShortenedURL { get; set; }
+    public string? URL { get; set; }
+    public string? ThumbnailURL { get; set; }
+    public string? DeletionURL { get; set; }
+    public string? ShortenedURL { get; set; }
 
     private bool isSuccess;
 
@@ -29,7 +29,7 @@ public class UploadResult
         }
     }
 
-    public string Response { get; set; }
+    public string? Response { get; set; }
     public UploaderErrorManager Errors { get; set; }
     public bool IsURLExpected { get; set; }
 
@@ -49,7 +49,7 @@ public class UploadResult
         IsURLExpected = true;
     }
 
-    public UploadResult(string source, string url = null) : this()
+    public UploadResult(string? source, string? url = null) : this()
     {
         Response = source;
         URL = url;
@@ -63,7 +63,7 @@ public class UploadResult
         ShortenedURL = URLHelpers.ForcePrefix(ShortenedURL);
     }
 
-    public override string ToString()
+    public override string? ToString()
     {
         if (!string.IsNullOrEmpty(ShortenedURL))
         {

@@ -8,7 +8,7 @@ public class FFmpegOptions
 {
     // General
     public bool OverrideCLIPath { get; set; } = false;
-    public string CLIPath { get; set; } = "";
+    public string? CLIPath { get; set; } = "";
     public string VideoSource { get; set; } = FFmpegCaptureDevice.GDIGrab.Value;
     public string AudioSource { get; set; } = FFmpegCaptureDevice.None.Value;
     public FFmpegVideoCodec VideoCodec { get; set; } = FFmpegVideoCodec.libx264;
@@ -42,7 +42,7 @@ public class FFmpegOptions
     public int Vorbis_QScale { get; set; } = 3;
     public int MP3_QScale { get; set; } = 4;
 
-    public string FFmpegPath
+    public string? FFmpegPath
     {
         get
         {

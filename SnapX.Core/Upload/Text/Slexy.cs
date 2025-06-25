@@ -28,7 +28,7 @@ public class SlexyTextUploaderService : TextUploaderService
 
 public sealed class Slexy : TextUploader
 {
-    private const string APIURL = "https://slexy.org/index.php/submit";
+    private const string? APIURL = "https://slexy.org/index.php/submit";
 
     private SlexySettings settings;
 
@@ -42,14 +42,14 @@ public sealed class Slexy : TextUploader
         this.settings = settings;
     }
 
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();
 
         if (string.IsNullOrEmpty(text))
             return ur;
 
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "raw_paste", text },
             { "author", settings.Author },
@@ -75,23 +75,23 @@ public sealed class Slexy : TextUploader
 public class SlexySettings
 {
     /// <summary>language</summary>
-    public string TextFormat { get; set; }
+    public string? TextFormat { get; set; }
 
     /// <summary>author</summary>
-    public string Author { get; set; }
+    public string? Author { get; set; }
 
     /// <summary>permissions</summary>
     public Privacy Visibility { get; set; }
 
     /// <summary>desc</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>linenumbers</summary>
     public bool LineNumbers { get; set; }
 
     /// <summary>expire</summary>
     [Description("Expiration time with seconds. Example: 0 = Forever, 60 = 1 minutes, 3600 = 1 hour, 2592000 = 1 month")]
-    public string Expiration { get; set; }
+    public string? Expiration { get; set; }
 
     public SlexySettings()
     {

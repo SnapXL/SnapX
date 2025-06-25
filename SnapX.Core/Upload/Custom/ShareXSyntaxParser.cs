@@ -14,7 +14,7 @@ public abstract class ShareXSyntaxParser
     public virtual char SyntaxParameterDelimiter => '|';
     public virtual char SyntaxEscape => '\\';
 
-    public virtual string Parse(string text)
+    public virtual string? Parse(string? text)
     {
         if (string.IsNullOrEmpty(text))
         {
@@ -24,7 +24,7 @@ public abstract class ShareXSyntaxParser
         return Parse(text, false, 0, out _);
     }
 
-    private string Parse(string text, bool isFunction, int startPosition, out int endPosition)
+    private string? Parse(string? text, bool isFunction, int startPosition, out int endPosition)
     {
         var sbOutput = new StringBuilder();
         bool escape = false;
@@ -38,7 +38,7 @@ public abstract class ShareXSyntaxParser
             {
                 if (c == SyntaxStart)
                 {
-                    string parsed = Parse(text, true, i + 1, out i);
+                    string? parsed = Parse(text, true, i + 1, out i);
                     sbOutput.Append(parsed);
                     continue;
                 }
@@ -53,11 +53,11 @@ public abstract class ShareXSyntaxParser
                 }
                 else if (isFunction && c == SyntaxParameterStart)
                 {
-                    List<string> parameters = [];
+                    List<string?> parameters = [];
 
                     do
                     {
-                        string parsed = Parse(text, false, i + 1, out i);
+                        string? parsed = Parse(text, false, i + 1, out i);
                         parameters.Add(parsed);
                     } while (i < text.Length && text[i] == SyntaxParameterDelimiter);
 
@@ -81,5 +81,5 @@ public abstract class ShareXSyntaxParser
         return sbOutput.ToString();
     }
 
-    protected abstract string CallFunction(string functionName, string[] parameters = null);
+    protected abstract string? CallFunction(string functionName, string?[] parameters = null);
 }

@@ -6,5 +6,5 @@ namespace SnapX.Core.Upload.BaseUploaders;
 
 public abstract class URLSharer : Uploader
 {
-    public abstract UploadResult ShareURL(string url);
+    public abstract UploadResult ShareURL(string? url);
 }

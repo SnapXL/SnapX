@@ -6,7 +6,7 @@ namespace SnapX.Core.Utils;
 public static class Lang
 {
     public static readonly ResourceManager ResourceManager = new("SnapX.Core.Localization.Resources", Assembly.GetExecutingAssembly());
-    public static string Get(string key) => ResourceManager.GetString(key) ?? key;
+    private static string Get(string key) => ResourceManager.GetString(key) ?? key;
     public static string UnhandledException => Get("UnhandledException");
     public static string WelcomeMessage => Get("WelcomeMessage");
     public static string AboutSnapX => Get("AboutSnapX");
@@ -15,6 +15,7 @@ public static class Lang
     public static string FailedToScreenshot => Get("FailedToScreenshot");
     public static string Error => Get("Error");
     public static string Ok => Get("Ok");
+    public static string Close => Get("Close");
     public static string ReportErrorToDeveloper => Get("ReportErrorToDeveloper");
     public static string CreateGitHubIssue => Get("CreateGitHubIssue");
     public static string CopyErrorToClipboard => Get("CopyErrorToClipboard");

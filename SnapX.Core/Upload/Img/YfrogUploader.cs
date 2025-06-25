@@ -28,9 +28,9 @@ public enum YfrogUploadType
 
 public class YfrogOptions : AccountInfo
 {
-    public string DeveloperKey { get; set; }
+    public string? DeveloperKey { get; set; }
 
-    public string Source { get; set; }
+    public string? Source { get; set; }
 
     public YfrogUploadType UploadType { get; set; }
 
@@ -38,7 +38,7 @@ public class YfrogOptions : AccountInfo
 
     public YfrogThumbnailType ThumbnailMode { get; set; }
 
-    public YfrogOptions(string devKey)
+    public YfrogOptions(string? devKey)
     {
         DeveloperKey = devKey;
     }
@@ -56,7 +56,7 @@ public sealed class YfrogUploader : ImageUploader
         Options = options;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         return Options.UploadType switch
         {
@@ -67,11 +67,11 @@ public sealed class YfrogUploader : ImageUploader
 
     }
 
-    private UploadResult Upload(Stream stream, string fileName, string msg)
+    private UploadResult Upload(Stream stream, string? fileName, string? msg)
     {
-        string url;
+        string? url;
 
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "username", Options.Username },
             { "password", Options.Password }

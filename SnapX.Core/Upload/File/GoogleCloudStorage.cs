@@ -41,8 +41,8 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
 {
     public GoogleOAuth2 OAuth2 { get; private set; }
     public OAuth2Info AuthInfo => OAuth2.AuthInfo;
-    public string Bucket { get; set; }
-    public string Domain { get; set; }
+    public string? Bucket { get; set; }
+    public string? Domain { get; set; }
     public string Prefix { get; set; }
     public bool RemoveExtensionImage { get; set; }
     public bool RemoveExtensionText { get; set; }
@@ -68,20 +68,20 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
         return OAuth2.CheckAuthorization();
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
         return OAuth2.GetAuthorizationURL();
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public bool GetAccessToken(string code)
+    public bool GetAccessToken(string? code)
     {
         return OAuth2.GetAccessToken(code);
     }
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (!CheckAuthorization())
             return null;
@@ -127,9 +127,9 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
     }
 
 
-    private string GetUploadPath(string fileName)
+    private string? GetUploadPath(string? fileName)
     {
-        string uploadPath = NameParser.Parse(NameParserType.FilePath, Prefix.Trim('/'));
+        string? uploadPath = NameParser.Parse(NameParserType.FilePath, Prefix.Trim('/'));
 
         if ((RemoveExtensionImage && FileHelpers.IsImageFile(fileName)) ||
             (RemoveExtensionText && FileHelpers.IsTextFile(fileName)) ||
@@ -141,7 +141,7 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
         return URLHelpers.CombineURL(uploadPath, fileName);
     }
 
-    public string GenerateURL(string uploadPath)
+    public string? GenerateURL(string? uploadPath)
     {
         if (string.IsNullOrEmpty(Bucket))
         {
@@ -155,25 +155,25 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
 
         uploadPath = URLHelpers.URLEncode(uploadPath, true, HelpersOptions.URLEncodeIgnoreEmoji);
 
-        string url = URLHelpers.CombineURL(Domain, uploadPath);
+        string? url = URLHelpers.CombineURL(Domain, uploadPath);
 
         return URLHelpers.FixPrefix(url);
     }
 
-    public string GetPreviewURL()
+    public string? GetPreviewURL()
     {
-        string uploadPath = GetUploadPath("example.png");
+        string? uploadPath = GetUploadPath("example.png");
         return GenerateURL(uploadPath);
     }
 
     private class GoogleCloudStorageResponse
     {
-        public string name { get; set; }
+        public string? name { get; set; }
     }
 
     private class GoogleCloudStorageMetadata
     {
-        public string name { get; set; }
+        public string? name { get; set; }
         public GoogleCloudStorageAcl[] acl { get; set; }
     }
 

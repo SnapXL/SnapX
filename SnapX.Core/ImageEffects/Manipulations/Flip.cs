@@ -64,7 +64,7 @@ internal class Flip : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return $"{Horizontally}, {Vertically}";
     }

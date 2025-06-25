@@ -68,7 +68,7 @@ internal class Slice : ImageEffect
         }
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return $"{MinSliceHeight}, {MaxSliceHeight}";
     }

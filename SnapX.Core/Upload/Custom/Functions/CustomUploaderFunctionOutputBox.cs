@@ -12,9 +12,10 @@ internal class CustomUploaderFunctionOutputBox : CustomUploaderFunction
 
     public override int MinParameterCount { get; } = 1;
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
-        string text, title = null;
+        string? text;
+        string? title = null;
 
         if (parameters.Length > 1)
         {

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
@@ -29,24 +28,18 @@ public class ImageShackImageUploaderService : ImageUploaderService
 [JsonSerializable(typeof(ImageShackUploader.ImageShackUploadResponse))]
 internal partial class ImageShackContext : JsonSerializerContext
 { }
-public sealed class ImageShackUploader : ImageUploader
+public sealed class ImageShackUploader(string DeveloperKey, ImageShackOptions? Config) : ImageUploader
 {
     private const string URLAPI = "https://api.imageshack.com/v2/";
-    private const string URLAccessToken = URLAPI + "user/login";
-    private const string URLUpload = URLAPI + "images";
-
-    public ImageShackOptions Config { get; set; }
-
-    private string APIKey;
-
-    public ImageShackUploader(string developerKey, ImageShackOptions config)
+    private const string? URLAccessToken = URLAPI + "user/login";
+    private const string? URLUpload = URLAPI + "images";
+    private JsonSerializerOptions options = new()
     {
-        APIKey = developerKey;
-        Config = config;
-    }
+        TypeInfoResolver = ImageShackContext.Default,
+    };
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
+    public ImageShackOptions? Config { get; set; } = Config;
+
     public bool GetAccessToken()
     {
         if (string.IsNullOrEmpty(Config.Username) || string.IsNullOrEmpty(Config.Password))
@@ -54,7 +47,7 @@ public sealed class ImageShackUploader : ImageUploader
             return false;
         }
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "user", Config.Username },
             { "password", Config.Password }
@@ -67,11 +60,6 @@ public sealed class ImageShackUploader : ImageUploader
             return false;
         }
 
-        var options = new JsonSerializerOptions
-        {
-            TypeInfoResolver = ImageShackContext.Default,
-        };
-
         var resp = JsonSerializer.Deserialize<ImageShackLoginResponse>(response, options);
         if (resp?.result?.auth_token == null) return false;
 
@@ -79,14 +67,13 @@ public sealed class ImageShackUploader : ImageUploader
         return true;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
-            { "api_key", APIKey },
-            { "auth_token", Config.Auth_token },
-            { "public", Config.IsPublic ? "y" : "n" }
+            { "api_key", DeveloperKey },
+            { "auth_token", Config?.Auth_token },
+            { "public", Config is { IsPublic: true } ? "y" : "n" }
         };
 
         var result = SendRequestFile(URLUpload, stream, fileName, "file", arguments);
@@ -102,29 +89,19 @@ public sealed class ImageShackUploader : ImageUploader
 
         var uploadResult = root.GetProperty("result");
 
-        if (uploadResult.TryGetProperty("images", out var images) && images.GetArrayLength() > 0)
-        {
-            var image = images[0];
-            result.URL = $"https://imagizer.imageshack.com/a/img{image.GetProperty("server").GetString()}/{image.GetProperty("bucket").GetString()}/{image.GetProperty("filename").GetString()}";
-            result.ThumbnailURL = $"https://imagizer.imageshack.us/v2/{Config.ThumbnailWidth}x{Config.ThumbnailHeight}q90/{image.GetProperty("server").GetString()}/{image.GetProperty("filename").GetString()}";
-        }
+        if (!uploadResult.TryGetProperty("images", out var images) || images.GetArrayLength() <= 0) return result;
+        var image = images[0];
+        result.URL = $"https://imagizer.imageshack.com/a/img{image.GetProperty("server").GetString()}/{image.GetProperty("bucket").GetString()}/{image.GetProperty("filename").GetString()}";
+        result.ThumbnailURL = $"https://imagizer.imageshack.us/v2/{Config.ThumbnailWidth}x{Config.ThumbnailHeight}q90/{image.GetProperty("server").GetString()}/{image.GetProperty("filename").GetString()}";
 
         return result;
     }
 
-    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
-    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private UploadResult HandleError(JsonElement root)
     {
-        if (root.TryGetProperty("error", out var error))
-        {
-            var options = new JsonSerializerOptions
-            {
-                TypeInfoResolver = ImageShackContext.Default,
-            };
-            var errorInfo = JsonSerializer.Deserialize<ImageShackErrorInfo>(error.GetRawText(), options);
-            Errors.Add(errorInfo?.ToString());
-        }
+        if (!root.TryGetProperty("error", out var error)) return new UploadResult();
+        var errorInfo = JsonSerializer.Deserialize<ImageShackErrorInfo>(error.GetRawText(), options);
+        Errors.Add(errorInfo?.ToString());
 
         return new UploadResult();
     }
@@ -133,11 +110,11 @@ public sealed class ImageShackUploader : ImageUploader
     public class ImageShackErrorInfo
     {
         public int error_code { get; set; }
-        public string error_message { get; set; }
+        public string? error_message { get; set; }
 
         public override string ToString()
         {
-            return string.Format("Error message: {0}\r\nError code: {1}", error_message, error_code);
+            return $"Error message: {error_message}\r\nError code: {error_code}";
         }
     }
 
@@ -150,34 +127,34 @@ public sealed class ImageShackUploader : ImageUploader
 
     public class ImageShackLogin
     {
-        public string auth_token { get; set; }
-        public int user_id { get; set; }
-        public string email { get; set; }
-        public string username { get; set; }
-        public ImageShackeUserAvatar avatar { get; set; }
-        public string membership { get; set; }
-        public string membership_item_number { get; set; }
-        public string membership_cookie { get; set; }
+        public string? auth_token { get; set; }
+        public int? user_id { get; set; }
+        public string? email { get; set; }
+        public string? username { get; set; }
+        public ImageShackeUserAvatar? avatar { get; set; }
+        public string? membership { get; set; }
+        public string? membership_item_number { get; set; }
+        public string? membership_cookie { get; set; }
     }
 
     public class ImageShackUser
     {
         public bool is_owner { get; set; }
         public int cache_version { get; set; }
-        public string username { get; set; }
-        public string description { get; set; }
+        public string? username { get; set; }
+        public string? description { get; set; }
         public int creation_date { get; set; }
-        public string location { get; set; }
-        public string first_name { get; set; }
-        public string last_name { get; set; }
-        public ImageShackeUserAvatar Avatar { get; set; }
+        public string? location { get; set; }
+        public string? first_name { get; set; }
+        public string? last_name { get; set; }
+        public ImageShackeUserAvatar? Avatar { get; set; }
     }
 
     public class ImageShackeUserAvatar
     {
         public int image_id { get; set; }
         public int server { get; set; }
-        public string filename { get; set; }
+        public string? filename { get; set; }
     }
 
     public class ImageShackUploadResponse
@@ -201,16 +178,16 @@ public sealed class ImageShackUploader : ImageUploader
 
     public class ImageShackImage
     {
-        public string id { get; set; }
+        public string? id { get; set; }
         public int server { get; set; }
         public int bucket { get; set; }
-        public string lp_hash { get; set; }
-        public string filename { get; set; }
-        public string original_filename { get; set; }
-        public string direct_link { get; set; }
-        public object title { get; set; }
-        public object description { get; set; }
-        public List<string> tags { get; set; }
+        public string? lp_hash { get; set; }
+        public string? filename { get; set; }
+        public string? original_filename { get; set; }
+        public string? direct_link { get; set; }
+        public object? title { get; set; }
+        public object? description { get; set; }
+        public List<string>? tags { get; set; }
         public int likes { get; set; }
         public bool liked { get; set; }
         public int views { get; set; }
@@ -223,19 +200,19 @@ public sealed class ImageShackUploader : ImageUploader
         public int height { get; set; }
         public bool @public { get; set; }
         public bool is_owner { get; set; }
-        public ImageShackUser owner { get; set; }
-        public List<ImageShackImage> next_images { get; set; }
-        public List<ImageShackImage> prev_images { get; set; }
-        public object related_images { get; set; }
+        public ImageShackUser? owner { get; set; }
+        public List<ImageShackImage>? next_images { get; set; }
+        public List<ImageShackImage>? prev_images { get; set; }
+        public object? related_images { get; set; }
     }
 }
 
 public class ImageShackOptions
 {
-    public string Username { get; set; }
-    public string Password { get; set; }
+    public string? Username { get; set; }
+    public string? Password { get; set; }
     public bool IsPublic { get; set; }
-    public string Auth_token { get; set; }
+    public string? Auth_token { get; set; }
     public int ThumbnailWidth { get; set; } = 256;
     public int ThumbnailHeight { get; set; }
 }

@@ -8,9 +8,9 @@ namespace SnapX.Core.Upload.Img;
 
 public sealed class Img1Uploader : ImageUploader
 {
-    private const string uploadURL = "https://img1.us/?app";
+    private const string? uploadURL = "https://img1.us/?app";
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var result = SendRequestFile(uploadURL, stream, fileName, "fileup");
 

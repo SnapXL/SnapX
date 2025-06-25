@@ -64,5 +64,5 @@ internal class Shadow : ImageEffect
         return ImageHelpers.AddShadow(img, Opacity, Size, Darkness + 1, Color, Offset, AutoResize);
     }
 
-    protected override string GetSummary() => Size.ToString();
+    protected override string? GetSummary() => Size.ToString();
 }

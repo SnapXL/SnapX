@@ -13,9 +13,9 @@ public class TaskMetadata : IDisposable
 
     public Image Image { get; set; }
 
-    private string windowTitle;
+    private string? windowTitle;
 
-    public string WindowTitle
+    public string? WindowTitle
     {
         get
         {
@@ -27,9 +27,9 @@ public class TaskMetadata : IDisposable
         }
     }
 
-    private string processName;
+    private string? processName;
 
-    public string ProcessName
+    public string? ProcessName
     {
         get
         {

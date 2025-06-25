@@ -58,5 +58,5 @@ internal class Canvas : ImageEffect
         return imgResult;
     }
 
-    protected override string GetSummary() => Margin.ToString();
+    protected override string? GetSummary() => Margin.ToString();
 }

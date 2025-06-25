@@ -39,9 +39,9 @@ internal class ColorDepth : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
-        string summary = BitsPerChannel + " bit";
+        string? summary = BitsPerChannel + " bit";
 
         if (BitsPerChannel > 1)
         {

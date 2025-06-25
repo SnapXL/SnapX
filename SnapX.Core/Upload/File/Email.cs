@@ -75,19 +75,19 @@ public class Email : FileUploader
 
     public string ToEmail { get; set; }
     public string Subject { get; set; }
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     public void Send()
     {
         Send(ToEmail, Subject, Body);
     }
 
-    public void Send(string toEmail, string subject, string body)
+    public void Send(string toEmail, string subject, string? body)
     {
         Send(toEmail, subject, body, null, null);
     }
 
-    public void Send(string toEmail, string subject, string body, Stream stream, string fileName)
+    public void Send(string toEmail, string subject, string? body, Stream stream, string? fileName)
     {
         using (SmtpClient smtp = new SmtpClient()
         {
@@ -115,7 +115,7 @@ public class Email : FileUploader
         }
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         Send(ToEmail, Subject, Body, stream, fileName);
         return new UploadResult { IsURLExpected = false };

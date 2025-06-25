@@ -199,9 +199,9 @@ public class RootConfiguration
     public List<Theme> Themes { get; set; }
     public int SelectedTheme { get; set; }
     public bool UseCustomScreenshotsPath = false;
-    public string CustomScreenshotsPath = "";
-    public string SaveImageSubFolderPattern = "%y-%mo";
-    public string SaveImageSubFolderPatternWindow = "";
+    public string? CustomScreenshotsPath = "";
+    public string? SaveImageSubFolderPattern = "%y-%mo";
+    public string? SaveImageSubFolderPatternWindow = "";
     public bool ShowMenu = true;
     public TaskViewMode TaskViewMode = TaskViewMode.ThumbnailView;
     public bool ShowThumbnailTitle = true;
@@ -345,12 +345,12 @@ public class RootConfiguration
     [Category("Paths"),
      Description(
          "Custom uploaders configuration path. If you have already configured this setting in another device and you are attempting to use the same location, then backup the file before configuring this setting and restore after exiting SnapX.")]
-    public string CustomUploadersConfigPath = "";
+    public string? CustomUploadersConfigPath = "";
     //
     [Category("Paths"), Description("Custom hotkeys configuration path. If you have already configured this setting in another device and you are attempting to use the same location, then backup the file before configuring this setting and restore after exiting SnapX.")]
-    public string CustomHotkeysConfigPath = "";
+    public string? CustomHotkeysConfigPath = "";
     [Category("Paths"), Description("Custom screenshot path (secondary location). If custom screenshot path is temporarily unavailable (e.g. network share), SnapX will use this location (recommended to be a local path).")]
-    public string CustomScreenshotsPath2 = "";
+    public string? CustomScreenshotsPath2 = "";
     //
     [Category("Drag and drop window"), DefaultValue(150), Description("Size of drop window.")]
     public int DropSize { get; set; }

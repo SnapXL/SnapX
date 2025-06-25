@@ -33,7 +33,7 @@ public class HistoryItem
     public record Tag
     {
         public int Id { get; set; }
-        public string Text { get; set; }
+        public string? Text { get; set; }
         public string? WindowTitle { get; set; }
         public string? ProcessName { get; set; }
     }

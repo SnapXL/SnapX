@@ -47,9 +47,9 @@ public class FlickrUploader : ImageUploader, IOAuth
         Settings = settings;
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "oauth_callback", Links.Callback }
         };
@@ -59,7 +59,7 @@ public class FlickrUploader : ImageUploader, IOAuth
         return url + "&perms=write";
     }
 
-    public bool GetAccessToken(string verificationCode = null)
+    public bool GetAccessToken(string? verificationCode = null)
     {
         AuthInfo.AuthVerifier = verificationCode;
         return GetAccessToken("https://www.flickr.com/services/oauth/access_token", AuthInfo);
@@ -74,7 +74,7 @@ public class FlickrUploader : ImageUploader, IOAuth
             throw new ArgumentException("Photo ID cannot be null or empty.", nameof(photoid));
         }
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "nojsoncallback", "1" },
             { "format", "json" },
@@ -94,11 +94,11 @@ public class FlickrUploader : ImageUploader, IOAuth
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var url = "https://up.flickr.com/services/upload/";
 
-        var args = new Dictionary<string, string>();
+        var args = new Dictionary<string, string?>();
 
         if (!string.IsNullOrEmpty(Settings.Title)) args.Add("title", Settings.Title);
         if (!string.IsNullOrEmpty(Settings.Description)) args.Add("description", Settings.Description);
@@ -110,7 +110,7 @@ public class FlickrUploader : ImageUploader, IOAuth
         if (!string.IsNullOrEmpty(Settings.ContentType)) args.Add("content_type", Settings.ContentType);
         if (!string.IsNullOrEmpty(Settings.Hidden)) args.Add("hidden", Settings.Hidden);
 
-        OAuthManager.GenerateQuery(url, args, HttpMethod.Post, AuthInfo, out Dictionary<string, string> parameters);
+        OAuthManager.GenerateQuery(url, args, HttpMethod.Post, AuthInfo, out Dictionary<string, string?> parameters);
 
         var result = SendRequestFile(url, stream, fileName, "photo", parameters);
 
@@ -134,7 +134,7 @@ public class FlickrUploader : ImageUploader, IOAuth
     }
 
 
-    private XElement ParseResponse(string response, string field)
+    private XElement ParseResponse(string? response, string field)
     {
         if (string.IsNullOrEmpty(response)) return null;
 
@@ -179,31 +179,31 @@ public class FlickrSettings
     public bool DirectLink { get; set; } = true;
 
     [Description("The title of the photo.")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [Description("A description of the photo. May contain some limited HTML.")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [Description("A space-seperated list of tags to apply to the photo.")]
-    public string Tags { get; set; }
+    public string? Tags { get; set; }
 
     [Description("Set to 0 for no, 1 for yes. Specifies who can view the photo.")]
-    public string IsPublic { get; set; }
+    public string? IsPublic { get; set; }
 
     [Description("Set to 0 for no, 1 for yes. Specifies who can view the photo.")]
-    public string IsFriend { get; set; }
+    public string? IsFriend { get; set; }
 
     [Description("Set to 0 for no, 1 for yes. Specifies who can view the photo.")]
-    public string IsFamily { get; set; }
+    public string? IsFamily { get; set; }
 
     [Description("Set to 1 for Safe, 2 for Moderate, or 3 for Restricted.")]
-    public string SafetyLevel { get; set; }
+    public string? SafetyLevel { get; set; }
 
     [Description("Set to 1 for Photo, 2 for Screenshot, or 3 for Other.")]
-    public string ContentType { get; set; }
+    public string? ContentType { get; set; }
 
     [Description("Set to 1 to keep the photo in global search results, 2 to hide from public searches.")]
-    public string Hidden { get; set; }
+    public string? Hidden { get; set; }
 }
 
 public class FlickrPhotosGetSizesResponse
@@ -225,8 +225,8 @@ public class FlickrPhotosGetSizesSize
     public string label { get; set; }
     public int width { get; set; }
     public int height { get; set; }
-    public string source { get; set; }
-    public string url { get; set; }
+    public string? source { get; set; }
+    public string? url { get; set; }
     public string media { get; set; }
 }
 

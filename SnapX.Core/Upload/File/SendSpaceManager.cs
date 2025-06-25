@@ -8,15 +8,15 @@ namespace SnapX.Core.Upload.File;
 
 public static class SendSpaceManager
 {
-    public static string Token;
-    public static string SessionKey;
+    public static string? Token;
+    public static string? SessionKey;
     public static DateTime LastSessionKey;
     public static AccountType AccountType;
-    public static string Username;
-    public static string Password;
+    public static string? Username;
+    public static string? Password;
     public static SendSpace.UploadInfo UploadInfo;
 
-    public static UploaderErrorManager PrepareUploadInfo(string apiKey, string username = null, string password = null)
+    public static UploaderErrorManager PrepareUploadInfo(string? apiKey, string? username = null, string? password = null)
     {
         var sendSpace = new SendSpace(apiKey);
 

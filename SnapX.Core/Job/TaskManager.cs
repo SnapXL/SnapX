@@ -120,11 +120,11 @@ public static class TaskManager
 
         if (info != null && info.Result != null && !info.Result.IsError)
         {
-            string url = info.Result.ToString();
+            string? url = info.Result.ToString();
 
             if (!string.IsNullOrEmpty(url))
             {
-                string text = $"Upload completed. URL: {url}";
+                string? text = $"Upload completed. URL: {url}";
 
                 if (info.UploadDuration != null)
                 {
@@ -164,7 +164,7 @@ public static class TaskManager
                         {
                             UploaderErrorInfo error = info.Result.Errors.Errors[0];
 
-                            string title = error.Title;
+                            string? title = error.Title;
                             if (string.IsNullOrEmpty(title))
                             {
                                 title = "Error";
@@ -176,7 +176,7 @@ public static class TaskManager
                     {
                         DebugHelper.WriteLine($"Task completed. File name: {info.FileName}, Duration: {(long)info.TaskDuration.TotalMilliseconds} ms");
 
-                        string result = info.ToString();
+                        string? result = info.ToString();
 
                         if (!task.StopRequested && !string.IsNullOrEmpty(result))
                         {

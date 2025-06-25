@@ -49,7 +49,7 @@ public class TaskSettings
     public int CustomUploaderIndex = 0;
 
     public bool OverrideScreenshotsFolder = false;
-    public string ScreenshotsFolder = "";
+    public string? ScreenshotsFolder = "";
 
     public bool UseDefaultGeneralSettings = true;
     public TaskSettingsGeneral GeneralSettings = new();
@@ -400,8 +400,8 @@ public class TaskSettingsUpload
 
     public bool UseCustomTimeZone = false;
     public TimeZoneInfo CustomTimeZone = TimeZoneInfo.Utc;
-    public string NameFormatPattern = "%ra{10}";
-    public string NameFormatPatternActiveWindow = "%pn_%ra{10}";
+    public string? NameFormatPattern = "%ra{10}";
+    public string? NameFormatPatternActiveWindow = "%pn_%ra{10}";
     public bool FileUploadUseNamePattern = false;
     public bool FileUploadReplaceProblematicCharacters = false;
     public bool URLRegexReplace = false;
@@ -489,13 +489,13 @@ public class TaskSettingsAdvanced
 
     [Category("After upload"), DefaultValue("$result"),
     Description("Clipboard content format after uploading. Supported variables: $result, $url, $shorturl, $thumbnailurl, $deletionurl, $filepath, $filename, $filenamenoext, $folderpath, $foldername, $uploadtime and other variables such as %y-%mo-%d etc.")]
-    public string ClipboardContentFormat { get; set; }
+    public string? ClipboardContentFormat { get; set; }
 
     [Category("After upload"), DefaultValue("$result"), Description("Balloon tip content format after uploading. Supported variables: $result, $url, $shorturl, $thumbnailurl, $deletionurl, $filepath, $filename, $filenamenoext, $folderpath, $foldername, $uploadtime and other variables such as %y-%mo-%d etc.")]
-    public string BalloonTipContentFormat { get; set; }
+    public string? BalloonTipContentFormat { get; set; }
 
     [Category("After upload"), DefaultValue("$result"), Description("After upload task \"Open URL\" format. Supported variables: $result, $url, $shorturl, $thumbnailurl, $deletionurl, $filepath, $filename, $filenamenoext, $folderpath, $foldername, $uploadtime and other variables such as %y-%mo-%d etc.")]
-    public string OpenURLFormat { get; set; }
+    public string? OpenURLFormat { get; set; }
 
     [Category("After upload"), DefaultValue(0), Description("Automatically shorten URL if the URL is longer than the specified number of characters. 0 means automatic URL shortening is not active.")]
     public int AutoShortenURLLength { get; set; }

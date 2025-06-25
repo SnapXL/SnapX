@@ -32,19 +32,19 @@ public class YourlsURLShortenerService : URLShortenerService
 
 public sealed class YourlsURLShortener : URLShortener
 {
-    public string APIURL { get; set; }
-    public string Signature { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
+    public string? APIURL { get; set; }
+    public string? Signature { get; set; }
+    public string? Username { get; set; }
+    public string? Password { get; set; }
 
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
 
         if (string.IsNullOrEmpty(url))
             return result;
 
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "url", url },
             { "action", "shorturl" },

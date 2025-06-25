@@ -49,24 +49,24 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     private const string URLContent = "https://content.dropboxapi.com/" + APIVersion;
     private const string URLNotify = "https://notify.dropboxapi.com/" + APIVersion;
 
-    private const string URLOAuth2Authorize = URLWEB + "/oauth2/authorize";
-    private const string URLOAuth2Token = URLAPIBase + "/oauth2/token";
+    private const string? URLOAuth2Authorize = URLWEB + "/oauth2/authorize";
+    private const string? URLOAuth2Token = URLAPIBase + "/oauth2/token";
 
-    private const string URLGetCurrentAccount = URLAPI + "/users/get_current_account";
-    private const string URLDownload = URLContent + "/files/download";
-    private const string URLUpload = URLContent + "/files/upload";
-    private const string URLGetMetadata = URLAPI + "/files/get_metadata";
-    private const string URLCreateSharedLink = URLAPI + "/sharing/create_shared_link_with_settings";
-    private const string URLListSharedLinks = URLAPI + "/sharing/list_shared_links";
-    private const string URLCopy = URLAPI + "/files/copy";
-    private const string URLCreateFolder = URLAPI + "/files/create_folder";
-    private const string URLDelete = URLAPI + "/files/delete";
-    private const string URLMove = URLAPI + "/files/move";
+    private const string? URLGetCurrentAccount = URLAPI + "/users/get_current_account";
+    private const string? URLDownload = URLContent + "/files/download";
+    private const string? URLUpload = URLContent + "/files/upload";
+    private const string? URLGetMetadata = URLAPI + "/files/get_metadata";
+    private const string? URLCreateSharedLink = URLAPI + "/sharing/create_shared_link_with_settings";
+    private const string? URLListSharedLinks = URLAPI + "/sharing/list_shared_links";
+    private const string? URLCopy = URLAPI + "/files/copy";
+    private const string? URLCreateFolder = URLAPI + "/files/create_folder";
+    private const string? URLDelete = URLAPI + "/files/delete";
+    private const string? URLMove = URLAPI + "/files/move";
 
-    private const string URLShareDirect = "https://dl.dropboxusercontent.com/scl/fi/";
+    private const string? URLShareDirect = "https://dl.dropboxusercontent.com/scl/fi/";
 
     public OAuth2Info AuthInfo { get; set; }
-    public string UploadPath { get; set; }
+    public string? UploadPath { get; set; }
     public bool AutoCreateShareableLink { get; set; }
     public bool UseDirectLink { get; set; }
 
@@ -76,14 +76,14 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         return UploadFile(stream, UploadPath, fileName, AutoCreateShareableLink, UseDirectLink);
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "response_type", "code" },
             { "client_id", AuthInfo.Client_ID }
@@ -94,9 +94,9 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public bool GetAccessToken(string code)
+    public bool GetAccessToken(string? code)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "client_secret", AuthInfo.Client_Secret },
@@ -130,7 +130,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
         return headers;
     }
 
-    public static string VerifyPath(string path, string fileName = null)
+    public static string? VerifyPath(string? path, string? fileName = null)
     {
         if (!string.IsNullOrEmpty(path))
         {
@@ -175,7 +175,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public bool DownloadFile(string path, Stream downloadStream)
+    public bool DownloadFile(string? path, Stream downloadStream)
     {
         if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
         {
@@ -184,7 +184,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
                 path = VerifyPath(path)
             });
 
-            var args = new Dictionary<string, string>
+            var args = new Dictionary<string, string?>
             {
                 { "arg", json }
             };
@@ -196,7 +196,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public UploadResult UploadFile(Stream stream, string path, string fileName, bool createShareableLink = false, bool useDirectLink = false)
+    public UploadResult UploadFile(Stream stream, string? path, string? fileName, bool createShareableLink = false, bool useDirectLink = false)
     {
         if (stream.Length > 150000000)
         {
@@ -212,7 +212,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
             mute = true
         });
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "arg", json }
         };
@@ -248,7 +248,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public DropboxMetadata GetMetadata(string path)
+    public DropboxMetadata GetMetadata(string? path)
     {
         DropboxMetadata metadata = null;
 
@@ -278,7 +278,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public bool IsExists(string path)
+    public bool IsExists(string? path)
     {
         var metadata = GetMetadata(path);
 
@@ -286,7 +286,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public string CreateShareableLink(string path, bool directLink)
+    public string? CreateShareableLink(string? path, bool directLink)
     {
         if (!string.IsNullOrEmpty(path) && OAuth2Info.CheckOAuth(AuthInfo))
         {
@@ -338,7 +338,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public DropboxListSharedLinksResult ListSharedLinks(string path, bool directOnly = false)
+    public DropboxListSharedLinksResult ListSharedLinks(string? path, bool directOnly = false)
     {
         DropboxListSharedLinksResult result = null;
 
@@ -366,19 +366,19 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public DropboxMetadata Copy(string fromPath, string toPath)
+    public DropboxMetadata Copy(string? fromPath, string? toPath)
     {
         DropboxMetadata metadata = null;
 
         if (!string.IsNullOrEmpty(fromPath) && !string.IsNullOrEmpty(toPath) && OAuth2Info.CheckOAuth(AuthInfo))
         {
-            string json = JsonSerializer.Serialize(new
+            string? json = JsonSerializer.Serialize(new
             {
                 from_path = VerifyPath(fromPath),
                 to_path = VerifyPath(toPath)
             });
 
-            string response = SendRequest(HttpMethod.Post, URLCopy, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
+            string? response = SendRequest(HttpMethod.Post, URLCopy, json, RequestHelpers.ContentTypeJSON, null, GetAuthHeaders());
 
             if (!string.IsNullOrEmpty(response))
             {
@@ -394,7 +394,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public DropboxMetadata CreateFolder(string path)
+    public DropboxMetadata CreateFolder(string? path)
     {
         DropboxMetadata metadata = null;
 
@@ -421,7 +421,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public DropboxMetadata Delete(string path)
+    public DropboxMetadata Delete(string? path)
     {
         DropboxMetadata metadata = null;
 
@@ -448,7 +448,7 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public DropboxMetadata Move(string fromPath, string toPath)
+    public DropboxMetadata Move(string? fromPath, string? toPath)
     {
         DropboxMetadata metadata = null;
 
@@ -475,14 +475,14 @@ public sealed class Dropbox : FileUploader, IOAuth2Basic
         return metadata;
     }
 
-    private static string GetDirectShareableURL(string url)
+    private static string? GetDirectShareableURL(string? url)
     {
         string find = "dropbox.com/scl/fi/";
         int index = url.IndexOf(find);
 
         if (index > -1)
         {
-            string path = url.Remove(0, index + find.Length);
+            string? path = url.Remove(0, index + find.Length);
 
             if (!string.IsNullOrEmpty(path))
             {
@@ -534,7 +534,7 @@ public class DropboxMetadata
     public string rev { get; set; }
     public int size { get; set; }
     public string path_lower { get; set; }
-    public string path_display { get; set; }
+    public string? path_display { get; set; }
     public DropboxMetadataSharingInfo sharing_info { get; set; }
     public List<DropboxMetadataPropertyGroup> property_groups { get; set; }
     public bool has_explicit_shared_members { get; set; }
@@ -563,7 +563,7 @@ public class DropboxLinkMetadata
 {
     [JsonPropertyName(".tag")]
     public string tag { get; set; }
-    public string url { get; set; }
+    public string? url { get; set; }
     public string name { get; set; }
     public DropboxLinkMetadataPermissions link_permissions { get; set; }
     public string client_modified { get; set; }

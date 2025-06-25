@@ -13,9 +13,9 @@ public class ResponseInfo
     public HttpStatusCode StatusCode { get; set; }
     public string StatusDescription { get; set; }
     public bool IsSuccess => WebHelpers.IsSuccessStatusCode(StatusCode);
-    public string ResponseURL { get; set; }
-    public Dictionary<string, List<string>> Headers { get; set; }
-    public string ResponseText { get; set; }
+    public string? ResponseURL { get; set; }
+    public Dictionary<string, List<string?>> Headers { get; set; }
+    public string? ResponseText { get; set; }
 
     public string ToReadableString(bool includeResponseText)
     {

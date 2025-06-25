@@ -24,7 +24,7 @@ public static class URLHelpers
     private static readonly string[] URLPrefixes = ["http://", "https://", "ftp://", "ftps://", "file://", "//", "\\\\"];
     private static readonly char[] BidiControlCharacters = ['\u200E', '\u200F', '\u202A', '\u202B', '\u202C', '\u202D', '\u202E'];
 
-    public static void OpenURL(string url)
+    public static void OpenURL(string? url)
     {
         if (string.IsNullOrEmpty(url)) return;
         Task.Run(() =>
@@ -58,7 +58,7 @@ public static class URLHelpers
         });
     }
 
-    public static string URLEncode(string text, bool isPath = false, bool ignoreEmoji = false)
+    public static string? URLEncode(string? text, bool isPath = false, bool ignoreEmoji = false)
     {
         if (ignoreEmoji)
         {
@@ -86,7 +86,7 @@ public static class URLHelpers
         return sb.ToString();
     }
 
-    public static string URLEncodeIgnoreEmoji(string text, bool isPath = false)
+    public static string? URLEncodeIgnoreEmoji(string? text, bool isPath = false)
     {
         var sb = new StringBuilder();
 
@@ -100,12 +100,12 @@ public static class URLHelpers
         return sb.ToString();
     }
 
-    public static string RemoveBidiControlCharacters(string text)
+    public static string? RemoveBidiControlCharacters(string? text)
     {
         return new string(text.Where(c => !BidiControlCharacters.Contains(c)).ToArray());
     }
 
-    public static string ReplaceReservedCharacters(string text, string replace)
+    public static string? ReplaceReservedCharacters(string? text, string replace)
     {
         var sb = new StringBuilder();
 
@@ -156,7 +156,7 @@ public static class URLHelpers
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public static string JSONEncode(string text)
+    public static string? JSONEncode(string? text)
     {
         text = JsonSerializer.Serialize(text);
 
@@ -164,14 +164,14 @@ public static class URLHelpers
         return text[1..^1];
     }
 
-    public static string XMLEncode(string text)
+    public static string? XMLEncode(string? text)
     {
         return SecurityElement.Escape(text);
     }
 
-    public static string URLDecode(string url, int count = 1)
+    public static string? URLDecode(string? url, int count = 1)
     {
-        string temp = null;
+        string? temp = null;
 
         for (var i = 0; i < count && url != temp; i++)
         {
@@ -182,7 +182,7 @@ public static class URLHelpers
         return url;
     }
 
-    public static string CombineURL(string url1, string url2)
+    public static string? CombineURL(string? url1, string? url2)
     {
         if (string.IsNullOrEmpty(url1)) return url2 ?? "";
         if (string.IsNullOrEmpty(url2)) return url1;
@@ -193,8 +193,8 @@ public static class URLHelpers
         return $"{url1}/{url2}";
     }
 
-    public static string CombineURL(params string[] urls) => urls.Aggregate(CombineURL);
-    public static bool IsValidURL(string url, bool useRegex = true)
+    public static string? CombineURL(params string?[] urls) => urls.Aggregate(CombineURL);
+    public static bool IsValidURL(string? url, bool useRegex = true)
     {
         if (string.IsNullOrEmpty(url)) return false;
 
@@ -227,9 +227,9 @@ public static class URLHelpers
         return !url.StartsWith("file://") && Uri.IsWellFormedUriString(url, UriKind.Absolute);
     }
 
-    public static string AddSlash(string url, SlashType slashType) => AddSlash(url, slashType, 1);
+    public static string? AddSlash(string? url, SlashType slashType) => AddSlash(url, slashType, 1);
 
-    public static string AddSlash(string url, SlashType slashType, int count)
+    public static string? AddSlash(string? url, SlashType slashType, int count)
     {
         if (string.IsNullOrEmpty(url))
         {
@@ -244,7 +244,7 @@ public static class URLHelpers
         };
     }
 
-    public static string GetFileName(string path)
+    public static string? GetFileName(string? path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -257,7 +257,7 @@ public static class URLHelpers
         return cleanFileName;
     }
 
-    public static bool IsFileURL(string url)
+    public static bool IsFileURL(string? url)
     {
         if (string.IsNullOrWhiteSpace(url)) return false;
 
@@ -266,12 +266,12 @@ public static class URLHelpers
         return !string.IsNullOrEmpty(path) && path.Contains('.');
     }
 
-    public static string GetDirectoryPath(string path)
+    public static string? GetDirectoryPath(string? path)
     {
         return path.Contains("/") ? path.Substring(0, path.LastIndexOf('/')) : path;
     }
 
-    public static List<string> GetPaths(string path)
+    public static List<string?> GetPaths(string? path)
     {
         return path.Split('/')
             .Where(p => !string.IsNullOrEmpty(p))
@@ -282,17 +282,17 @@ public static class URLHelpers
             });
     }
 
-    public static bool HasPrefix(string url)
+    public static bool HasPrefix(string? url)
     {
         return URLPrefixes.Any(x => url.StartsWith(x, StringComparison.OrdinalIgnoreCase));
     }
 
-    public static string GetPrefix(string url)
+    public static string GetPrefix(string? url)
     {
         return URLPrefixes.FirstOrDefault(x => url.StartsWith(x, StringComparison.OrdinalIgnoreCase));
     }
 
-    public static string FixPrefix(string url, string prefix = "https://")
+    public static string? FixPrefix(string? url, string prefix = "https://")
     {
         if (!string.IsNullOrEmpty(url) && !HasPrefix(url))
         {
@@ -302,7 +302,7 @@ public static class URLHelpers
         return url;
     }
 
-    public static string ForcePrefix(string url, string prefix = "https://")
+    public static string? ForcePrefix(string? url, string prefix = "https://")
     {
         if (!string.IsNullOrEmpty(url))
         {
@@ -312,7 +312,7 @@ public static class URLHelpers
         return url;
     }
 
-    public static string RemovePrefixes(string url)
+    public static string? RemovePrefixes(string? url)
     {
         foreach (var prefix in URLPrefixes)
         {
@@ -326,7 +326,7 @@ public static class URLHelpers
         return url;
     }
 
-    public static string GetHostName(string url)
+    public static string? GetHostName(string? url)
     {
         return Uri.TryCreate(url, UriKind.Absolute, out Uri uri) && !string.IsNullOrEmpty(uri.Host)
             ? uri.Host.StartsWith("www.", StringComparison.OrdinalIgnoreCase)
@@ -335,7 +335,7 @@ public static class URLHelpers
             : url;
     }
 
-    public static string CreateQueryString(Dictionary<string, string> args, bool customEncoding = false)
+    public static string? CreateQueryString(Dictionary<string, string?> args, bool customEncoding = false)
     {
         if (args == null || args.Count == 0)
         {
@@ -362,7 +362,7 @@ public static class URLHelpers
         return string.Join("&", pairs);
     }
 
-    public static string CreateQueryString(string url, Dictionary<string, string> args, bool customEncoding = false)
+    public static string? CreateQueryString(string? url, Dictionary<string, string?> args, bool customEncoding = false)
     {
         var query = CreateQueryString(args, customEncoding);
 
@@ -371,7 +371,7 @@ public static class URLHelpers
         return url.Contains("?") ? $"{url}&{query}" : $"{url}?{query}";
     }
 
-    public static string RemoveQueryString(string url)
+    public static string? RemoveQueryString(string? url)
     {
         if (string.IsNullOrEmpty(url)) return url;
 
@@ -380,7 +380,7 @@ public static class URLHelpers
     }
 
 
-    public static NameValueCollection ParseQueryString(string url)
+    public static NameValueCollection ParseQueryString(string? url)
     {
         if (string.IsNullOrEmpty(url)) return null;
 
@@ -390,7 +390,7 @@ public static class URLHelpers
             : null;
     }
 
-    public static string BuildUri(string root, string path, string query = null)
+    public static string? BuildUri(string root, string path, string query = null)
     {
         var builder = new UriBuilder(root) { Path = path, Query = query };
         return builder.Uri.AbsoluteUri;

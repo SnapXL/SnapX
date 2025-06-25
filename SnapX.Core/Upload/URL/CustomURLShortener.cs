@@ -52,7 +52,7 @@ public sealed class CustomURLShortener : URLShortener
         uploader = customUploaderItem;
     }
 
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
         var input = new CustomUploaderInput("", url);

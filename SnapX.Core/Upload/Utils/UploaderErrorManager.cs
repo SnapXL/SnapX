@@ -9,19 +9,19 @@ public class UploaderErrorManager
 
     public int Count => Errors.Count;
 
-    public string DefaultTitle { get; set; } = "Error";
+    public string? DefaultTitle { get; set; } = "Error";
 
     public UploaderErrorManager()
     {
         Errors = [];
     }
 
-    public void Add(string text)
+    public void Add(string? text)
     {
         Add(DefaultTitle, text);
     }
 
-    private void Add(string title, string text)
+    private void Add(string? title, string? text)
     {
         Errors.Add(new UploaderErrorInfo(title, text));
     }
@@ -31,12 +31,12 @@ public class UploaderErrorManager
         Errors.AddRange(manager.Errors);
     }
 
-    public void AddFirst(string text)
+    public void AddFirst(string? text)
     {
         AddFirst(DefaultTitle, text);
     }
 
-    private void AddFirst(string title, string text)
+    private void AddFirst(string? title, string? text)
     {
         Errors.Insert(0, new UploaderErrorInfo(title, text));
     }

@@ -17,7 +17,7 @@ namespace SnapX.Core.ImageEffects.Drawings;
 public class DrawParticles : ImageEffect
 {
     [DefaultValue("")]
-    public string ImageFolder { get; set; }
+    public string? ImageFolder { get; set; }
 
     private int imageCount;
 
@@ -103,7 +103,7 @@ public class DrawParticles : ImageEffect
         }
     }
 
-    private void DrawParticlesFromFolder(Image<Rgba32> img, string imageFolder)
+    private void DrawParticlesFromFolder(Image<Rgba32> img, string? imageFolder)
     {
         imageFolder = FileHelpers.ExpandFolderVariables(imageFolder, true);
 
@@ -226,7 +226,7 @@ public class DrawParticles : ImageEffect
     }
 
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         if (!string.IsNullOrEmpty(ImageFolder))
         {

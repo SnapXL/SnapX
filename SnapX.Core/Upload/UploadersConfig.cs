@@ -30,7 +30,7 @@ public class UploadersConfig
 
     #region ImageShack
 
-    public ImageShackOptions ImageShackSettings { get; set; } = new();
+    public ImageShackOptions? ImageShackSettings { get; set; } = new();
 
     #endregion ImageShack
 
@@ -59,7 +59,7 @@ public class UploadersConfig
 
     #region Chevereto
 
-    public CheveretoUploader CheveretoUploader { get; set; } = new();
+    public CheveretoUploader? CheveretoUploader { get; set; } = new();
     public bool CheveretoDirectURL { get; set; } = true;
 
     #endregion Chevereto
@@ -98,7 +98,7 @@ public class UploadersConfig
 
     #region uPaste
 
-    public string UpasteUserKey { get; set; } = "";
+    public string? UpasteUserKey { get; set; } = "";
     public bool UpasteIsPublic { get; set; } = false;
 
     #endregion uPaste
@@ -131,7 +131,7 @@ public class UploadersConfig
     #region Dropbox
 
     public OAuth2Info DropboxOAuth2Info { get; set; } = null;
-    public string DropboxUploadPath { get; set; } = "SnapX/%y/%mo";
+    public string? DropboxUploadPath { get; set; } = "SnapX/%y/%mo";
     public bool DropboxAutoCreateShareableLink { get; set; } = true;
     public bool DropboxUseDirectLink { get; set; } = false;
 
@@ -248,7 +248,7 @@ public class UploadersConfig
 
     #region ownCloud / Nextcloud
 
-    public string OwnCloudHost { get; set; } = "";
+    public string? OwnCloudHost { get; set; } = "";
     public string OwnCloudUsername { get; set; } = "";
     public string OwnCloudPassword { get; set; } = "";
     public string OwnCloudPath { get; set; } = "/";
@@ -265,8 +265,8 @@ public class UploadersConfig
     #region MediaFire
 
     public string MediaFireUsername { get; set; } = "";
-    public string MediaFirePassword { get; set; } = "";
-    public string MediaFirePath { get; set; } = "";
+    public string? MediaFirePassword { get; set; } = "";
+    public string? MediaFirePath { get; set; } = "";
     public bool MediaFireUseLongLink { get; set; } = false;
 
     #endregion MediaFire
@@ -303,7 +303,7 @@ public class UploadersConfig
 
     #region Seafile
 
-    public string SeafileAPIURL { get; set; } = "";
+    public string? SeafileAPIURL { get; set; } = "";
     public string SeafileAuthToken { get; set; } = "";
     public string SeafileRepoID { get; set; } = "";
     public string SeafilePath { get; set; } = "/";
@@ -333,7 +333,7 @@ public class UploadersConfig
     public string AzureStorageAccountAccessKey { get; set; } = "";
     public string AzureStorageContainer { get; set; } = "";
     public string AzureStorageEnvironment { get; set; } = "blob.core.windows.net";
-    public string AzureStorageCustomDomain { get; set; } = "";
+    public string? AzureStorageCustomDomain { get; set; } = "";
     public string AzureStorageUploadPath { get; set; } = "";
     public string AzureStorageCacheControl { get; set; } = "";
 
@@ -343,10 +343,10 @@ public class UploadersConfig
 
     public string B2ApplicationKeyId { get; set; } = "";
     public string B2ApplicationKey { get; set; } = "";
-    public string B2BucketName { get; set; } = "";
-    public string B2UploadPath { get; set; } = "SnapX/%y/%mo";
+    public string? B2BucketName { get; set; } = "";
+    public string? B2UploadPath { get; set; } = "SnapX/%y/%mo";
     public bool B2UseCustomUrl { get; set; } = false;
-    public string B2CustomUrl { get; set; } = "https://example.com";
+    public string? B2CustomUrl { get; set; } = "https://example.com";
 
     #endregion Backblaze B2
 

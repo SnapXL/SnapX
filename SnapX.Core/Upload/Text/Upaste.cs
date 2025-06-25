@@ -28,26 +28,26 @@ public class UpasteTextUploaderService : TextUploaderService
 internal partial class UpasteContext : JsonSerializerContext;
 public sealed class Upaste : TextUploader
 {
-    private const string APIURL = "https://upaste.me/api";
+    private const string? APIURL = "https://upaste.me/api";
 
-    public string UserKey { get; private set; }
+    public string? UserKey { get; private set; }
     public bool IsPublic { get; set; }
 
-    public Upaste(string userKey)
+    public Upaste(string? userKey)
     {
         UserKey = userKey;
     }
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();
 
         if (string.IsNullOrEmpty(text))
             return ur;
 
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "paste", text },
             { "privacy", IsPublic ? "0" : "1" },
@@ -87,7 +87,7 @@ public sealed class Upaste : TextUploader
     public class UpastePaste
     {
         public string id { get; set; }
-        public string link { get; set; }
+        public string? link { get; set; }
         public string raw { get; set; }
         public string download { get; set; }
     }
@@ -96,7 +96,7 @@ public sealed class Upaste : TextUploader
     {
         public UpastePaste paste { get; set; }
         public int errorcode { get; set; }
-        public string error { get; set; }
+        public string? error { get; set; }
         public string status { get; set; }
     }
 }

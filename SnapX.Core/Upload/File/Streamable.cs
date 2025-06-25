@@ -32,7 +32,7 @@ public class StreamableFileUploaderService : FileUploaderService
 
 public class Streamable : FileUploader
 {
-    private const string Host = "https://api.streamable.com";
+    private const string? Host = "https://api.streamable.com";
 
     public string Email { get; private set; }
     public string Password { get; private set; }
@@ -45,7 +45,7 @@ public class Streamable : FileUploader
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         NameValueCollection headers = null;
 
@@ -54,7 +54,7 @@ public class Streamable : FileUploader
             headers = RequestHelpers.CreateAuthenticationHeader(Email, Password);
         }
 
-        string url = URLHelpers.CombineURL(Host, "upload");
+        string? url = URLHelpers.CombineURL(Host, "upload");
         UploadResult result = SendRequestFile(url, stream, fileName, "file", headers: headers);
 
         TranscodeFile(result);
@@ -75,7 +75,7 @@ public class Streamable : FileUploader
 
             while (!StopUploadRequested)
             {
-                string statusJson = SendRequest(HttpMethod.Get, URLHelpers.CombineURL(Host, "videos", transcodeResponse.Shortcode));
+                string? statusJson = SendRequest(HttpMethod.Get, URLHelpers.CombineURL(Host, "videos", transcodeResponse.Shortcode));
                 StreamableStatusResponse response = JsonSerializer.Deserialize<StreamableStatusResponse>(statusJson);
 
                 if (response.status > 2)
@@ -130,8 +130,8 @@ public class StreamableStatusResponse
     //public string url_root { get; set; }
     public string thumbnail_url { get; set; }
     //public string[] formats { get; set; }
-    public string url { get; set; }
-    public string message { get; set; }
+    public string? url { get; set; }
+    public string? message { get; set; }
     public string title { get; set; }
     public long percent { get; set; }
 }
@@ -144,7 +144,7 @@ public class StreamableStatusResponseFiles
 public class StreamableStatusResponseVideo
 {
     public int status { get; set; }
-    public string url { get; set; }
+    public string? url { get; set; }
     public int framerate { get; set; }
     public int height { get; set; }
     public int width { get; set; }

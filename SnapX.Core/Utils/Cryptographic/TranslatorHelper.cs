@@ -10,15 +10,15 @@ namespace SnapX.Core.Utils.Cryptographic;
 public static class TranslatorHelper
 {
 
-    public static string[] TextToBinary(string text) =>
+    public static string[] TextToBinary(string? text) =>
         text.Select(c => ByteToBinary((byte)c)).ToArray();
-    public static string[] TextToHexadecimal(string text) => BytesToHexadecimal(Encoding.UTF8.GetBytes(text));
+    public static string[] TextToHexadecimal(string? text) => BytesToHexadecimal(Encoding.UTF8.GetBytes(text));
 
-    public static byte[] TextToASCII(string text) => Encoding.ASCII.GetBytes(text);
+    public static byte[] TextToASCII(string? text) => Encoding.ASCII.GetBytes(text);
 
-    public static string TextToBase64(string text) => Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+    public static string? TextToBase64(string? text) => Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
 
-    public static string TextToHash(string text, HashType hashType, bool uppercase = false)
+    public static string? TextToHash(string? text, HashType hashType, bool uppercase = false)
     {
         using var hash = HashChecker.GetHashAlgorithm(hashType);
         var bytes = hash.ComputeHash(Encoding.UTF8.GetBytes(text));

@@ -8,12 +8,12 @@ namespace SnapX.Core.History;
 
 public abstract class HistoryManager
 {
-    public string FilePath { get; private set; }
-    public string BackupFolder { get; set; }
+    public string? FilePath { get; private set; }
+    public string? BackupFolder { get; set; }
     public bool CreateBackup { get; set; }
     public bool CreateWeeklyBackup { get; set; }
 
-    public HistoryManager(string filePath)
+    public HistoryManager(string? filePath)
     {
         FilePath = filePath;
     }
@@ -99,15 +99,15 @@ public abstract class HistoryManager
         return Load(FilePath);
     }
 
-    protected abstract List<HistoryItem> Load(string filePath);
+    protected abstract List<HistoryItem> Load(string? filePath);
 
     protected bool Append(IEnumerable<HistoryItem> historyItems)
     {
         return Append(FilePath, historyItems);
     }
 
-    protected abstract bool Append(string filePath, IEnumerable<HistoryItem> historyItems);
-    protected abstract bool Save(string filePath, IEnumerable<HistoryItem> historyItems);
+    protected abstract bool Append(string? filePath, IEnumerable<HistoryItem> historyItems);
+    protected abstract bool Save(string? filePath, IEnumerable<HistoryItem> historyItems);
 
     protected void Backup(string filePath)
     {
@@ -130,7 +130,7 @@ public abstract class HistoryManager
         Test(FilePath, itemCount);
     }
 
-    public void Test(string filePath, int itemCount)
+    public void Test(string? filePath, int itemCount)
     {
         HistoryItem historyItem = new HistoryItem()
         {

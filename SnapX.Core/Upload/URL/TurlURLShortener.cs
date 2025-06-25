@@ -22,13 +22,13 @@ public class TurlURLShortenerService : URLShortenerService
 
 public sealed class TurlURLShortener : URLShortener
 {
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
 
         if (!string.IsNullOrEmpty(url))
         {
-            var arguments = new Dictionary<string, string> { { "url", url } };
+            var arguments = new Dictionary<string, string?> { { "url", url } };
 
             result.Response = SendRequest(HttpMethod.Get, "https://turl.ca/api.php", arguments);
 

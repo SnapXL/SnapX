@@ -23,7 +23,7 @@ public class UploaderFilter
         Extensions = extensions.ToList();
     }
 
-    public bool IsValidFilter(string fileName)
+    public bool IsValidFilter(string? fileName)
     {
         var extension = FileHelpers.GetFileNameExtension(fileName);
 

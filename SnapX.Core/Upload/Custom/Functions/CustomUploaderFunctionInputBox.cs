@@ -13,7 +13,7 @@ internal class CustomUploaderFunctionInputBox : CustomUploaderFunction
 
     public override string[] Aliases { get; } = ["prompt"];
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
         throw new System.NotImplementedException();
     }

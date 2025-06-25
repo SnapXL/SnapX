@@ -36,6 +36,9 @@
   <data name="Ok">
     <value>Ok</value>
   </data>
+  <data name="Close">
+    <value>Close</value>
+  </data>
   <data name="UI_Settings">
     <value>Settings</value>
   </data>

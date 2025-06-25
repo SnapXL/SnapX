@@ -69,7 +69,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
     public AccountType UploadMethod { get; set; }
     public OAuth2Info AuthInfo { get; set; }
     public ImgurThumbnailType ThumbnailType { get; set; }
-    public string UploadAlbumID { get; set; }
+    public string? UploadAlbumID { get; set; }
     public bool DirectLink { get; set; }
     public bool UseGIFV { get; set; }
 
@@ -78,9 +78,9 @@ public sealed class Imgur : ImageUploader, IOAuth2
         AuthInfo = oauth;
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "response_type", "pin" }
@@ -91,9 +91,9 @@ public sealed class Imgur : ImageUploader, IOAuth2
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public bool GetAccessToken(string pin)
+    public bool GetAccessToken(string? pin)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "client_secret", AuthInfo.Client_Secret },
@@ -120,7 +120,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token))
             return false;
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "refresh_token", AuthInfo.Token.refresh_token },
             { "client_id", AuthInfo.Client_ID },
@@ -128,7 +128,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
             { "grant_type", "refresh_token" }
         };
 
-        string response = SendRequestMultiPart("https://api.imgur.com/oauth2/token", args);
+        string? response = SendRequestMultiPart("https://api.imgur.com/oauth2/token", args);
 
         if (string.IsNullOrEmpty(response)) return false;
 
@@ -196,7 +196,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         if (!CheckAuthorization())
             return null;
 
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "page", page.ToString() },
             { "perPage", perPage.ToString() }
@@ -241,15 +241,15 @@ public sealed class Imgur : ImageUploader, IOAuth2
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         return InternalUpload(stream, fileName, true);
     }
 
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
-    private UploadResult InternalUpload(Stream stream, string fileName, bool refreshTokenOnError)
+    private UploadResult InternalUpload(Stream stream, string? fileName, bool refreshTokenOnError)
     {
-        Dictionary<string, string> args = [];
+        Dictionary<string, string?> args = [];
         NameValueCollection headers;
 
         if (UploadMethod == AccountType.User)
@@ -295,7 +295,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return result;
     }
 
-    private string GetDirectLink(ImgurImageData imageData)
+    private string? GetDirectLink(ImgurImageData imageData)
     {
         if (UseGIFV && !string.IsNullOrEmpty(imageData.gifv))
             return imageData.gifv;
@@ -303,7 +303,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return imageData.link.TrimEnd('.');
     }
 
-    private string GetThumbnailURL(ImgurImageData imageData)
+    private string? GetThumbnailURL(ImgurImageData imageData)
     {
         string thumbnail = ThumbnailType switch
         {
@@ -320,7 +320,7 @@ public sealed class Imgur : ImageUploader, IOAuth2
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    private UploadResult HandleUploadError(ImgurResponse imgurResponse, Stream stream, string fileName, bool refreshTokenOnError)
+    private UploadResult HandleUploadError(ImgurResponse imgurResponse, Stream stream, string? fileName, bool refreshTokenOnError)
     {
         var errorData = ParseError(imgurResponse);
 
@@ -400,7 +400,7 @@ public class ImgurImageData
     public string name { get; set; }
     public string section { get; set; }
     public string link { get; set; }
-    public string gifv { get; set; }
+    public string? gifv { get; set; }
     public string mp4 { get; set; }
     public string webm { get; set; }
     public bool looping { get; set; }

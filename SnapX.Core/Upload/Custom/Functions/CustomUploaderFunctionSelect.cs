@@ -11,7 +11,7 @@ internal class CustomUploaderFunctionSelect : CustomUploaderFunction
 
     public override int MinParameterCount { get; } = 1;
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
         string[] values = parameters.Where(x => !string.IsNullOrEmpty(x)).ToArray();
 

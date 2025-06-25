@@ -56,7 +56,7 @@ public class UploadInfoManager
     {
         if (texts != null && texts.Count() > 0)
         {
-            string urls = string.Join("\r\n", texts.ToArray());
+            string? urls = string.Join("\r\n", texts.ToArray());
 
             if (!string.IsNullOrEmpty(urls))
             {
@@ -241,7 +241,7 @@ public class UploadInfoManager
         if (IsItemSelected) CopyTexts(SelectedItems.Where(x => x.IsFilePathValid).Select(x => Path.GetDirectoryName(x.Info.FilePath)));
     }
 
-    public void CopyCustomFormat(string format)
+    public void CopyCustomFormat(string? format)
     {
         if (!string.IsNullOrEmpty(format) && IsItemSelected) CopyTexts(SelectedItems.Where(x => x.IsURLExist).Select(x => parser.Parse(x.Info, format)));
     }

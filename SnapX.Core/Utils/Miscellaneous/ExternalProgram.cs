@@ -10,14 +10,14 @@ public class ExternalProgram
 {
     public bool IsActive { get; set; }
     public string Name { get; set; }
-    public string Path { get; set; }
+    public string? Path { get; set; }
     public string Args { get; set; }
-    public string OutputExtension { get; set; }
+    public string? OutputExtension { get; set; }
     public string Extensions { get; set; }
     public bool HiddenWindow { get; set; }
     public bool DeleteInputFile { get; set; }
 
-    private string pendingInputFilePath;
+    private string? pendingInputFilePath;
     private string userInput { get; set; }
 
     public ExternalProgram()
@@ -25,21 +25,21 @@ public class ExternalProgram
         Args = '"' + userInput + '"';
     }
 
-    public ExternalProgram(string name, string path) : this()
+    public ExternalProgram(string name, string? path) : this()
     {
         Name = name;
         Path = path;
     }
 
-    public string GetFullPath()
+    public string? GetFullPath()
     {
         return FileHelpers.ExpandFolderVariables(Path);
     }
 
-    public string Run(string inputPath)
+    public string? Run(string? inputPath)
     {
         pendingInputFilePath = null;
-        string path = GetFullPath();
+        string? path = GetFullPath();
 
         if (!string.IsNullOrEmpty(path) && File.Exists(path) && !string.IsNullOrWhiteSpace(inputPath))
         {
@@ -116,17 +116,17 @@ public class ExternalProgram
         return null;
     }
 
-    public Task<string> RunAsync(string inputPath)
+    public Task<string?> RunAsync(string? inputPath)
     {
         return Task.Run(() => Run(inputPath));
     }
 
-    public bool CheckExtension(string path)
+    public bool CheckExtension(string? path)
     {
         return CheckExtension(path, Extensions);
     }
 
-    public bool CheckExtension(string path, string extensions)
+    public bool CheckExtension(string? path, string extensions)
     {
         if (!string.IsNullOrWhiteSpace(path))
         {
@@ -161,7 +161,7 @@ public class ExternalProgram
 
     public void DeletePendingInputFile()
     {
-        string inputPath = pendingInputFilePath;
+        string? inputPath = pendingInputFilePath;
 
         if (!string.IsNullOrEmpty(inputPath) && File.Exists(inputPath))
         {

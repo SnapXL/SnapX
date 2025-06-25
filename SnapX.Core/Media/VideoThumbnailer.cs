@@ -14,12 +14,12 @@ public class VideoThumbnailer
     public delegate void ProgressChangedEventHandler(int current, int length);
     public event ProgressChangedEventHandler ProgressChanged;
 
-    public string FFmpegPath { get; private set; }
+    public string? FFmpegPath { get; private set; }
     public VideoThumbnailOptions Options { get; private set; }
     public string MediaPath { get; private set; }
     public VideoInfo VideoInfo { get; private set; }
 
-    public VideoThumbnailer(string ffmpegPath, VideoThumbnailOptions options)
+    public VideoThumbnailer(string? ffmpegPath, VideoThumbnailOptions options)
     {
         FFmpegPath = ffmpegPath;
         Options = options;
@@ -62,7 +62,7 @@ public class VideoThumbnailer
             }
 
             string fileName = string.Format("{0}-{1}.{2}", mediaFileName, timeSliceElapsed, Options.ImageFormat.GetDescription());
-            string tempThumbnailPath = Path.Combine(GetOutputDirectory(), fileName);
+            string? tempThumbnailPath = Path.Combine(GetOutputDirectory(), fileName);
 
             using (Process process = new Process())
             {
@@ -124,9 +124,9 @@ public class VideoThumbnailer
         ProgressChanged?.Invoke(current, length);
     }
 
-    private string GetOutputDirectory()
+    private string? GetOutputDirectory()
     {
-        string directory;
+        string? directory;
 
         switch (Options.OutputLocation)
         {

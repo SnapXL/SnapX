@@ -13,9 +13,9 @@ internal class CustomUploaderFunctionBase64 : CustomUploaderFunction
 
     public override int MinParameterCount { get; } = 1;
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
-        string text = parameters[0];
+        string? text = parameters[0];
 
         if (!string.IsNullOrEmpty(text))
         {

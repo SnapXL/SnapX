@@ -9,14 +9,14 @@ namespace SnapX.Core.Utils.Miscellaneous;
 
 public class SevenZipManager
 {
-    public string SevenZipPath { get; set; }
+    public string? SevenZipPath { get; set; }
 
     public SevenZipManager()
     {
         SevenZipPath = FileHelpers.GetAbsolutePath(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "7z.exe" : "7z");
     }
 
-    public SevenZipManager(string sevenZipPath)
+    public SevenZipManager(string? sevenZipPath)
     {
         SevenZipPath = sevenZipPath;
     }

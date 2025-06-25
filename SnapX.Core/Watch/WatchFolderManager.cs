@@ -62,11 +62,11 @@ public class WatchFolderManager : IDisposable
             watchFolder.FileWatcherTrigger += origPath =>
             {
                 var taskSettingsCopy = TaskSettings.GetSafeTaskSettings(taskSettings);
-                string destPath = origPath;
+                string? destPath = origPath;
 
                 if (watchFolderSetting.MoveFilesToScreenshotsFolder)
                 {
-                    string screenshotsFolder = TaskHelpers.GetScreenshotsFolder(taskSettingsCopy);
+                    string? screenshotsFolder = TaskHelpers.GetScreenshotsFolder(taskSettingsCopy);
                     string fileName = Path.GetFileName(origPath);
                     destPath = Path.Combine(screenshotsFolder, fileName);
                     FileHelpers.CreateDirectoryFromFilePath(destPath);

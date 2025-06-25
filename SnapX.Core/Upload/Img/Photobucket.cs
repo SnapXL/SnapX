@@ -28,9 +28,9 @@ public class PhotobucketImageUploaderService : ImageUploaderService
 
 public sealed class Photobucket : ImageUploader, IOAuth
 {
-    private const string URLRequestToken = "https://api.photobucket.com/login/request";
+    private const string? URLRequestToken = "https://api.photobucket.com/login/request";
     private const string URLAuthorize = "https://photobucket.com/apilogin/login";
-    private const string URLAccessToken = "https://api.photobucket.com/login/access";
+    private const string? URLAccessToken = "https://api.photobucket.com/login/access";
 
     public OAuthInfo AuthInfo { get; set; }
     public PhotobucketAccountInfo AccountInfo { get; set; }
@@ -47,12 +47,12 @@ public sealed class Photobucket : ImageUploader, IOAuth
         AccountInfo = accountInfo;
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
         return GetAuthorizationURL(URLRequestToken, URLAuthorize, AuthInfo, null, HttpMethod.Post);
     }
 
-    public bool GetAccessToken(string verificationCode)
+    public bool GetAccessToken(string? verificationCode)
     {
         AuthInfo.AuthVerifier = verificationCode;
 
@@ -73,14 +73,14 @@ public sealed class Photobucket : ImageUploader, IOAuth
         return AccountInfo;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         return UploadMedia(stream, fileName, AccountInfo.ActiveAlbumPath);
     }
 
-    public UploadResult UploadMedia(Stream stream, string fileName, string albumID)
+    public UploadResult UploadMedia(Stream stream, string? fileName, string albumID)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "id", albumID }, // Album identifier.
             { "type", "image" } // Media type. Options are image, video, or base64.
@@ -105,9 +105,9 @@ public sealed class Photobucket : ImageUploader, IOAuth
         return result;
     }
 
-    public bool CreateAlbum(string albumID, string albumName)
+    public bool CreateAlbum(string albumID, string? albumName)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "id", albumID }, // Album identifier.
             { "name", albumName } // Name of result. Must be between 2 and 50 characters.
@@ -126,12 +126,12 @@ public sealed class Photobucket : ImageUploader, IOAuth
 
         if (xe == null) return false;
 
-        string status = xe.GetElementValue("status");
+        string? status = xe.GetElementValue("status");
 
         return status == "OK";
     }
 
-    private string FixURL(string url) => url.Replace("api.photobucket.com", AccountInfo.Subdomain);
+    private string? FixURL(string? url) => url.Replace("api.photobucket.com", AccountInfo.Subdomain);
 
 }
 

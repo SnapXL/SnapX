@@ -15,7 +15,7 @@ namespace SnapX.Core.ImageEffects.Drawings;
 public class DrawBackgroundImage : ImageEffect
 {
     [DefaultValue("")]
-    public string ImageFilePath { get; set; }
+    public string? ImageFilePath { get; set; }
 
     [DefaultValue(true)]
     public bool Center { get; set; }
@@ -34,7 +34,7 @@ public class DrawBackgroundImage : ImageEffect
         return ImageHelpers.DrawBackgroundImage(img, ImageFilePath, Center, Tile);
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         if (!string.IsNullOrEmpty(ImageFilePath))
         {

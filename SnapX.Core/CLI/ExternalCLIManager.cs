@@ -15,7 +15,7 @@ public abstract class ExternalCLIManager : IDisposable
 
     protected Process process;
 
-    public virtual int Open(string path, string args = null)
+    public virtual int Open(string? path, string args = null)
     {
         if (System.IO.File.Exists(path))
         {

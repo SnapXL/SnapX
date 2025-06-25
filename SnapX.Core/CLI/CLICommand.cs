@@ -5,11 +5,11 @@
 namespace SnapX.Core.CLI;
 public class CLICommand
 {
-    public string Command { get; set; }
-    public string Parameter { get; set; }
+    public string? Command { get; set; }
+    public string? Parameter { get; set; }
     public bool IsCommand { get; set; } // Starts with hyphen?
 
-    public CLICommand(string command = null, string parameter = null)
+    public CLICommand(string? command = null, string? parameter = null)
     {
         Command = command;
         Parameter = parameter;
@@ -20,9 +20,9 @@ public class CLICommand
         return !string.IsNullOrEmpty(Command) && Command.Equals(command, comparisonType);
     }
 
-    public override string ToString()
+    public override string? ToString()
     {
-        string text = "";
+        string? text = "";
 
         if (IsCommand)
         {

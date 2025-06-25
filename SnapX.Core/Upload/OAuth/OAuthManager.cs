@@ -28,22 +28,22 @@ public static class OAuthManager
     private const string HMACSHA1SignatureType = "HMAC-SHA1";
     private const string RSASHA1SignatureType = "RSA-SHA1";
 
-    public static string GenerateQuery(string url, Dictionary<string, string> args, HttpMethod httpMethod, OAuthInfo oauth)
+    public static string? GenerateQuery(string? url, Dictionary<string, string?> args, HttpMethod httpMethod, OAuthInfo oauth)
     {
         return GenerateQuery(url, args, httpMethod, oauth, out _);
     }
 
-    public static string GenerateQuery(
-        string url,
-        Dictionary<string, string> args,
+    public static string? GenerateQuery(
+        string? url,
+        Dictionary<string, string?> args,
         HttpMethod httpMethod,
         OAuthInfo oauth,
-        out Dictionary<string, string> parameters)
+        out Dictionary<string, string?> parameters)
     {
         // Ensure OAuth credentials are valid
         ValidateOAuthCredentials(oauth);
 
-        parameters = new Dictionary<string, string>
+        parameters = new Dictionary<string, string?>
         {
             { ParameterVersion, oauth.OAuthVersion },
             { ParameterNonce, GenerateNonce() },
@@ -62,7 +62,7 @@ public static class OAuthManager
         };
 
         // Add token parameters if present
-        string secret = null;
+        string? secret = null;
         if (!string.IsNullOrEmpty(oauth.UserToken) && !string.IsNullOrEmpty(oauth.UserSecret))
         {
             secret = oauth.UserSecret;
@@ -89,8 +89,8 @@ public static class OAuthManager
         }
 
         // Generate the signature
-        string normalizedUrl = NormalizeUrl(url);
-        string normalizedParameters = NormalizeParameters(parameters);
+        string? normalizedUrl = NormalizeUrl(url);
+        string? normalizedParameters = NormalizeParameters(parameters);
         string signatureBase = GenerateSignatureBase(httpMethod, normalizedUrl, normalizedParameters);
 
         byte[] signatureData = oauth.SignatureMethod switch
@@ -100,7 +100,7 @@ public static class OAuthManager
             _ => throw new NotImplementedException("Unsupported signature method")
         };
 
-        string signature = Convert.ToBase64String(signatureData);
+        string? signature = Convert.ToBase64String(signatureData);
         parameters[ParameterSignature] = signature;
 
         return $"{normalizedUrl}?{normalizedParameters}&{ParameterSignature}={URLHelpers.URLEncode(signature)}";
@@ -117,7 +117,7 @@ public static class OAuthManager
     }
 
 
-    public static string GetAuthorizationURL(string requestTokenResponse, OAuthInfo oauth, string authorizeURL, string callback = null)
+    public static string? GetAuthorizationURL(string? requestTokenResponse, OAuthInfo oauth, string authorizeURL, string? callback = null)
     {
         var args = HttpUtility.ParseQueryString(requestTokenResponse);
 
@@ -142,7 +142,7 @@ public static class OAuthManager
         return url;
     }
 
-    public static NameValueCollection ParseAccessTokenResponse(string accessTokenResponse, OAuthInfo oauth)
+    public static NameValueCollection ParseAccessTokenResponse(string? accessTokenResponse, OAuthInfo oauth)
     {
         var args = HttpUtility.ParseQueryString(accessTokenResponse);
         if (args?.Get(ParameterToken) == null) return null;
@@ -159,11 +159,11 @@ public static class OAuthManager
     }
 
 
-    private static string GenerateSignatureBase(HttpMethod httpMethod, string normalizedUrl,
-        string normalizedParameters) =>
+    private static string GenerateSignatureBase(HttpMethod httpMethod, string? normalizedUrl,
+        string? normalizedParameters) =>
         $"{httpMethod}&{URLHelpers.URLEncode(normalizedUrl)}&{URLHelpers.URLEncode(normalizedParameters)}";
 
-    private static byte[] GenerateSignature(string signatureBase, string consumerSecret, string userSecret = null)
+    private static byte[] GenerateSignature(string signatureBase, string? consumerSecret, string? userSecret = null)
     {
         using var hmacsha1 = new HMACSHA1();
         var key = $"{Uri.EscapeDataString(consumerSecret)}&{(string.IsNullOrEmpty(userSecret) ? "" : Uri.EscapeDataString(userSecret))}";
@@ -196,18 +196,18 @@ public static class OAuthManager
         return sha1;
     }
 
-    private static string GenerateTimestamp()
+    private static string? GenerateTimestamp()
     {
         var ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
         return Convert.ToInt64(ts.TotalSeconds).ToString();
     }
 
-    private static string GenerateNonce()
+    private static string? GenerateNonce()
     {
         return Helpers.GetRandomAlphanumeric(12);
     }
 
-    private static string NormalizeUrl(string url)
+    private static string? NormalizeUrl(string? url)
     {
         if (Uri.TryCreate(url, UriKind.Absolute, out var uri)) return uri.ToString();
 
@@ -223,7 +223,7 @@ public static class OAuthManager
 
     }
 
-    private static string NormalizeParameters(Dictionary<string, string> parameters)
+    private static string? NormalizeParameters(Dictionary<string, string?> parameters)
     {
         return string.Join("&", parameters
             .OrderBy(x => x.Key)

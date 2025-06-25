@@ -7,7 +7,7 @@ public class ImageData : IDisposable
     public Stream ImageStream { get; set; }
     public EImageFormat ImageFormat { get; set; }
 
-    public void Write(string filePath)
+    public void Write(string? filePath)
     {
         const int maxRetries = 5;
         const int retryDelayMilliseconds = 1000;

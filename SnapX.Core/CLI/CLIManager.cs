@@ -7,7 +7,7 @@ using System.Text;
 namespace SnapX.Core.CLI;
 public class CLIManager
 {
-    public string[] Arguments { get; private set; }
+    public string?[] Arguments { get; private set; }
     public List<CLICommand> Commands { get; private set; }
     public List<CLICommandAction> Actions { get; private set; }
 
@@ -17,7 +17,7 @@ public class CLIManager
         Actions = [];
     }
 
-    public CLIManager(string[] arguments) : this()
+    public CLIManager(string?[] arguments) : this()
     {
         Arguments = arguments;
     }
@@ -33,7 +33,7 @@ public class CLIManager
         {
             CLICommand lastCommand = null;
 
-            foreach (string argument in Arguments)
+            foreach (string? argument in Arguments)
             {
                 if (lastCommand == null || argument[0] == '-')
                 {
@@ -130,7 +130,7 @@ public class CLIManager
         return Commands.Find(x => x.CheckCommand(command));
     }
 
-    public string GetParameter(string command)
+    public string? GetParameter(string command)
     {
         CLICommand cliCommand = GetCommand(command);
 

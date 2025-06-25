@@ -15,5 +15,5 @@ public static class SnapXResources
     public static OsInfo.GenericGraphicsInfo graphicsInfo => OsInfo.GetGenericGraphicsInfo();
     public static string Dotnet => RuntimeInformation.FrameworkDescription;
     public static string fancyOsName => Helpers.GetOperatingSystemProductName();
-    public static string UserAgent => $"{SnapX.AppName}/{Helpers.GetApplicationVersion()} (+{Links.GitHub})";
+    public static string? UserAgent => $"{SnapX.AppName}/{Helpers.GetApplicationVersion()} (+{Links.GitHub})";
 }

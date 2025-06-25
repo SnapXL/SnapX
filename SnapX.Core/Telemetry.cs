@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Aptabase.Core;
 using Dapper;
@@ -66,7 +67,7 @@ public sealed class Telemetry(SqliteConnection Connection, AptabaseClient Aptaba
         });
     }
 
-
+    [RequiresUnreferencedCode("Uses reflection to access properties that may be removed by the trimmer.")]
     public void TrackEvent(string EventName, Dictionary<string, object>? Envelope = null)
     {
         if (string.IsNullOrWhiteSpace(EventName)) return;

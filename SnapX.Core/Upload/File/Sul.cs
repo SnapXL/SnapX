@@ -36,17 +36,17 @@ public sealed class SulUploader : FileUploader
         APIKey = apiKey;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "wizard", "true" },
             { "key", APIKey },
             { "client", "sharex-native" }
         };
 
-        string url = "https://s-ul.eu";
-        string upload_url = URLHelpers.CombineURL(url, "api/v1/upload");
+        string? url = "https://s-ul.eu";
+        string? upload_url = URLHelpers.CombineURL(url, "api/v1/upload");
 
         UploadResult result = SendRequestFile(upload_url, stream, fileName, "file", args);
 
@@ -58,7 +58,7 @@ public sealed class SulUploader : FileUploader
             string domain = "";
             string file = "";
             string extension = "";
-            string error = "";
+            string? error = "";
 
             if (jsonResponse != null)
             {

@@ -27,7 +27,7 @@ internal class Gamma : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Value.ToString();
     }

@@ -35,7 +35,7 @@ public sealed class TwitPicUploader : ImageUploader
     public bool ShowFull { get; set; }
     public TwitPicThumbnailType TwitPicThumbnailMode { get; set; }
 
-    private const string UploadLink = "https://api.twitpic.com/1/upload.json";
+    private const string? UploadLink = "https://api.twitpic.com/1/upload.json";
     private const string UploadAndPostLink = "https://api.twitpic.com/1/uploadAndPost.json";
 
     public TwitPicUploader(string key, OAuthInfo oauth)
@@ -48,7 +48,7 @@ public sealed class TwitPicUploader : ImageUploader
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         return TwitPicUploadType switch
         {
@@ -59,7 +59,7 @@ public sealed class TwitPicUploader : ImageUploader
 
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
-    private UploadResult Upload(Stream stream, string fileName, string url, string msg = "")
+    private UploadResult Upload(Stream stream, string? fileName, string? url, string? msg = "")
     {
         if (AuthInfo == null || string.IsNullOrEmpty(AuthInfo.UserToken) || string.IsNullOrEmpty(AuthInfo.UserSecret))
         {
@@ -67,7 +67,7 @@ public sealed class TwitPicUploader : ImageUploader
             return null;
         }
 
-        Dictionary<string, string> args = new Dictionary<string, string>
+        Dictionary<string, string?> args = new Dictionary<string, string?>
         {
             { "key", APIKey },
             { "consumer_token", AuthInfo.ConsumerKey },
@@ -95,7 +95,7 @@ public sealed class TwitPicUploader : ImageUploader
     {
         public string ID { get; set; }
         public string Text { get; set; }
-        public string URL { get; set; }
+        public string? URL { get; set; }
         public string Width { get; set; }
         public string Height { get; set; }
         public string Size { get; set; }

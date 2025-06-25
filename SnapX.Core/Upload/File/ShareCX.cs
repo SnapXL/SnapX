@@ -9,7 +9,7 @@ namespace SnapX.Core.Upload.File;
 
 public sealed class ShareCX : FileUploader
 {
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var result = SendRequestFile("https://file1.share.cx/cgi-bin/upload.cgi", stream, fileName, "file_0");
 

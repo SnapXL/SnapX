@@ -44,7 +44,7 @@ internal class Blur : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return Radius.ToString();
     }

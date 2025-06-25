@@ -11,7 +11,7 @@ internal class CustomUploaderFunctionFileName : CustomUploaderFunction
 {
     public override string Name { get; } = "filename";
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
         if (parser.URLEncode)
         {

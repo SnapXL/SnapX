@@ -15,8 +15,8 @@ public class ShareXCustomUploaderSyntaxParser : ShareXSyntaxParser
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static IEnumerable<CustomUploaderFunction> Functions = Helpers.GetInstances<CustomUploaderFunction>();
 
-    public string FileName { get; set; }
-    public string Input { get; set; }
+    public string? FileName { get; set; }
+    public string? Input { get; set; }
     public ResponseInfo ResponseInfo { get; set; }
     public bool URLEncode { get; set; } // Only URL encodes file name and input
     public bool UseNameParser { get; set; }
@@ -32,7 +32,7 @@ public class ShareXCustomUploaderSyntaxParser : ShareXSyntaxParser
         Input = input.Input;
     }
 
-    public override string Parse(string text)
+    public override string? Parse(string? text)
     {
         if (UseNameParser && !string.IsNullOrEmpty(text))
         {
@@ -45,7 +45,7 @@ public class ShareXCustomUploaderSyntaxParser : ShareXSyntaxParser
         return base.Parse(text);
     }
 
-    protected override string CallFunction(string functionName, string[] parameters = null)
+    protected override string? CallFunction(string functionName, string?[] parameters = null)
     {
         if (string.IsNullOrEmpty(functionName))
         {

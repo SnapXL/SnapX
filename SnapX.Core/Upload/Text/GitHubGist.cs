@@ -47,16 +47,16 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
 
     public bool PublicUpload { get; set; }
     public bool RawURL { get; set; }
-    public string CustomURLAPI { get; set; }
+    public string? CustomURLAPI { get; set; }
 
     public GitHubGist(OAuth2Info oAuthInfos)
     {
         AuthInfo = oAuthInfos;
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "redirect_uri", Links.Callback },
@@ -68,9 +68,9 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public bool GetAccessToken(string code)
+    public bool GetAccessToken(string? code)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "client_id", AuthInfo.Client_ID },
             { "client_secret", AuthInfo.Client_Secret },
@@ -97,7 +97,7 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();
         if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(fileName)) return ur;
@@ -109,7 +109,7 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
         {
             description = "",
             @public = PublicUpload,
-            files = new Dictionary<string, GistUploadFileInfo>
+            files = new Dictionary<string?, GistUploadFileInfo>
             {
                 { fileName, new GistUploadFileInfo { content = text } }
             }
@@ -138,24 +138,24 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
     {
         public string description { get; set; }
         public bool @public { get; set; }
-        public Dictionary<string, GistUploadFileInfo> files { get; set; }
+        public Dictionary<string?, GistUploadFileInfo> files { get; set; }
     }
 
     private class GistUploadFileInfo
     {
-        public string content { get; set; }
+        public string? content { get; set; }
     }
 
     public class GistResponse
     {
-        public string html_url { get; set; }
+        public string? html_url { get; set; }
         public Dictionary<string, GistResponseFileInfo> files { get; set; }
     }
 
     public class GistResponseFileInfo
     {
         public string filename { get; set; }
-        public string raw_url { get; set; }
+        public string? raw_url { get; set; }
     }
 }
 

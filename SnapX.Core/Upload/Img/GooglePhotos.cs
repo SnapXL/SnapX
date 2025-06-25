@@ -80,13 +80,13 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
         return OAuth2.CheckAuthorization();
     }
 
-    public string GetAuthorizationURL()
+    public string? GetAuthorizationURL()
     {
         return OAuth2.GetAuthorizationURL();
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public bool GetAccessToken(string code)
+    public bool GetAccessToken(string? code)
     {
         return OAuth2.GetAccessToken(code);
     }
@@ -98,7 +98,7 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
     }
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public Album CreateAlbum(string albumName)
+    public Album CreateAlbum(string? albumName)
     {
         var album = GooglePhotosService.CreateAlbumAsync(albumName);
         return album.GetAwaiter().GetResult()!;
@@ -112,7 +112,7 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (!CheckAuthorization()) return null;
 

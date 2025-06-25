@@ -26,7 +26,7 @@ internal class Skew : ImageEffect
         return ImageHelpers.AddSkew(img, Horizontally, Vertically);
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return $"{Horizontally}px, {Vertically}px";
     }

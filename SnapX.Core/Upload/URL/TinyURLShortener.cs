@@ -22,12 +22,12 @@ public class TinyURLShortenerService : URLShortenerService
 
 public sealed class TinyURLShortener : URLShortener
 {
-    public override UploadResult ShortenURL(string url)
+    public override UploadResult ShortenURL(string? url)
     {
         var result = new UploadResult { URL = url };
         if (string.IsNullOrEmpty(url)) return result;
 
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "url", url }
         };

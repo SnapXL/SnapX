@@ -72,7 +72,7 @@ public class DrawBackground : ImageEffect
         }
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         if (!UseGradient)
         {

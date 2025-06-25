@@ -31,7 +31,7 @@ internal class Alpha : ImageEffect
         return img;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return $"{Value}, {Addition}";
     }

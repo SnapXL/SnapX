@@ -16,9 +16,11 @@ internal class CustomUploaderFunctionRegex : CustomUploaderFunction
 
     public override int MinParameterCount { get; } = 1;
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
-        string input, pattern, group = "";
+        string? input;
+        string? pattern;
+        string? group = "";
 
         if (parameters.Length > 2)
         {

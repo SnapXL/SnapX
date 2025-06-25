@@ -57,11 +57,11 @@ public class SharedFolderUploader : FileUploader
         this.account = account;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         UploadResult result = new UploadResult();
 
-        string filePath = account.GetLocalhostPath(fileName);
+        string? filePath = account.GetLocalhostPath(fileName);
 
         FileHelpers.CreateDirectoryFromFilePath(filePath);
 

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
@@ -33,28 +32,21 @@ public class CheveretoImageUploaderService : ImageUploaderService
 [JsonSerializable(typeof(Chevereto.CheveretoImage))]
 [JsonSerializable(typeof(Chevereto.CheveretoThumb))]
 internal partial class CheveretoContext : JsonSerializerContext;
-public sealed class Chevereto : ImageUploader
+public sealed class Chevereto(CheveretoUploader? Uploader) : ImageUploader
 {
-    public CheveretoUploader Uploader { get; private set; }
+    public CheveretoUploader? Uploader { get; private set; } = Uploader;
 
     public bool DirectURL { get; set; }
 
-    public Chevereto(CheveretoUploader uploader)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
-        Uploader = uploader;
-    }
-
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
-    {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
-            { "key", Uploader.APIKey },
+            { "key", Uploader?.APIKey },
             { "format", "json" }
         };
 
-        var url = URLHelpers.FixPrefix(Uploader.UploadURL);
+        var url = URLHelpers.FixPrefix(Uploader?.UploadURL);
 
         var result = SendRequestFile(url, stream, fileName, "source", args);
 
@@ -67,7 +59,7 @@ public sealed class Chevereto : ImageUploader
         {
             TypeInfoResolver = CheveretoContext.Default
         };
-        var response = JsonSerializer.Deserialize<CheveretoResponse>(result.Response, options);
+        var response = JsonSerializer.Deserialize<CheveretoResponse>(result.Response!, options);
 
         if (response?.Image == null)
         {
@@ -87,19 +79,19 @@ public sealed class Chevereto : ImageUploader
 
     public class CheveretoResponse
     {
-        public CheveretoImage Image { get; set; }
+        public CheveretoImage? Image { get; set; }
     }
 
     public class CheveretoImage
     {
-        public string URL { get; set; }
-        public string URL_Viewer { get; set; }
-        public CheveretoThumb Thumb { get; set; }
+        public string? URL { get; set; }
+        public string? URL_Viewer { get; set; }
+        public CheveretoThumb? Thumb { get; set; }
     }
 
     public class CheveretoThumb
     {
-        public string URL { get; set; }
+        public string? URL { get; set; }
     }
 }
 

@@ -32,9 +32,9 @@ internal class Scale : ImageEffect
         return ImageHelpers.ResizeImage(img, size);
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
-        string summary = WidthPercentage.ToString();
+        string? summary = WidthPercentage.ToString();
 
         if (WidthPercentage > 0)
         {

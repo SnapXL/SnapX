@@ -45,7 +45,7 @@ public sealed class CustomImageUploader : ImageUploader
         uploader = customUploaderItem;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         var ur = new UploadResult();
         var input = new CustomUploaderInput(fileName, "");

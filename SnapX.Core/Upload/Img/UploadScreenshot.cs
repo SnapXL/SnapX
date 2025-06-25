@@ -17,9 +17,9 @@ public class UploadScreenshot : ImageUploader
         APIKey = key;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "apiKey", APIKey },
             { "xmlOutput", "1" }
@@ -38,10 +38,10 @@ public class UploadScreenshot : ImageUploader
             XDocument xdoc = XDocument.Parse(result.Response);
             XElement xele = xdoc.Root.Element("upload");
 
-            string error = xele.GetElementValue("errorCode");
+            string? error = xele.GetElementValue("errorCode");
             if (!string.IsNullOrEmpty(error))
             {
-                string errorMessage;
+                string? errorMessage;
 
                 switch (error)
                 {

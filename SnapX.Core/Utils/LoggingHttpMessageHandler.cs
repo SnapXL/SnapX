@@ -5,9 +5,9 @@ namespace SnapX.Core.Utils;
 
 public class LoggingHttpMessageHandler : DelegatingHandler
 {
-    private readonly ILogger _logger;
+    private readonly ILogger? _logger;
 
-    public LoggingHttpMessageHandler(HttpMessageHandler innerHandler, ILogger logger)
+    public LoggingHttpMessageHandler(HttpMessageHandler innerHandler, ILogger? logger)
         : base(innerHandler)
     {
         _logger = logger;

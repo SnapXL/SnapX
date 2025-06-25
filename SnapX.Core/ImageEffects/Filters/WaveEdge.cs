@@ -95,7 +95,7 @@ internal class WaveEdge : ImageEffect
         return isEdge;
     }
 
-    protected override string GetSummary()
+    protected override string? GetSummary()
     {
         return $"{Depth}, {Range}";
     }

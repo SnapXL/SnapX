@@ -27,14 +27,14 @@ public sealed class Pastie : TextUploader
 {
     public bool IsPublic { get; set; }
 
-    public override UploadResult UploadText(string text, string fileName)
+    public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();
 
         if (string.IsNullOrEmpty(text))
             return ur;
 
-        var arguments = new Dictionary<string, string>
+        var arguments = new Dictionary<string, string?>
         {
             { "paste[body]", text },
             { "paste[restricted]", IsPublic ? "0" : "1" },

@@ -13,7 +13,7 @@ internal class CustomUploaderFunctionRandom : CustomUploaderFunction
 
     public override int MinParameterCount { get; } = 2;
 
-    public override string Call(ShareXCustomUploaderSyntaxParser parser, string[] parameters)
+    public override string? Call(ShareXCustomUploaderSyntaxParser parser, string?[] parameters)
     {
         return RandomFast.Pick(parameters);
     }

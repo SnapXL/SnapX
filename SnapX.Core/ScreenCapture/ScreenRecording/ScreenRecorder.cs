@@ -61,7 +61,7 @@ public class ScreenRecorder : IDisposable
         }
     }
 
-    public string CachePath { get; private set; }
+    public string? CachePath { get; private set; }
 
     public ScreenRecordOutput OutputType { get; private set; }
 
@@ -184,7 +184,7 @@ public class ScreenRecorder : IDisposable
         }
     }
 
-    public void SaveAsGIF(string path, GIFQuality quality)
+    public void SaveAsGIF(string? path, GIFQuality quality)
     {
         if (imgCache != null && imgCache is HardDiskCache && !IsRecording)
         {
@@ -211,7 +211,7 @@ public class ScreenRecorder : IDisposable
         }
     }
 
-    public bool FFmpegEncodeVideo(string input, string output)
+    public bool FFmpegEncodeVideo(string input, string? output)
     {
         FileHelpers.CreateDirectoryFromFilePath(output);
 
@@ -232,7 +232,7 @@ public class ScreenRecorder : IDisposable
         }
     }
 
-    public bool FFmpegEncodeAsGIF(string input, string output)
+    public bool FFmpegEncodeAsGIF(string input, string? output)
     {
         FileHelpers.CreateDirectoryFromFilePath(output);
 

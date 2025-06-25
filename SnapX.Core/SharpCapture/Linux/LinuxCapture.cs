@@ -124,21 +124,16 @@ public class LinuxCapture : BaseCapture
         // TODO: Implement pure X11 screenshotting instead of using portal
         // if (LinuxAPI.IsWayland())
         // {
-        var syncContext = SynchronizationContext.Current;
-        SynchronizationContext.SetSynchronizationContext(null);
 
 
         var fullscreenImage = await CaptureFullscreen().ConfigureAwait(false);
-        Console.WriteLine($"{fullscreenImage.Width}x{fullscreenImage.Height} {fullscreenImage.Configuration.ImageFormats}");
         var croppedImage = CropFullscreenScreenshotToBounds(bounds, fullscreenImage);
-        Console.WriteLine($"{croppedImage.Width}x{croppedImage.Height} {croppedImage.Configuration.ImageFormats}");
-        SynchronizationContext.SetSynchronizationContext(syncContext);
+        Console.WriteLine($"Original: {fullscreenImage.Width}x{fullscreenImage.Height} After: {croppedImage.Width}x{croppedImage.Height}");
         return croppedImage;
         // }
 
         // return LinuxAPI.TakeScreenshotWithX11(screen);
     }
-
     public override async Task<Image?> CaptureScreen(Point? pos)
     {
         if (pos == null || !pos.HasValue) throw new ArgumentNullException(nameof(pos));

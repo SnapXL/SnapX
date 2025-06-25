@@ -14,7 +14,7 @@ public class LocalhostAccount : ICloneable
     public string Name { get; set; }
 
     [Category("Localhost"), Description(@"Root folder, e.g. C:\Inetpub\wwwroot")]
-    public string LocalhostRoot { get; set; }
+    public string? LocalhostRoot { get; set; }
 
     [Category("Localhost"), Description("Port Number"), DefaultValue(80)]
     public int Port { get; set; }
@@ -29,7 +29,7 @@ public class LocalhostAccount : ICloneable
     public string SubFolderPath { get; set; }
 
     [Category("Localhost"), Description("HTTP Home Path, %host = Host e.g. google.com without http:// because you choose that in Remote Protocol.\nURL = HttpHomePath + SubFolderPath + FileName\nURL = Host + SubFolderPath + FileName (if HttpHomePath is empty)")]
-    public string HttpHomePath { get; set; }
+    public string? HttpHomePath { get; set; }
 
     [Category("Localhost"), Description("Automatically add sub folder path to end of http home path"), DefaultValue(true)]
     public bool HttpHomePathAutoAddSubFolderPath { get; set; }
@@ -41,7 +41,7 @@ public class LocalhostAccount : ICloneable
     public BrowserProtocol RemoteProtocol { get; set; }
 
     [Category("Localhost"), Description("file://Host:Port"), Browsable(false)]
-    public string LocalUri
+    public string? LocalUri
     {
         get
         {
@@ -54,10 +54,10 @@ public class LocalhostAccount : ICloneable
         }
     }
 
-    private string exampleFileName = "screenshot.jpg";
+    private string? exampleFileName = "screenshot.jpg";
 
     [Category("Localhost"), Description("Preview of the Localhost Path based on the settings above")]
-    public string PreviewLocalPath
+    public string? PreviewLocalPath
     {
         get
         {
@@ -66,7 +66,7 @@ public class LocalhostAccount : ICloneable
     }
 
     [Category("Localhost"), Description("Preview of the HTTP Path based on the settings above")]
-    public string PreviewRemotePath
+    public string? PreviewRemotePath
     {
         get
         {
@@ -86,12 +86,12 @@ public class LocalhostAccount : ICloneable
         RemoteProtocol = BrowserProtocol.file;
     }
 
-    public string GetSubFolderPath()
+    public string? GetSubFolderPath()
     {
         return NameParser.Parse(NameParserType.URL, SubFolderPath.Replace("%host", FileHelpers.ExpandFolderVariables(LocalhostRoot)));
     }
 
-    public string GetHttpHomePath()
+    public string? GetHttpHomePath()
     {
         // @ deprecated
         if (HttpHomePath.StartsWith("@"))
@@ -105,7 +105,7 @@ public class LocalhostAccount : ICloneable
         return NameParser.Parse(NameParserType.URL, HttpHomePath.Replace("%host", FileHelpers.ExpandFolderVariables(LocalhostRoot)));
     }
 
-    public string GetUriPath(string fileName)
+    public string? GetUriPath(string? fileName)
     {
         if (string.IsNullOrEmpty(LocalhostRoot))
         {
@@ -119,12 +119,12 @@ public class LocalhostAccount : ICloneable
 
         fileName = URLHelpers.URLEncode(fileName);
 
-        string subFolderPath = GetSubFolderPath();
+        string? subFolderPath = GetSubFolderPath();
         subFolderPath = URLHelpers.URLEncode(subFolderPath, true);
 
-        string httpHomePath = GetHttpHomePath();
+        string? httpHomePath = GetHttpHomePath();
 
-        string path;
+        string? path;
 
         if (string.IsNullOrEmpty(httpHomePath))
         {
@@ -158,7 +158,7 @@ public class LocalhostAccount : ICloneable
         return path;
     }
 
-    public string GetLocalhostPath(string fileName)
+    public string? GetLocalhostPath(string? fileName)
     {
         if (string.IsNullOrEmpty(LocalhostRoot))
         {
@@ -168,9 +168,9 @@ public class LocalhostAccount : ICloneable
         return Path.Combine(Path.Combine(FileHelpers.ExpandFolderVariables(LocalhostRoot), GetSubFolderPath()), fileName);
     }
 
-    public string GetLocalhostUri(string fileName)
+    public string? GetLocalhostUri(string? fileName)
     {
-        string localhostAddress = LocalUri;
+        string? localhostAddress = LocalUri;
 
         if (string.IsNullOrEmpty(localhostAddress))
         {

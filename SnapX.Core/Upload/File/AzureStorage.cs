@@ -39,12 +39,12 @@ public sealed class AzureStorage : FileUploader
     public string AzureStorageAccountAccessKey { get; private set; }
     public string AzureStorageContainer { get; private set; }
     public string AzureStorageEnvironment { get; private set; }
-    public string AzureStorageCustomDomain { get; private set; }
+    public string? AzureStorageCustomDomain { get; private set; }
     public string AzureStorageUploadPath { get; private set; }
     public string AzureStorageCacheControl { get; private set; }
 
     public AzureStorage(string azureStorageAccountName, string azureStorageAccessKey, string azureStorageContainer, string azureStorageEnvironment,
-        string customDomain, string uploadPath, string cacheControl)
+        string? customDomain, string uploadPath, string cacheControl)
     {
         AzureStorageAccountName = azureStorageAccountName;
         AzureStorageAccountAccessKey = azureStorageAccessKey;
@@ -55,7 +55,7 @@ public sealed class AzureStorage : FileUploader
         AzureStorageCacheControl = cacheControl;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
         if (string.IsNullOrEmpty(AzureStorageAccountName))
             Errors.Add("'Account Name' must not be empty");
@@ -142,7 +142,7 @@ public sealed class AzureStorage : FileUploader
         return hashedString;
     }
 
-    private string GetUploadPath(string fileName)
+    private string? GetUploadPath(string? fileName)
     {
         if (!string.IsNullOrWhiteSpace(AzureStorageUploadPath))
         {
@@ -154,9 +154,9 @@ public sealed class AzureStorage : FileUploader
     }
 
 
-    public string GenerateURL(string uploadPath, bool isRequest = false)
+    public string? GenerateURL(string? uploadPath, bool isRequest = false)
     {
-        string url;
+        string? url;
 
         if (!isRequest && !string.IsNullOrEmpty(AzureStorageCustomDomain))
         {
@@ -175,9 +175,9 @@ public sealed class AzureStorage : FileUploader
         return url;
     }
 
-    public string GetPreviewURL()
+    public string? GetPreviewURL()
     {
-        string uploadPath = GetUploadPath("example.png");
+        string? uploadPath = GetUploadPath("example.png");
         return GenerateURL(uploadPath);
     }
 }

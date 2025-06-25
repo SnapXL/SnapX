@@ -23,7 +23,7 @@ public abstract class ImageEffect
 
     public abstract Image Apply(Image img);
 
-    protected virtual string GetSummary()
+    protected virtual string? GetSummary()
     {
         return null;
     }
@@ -36,7 +36,7 @@ public abstract class ImageEffect
         }
 
         string name = GetType().GetDescription();
-        string summary = GetSummary();
+        string? summary = GetSummary();
 
         if (!string.IsNullOrEmpty(summary))
         {

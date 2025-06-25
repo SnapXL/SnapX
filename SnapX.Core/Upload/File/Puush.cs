@@ -31,9 +31,9 @@ public class Puush : FileUploader
     public const string PuushResetPasswordURL = PuushURL + "/reset_password";
 
     private const string PuushAPIURL = PuushURL + "/api";
-    private const string PuushAPIAuthenticationURL = PuushAPIURL + "/auth";
-    private const string PuushAPIUploadURL = PuushAPIURL + "/up";
-    private const string PuushAPIDeletionURL = PuushAPIURL + "/del";
+    private const string? PuushAPIAuthenticationURL = PuushAPIURL + "/auth";
+    private const string? PuushAPIUploadURL = PuushAPIURL + "/up";
+    private const string? PuushAPIDeletionURL = PuushAPIURL + "/del";
     private const string PuushAPIHistoryURL = PuushAPIURL + "/hist";
     private const string PuushAPIThumbnailURL = PuushAPIURL + "/thumb";
 
@@ -48,9 +48,9 @@ public class Puush : FileUploader
         APIKey = apiKey;
     }
 
-    public string Login(string email, string password)
+    public string Login(string email, string? password)
     {
-        Dictionary<string, string> arguments = new Dictionary<string, string>
+        Dictionary<string, string?> arguments = new Dictionary<string, string?>
         {
             { "e", email },
             { "p", password },
@@ -59,7 +59,7 @@ public class Puush : FileUploader
 
         // Successful: status,apikey,expire,usage
         // Failed: status
-        string response = SendRequestMultiPart(PuushAPIAuthenticationURL, arguments);
+        string? response = SendRequestMultiPart(PuushAPIAuthenticationURL, arguments);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -74,9 +74,9 @@ public class Puush : FileUploader
         return null;
     }
 
-    public bool DeleteFile(string id)
+    public bool DeleteFile(string? id)
     {
-        Dictionary<string, string> arguments = new Dictionary<string, string>
+        Dictionary<string, string?> arguments = new Dictionary<string, string?>
         {
             { "k", APIKey },
             { "i", id },
@@ -85,7 +85,7 @@ public class Puush : FileUploader
 
         // Successful: status\nlist of history items
         // Failed: status
-        string response = SendRequestMultiPart(PuushAPIDeletionURL, arguments);
+        string? response = SendRequestMultiPart(PuushAPIDeletionURL, arguments);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -100,9 +100,9 @@ public class Puush : FileUploader
         return false;
     }
 
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "k", APIKey },
             { "z", SnapXResources.UserAgent }
@@ -114,7 +114,7 @@ public class Puush : FileUploader
 
         if (result.IsSuccess)
         {
-            var values = result.Response.Split(',');
+            string?[] values = result.Response.Split(',');
 
             if (values.Length > 0)
             {

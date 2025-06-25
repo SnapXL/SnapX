@@ -48,9 +48,9 @@ public sealed class LobFile : FileUploader
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public override UploadResult Upload(Stream stream, string fileName)
+    public override UploadResult Upload(Stream stream, string? fileName)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "api_key", Config.UserAPIKey }
         };
@@ -76,9 +76,9 @@ public sealed class LobFile : FileUploader
 
     [RequiresDynamicCode("Uploader")]
     [RequiresUnreferencedCode("Uploader")]
-    public string FetchAPIKey(string email, string password)
+    public string FetchAPIKey(string email, string? password)
     {
-        var args = new Dictionary<string, string>
+        var args = new Dictionary<string, string?>
         {
             { "email", email },
             { "password", password }
@@ -100,12 +100,12 @@ public sealed class LobFile : FileUploader
     public class LobFileResponse
     {
         public bool Success { get; set; }
-        public string Error { get; set; }
+        public string? Error { get; set; }
     }
 
     public class LobFileUploadResponse : LobFileResponse
     {
-        public string URL { get; set; }
+        public string? URL { get; set; }
     }
 
     public class LobFileFetchAPIKeyResponse : LobFileResponse

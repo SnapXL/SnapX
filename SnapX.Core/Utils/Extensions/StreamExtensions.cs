@@ -81,7 +81,7 @@ public static class StreamExtensions
         return totalBytesRead;
     }
 
-    public static bool WriteToFile(this Stream stream, string filePath)
+    public static bool WriteToFile(this Stream stream, string? filePath)
     {
         if (stream.Length == 0 || string.IsNullOrEmpty(filePath)) return false;
 
