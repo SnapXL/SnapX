@@ -7,6 +7,7 @@ using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using SnapX.Core.CLI;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Job;
@@ -166,7 +167,7 @@ public class SnapX
 
     private static string CustomConfigPath { get; set; }
     public static SqliteConnection DbConnection { get; set; }
-    public static string ShortenPath(string path) =>
+    public static string ShortenPath(string? path) =>
         OperatingSystem.IsWindows() ? path : path.Replace(Environment.GetEnvironmentVariable("HOME") ?? "", "~");
 
     public static string PersonalFolder =>
@@ -226,15 +227,15 @@ public class SnapX
         }
     }
 
-    public static readonly string DBPath = Path.Combine(PersonalFolder, "SnapX.db");
+    public static readonly string? DBPath = Path.Combine(PersonalFolder, "SnapX.db");
 
-    public static string ImageEffectsFolder => Path.Combine(PersonalFolder, "ImageEffects");
+    public static string? ImageEffectsFolder => Path.Combine(PersonalFolder, "ImageEffects");
 
     private static string PersonalPathDetectionMethod;
 
     public const string HistoryFileNameOld = "History.json";
 
-    public static string HistoryFilePathOld
+    public static string? HistoryFilePathOld
     {
         get
         {
@@ -263,7 +264,7 @@ public class SnapX
         CloseSequence();
     }
     public Assembly[] GetAssemblies() => AppDomain.CurrentDomain.GetAssemblies();
-    public void start(string[] args)
+    public void start(string?[] args)
     {
         HandleExceptions();
 
@@ -291,6 +292,7 @@ public class SnapX
     public long getStartupTime() => StartTimer.ElapsedMilliseconds;
     public EventAggregator getEventAggregator() => EventAggregator;
     public bool isSilent() => SilentRun;
+    public static object? aptabaseClientObject;
 
     // Supports the failed standard https://consoledonottrack.com/
     public static bool TelemetryEnabled() => !FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry &&
@@ -425,8 +427,9 @@ public class SnapX
             SQLitePCL.raw.SetProvider(new SQLite3Provider_sqlite3());
         }
         SQLitePCL.Batteries_V2.Init();
+        var dataSource = SnapX.Sandbox ? ":memory:" : DBPath;
 
-        var connectionString = new SqliteConnectionStringBuilder { DataSource = DBPath, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true, }.ToString();
+        var connectionString = new SqliteConnectionStringBuilder { DataSource = dataSource, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true, }.ToString();
         DbConnection = new SqliteConnection(connectionString);
         RunWithTimeout(() => DbConnection.OpenAsync(), $"Opening the database connection at {DBPath}");
         RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA journal_mode=WAL;"), "Setting journal mode");
@@ -465,9 +468,14 @@ public class SnapX
         SettingManager.LoadSettings();
         if (TelemetryEnabled())
         {
-            var logger = DebugHelper.Logger.ForContext<AptabaseClient>() as ILogger<AptabaseClient>;
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.ClearProviders();
+                builder.AddSerilog();
+            });
+            var logger = loggerFactory.CreateLogger<AptabaseClient>();
 
-            var aptabaseClient = new AptabaseClient("A-US-4105716286", new AptabaseOptions()
+            var aptabaseClient = new AptabaseClient("A-US-4105716286", new AptabaseOptions
             {
                 EnablePersistence = true,
 #if DEBUG
@@ -477,6 +485,7 @@ public class SnapX
 #endif
             }, logger);
             var telemetry = new Telemetry(DbConnection, aptabaseClient);
+            aptabaseClientObject = aptabaseClient;
             telemetry.TrackEvent("app_started", new Dictionary<string, object>
             {
                 { "CPU", SnapXResources.CPU },
@@ -586,6 +595,12 @@ public class SnapX
             DbConnection.Dispose();
         }
 
+        if (TelemetryEnabled())
+        {
+            var client = aptabaseClientObject as AptabaseClient;
+            client!.DisposeAsync();
+        }
+
         DebugHelper.WriteLine("SnapX closed.");
         DebugHelper.FlushBufferedMessages();
         Environment.Exit(0);
@@ -612,7 +627,7 @@ public class SnapX
         {
             MigratePersonalPathConfig();
 
-            string customPersonalPath = ReadPersonalPathConfig();
+            string? customPersonalPath = ReadPersonalPathConfig();
 
             if (!string.IsNullOrEmpty(customPersonalPath))
             {
@@ -650,12 +665,10 @@ public class SnapX
 
     private static void CreateParentFolders()
     {
-        if (!Sandbox && Directory.Exists(PersonalFolder))
-        {
-            FileHelpers.CreateDirectory(SettingManager.SnapshotFolder);
-            FileHelpers.CreateDirectory(ImageEffectsFolder);
-            FileHelpers.CreateDirectory(ScreenshotsParentFolder);
-        }
+        if (Sandbox || !Directory.Exists(PersonalFolder)) return;
+        FileHelpers.CreateDirectory(SettingManager.SnapshotFolder);
+        FileHelpers.CreateDirectory(ImageEffectsFolder);
+        FileHelpers.CreateDirectory(ScreenshotsParentFolder);
     }
 
     private static void RegisterIntegrations()
@@ -721,7 +734,7 @@ public class SnapX
 
     public static bool WritePersonalPathConfig(string path)
     {
-        path = path?.Trim() ?? string.Empty;
+        path = path.Trim() ?? string.Empty;
 
         if (string.IsNullOrEmpty(path) && !File.Exists(PersonalPathConfigFilePath))
             return false;
