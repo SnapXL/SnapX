@@ -12,10 +12,8 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Windowing;
-using LibVLCSharp.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using SkiaSharp;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views;
 using SnapX.Avalonia.Views.Settings;
@@ -35,7 +33,7 @@ public partial class App : Application
         DataContext = this;
     }
 
-    public static SnapXAvalonia SnapX { get; private set; }
+    public static SnapXAvalonia SnapX { get; private set; } = null!;
     public static MainWindow? MyMainWindow { get; private set; }
     public static string TrayTitle => $"SnapX v{SimpleVersion()}";
 
@@ -68,7 +66,7 @@ public partial class App : Application
         }
     }
 
-    private void ShowErrorDialog(string title, Exception ex)
+    private void ShowErrorDialog(string? title, Exception ex)
     {
         // Create the dialog content with a button
         var stackPanel = new StackPanel
@@ -205,7 +203,7 @@ public partial class App : Application
         URLHelpers.OpenURL(newIssueURL);
     }
 
-    private void CopyErrorToClipboard(string errorMessage)
+    private void CopyErrorToClipboard(string? errorMessage)
     {
         Clipboard.CopyText(errorMessage);
     }
@@ -395,19 +393,7 @@ public partial class App : Application
                     if (SnapX.isSilent()) return;
                     if (SnapX.GetCLIManager().IsCommandExist("video"))
                     {
-                        var vlc = new LibVLC(false);
-                        DebugHelper.WriteLine($"VLC Version: {vlc.Version}");
-                        var MediaPlayer = new MediaPlayer(vlc);
-                        var input = new Uri("https://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov");
-
-                        var media = new Media(vlc, input);
-                        MediaPlayer.EnableHardwareDecoding = true;
-                        MediaPlayer.Play(media);
-                        MediaPlayer.Stopped += async (Sender, Args) =>
-                        {
-                            media.Dispose();
-                            vlc.Dispose();
-                        };
+                        throw new NotImplementedException("LibVLC is removed from SnapX.Avalonia");
                     }
                     var Window = new MainWindow(vm);
 
