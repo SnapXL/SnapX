@@ -60,5 +60,4 @@ public partial class OCRViewModel : ViewModelBase
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default);
     }
-
 }
