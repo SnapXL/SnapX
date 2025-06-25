@@ -39,7 +39,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Free Disk Space (Ubuntu)
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
 
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: false
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
