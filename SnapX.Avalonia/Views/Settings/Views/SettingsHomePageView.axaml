@@ -1,0 +1,45 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.Views.Settings.Views.SettingsHomePageView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel
+        HorizontalAlignment="Center"
+        Spacing="8"
+        VerticalAlignment="Center">
+        <StackPanel
+            HorizontalAlignment="Center"
+            Orientation="Horizontal"
+            Spacing="6">
+            <fluent:SymbolIcon
+                Height="24"
+                Symbol="Rocket"
+                Width="24" />
+            <TextBlock
+                FontSize="20"
+                FontWeight="Bold"
+                VerticalAlignment="Center">
+                Built with Avalonia UI
+            </TextBlock>
+        </StackPanel>
+
+        <TextBlock
+            FontSize="14"
+            Opacity="0.7"
+            TextAlignment="Center">
+            One codebase. Every platform. No compromises.
+        </TextBlock>
+        <TextBlock
+            FontSize="12"
+            Opacity="0.5"
+            TextAlignment="Center">
+            Cross-platform. GPU-accelerated. Open source.
+        </TextBlock>
+    </StackPanel>
+</UserControl>
+
