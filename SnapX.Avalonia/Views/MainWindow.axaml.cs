@@ -37,7 +37,7 @@ public partial class MainWindow : AppWindow
             var activeScreen = Screens.ScreenFromWindow(this);
             var screenWidth = activeScreen?.Bounds.Width ?? 1920;
             var screenHeight = activeScreen?.Bounds.Height ?? 1080;
-            Width = screenWidth / 2.27;
+            Width = screenWidth / 2.07;
             Height = screenHeight / 2.2;
             if (config.RememberMainFormSize)
             {
@@ -74,7 +74,7 @@ public partial class MainWindow : AppWindow
 
         if (files.Count > 0)
         {
-            string[] filePaths = files.Select(f => f.Path.ToString()).ToArray();
+            string?[] filePaths = files.Select(f => f.Path.ToString()).ToArray();
             UploadManager.UploadFile(filePaths, @event.TaskSettings);
         }
     }
