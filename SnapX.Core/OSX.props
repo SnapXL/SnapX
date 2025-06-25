@@ -1,0 +1,15 @@
+<Project>
+  <Target Name="CargoBuild" BeforeTargets="BeforeBuild" Condition="'$(nocargobuild)' == ''">
+    <Message Text="Compiling Rust intermediary library..." Importance="High" />
+    <PropertyGroup>
+      <RustLibName Condition="$([MSBuild]::IsOsPlatform('OSX'))">libsnapxrust.dylib</RustLibName>
+    </PropertyGroup>
+    <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
+  </Target>
+  <ItemGroup>
+    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.osx-x64" Version="$(OpenCvSharp4Version)"  />
+    <PackageReference Include="Sdcb.PaddleInference.runtime.osx-x64" Version="$(PaddleInferenceVersion)" />
+    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.osx-arm64" Version="$(OpenCvSharp4Version)"  />
+    <PackageReference Include="Sdcb.PaddleInference.runtime.osx-arm64" Version="$(PaddleInferenceVersion)" />
+  </ItemGroup>
+</Project>

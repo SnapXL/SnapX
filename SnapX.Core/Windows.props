@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <!-- Windows 10 22H2 -->
+    <TargetPlatformMinVersion>10.0.19045.0</TargetPlatformMinVersion>
+    <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref/10.0.26100.48 -->
+    <WindowsSdkPackageVersion>10.0.26100.57</WindowsSdkPackageVersion>
+    <DefineConstants>$(DefineConstants);WINDOWS;TARGET_WINDOWS</DefineConstants>
+    <!--    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>-->
+    <!--    <PLatform>x64</PLatform>-->
+    <!--    <RuntimeIdentifier>win-x64</RuntimeIdentifier>-->
+    <!--    <UseRIDGraph>true</UseRIDGraph>-->
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Windows Registry Configuration Support -->
+    <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17"  />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" >
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <!-- Waiting for matching win-arm64 PaddleInference package.-->
+<!--    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.win-arm64" Version="$(OpenCvSharp4Version)"  />-->
+    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.win-x64" Version="$(OpenCvSharp4Version)"  />
+    <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas" Version="$(PaddleInferenceVersion)"  />
+    <!-- Blazingly fast screen captures on Windows, hopefully even compatible with video games that have weird quirks. -->
+    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" />
+  </ItemGroup>
+</Project>

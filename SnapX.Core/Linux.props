@@ -1,0 +1,9 @@
+<Project>
+  <ItemGroup>
+    <!-- This works on other distributions, it just means it was built on Ubuntu 24.04 LTS -->
+    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.ubuntu.24.04-x64" Version="$(OpenCvSharp4Version)"  />
+    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.ubuntu.24.04-arm64" Version="$(OpenCvSharp4Version)"  />
+    <PackageReference Include="Sdcb.PaddleInference.runtime.linux-x64.openblas" Version="$(PaddleInferenceVersion)" />
+    <PackageReference Include="Sdcb.PaddleInference.runtime.linux-arm64" Version="$(PaddleInferenceVersion)" />
+  </ItemGroup>
+</Project>
