@@ -8,7 +8,7 @@ namespace DefaultNamespace;
 
 class PersistentGitBash : IDisposable
 {
-    private Process bashProcess;
+    private Process? bashProcess;
     private readonly StringBuilder outputBuffer = new();
     private readonly StringBuilder errorBuffer = new();
     private TaskCompletionSource<(bool Success, string Output, string Error)>? commandCompletion;

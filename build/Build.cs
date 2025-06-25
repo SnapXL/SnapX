@@ -64,6 +64,7 @@ public class Build(IBuildLogger Logger, ICommandRunner CommandRunner, IFileSyste
                 Logger.Information($"Skipping {manifestFile} since NMHostPath was not provided");
                 continue;
             }
+            if (json is null) continue;
             json["path"] = NMHostPath;
 
             await FileSystem.FileWriteAllTextAsync(manifestFile, json.ToJsonString(new JsonSerializerOptions
@@ -74,17 +75,19 @@ public class Build(IBuildLogger Logger, ICommandRunner CommandRunner, IFileSyste
         }
     }
 
-    private async Task HandleRustLibCopy(string rootDirectory, string outputDir)
+    private Task HandleRustLibCopy(string rootDirectory, string outputDir)
     {
         var rustLib = OperatingSystem.IsLinux() ? "libsnapxrust.so" : "libsnapxrust.dylib";
         var sourcePath = Path.Combine(rootDirectory, "SnapX.Core", "ScreenCapture", "Rust", "target", "release", rustLib);
 
-        if (!File.Exists(sourcePath)) return;
+        if (!File.Exists(sourcePath)) return Task.CompletedTask;
 
         foreach (var dir in FileSystem.DirectoryGetDirectories(outputDir, "*", SearchOption.AllDirectories))
         {
             var destinationPath = Path.Combine(dir, rustLib);
             FileSystem.FileCopy(sourcePath, destinationPath, overwrite: true);
         }
+
+        return Task.CompletedTask;
     }
 }

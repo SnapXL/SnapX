@@ -8,20 +8,19 @@ namespace DefaultNamespace;
 
 internal class Program
 {
-    internal static readonly ConsoleLogger logger = new();
-    internal static readonly CommandRunner commandRunner = new(logger);
+    private static readonly ConsoleLogger logger = new();
+    private static readonly CommandRunner commandRunner = new(logger);
     internal static readonly DirectoryService directoryService = new(logger, commandRunner);
-    internal static readonly FS fileSystem = new(logger, commandRunner, directoryService);
+    private static readonly FS fileSystem = new(logger, commandRunner);
 
     private async Task ExecuteAsync(BuildConfig config)
     {
         var targetsToRun = config.Targets;
-        if (targetsToRun == null || targetsToRun.Length == 0)
+        if (targetsToRun.Length == 0)
         {
             targetsToRun = ["default"];
         }
 
-        var hasLoggedInfo = false;
 
         Target("format", async () =>
         {
@@ -76,7 +75,7 @@ internal class Program
         {
             if (config.ShouldSkip("uninstall")) return;
 
-            var uninstallProcessor = new Uninstall(logger, commandRunner, fileSystem, config);
+            var uninstallProcessor = new Uninstall(logger, fileSystem, config);
             await uninstallProcessor.ProcessUninstall();
             await Task.CompletedTask;
         });

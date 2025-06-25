@@ -1,33 +1,32 @@
 namespace DefaultNamespace;
 
-public class ConsoleLogger : IBuildLogger
+public class ConsoleLogger(bool NoColor = false) : IBuildLogger
 {
-    private bool noColor;
     public void Error(string message)
     {
-        if (!noColor) Console.ForegroundColor = ConsoleColor.Red;
+        if (!NoColor) Console.ForegroundColor = ConsoleColor.Red;
         Console.Error.WriteLine($"ERROR: {message}");
-        if (!noColor) Console.ResetColor();
+        if (!NoColor) Console.ResetColor();
     }
 
     public void Warning(string message)
     {
-        if (!noColor) Console.ForegroundColor = ConsoleColor.Yellow;
+        if (!NoColor) Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine($"WARNING: {message}");
-        if (!noColor) Console.ResetColor();
+        if (!NoColor) Console.ResetColor();
     }
 
     public void Information(string message)
     {
-        if (!noColor) Console.ForegroundColor = ConsoleColor.Green;
+        if (!NoColor) Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(message);
-        if (!noColor) Console.ResetColor();
+        if (!NoColor) Console.ResetColor();
     }
 
     public void Debug(string message)
     {
-        if (!noColor) Console.ForegroundColor = ConsoleColor.DarkGray;
+        if (!NoColor) Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.WriteLine($"DEBUG: {message}");
-        if (!noColor) Console.ResetColor();
+        if (!NoColor) Console.ResetColor();
     }
 }

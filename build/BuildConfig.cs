@@ -76,7 +76,7 @@ public class BuildConfig
         return _skippedSteps.Contains(normalized);
     }
 
-    public Options BullseyeOptions { get; set; }
+    public required Options BullseyeOptions { get; set; }
 
     public string[] Targets { get; set; } = [];
     public string[] SkippedStepsRaw { get; set; } = [];

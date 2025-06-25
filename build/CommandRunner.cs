@@ -35,8 +35,6 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
             Logger.Information($"Source file not found: {source}");
         }
     }
-    Process? bashProcess;
-    StreamWriter? bashInput;
     PersistentGitBash? persistentBash;
     public async Task RunInstallCommand(string installArguments, string executionCommand = "install")
     {
@@ -95,7 +93,8 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
 
         await RunAsync(execCommand, executionArguments);
     }
-    public bool RequiresElevationLikely(string installArguments)
+
+    private bool RequiresElevationLikely(string installArguments)
     {
         if (Environment.GetEnvironmentVariable("ELEVATION_NOT_NEEDED") == "1")
             return false;
@@ -115,7 +114,7 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
         return (from arg in arguments where Path.IsPathRooted(arg) from protectedPath in protectedPaths where arg == protectedPath || arg.StartsWith(protectedPath + '/') select arg).Any();
     }
 
-    internal bool IsAdmin()
+    private bool IsAdmin()
     {
         if (OperatingSystem.IsWindows())
         {
@@ -136,7 +135,7 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
         }
     }
 
-    internal int GetCurrentUid()
+    private int GetCurrentUid()
     {
         if (OperatingSystem.IsWindows())
         {

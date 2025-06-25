@@ -1,17 +1,7 @@
 namespace DefaultNamespace;
 
-public class FS : IFileSystem
+public class FS(IBuildLogger Logger, CommandRunner CommandRunner) : IFileSystem
 {
-    static IBuildLogger Logger;
-    CommandRunner CommandRunner;
-    DirectoryService DirectoryService;
-
-    public FS(IBuildLogger logger, CommandRunner commandRunner, DirectoryService directoryService)
-    {
-        Logger = logger;
-        CommandRunner = commandRunner;
-        DirectoryService = directoryService;
-    }
     public async Task TryDeleteFile(string path)
     {
         if (!File.Exists(path)) return;
