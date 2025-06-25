@@ -79,7 +79,7 @@ jobs:
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet
-      - name: 🛠 Generate NuGet.config and Directory.Build.props
+      - name: 🛠 Generate NuGet.config
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: |
           printf '%s\n' \
