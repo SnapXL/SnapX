@@ -5,10 +5,6 @@
     <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref/10.0.26100.48 -->
     <WindowsSdkPackageVersion>10.0.26100.57</WindowsSdkPackageVersion>
     <DefineConstants>$(DefineConstants);WINDOWS;TARGET_WINDOWS</DefineConstants>
-    <!--    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>-->
-    <!--    <PLatform>x64</PLatform>-->
-    <!--    <RuntimeIdentifier>win-x64</RuntimeIdentifier>-->
-    <!--    <UseRIDGraph>true</UseRIDGraph>-->
   </PropertyGroup>
   <ItemGroup>
     <!-- Windows Registry Configuration Support -->
