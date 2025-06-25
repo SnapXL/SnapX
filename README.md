@@ -187,7 +187,7 @@ cd SnapX
 .\build.ps1 # If on Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
 # Nothing is stopping you from using regular .NET building tools
-# dotnet publish -c Release
+# dotnet publish -c Release ./SnapX.sln
 # SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
 ```
 
@@ -196,8 +196,10 @@ Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
 Contributions are welcome. The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
 
 ## Donators 💖
+
 - [Skorlok](https://github.com/Skorlok)
 - [Abdullah16M](https://github.com/Abdullah16M)
+
 Thank you so much!
 
 ### Roadmap
