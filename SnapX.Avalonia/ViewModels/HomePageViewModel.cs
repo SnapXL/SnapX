@@ -5,8 +5,10 @@ using Avalonia.Input;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using SnapX.Avalonia.Models;
+using SnapX.Avalonia.Views;
 using SnapX.Core;
 using SnapX.Core.Job;
+using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 
 namespace SnapX.Avalonia.ViewModels;
@@ -163,6 +165,42 @@ public partial class HomePageViewModel : ViewModelBase
         if (parameter is not string url) return;
         URLHelpers.OpenURL(url);
     }
+    [RelayCommand]
+    public void OCRImage(object Sender)
+    {
+        DebugHelper.WriteLine("OCRImage");
+        if (Sender is not ListTaskTemplate ltt) return;
+        DebugHelper.WriteLine("OCRImage 2");
+        var OcrWindow = new OCR(ltt.task);
+        OcrWindow.Show();
+    }
+
+    [RelayCommand]
+    public void DownloadButton(object Sender)
+    {
+        if (Sender is not ListTaskTemplate ltt) return;
+        var taskSettings = TaskSettings.GetDefaultTaskSettings();
+        var url = ltt.task.URL ?? ltt.task.ThumbnailURL;
+
+        var task = WorkerTask.CreateDownloadTask(url, false, taskSettings);
+
+        if (task != null)
+        {
+            TaskManager.Start(task);
+        }
+    }
+    [RelayCommand]
+    public void UploadButton(object Sender)
+    {
+        if (Sender is not ListTaskTemplate ltt) return;
+        if (ltt.task.FilePath is null)
+        {
+            DebugHelper.WriteLine("UploadButton called with a null path");
+            return;
+        }
+        UploadManager.UploadFile(ltt.task.FilePath);
+    }
+
     public async Task RefreshTasks()
     {
         var typeofVM = typeof(HomePageViewModel);
@@ -180,6 +218,7 @@ public partial class HomePageViewModel : ViewModelBase
             {
                 var historyItems = await TaskManager.History.GetHistoryItemsAsync(30_000).ConfigureAwait(false);
                 return historyItems.AsParallel()
+                    .OrderByDescending(task => task.Id)
                     .Select(task => new ListTaskTemplate(typeofVM, task))
                     .ToList();
             }).ConfigureAwait(false);
@@ -225,7 +264,7 @@ public partial class HomePageViewModel : ViewModelBase
                 }
                 else
                 {
-                    recentTasks.Add(newItem);
+                    recentTasks.Insert(0, newItem);
                 }
             }
         });
