@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -21,7 +21,6 @@ public class ViewLocator : IDataTemplate
         RegisterViewFactory<RegionSelectorViewModel, RegionSelectorWindow>();
         RegisterViewFactory<SettingsMainViewVM, SettingsWindow>();
         RegisterViewFactory<SettingsHomePageViewVM, SettingsHomePageView>();
-
     }
 
     public Control Build(object? data)

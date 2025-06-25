@@ -67,7 +67,6 @@ public partial class RegionSelectorWindow : Window
             viewBox.Width = width;
             viewBox.Height = height;
         }
-
     }
     public RegionSelectorWindow() : this(new RegionSelectorViewModel()) { }
     private void OnPointerPressed(object? Sender, PointerPressedEventArgs E)
