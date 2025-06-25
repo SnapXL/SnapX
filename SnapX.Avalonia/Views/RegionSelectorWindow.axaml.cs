@@ -7,11 +7,14 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Native;
+using Image = SixLabors.ImageSharp.Image;
 using Point = Avalonia.Point;
 using Rectangle = Avalonia.Controls.Shapes.Rectangle;
 
@@ -26,7 +29,7 @@ public partial class RegionSelectorWindow : Window
     private readonly Rectangle _dimmingOverlay;
     private readonly TextBox _infoBox;
     private readonly Canvas _canvas;
-    // private readonly SixLabors.ImageSharp.Image _image;
+    private Image? _image;
     private Stream? _imageStream;
     private Rect _imageBounds;
     private List<Window> windowsHiddenByUs = [];
@@ -39,26 +42,32 @@ public partial class RegionSelectorWindow : Window
         _infoBox = this.FindControl<TextBox>("InfoBox");
         _canvas = this.FindControl<Canvas>("Canvas");
 
-        var workingArea = Screens.All
-            .Select(screen => screen.Bounds)
-            .Aggregate((acc, next) => acc.Union(next));
+        // var workingArea = Screens.All
+        //     .Select(screen => screen.Bounds)
+        //     .Aggregate((acc, next) => acc.Union(next));
+        var cursorPos = Methods.GetCursorPosition();
+        var workingArea = Screens.ScreenFromPoint(new PixelPoint(cursorPos.X, cursorPos.Y))?.Bounds;
+        if (workingArea != null && workingArea.HasValue)
+        {
+            workingArea = workingArea.Value;
 
+            var x = workingArea.Value.X;
+            var y = workingArea.Value.Y;
+            var width = workingArea.Value.Width;
+            var height = workingArea.Value.Height;
+            DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
+            Position = new PixelPoint(x, y);
+            // _dimmingOverlay.Width = width;
+            // _dimmingOverlay.Height = height;
+            // Width = width;
+            // height = width;
+            _canvas.Width = width;
+            _canvas.Height = height;
+            var viewBox = _canvas.Parent as Viewbox;
+            viewBox.Width = width;
+            viewBox.Height = height;
+        }
 
-        var x = workingArea.X;
-        var y = workingArea.Y;
-        var width = workingArea.Width;
-        var height = workingArea.Height;
-        DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
-        Position = new PixelPoint(x, y);
-        _dimmingOverlay.Width = width;
-        _dimmingOverlay.Height = height;
-        Width = width;
-        height = width;
-        _canvas.Width = width;
-        _canvas.Height = height;
-        var viewBox = _canvas.Parent as Viewbox;
-        viewBox.Width = width;
-        viewBox.Height = height;
     }
     public RegionSelectorWindow() : this(new RegionSelectorViewModel()) { }
     private void OnPointerPressed(object? Sender, PointerPressedEventArgs E)
@@ -79,19 +88,20 @@ public partial class RegionSelectorWindow : Window
         _selectionRect.IsVisible = false;
         _dimmingOverlay.IsVisible = false;
         _infoBox.IsVisible = false;
-        _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
-        DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {_selectionRect.Bounds}");
+        var selectedRegion = _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
+        DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {selectedRegion}");
         try
         {
             _ = Task.Run(() =>
             {
-                var img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureRectangle(
-                    new SixLabors.ImageSharp.Rectangle((int)_selectionRect.Bounds.X, (int)_selectionRect.Bounds.Y,
-                        (int)_selectionRect.Bounds.Width, (int)_selectionRect.Bounds.Height));
-                if (img != null)
+                if (_imageStream == null)
                 {
-                    UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
+                    DebugHelper.WriteLine("RegionSelectorWindow.OnPointerReleased: _imageStream is null");
+                    return;
                 }
+                _image.Mutate(Context => Context.Crop(new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X, (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height)));
+
+                UploadManager.RunImageTask(_image, TaskSettings.GetDefaultTaskSettings());
             });
         }
         catch (Exception ex)
@@ -240,35 +250,34 @@ public partial class RegionSelectorWindow : Window
             windowsHiddenByUs.Add(win);
         }
         // Screenshotting is synchronous that blocks the UI thread. FUCK YOU
-        var image = Task.Factory.StartNew(() =>
+        _image = Task.Factory.StartNew(() =>
                 TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings())
-                    .CaptureActiveMonitor(),
+                    .CaptureActiveMonitor().GetAwaiter().GetResult(),
             TaskCreationOptions.LongRunning
-        ).GetAwaiter().GetResult().GetAwaiter().GetResult();
+        ).ConfigureAwait(false).GetAwaiter().GetResult();
         // Convert ImageSharp image to Avalonia Bitmap via a MemoryStream
         _imageStream = new MemoryStream();
-        image.SaveAsPng(_imageStream);
+        _image.SaveAsPng(_imageStream);
         _imageStream.Position = 0;
-        _imageBounds = new Rect(image.Bounds.X, image.Bounds.Y, image.Bounds.Width, image.Bounds.Height);
-        image.Dispose();
-        DebugHelper.WriteLine($"_imageStream {_imageStream.Length} (Readable? {_imageStream.CanRead}) bytes raw image bounds {image.Bounds}");
+        _imageBounds = new Rect(_image.Bounds.X, _image.Bounds.Y, _image.Bounds.Width, _image.Bounds.Height);
+        DebugHelper.WriteLine($"_imageStream {_imageStream.Length} (Readable? {_imageStream.CanRead}) bytes raw image bounds {_image.Bounds}");
         // Take a fullscreen screenshot then use it as background instead of transparency if light taskSetting is set.
         // If the application has already taken the fullscreen screenshot, crop it with the region captured.
         // Screenshotting is an expensive operation!
         try
         {
-            Background = new ImageBrush()
+            Background = new ImageBrush
             {
                 Source = new Bitmap(_imageStream),
-                Stretch = Stretch.UniformToFill
+                Stretch = Stretch.UniformToFill,
             };
         }
         catch (Exception e)
         {
             DebugHelper.WriteException(e);
         }
-        _imageStream.Dispose();
-        _imageStream = null;
+        // _imageStream?.Dispose();
+        // _imageStream = null;
     }
 
     private void OnClosed(object? Sender, EventArgs E)

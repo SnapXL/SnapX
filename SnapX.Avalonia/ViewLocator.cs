@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views;
 using SnapX.Avalonia.Views.Settings;
+using SnapX.Avalonia.Views.Settings.Views;
 
 namespace SnapX.Avalonia;
 
@@ -17,7 +18,10 @@ public class ViewLocator : IDataTemplate
     {
         RegisterViewFactory<MainViewModel, MainWindow>();
         RegisterViewFactory<HomePageViewModel, HomePageView>();
-        RegisterViewFactory<SettingsWindowViewModel, SettingsWindow>();
+        RegisterViewFactory<RegionSelectorViewModel, RegionSelectorWindow>();
+        RegisterViewFactory<SettingsMainViewVM, SettingsWindow>();
+        RegisterViewFactory<SettingsHomePageViewVM, SettingsHomePageView>();
+
     }
 
     public Control Build(object? data)
