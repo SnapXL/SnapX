@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using OpenCvSharp;
 using Sdcb.PaddleInference;
@@ -677,14 +678,48 @@ public static class TaskHelpers
     {
         return await OCRImage(image, null, taskSettings);
     }
+    public static FullOcrModel GetModelForLanguage(string languageCode)
+    {
+        return languageCode switch
+        {
+            "eng" => new FullOcrModel(LocalDetectionModel.ChineseV5, LocalClassificationModel.ChineseMobileV2, LocalRecognizationModel.EnglishV4),
+            "chi_sim" => LocalFullModels.ChineseV5,
+            "chi_tra" => LocalFullModels.TraditionalChineseV3,
+            "jpn" => LocalFullModels.JapanV4,
+            "kor" => LocalFullModels.KoreanV4,
+            "tel" => LocalFullModels.TeluguV4,
+            "kan" => LocalFullModels.KannadaV4,
+            "tam" => LocalFullModels.TamilV4,
+            "ara" => LocalFullModels.ArabicV4,
+            "hin" => LocalFullModels.DevanagariV4,
+            _ => new FullOcrModel(
+                LocalDetectionModel.ChineseV5,
+                LocalClassificationModel.ChineseMobileV2,
+                GetClosestRecognitionModel(languageCode)
+            )
+        };
+    }
+    private static LocalRecognizationModel GetClosestRecognitionModel(string languageCode)
+    {
+        return languageCode switch
+        {
+            "spa" => LocalRecognizationModel.EnglishV4,          // Spanish → Latin script
+            "fra" => LocalRecognizationModel.EnglishV4,          // French → Latin
+            "deu" => LocalRecognizationModel.EnglishV4,          // German → Latin
+            "por" => LocalRecognizationModel.EnglishV4,          // Portuguese → Latin
+            "tur" => LocalRecognizationModel.EnglishV4,          // Turkish → Latin with diacritics
+            "rus" => LocalRecognizationModel.CyrillicV3,         // Russian → Cyrillic
+            _ => LocalRecognizationModel.EnglishV4           // Fallback to English
+        };
+    }
 
-    public static async Task<string> OCRImage(Image? image, string? filePath = null, TaskSettings? taskSettings = null, FullOcrModel? model = null)
+    public static async Task<string> OCRImage(Image? image = null, string? filePath = null, TaskSettings? taskSettings = null, string? languageCode = null)
     {
 #if DISABLE_OCR
         DebugHelper.WriteException(new ConstraintException("This build of SnapX was built with DISABLE_OCR build time constant."));
         return string.Empty;
 #endif
-        if (model is null) model = LocalFullModels.EnglishV4;
+        var model = GetModelForLanguage(languageCode ?? "eng");
         using var ms = new MemoryStream();
         if (filePath is not null) image = await Image.LoadAsync(filePath);
         await image.SaveAsPngAsync(ms);
@@ -694,7 +729,11 @@ public static class TaskHelpers
             DebugHelper.WriteException(new ConstraintException("PaddleOCR is not supported on FreeBSD."));
             return string.Empty;
         }
-        var config = PaddleDevice.Onnx();
+        // macOS ARM64 does not support ONNX yet.
+        var config = model.DetectionModel.Version == ModelVersion.V4 &&
+                     !(OperatingSystem.IsMacOS() && RuntimeInformation.OSArchitecture == Architecture.Arm64)
+            ? PaddleDevice.Onnx()
+            : PaddleDevice.Blas();
 
         using var all = new PaddleOcrAll(model, config)
         {
