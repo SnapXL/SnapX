@@ -38,6 +38,5 @@ public class SnapXAvalonia : Core.SnapX
                 /* ignore */
             }
         }
-
     }
 }
