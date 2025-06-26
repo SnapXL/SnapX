@@ -39,7 +39,6 @@
 - Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!!)
-- Uses the power of [VLC](https://wiki.videolan.org/LibVLC/) to playback video/audio
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* use TLS 1.3 out of the box.
@@ -99,7 +98,6 @@ Additionally, you can download nightly builds from [here](https://nightly.link/B
 - `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
 - `clang`
 - `zlib-devel`
-- `vlc-libs` (libvlc, Runtime dependency)
 
 #### IDE of Choice
 
@@ -115,7 +113,7 @@ JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. I
 ### Fedora 41+ 🌟
 
 ```bash
-sudo dnf in -y git dotnet-sdk-aot-9.0 /usr/bin/ffmpeg vlc-devel
+sudo dnf in -y git dotnet-sdk-aot-9.0 /usr/bin/ffmpeg
 ```
 
 ### Ubuntu 24.04+ ⚡
@@ -124,7 +122,7 @@ sudo dnf in -y git dotnet-sdk-aot-9.0 /usr/bin/ffmpeg vlc-devel
 sudo apt update && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports -y # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang libvlc-dev zlib1g-dev libsm6
+sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang zlib1g-dev libsm6
 ```
 
 ### Windows 10 22H2+ 🪟
