@@ -26,7 +26,7 @@ public class MacOSAPI : NativeAPI
     {
         var tempPath = Path.Combine(Path.GetTempPath(), $"{Path.GetFileNameWithoutExtension(fileName)}.jpg");
         image.Save(tempPath, new JpegEncoder());
-        var appleScript = $"set the clipboard to (read (POSIX file \"\"{tempPath}\"\") as JPEG picture)";
+        var appleScript = $"set the clipboard to (read (POSIX file \"{tempPath}\") as JPEG picture)";
 
         var process = new Process
         {
