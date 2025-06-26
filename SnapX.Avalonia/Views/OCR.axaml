@@ -21,7 +21,7 @@
 
         <!--  Language Selection Row  -->
         <Grid
-            ColumnDefinitions="Auto, *"
+            ColumnDefinitions="Auto, *, Auto, Auto"
             ColumnSpacing="10"
             Row="0">
             <Label Content="Language:" VerticalAlignment="Center" />
@@ -33,6 +33,15 @@
                 ToolTip.Tip="Select the language for OCR..."
                 Width="200"
                 x:Name="LanguageSelector" />
+            <Label
+                Content="Singe Line:"
+                Grid.Column="2"
+                VerticalAlignment="Center" />
+            <RadioButton
+                Grid.Column="3"
+                IsChecked="False"
+                ToolTip.Tip="Removes the new line character from output"
+                x:Name="SingleLine" />
         </Grid>
 
         <Border
