@@ -99,6 +99,7 @@ export PKGTYPE=RPM
 ./build.sh --no-color --no-extended-chars --configuration Release %{build_extra_args}
 
 %install
+export VERSION=%{version}
 export ELEVATION_NOT_NEEDED=1
 # Bandaid fix until upstream addresses these issues.
 #ERROR   0002: file '/usr/lib/snapx/libphi.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi:/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
