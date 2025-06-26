@@ -1,4 +1,5 @@
 <windowing:AppWindow
+    ClosingBehavior="OwnerWindowOnly"
     Icon="{Binding LogoResourcePath}"
     MinHeight="200"
     MinWidth="600"

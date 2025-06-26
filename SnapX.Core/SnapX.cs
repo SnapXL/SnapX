@@ -585,7 +585,7 @@ public class SnapX
         closeSequenceStarted = true;
 
         DebugHelper.WriteLine("SnapX closing!");
-
+        TaskManager.StopAllTasks();
         WatchFolderManager?.Dispose();
         SettingManager.SaveAllSettings();
         SettingManager.Dispose();

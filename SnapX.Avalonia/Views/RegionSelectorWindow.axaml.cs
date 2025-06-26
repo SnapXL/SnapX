@@ -13,6 +13,7 @@ using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
 using Image = SixLabors.ImageSharp.Image;
 using Point = Avalonia.Point;
@@ -236,34 +237,43 @@ public partial class RegionSelectorWindow : Window
                 break;
         }
     }
+    private readonly Dictionary<Window, WindowBase?> _ownershipMap = new();
 
     private void OnOpened(object? Sender, EventArgs EventArgs)
     {
-        if (App.MyMainWindow != null && App.MyMainWindow.IsVisible)
+        foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != this && w.IsVisible) ?? [])
         {
-            App.MyMainWindow.Hide();
-            windowsHiddenByUs.Add(App.MyMainWindow);
-        }
-        foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != null && w != this && w.IsVisible))
-        {
+            _ownershipMap[win] = win.Owner; // Save original owner
             win.Hide();
             windowsHiddenByUs.Add(win);
         }
-        // Screenshotting is synchronous that blocks the UI thread. FUCK YOU
-        _image = Task.Factory.StartNew(() =>
-                TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings())
-                    .CaptureActiveMonitor().GetAwaiter().GetResult(),
-            TaskCreationOptions.LongRunning
-        ).ConfigureAwait(false).GetAwaiter().GetResult();
-        // Convert ImageSharp image to Avalonia Bitmap via a MemoryStream
+        if (App.MyMainWindow != null && App.MyMainWindow.IsVisible)
+        {
+            _ownershipMap[App.MyMainWindow] = App.MyMainWindow.Owner;
+            App.MyMainWindow.Hide(); // Hide makes it lose relationship with child windows.
+            windowsHiddenByUs.Add(App.MyMainWindow);
+        }
+        // Screenshotting can sometimes take time and block the UI thread.
+        // It can also fail, so, we have to handle it gracefully.
+        try
+        {
+            _image = Task.Factory.StartNew(() =>
+                    TaskHelpers.GetScreenshot()
+                        .CaptureActiveMonitor().GetAwaiter().GetResult(),
+                TaskCreationOptions.LongRunning
+            ).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+        catch (Exception e)
+        {
+            e.ShowError();
+        }
+
+        if (_image == null) return;
         _imageStream = new MemoryStream();
         _image.SaveAsPng(_imageStream);
         _imageStream.Position = 0;
         _imageBounds = new Rect(_image.Bounds.X, _image.Bounds.Y, _image.Bounds.Width, _image.Bounds.Height);
         DebugHelper.WriteLine($"_imageStream {_imageStream.Length} (Readable? {_imageStream.CanRead}) bytes raw image bounds {_image.Bounds}");
-        // Take a fullscreen screenshot then use it as background instead of transparency if light taskSetting is set.
-        // If the application has already taken the fullscreen screenshot, crop it with the region captured.
-        // Screenshotting is an expensive operation!
         try
         {
             Background = new ImageBrush
@@ -276,15 +286,51 @@ public partial class RegionSelectorWindow : Window
         {
             DebugHelper.WriteException(e);
         }
-        // _imageStream?.Dispose();
-        // _imageStream = null;
+        _image.Dispose();
     }
+    List<Window> TopoSortWindows(IEnumerable<Window> windows)
+    {
+        var result = new List<Window>();
+        var visited = new HashSet<Window>();
 
+        void Visit(Window w)
+        {
+            if (!visited.Add(w))
+                return;
+
+            foreach (var child in w.OwnedWindows)
+            {
+                if (windowsHiddenByUs.Contains(child))
+                    Visit(child);
+            }
+
+            result.Add(w);
+        }
+
+        foreach (var w in windows)
+            Visit(w);
+
+        result.Reverse(); // owners before owned
+        return result;
+    }
     private void OnClosed(object? Sender, EventArgs E)
     {
         _imageStream?.Dispose();
         _imageStream = null;
-        foreach (var win in windowsHiddenByUs) { win.Show(); }
+        var sortedWindows = TopoSortWindows(windowsHiddenByUs);
+
+        foreach (var win in sortedWindows)
+        {
+            if (_ownershipMap.TryGetValue(win, out var owner) && owner?.IsVisible == true)
+            {
+                win.Show(owner as Window);
+            }
+            else
+            {
+                win.Show();
+            }
+        }
+        _ownershipMap.Clear();
         windowsHiddenByUs.Clear();
     }
     private void OnLostFocus(object? Sender, RoutedEventArgs E)

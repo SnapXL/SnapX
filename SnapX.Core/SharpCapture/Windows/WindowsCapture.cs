@@ -311,8 +311,41 @@ public class WindowsCapture : BaseCapture
 
     private static async Task<Image?> CaptureOutputImage(IDXGIOutput1 output, IDXGIAdapter adapter, Rectangle bounds)
     {
-        D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, DeviceCreationFlags.None,
+        if (output == null) throw new ArgumentNullException(nameof(output));
+        if (adapter == null) throw new ArgumentNullException(nameof(adapter));
+        if (bounds.Width <= 0 || bounds.Height <= 0) throw new ArgumentException("Invalid bounds", nameof(bounds));
+        var hr = D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, DeviceCreationFlags.BgraSupport,
             [FeatureLevel.Level_11_1], out var device);
+        if (hr.Failure) throw new InvalidOperationException($"D3D11CreateDevice failed: {hr}");
+        output.GetParent<IDXGIAdapter>(out var outputAdapter);
+        if (!outputAdapter?.NativePointer.Equals(adapter.NativePointer) ?? false)
+        {
+            throw new InvalidOperationException("The IDXGIAdapter used does not match the one used to create this IDXGIOutput1.");
+        }
+        IDXGIOutput baseOutput = output;
+        var outputDesc = baseOutput.Description;
+        DebugHelper.WriteLine("=== Output Description ===");
+        DebugHelper.WriteLine($"Device Name           : {outputDesc.DeviceName}");
+        DebugHelper.WriteLine($"Attached To Desktop   : {outputDesc.AttachedToDesktop}");
+        DebugHelper.WriteLine($"Monitor Coordinates   : L:{outputDesc.DesktopCoordinates.Left}, T:{outputDesc.DesktopCoordinates.Top}, R:{outputDesc.DesktopCoordinates.Right}, B:{outputDesc.DesktopCoordinates.Bottom}");
+        DebugHelper.WriteLine($"Monitor Handle (HMONITOR): 0x{outputDesc.Monitor.ToInt64():X}");
+        DebugHelper.WriteLine($"Rotation              : {outputDesc.Rotation}");
+        DebugHelper.WriteLine("==========================");
+
+        var desc = adapter.Description;
+
+        DebugHelper.WriteLine("=== Adapter Info ===");
+        DebugHelper.WriteLine($"Description           : {desc.Description}");
+        DebugHelper.WriteLine($"VendorId              : 0x{desc.VendorId:X} ({desc.VendorId})");
+        DebugHelper.WriteLine($"DeviceId              : 0x{desc.DeviceId:X} ({desc.DeviceId})");
+        DebugHelper.WriteLine($"SubsystemId           : 0x{desc.SubsystemId:X} ({desc.SubsystemId})");
+        DebugHelper.WriteLine($"Revision              : {desc.Revision}");
+        DebugHelper.WriteLine($"DedicatedVideoMemory  : {desc.DedicatedVideoMemory / 1024 / 1024} MB");
+        DebugHelper.WriteLine($"DedicatedSystemMemory : {desc.DedicatedSystemMemory / 1024 / 1024} MB");
+        DebugHelper.WriteLine($"SharedSystemMemory    : {desc.SharedSystemMemory / 1024 / 1024} MB");
+        DebugHelper.WriteLine("======================");
+
+        var duplication = output.DuplicateOutput(device);
 
         var textureDesc = new Texture2DDescription
         {
@@ -327,11 +360,8 @@ public class WindowsCapture : BaseCapture
             SampleDescription = { Count = 1, Quality = 0 },
             Usage = ResourceUsage.Staging
         };
-        var duplication = output.DuplicateOutput(device);
         var currentFrame = device.CreateTexture2D(textureDesc);
 
-        // Sleeping the entire thread is not very cool, bro.
-        // Thread.Sleep(100);
         await Task.Delay(100);
 
         duplication.AcquireNextFrame(500, out var frameInfo, out var desktopResource);
@@ -339,12 +369,10 @@ public class WindowsCapture : BaseCapture
 
         device.ImmediateContext.CopyResource(currentFrame, tempTexture);
         var dataBox = device.ImmediateContext.Map(currentFrame, 0);
-
         var screenshotBytes = GetDataAsByteArray(dataBox.DataPointer, (int)dataBox.RowPitch, bounds.Width,
             bounds.Height);
         duplication.ReleaseFrame();
         device.ImmediateContext.Unmap(currentFrame, 0);
-        device.Dispose();
         return Image.LoadPixelData<Rgba32>(screenshotBytes, bounds.Width, bounds.Height);
     }
 
