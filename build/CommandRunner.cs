@@ -35,7 +35,31 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
             Logger.Information($"Source file not found: {source}");
         }
     }
-    PersistentGitBash? persistentBash;
+
+    private static bool IsUnixLikeShell()
+    {
+        if (Environment.GetEnvironmentVariable("SHELL") is not null) return true;
+        try
+        {
+            using var process = new Process();
+            process.StartInfo.FileName = "uname";
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.CreateNoWindow = true;
+
+            process.Start();
+            process.WaitForExit(500);
+
+            return process.ExitCode == 0;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private PersistentGitBash? persistentBash;
     public async Task RunInstallCommand(string installArguments, string executionCommand = "install")
     {
         var requiresElevationLikely = !IsAdmin() && RequiresElevationLikely(installArguments);
@@ -44,11 +68,7 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
 
         if (OperatingSystem.IsWindows())
         {
-            var shellEnv = Environment.GetEnvironmentVariable("SHELL");
-
-            var isBashShell = shellEnv != null &&
-                              !shellEnv.Contains("powershell", StringComparison.OrdinalIgnoreCase) &&
-                              !shellEnv.Contains("cmd", StringComparison.OrdinalIgnoreCase);
+            var isBashShell = IsUnixLikeShell();
 
             if (!isBashShell)
             {

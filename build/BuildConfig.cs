@@ -9,7 +9,7 @@ public class BuildConfig
 {
     public string DestDir { get; set; } = "";
 
-    public string Prefix { get; set; } = Path.Join("/", "usr", "local");
+    public string Prefix { get; set; } = Path.Join(Path.DirectorySeparatorChar.ToString(), "usr", "local");
 
     public string BinDir => Path.Join(DestDir, Prefix, "bin");
     public string Datadir => Path.Join(DestDir, Prefix, "share");
@@ -73,6 +73,7 @@ public class BuildConfig
     public string OutputDir { get; init; } = "Output";
     public string Configuration { get; init; } = "Release";
     public bool EnableWrapperScriptFallback { get; init; }
+    public bool DisableWrapperScript { get; init; } = OperatingSystem.IsWindows() ? true : false;
     public string ExtraArgs { get; init; } = "";
     const string Namespace = "SnapX.";
     public readonly string SnapXVersion = Assembly

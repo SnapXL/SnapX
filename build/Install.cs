@@ -103,7 +103,7 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
         var rawRelativePath = Path.GetRelativePath(config.OutputDir, outputFile);
         var relativePath = Path.Combine(rawRelativePath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Skip(1).ToArray());
 
-        if (assemblyName.Equals(config.NMHassemblyName, StringComparison.OrdinalIgnoreCase))
+        if (assemblyName.Equals(config.NMHassemblyName, StringComparison.OrdinalIgnoreCase) && config.NMHostPath is not null)
         {
             destinationFile = config.NMHostPath;
             permissions = "0755";
@@ -127,6 +127,7 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
 
     private async Task CreateWrapperScriptIfApplicable(string sourceFile)
     {
+        if (config.DisableWrapperScript) return;
         var fileName = Path.GetFileNameWithoutExtension(sourceFile);
         if (!config.knownAssemblyNames.Contains(fileName) || fileName == config.knownAssemblyNames[^1]) return;
         var scriptPath = Path.GetFullPath(Path.Combine(config.BinDir, fileName));
@@ -141,7 +142,7 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
         );
         var libDirWithoutDestDir = !string.IsNullOrWhiteSpace(config.DestDir) &&
                                    config.LibDir.StartsWith(config.DestDir, StringComparison.Ordinal)
-            ? config.LibDir.Substring(config.DestDir.Length).TrimStart(Path.DirectorySeparatorChar)
+            ? config.LibDir[config.DestDir.Length..].TrimStart(Path.DirectorySeparatorChar)
             : config.LibDir;
         // This is the full path inside the staging DESTDIR (used during packaging)
         var destDirPath = Path.GetFullPath(Path.Combine(config.LibDir, relativePath, fileName));
