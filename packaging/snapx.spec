@@ -67,7 +67,6 @@ Specifically, it is the CLI tool.
 %package ui
 Summary:        SnapX Avalonia-based UI
 Requires:       snapx
-Requires:       (vlc-libs or pkgconfig(libvlc) or vlc-devel)
 
 
 %description ui
