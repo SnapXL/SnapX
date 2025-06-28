@@ -131,11 +131,6 @@ public partial class MainWindow : AppWindow
         TaskManager.InitHistoryManager();
     }
 
-    protected override void OnClosed(EventArgs e)
-    {
-        TaskManager.StopAllTasks();
-    }
-
     private void TryEnableMicaEffect()
     {
         if (ActualThemeVariant == ThemeVariant.Dark)

@@ -53,6 +53,7 @@ public partial class OCR : AppWindow
         var textBox = this.FindControl<TextBox>("ResultText")!;
         textBox.Text = Lang.Processing;
         var result = await _ocrViewModel.RunOCRAsync(_item, languageCode);
+        if (SingleLine?.IsChecked ?? false) result = result.Replace("\r", "").Replace("\n", "");
         textBox.Text = result;
     }
 
