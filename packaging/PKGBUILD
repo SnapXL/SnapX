@@ -47,7 +47,6 @@ package_snapx() {
         'libxrandr'
         'libxcb'
         'dbus'
-        'vlc'
         'xdg-utils'
     )
 
