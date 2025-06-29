@@ -34,7 +34,7 @@
                 Width="200"
                 x:Name="LanguageSelector" />
             <Label
-                Content="Singe Line:"
+                Content="Single Line:"
                 Grid.Column="2"
                 VerticalAlignment="Center" />
             <RadioButton

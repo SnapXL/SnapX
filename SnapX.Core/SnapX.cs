@@ -666,6 +666,7 @@ public class SnapX
     private static void CreateParentFolders()
     {
         if (Sandbox || !Directory.Exists(PersonalFolder)) return;
+        FileHelpers.CreateDirectory(LockDirectory);
         FileHelpers.CreateDirectory(SettingManager.SnapshotFolder);
         FileHelpers.CreateDirectory(ImageEffectsFolder);
         FileHelpers.CreateDirectory(ScreenshotsParentFolder);

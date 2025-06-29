@@ -41,7 +41,8 @@ body:
         - 0.1.0 Dev
         - 0.2.0 Dev
         - 0.2.1 Dev
-      default: 2
+        - 0.3.0 Dev
+      default: 3
     validations:
       required: true
   - type: textarea

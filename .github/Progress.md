@@ -3,15 +3,15 @@
 # Checklist
 
 - [x] Port `NativeMessagingHost` to .NET 9 (It was a few lines of code...)
-- [ ] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://github.com/dotnet/efcore>
+- [x] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://github.com/dotnet/efcore>
 - [x] Log files should be a daily log file, not a whole MONTH (wtf?)
 - [x] Symlink ~/Documents/SnapX to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
 - [ ] Create custom uploader list with reviews & privacy policies enforced & popularity filter to quality control hosts. Run service on HB VPS to automatically prune custom uploaders that aren't online 90% of the time in a week.
-- [ ] Package PaddleOCR for Linux properly.
+- [x] Package PaddleOCR for Linux properly.
 - [ ] Add charts for statistics like uploading, avg image size, most used image extension, and error rate for uploading
 - [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation.
 - [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
-- [ ] Expose the entire Core in UI (Avalonia)
+- [ ] Expose the entire Core in UI (Avalonia) (Missing direct upload function & drag and drop)
 - [x] Add telemetry & Aptabase is a work in progress, PR pending https://github.com/aptabase/aptabase-maui/pull/12
 - [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp)
 - [ ] Use Microsoft's [MSIX Packaging tool](https://github.com/microsoft/msix-packaging) for MSIXBundles for Windows.
@@ -31,14 +31,14 @@
 - [x] Bring in XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
 - [x] Remove SnapX as a fork of ShareX that can be merged into upstream. *Completed at 233 commits ahead of upstream*
 - [ ] Add Tools from ShareX to SnapX. Notably, upgrade [ExifTool](https://exiftool.org/) from a "Tool" to an optional feature that shows more information, like a properties button on a screenshot's flyout menu.
-- [ ] Add a New Tool that will transcode/reencode videos/images to a certain size based off of the options Discord provides. I believe this can be done with LibVLC or FFMPEG.
+- [ ] Add a New Tool that will transcode/reencode videos/images to a certain size based off of the options Discord provides. I believe this can be done with FFMPEG easily.
 - [ ] Add first-class support for [ImgBB](https://imgbb.com/), [Mastodon](https://mastodon.social/explore), [Bluesky](https://bsky.app/), [Pcloud](https://www.pcloud.com/), [SourceBin](https://sourceb.in/), [PrivateBin](https://github.com/PrivateBin/PrivateBin/wiki/API),  and [Pixeldrain](https://pixeldrain.com/)
-- [ ] Add Custom Uploader List to SnapX via a build-time HTTP Fetch, or if the file is there already, use that. Can be disabled by packagers as they need offline builds. Or they could fetch the list, or rather, JSON, as part of their build script that isn't done during packaging time. That list is then embedded into the binary and then at runtime it is checked *again* for any new entries to said list. Thus, the functionality keeps working even in an environment where SnapX cannot access the internet.
+- [ ] Add Custom Uploader List to SnapX via a build-time HTTP Fetch, or if the file is there already, use that. Can be disabled by packagers as they need offline builds. Or they could fetch the list, or rather, JSON, as part of their build script that isn't done during packaging time. That list is then embedded into the binary, and then at runtime it is checked *again* for any new entries to said list. Thus, the functionality keeps working even in an environment where SnapX cannot access the internet.
 - [ ] Add automatic region detection that suggests to users in Egypt, Russia, Ukraine, and possibly more to switch their default image uploader from Imgur to ImgBB. According to my tests, ImgBB doesn't have such region blocks for Ukraine & Egypt. Russia is untested because PIA doesn't have any servers there.
 
 ## Studying ShareX's behavior on Windows 11 24H2
 
-It's important to know how the program *should* behave in accordance with user expectations. As such, I've done a little recording of it.
+It's important to know how the program *should* behave per user expectations. As such, I've done a little recording of it.
 
 ## Rewrite
 
@@ -66,7 +66,7 @@ ShareX on Windows has auto update functionality. This is a feature that I would 
 
 The idea is for SnapX to check for updates on startup. Since the goal is to have the application with one singular binary with no DLLs/.so files to worry about. Like Electron apps. It'll replace the application binary to the latest version that is the same major version. This will allow for easy updates and bug fixes to be distributed to users. Downgrades will not be allowed.
 
-`ShareNoSnap` variant will be not auto update, in fact, it shouldn't ship the code to do it at all.
+`ShareNoSnap` variant will not auto update; in fact, it shouldn't ship the code to do it at all.
 
 #### Telemetry
 
@@ -90,7 +90,7 @@ I am also just not interested in Mono.
 
 #### How are screenshots going to work?
 
-I am going to use a library I have decided to do it. I might keep the Windows code and investigate adding HDR support to it.
+I am going to use a library. I have decided to do it. I might keep the Windows code and investigate adding HDR support to it.
 
 <https://sixlabors.com/products/imagesharp/> This library is a cross-platform library that can be used to manipulate images. This library will be used to handle images in this project.
 
@@ -118,4 +118,4 @@ so it is only on talk
 
 "Talk is cheap, show me the code"—Linus Torvalds
 
-Hence, the broadening of the scope from Linux port to cross-platform modern hard fork.
+Hence, the broadening of the scope from a Linux port to a cross-platform modern hard fork.

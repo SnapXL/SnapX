@@ -142,7 +142,7 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
         );
         var libDirWithoutDestDir = !string.IsNullOrWhiteSpace(config.DestDir) &&
                                    config.LibDir.StartsWith(config.DestDir, StringComparison.Ordinal)
-            ? config.LibDir[config.DestDir.Length..].TrimStart(Path.DirectorySeparatorChar)
+            ? config.LibDir[config.DestDir.Length..]
             : config.LibDir;
         // This is the full path inside the staging DESTDIR (used during packaging)
         var destDirPath = Path.GetFullPath(Path.Combine(config.LibDir, relativePath, fileName));
