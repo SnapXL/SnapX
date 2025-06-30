@@ -77,7 +77,22 @@ internal class Program
 
             var uninstallProcessor = new Uninstall(logger, fileSystem, config);
             await uninstallProcessor.ProcessUninstall();
-            await Task.CompletedTask;
+        });
+        Target("tarball",
+            async() =>
+            {
+                if (config.ShouldSkip("tarball")) return;
+                var tarballCreator = new Tarball(logger, commandRunner, fileSystem, config);
+                await tarballCreator.ProcessTarball();
+            });
+        Target("appimage",
+            dependsOn: ["tarball"],
+            async() =>
+        {
+            if (config.ShouldSkip("appimage")) return;
+
+            var appImageCreator = new AppImage(logger, commandRunner, fileSystem, config);
+            await appImageCreator.ProcessAppImage();
         });
 
         Target("default", dependsOn: ["build"]);

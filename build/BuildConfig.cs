@@ -7,14 +7,29 @@ namespace DefaultNamespace;
 
 public class BuildConfig
 {
-    public string DestDir { get; set; } = "";
+    private static string _destdir = "";
+    public string DestDir
+    {
+        get => _destdir;
+        set => _destdir = value;
+    }
 
-    public string Prefix { get; set; } = Path.Join(Path.DirectorySeparatorChar.ToString(), "usr", "local");
+    private static string _prefix = Path.Join(Path.DirectorySeparatorChar.ToString(), "usr", "local");
+    public string Prefix
+    {
+        get => _prefix;
+        set => _prefix = value;
+    }
 
-    public string BinDir => Path.Join(DestDir, Prefix, "bin");
+    private string? _binDir;
+    public string BinDir
+    {
+        get => _binDir ?? Path.Join(_destdir, _prefix, "bin");
+        set => _binDir = value;
+    }
     public string Datadir => Path.Join(DestDir, Prefix, "share");
 
-    private string? _docdir;
+    private static string? _docdir;
     public string Docdir
     {
         get => _docdir ??= Path.Join(Datadir, "doc", "snapx");
@@ -29,6 +44,9 @@ public class BuildConfig
     public string RootDirectory { get; } = Path.GetRelativePath(Directory.GetCurrentDirectory(), DirectoryService.FindRoot());
     public string PackagingDirectory => Path.Combine(RootDirectory, "packaging");
     public string Tarballdir => Path.Combine(PackagingDirectory, "tarball");
+    public string Appdir => Path.Combine(PackagingDirectory, "AppDir");
+    public string Rundir => Path.Combine(PackagingDirectory, "run");
+
     public string PackagingUsrDir => Path.Combine(PackagingDirectory, "usr");
 
     private string? _libdir;
@@ -73,7 +91,7 @@ public class BuildConfig
     public string OutputDir { get; init; } = "Output";
     public string Configuration { get; init; } = "Release";
     public bool EnableWrapperScriptFallback { get; init; }
-    public bool DisableWrapperScript { get; init; } = OperatingSystem.IsWindows() ? true : false;
+    public bool DisableWrapperScript { get; set; } = OperatingSystem.IsWindows();
     public string ExtraArgs { get; init; } = "";
     const string Namespace = "SnapX.";
     public readonly string SnapXVersion = Assembly

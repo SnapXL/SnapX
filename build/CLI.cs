@@ -130,7 +130,7 @@ public class CLI
         var prefixOption = new Option<string>("--prefix")
         {
             Description = "Installation prefix path (e.g., /usr or /usr/local).",
-            Arity = ArgumentArity.ExactlyOne
+            Arity = ArgumentArity.ZeroOrOne
         };
         rootCommand.Options.Add(prefixOption);
 

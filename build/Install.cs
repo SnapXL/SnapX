@@ -145,8 +145,8 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             ? config.LibDir[config.DestDir.Length..]
             : config.LibDir;
         // This is the full path inside the staging DESTDIR (used during packaging)
-        var destDirPath = Path.GetFullPath(Path.Combine(config.LibDir, relativePath, fileName));
-        var finalInstallPath = Path.GetFullPath(Path.Combine(libDirWithoutDestDir, relativePath, fileName));
+        var destDirPath = Path.Combine(config.LibDir, relativePath, fileName);
+        var finalInstallPath = Path.Combine(libDirWithoutDestDir, relativePath, fileName);
         var enableFallback = !string.IsNullOrWhiteSpace(config.DestDir) && config.EnableWrapperScriptFallback;
 
         var script =
@@ -165,6 +165,9 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
                               #!/usr/bin/env sh
                               # SnapX version: {config.SnapXVersion}
 
+                              dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
+                              cd "$dir"
+
                               PRIMARY_PATH="{finalInstallPath}"
                               FALLBACK_PATH="{destDirPath}"
 
@@ -179,6 +182,9 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
                               """ : $"""
                                      #!/usr/bin/env sh
                                      # SnapX version: {config.SnapXVersion}
+
+                                     dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
+                                     cd "$dir"
 
                                      exec env "{finalInstallPath}" "$@"
                                      """;
