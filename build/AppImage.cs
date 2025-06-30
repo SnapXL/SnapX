@@ -4,7 +4,5 @@ public class AppImage(IBuildLogger Logger, ICommandRunner CommandRunner, IFileSy
 {
     public async Task ProcessAppImage()
     {
-
     }
-
 }
