@@ -19,8 +19,7 @@ sha256sums=('SKIP')
 
 pkgver() {
     cd "$pkgbase"
-    ver=$(./build.sh --version | grep -Eo '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?(\+[0-9A-Za-z.]+)?$')
-    echo "${ver//+/.}"
+    ./build.sh --version | grep -Eo '^[0-9]+\.[0-9]+\.[0-9]+'
 }
 
 build() {
