@@ -285,7 +285,7 @@ public static class Helpers
 
     public static bool IsWindows11OrGreater(int build = -1)
     {
-        build = System.Math.Max(22000, build);
+        build = Math.Max(22000, build);
         return OSVersion.Major >= 10 && OSVersion.Build >= build;
     }
     public static string ProperTimeSpan(TimeSpan ts)

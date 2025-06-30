@@ -74,20 +74,19 @@ public static partial class OsInfo
             if (key == null)
                 return $"Windows {Environment.OSVersion.Version}";
 
-            var productName = key.GetValue("ProductName")?.ToString() ?? "Unknown Windows";
+            var productName = key.GetValue("ProductName")?.ToString() ?? "Windows";
             var currentBuild = key.GetValue("CurrentBuild")?.ToString() ?? "Unknown Version";
-
+            var displayVersion = key.GetValue("DisplayVersion")?.ToString();
             if (Helpers.IsWindows11OrGreater())
                 productName = productName.Replace("10", "11");
-            if (BuildToFriendlyName.TryGetValue(currentBuild, out string friendlyName))
-            {
-                return $"{productName} {friendlyName}";
-            }
 
-            if (int.TryParse(currentBuild, out int currentBuildNumber))
+            if (int.TryParse(currentBuild, out var currentBuildNumber) && displayVersion is null)
             {
+                if (BuildToFriendlyName.TryGetValue(currentBuild, out var friendlyName))
+                {
+                    return $"{productName} {friendlyName}";
+                }
                 var closestMatch = BuildToFriendlyName
-                    .Where(kvp => int.TryParse(kvp.Key, out int buildNumber))
                     .Select(kvp => new { BuildNumber = int.Parse(kvp.Key), FriendlyName = kvp.Value })
                     .OrderBy(match => Math.Abs(currentBuildNumber - match.BuildNumber))
                     .FirstOrDefault();
@@ -98,7 +97,7 @@ public static partial class OsInfo
                 }
             }
 
-            return $"{productName} {currentBuild}";
+            return displayVersion is not null ? $"{productName} {displayVersion}" : $"{productName} {currentBuild}";
         }
         catch (Exception ex)
         {
