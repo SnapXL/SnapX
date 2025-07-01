@@ -1072,7 +1072,6 @@ public static class TaskHelpers
     {
         if (SnapX.Settings.DisableUpload)
         {
-
             return false;
         }
 
@@ -1110,7 +1109,6 @@ public static class TaskHelpers
                 /* ignore */
             }
         }
-
     }
     private static async Task PlaySound(string filePath) => await PlaySound(File.OpenRead(filePath));
     // Coding nerds, please, forgive me for this mortal sin.
