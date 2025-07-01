@@ -80,9 +80,9 @@ SnapX is not yet in a usable state. These packages are provided for making testi
 
 SnapX is packaged on:
 
-- [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
-
 - [AUR](https://aur.archlinux.org/packages/snapx-ui)
+
+- [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
 
 - [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo) (Thank you [@ok-coder1](https://github.com/ok-coder1)!)
 
