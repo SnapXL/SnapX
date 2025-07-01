@@ -158,7 +158,7 @@ public static class TaskManager
 
                         DebugHelper.WriteLine($"Task failed. File name: {info.FileName}, Errors:\r\n{errors}");
 
-                        // TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Error, info.TaskSettings);
+                        TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Error, info.TaskSettings);
 
                         if (info.Result.Errors.Count > 0)
                         {
@@ -190,7 +190,7 @@ public static class TaskManager
 
                             if (info.Job != TaskJob.ShareURL)
                             {
-                                // TaskHelpers.PlayNotificationSoundAsync(NotificationSound.TaskCompleted, info.TaskSettings);
+                                TaskHelpers.PlayNotificationSoundAsync(NotificationSound.TaskCompleted, info.TaskSettings);
 
                                 if (!string.IsNullOrEmpty(info.TaskSettings.AdvancedSettings.BalloonTipContentFormat))
                                 {

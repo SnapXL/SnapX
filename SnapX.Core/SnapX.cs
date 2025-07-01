@@ -284,7 +284,7 @@ public class SnapX
         if (CLIManager.IsCommandExist("sound", "s"))
         {
             DebugHelper.WriteLine("Playing Notification Sound");
-            PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
+            TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
         }
         Run();
     }
@@ -302,67 +302,6 @@ public class SnapX
     public static bool CanAutoUpdate() =>
         !FeatureFlags.DisableAutoUpdates && Settings.AutoCheckUpdate;
 
-    // Coding nerds, please, forgive me for this mortal sin.
-    // The code here is instance dependent thus cannot be called from static stuff yada yada yada.
-    public void PlayNotificationSoundAsync(NotificationSound notificationSound, TaskSettings? taskSettings = null)
-    {
-        taskSettings ??= TaskSettings.GetDefaultTaskSettings();
-        switch (notificationSound)
-        {
-            case NotificationSound.Capture:
-                if (taskSettings.GeneralSettings.PlaySoundAfterCapture)
-                {
-                    if (taskSettings.GeneralSettings.UseCustomCaptureSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomCaptureSoundPath))
-                    {
-                        PlaySound(taskSettings.GeneralSettings.CustomCaptureSoundPath);
-                    }
-                    else
-                    {
-                        PlaySound(Resources.Resources.CaptureSound);
-                    }
-                }
-                break;
-            case NotificationSound.TaskCompleted:
-                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
-                {
-                    if (taskSettings.GeneralSettings.UseCustomTaskCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath))
-                    {
-                        PlaySound(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath);
-                    }
-                    else
-                    {
-                        PlaySound(Resources.Resources.TaskCompletedSound);
-                    }
-                }
-                break;
-            case NotificationSound.ActionCompleted:
-                if (taskSettings.GeneralSettings.PlaySoundAfterAction)
-                {
-                    if (taskSettings.GeneralSettings.UseCustomActionCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomActionCompletedSoundPath))
-                    {
-                        PlaySound(taskSettings.GeneralSettings.CustomActionCompletedSoundPath);
-                    }
-                    else
-                    {
-                        PlaySound(Resources.Resources.ActionCompletedSound);
-                    }
-                }
-                break;
-            case NotificationSound.Error:
-                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
-                {
-                    if (taskSettings.GeneralSettings.UseCustomErrorSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomErrorSoundPath))
-                    {
-                        PlaySound(taskSettings.GeneralSettings.CustomErrorSoundPath);
-                    }
-                    else
-                    {
-                        PlaySound(Resources.Resources.ErrorSound);
-                    }
-                }
-                break;
-        }
-    }
     [DapperAot]
     private static void Run()
     {
@@ -575,10 +514,6 @@ public class SnapX
     public SnapXCLIManager GetCLIManager() => CLIManager;
     public RootConfiguration GetConfiguration() => Settings;
 
-    // TODO: Implement Dependency Injection to pass around instance of SnapX to classes
-    // TODO: Add back all notification sounds calls
-    public async virtual Task PlaySound(Stream stream) => throw new NotImplementedException("PlaySound is not implemented.");
-    private async Task PlaySound(string filePath) => await PlaySound(File.OpenRead(filePath));
     public static void CloseSequence()
     {
         if (closeSequenceStarted) return;

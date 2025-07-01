@@ -932,7 +932,7 @@ public static class TaskHelpers
             {
                 if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
-                // PlayNotificationSoundAsync(NotificationSound.ActionCompleted, taskSettings);
+                PlayNotificationSoundAsync(NotificationSound.ActionCompleted, taskSettings);
 
                 switch (nativeMessagingInput.Action)
                 {
@@ -1077,5 +1077,101 @@ public static class TaskHelpers
         }
 
         return true;
+    }
+    public static async Task PlaySound(Stream stream)
+    {
+        DebugHelper.WriteLine($"PlaySound {stream.Length} bytes {stream.Position} {stream.CanSeek} {stream.CanRead}");
+        var tempFilePath = Path.GetTempFileName();
+        stream.Seek(0, SeekOrigin.Begin);
+        stream.WriteToFile(tempFilePath);
+        var psi = new ProcessStartInfo
+        {
+            FileName = "ffplay", // Even on Windows, we expect ffplay to be in the $PATH. https://winstall.app/apps/Gyan.FFmpeg
+            Arguments = $"-nodisp -autoexit -hide_banner -loglevel warning \"{tempFilePath}\"",
+            UseShellExecute = false,
+            RedirectStandardOutput = false,
+            RedirectStandardError = false,
+            CreateNoWindow = true
+        };
+
+        try
+        {
+            using var process = Process.Start(psi);
+            if (process is not null) await process.WaitForExitAsync();
+        }
+        finally
+        {
+            try
+            {
+                File.Delete(tempFilePath);
+            }
+            catch
+            {
+                /* ignore */
+            }
+        }
+
+    }
+    private static async Task PlaySound(string filePath) => await PlaySound(File.OpenRead(filePath));
+    // Coding nerds, please, forgive me for this mortal sin.
+    // The code here is instance dependent thus cannot be called from static stuff yada yada yada.
+    public static void PlayNotificationSoundAsync(NotificationSound notificationSound, TaskSettings? taskSettings = null)
+    {
+        taskSettings ??= TaskSettings.GetDefaultTaskSettings();
+        switch (notificationSound)
+        {
+            case NotificationSound.Capture:
+                if (taskSettings.GeneralSettings.PlaySoundAfterCapture)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomCaptureSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomCaptureSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomCaptureSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.CaptureSound);
+                    }
+                }
+                break;
+            case NotificationSound.TaskCompleted:
+                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomTaskCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomTaskCompletedSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.TaskCompletedSound);
+                    }
+                }
+                break;
+            case NotificationSound.ActionCompleted:
+                if (taskSettings.GeneralSettings.PlaySoundAfterAction)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomActionCompletedSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomActionCompletedSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomActionCompletedSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.ActionCompletedSound);
+                    }
+                }
+                break;
+            case NotificationSound.Error:
+                if (taskSettings.GeneralSettings.PlaySoundAfterUpload)
+                {
+                    if (taskSettings.GeneralSettings.UseCustomErrorSound && !string.IsNullOrEmpty(taskSettings.GeneralSettings.CustomErrorSoundPath))
+                    {
+                        PlaySound(taskSettings.GeneralSettings.CustomErrorSoundPath);
+                    }
+                    else
+                    {
+                        PlaySound(Resources.Resources.ErrorSound);
+                    }
+                }
+                break;
+        }
     }
 }

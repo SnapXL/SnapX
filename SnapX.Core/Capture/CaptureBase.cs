@@ -80,7 +80,7 @@ public abstract class CaptureBase
     {
         if (metadata != null && metadata.Image != null)
         {
-            // TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Capture, taskSettings);
+            TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Capture, taskSettings);
 
             if (taskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.AnnotateImage) && !AllowAnnotation)
             {
