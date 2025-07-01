@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="https://github.com/BrycensRanch/SnapX/blob/6b74876359b8bc217cf165e3f0a22cdf39f8c407/.github/Linux.png" alt="SnapX Banner"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="./.github/Linux.png" alt="SnapX Banner"/></a></p>
 <h1 align="center">SnapX</h1>
 <h3 align="center">Capture, share, and boost productivity. All in one.</h3>
 <br>
@@ -7,10 +7,18 @@
   <a href="./LICENSE.md"><img src="https://img.shields.io/github/license/BrycensRanch/SnapX?label=License&color=brightgreen&cacheSeconds=3600" alt="License"/></a>
   <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/v/release/BrycensRanch/SnapX?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release"/></a>
   <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/downloads/BrycensRanch/SnapX/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a>
-  <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://img.shields.io/discord/1267996919922430063?label=Discord&cacheSeconds=3600" alt="Discord Server"/></a>
+  <br>
+  <br>
+  <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base"/></a>
+  <a href="https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/copr_vector.svg" height="40" alt="COPR"/></a>
+  <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap"/></a>
+  <br>
+  <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord"/></a>
+  <a href="https://ko-fi.com/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/kofi-singular_vector.svg" height="40" alt="Support me on Ko-fi"/></a>
+  <a href="https://paypal.me/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/paypal-singular_vector.svg" height="40" alt="Support me on PayPal"/></a>
 </div>
 <br>
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="https://getsharex.com/img/ShareX_Screenshot.png" alt="Repo"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="./.github/Screenshot.png" alt="GitHub Repository"/></a></p>
 
 > [!CAUTION]
 > **This project is _under development_ and is _not_ ready for use.**
@@ -66,25 +74,15 @@ This project is built on Ubuntu 24.04 and is tested on the following distributio
 > [!NOTE]
 > If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
 
-## Other platforms
-
-I initially started this project with one main goal: ShareX on Linux on Wayland. \
-I realized my work could be used on other platforms such as macOS or Windows...
-
-That's why SnapX.Avalonia was created.
-
-Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *should* look something like this. \
-Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![Screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
-
 ## Packages for testers
 
 SnapX is not yet in a usable state. These packages are provided for making testing easier.
 
 SnapX is packaged on:
 
-- [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
-
 - [AUR](https://aur.archlinux.org/packages/snapx-ui)
+
+- [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
 
 - [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo) (Thank you [@ok-coder1](https://github.com/ok-coder1)!)
 
