@@ -74,16 +74,6 @@ This project is built on Ubuntu 24.04 and is tested on the following distributio
 > [!NOTE]
 > If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
 
-## Other platforms
-
-I initially started this project with one main goal: ShareX on Linux on Wayland. \
-I realized my work could be used on other platforms such as macOS or Windows...
-
-That's why SnapX.Avalonia was created.
-
-Powered by [FluentAvalonia](https://github.com/amwx/FluentAvalonia), it *should* look something like this. \
-Screenshot from [FluentSearch](https://github.com/adirh3/Fluent-Search): ![Screenshot of the FluentSearch application that looks like a modern native Windows application](.github/image.png)
-
 ## Packages for testers
 
 SnapX is not yet in a usable state. These packages are provided for making testing easier.
