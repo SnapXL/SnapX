@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="https://github.com/BrycensRanch/SnapX/blob/6b74876359b8bc217cf165e3f0a22cdf39f8c407/.github/Linux.png" alt="SnapX Banner"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX/blob/351bd299dfec4fe20b630900319b61060b606eb3/.github/Logo"><img src="./.github/Linux.png" alt="SnapX Banner"/></a></p>
 <h1 align="center">SnapX</h1>
 <h3 align="center">Capture, share, and boost productivity. All in one.</h3>
 <br>
@@ -18,7 +18,7 @@
   <a href="https://paypal.me/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/paypal-singular_vector.svg" height="40" alt="Support me on PayPal"/></a>
 </div>
 <br>
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="https://getsharex.com/img/ShareX_Screenshot.png" alt="GitHub Repository"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="./.github/Screenshot.png" alt="GitHub Repository"/></a></p>
 
 > [!CAUTION]
 > **This project is _under development_ and is _not_ ready for use.**
