@@ -7,33 +7,26 @@ namespace DefaultNamespace;
 
 public class BuildConfig
 {
-    private static string _destdir = "";
     public string DestDir
     {
-        get => _destdir;
-        set => _destdir = value;
+        get => field ?? "";
+        set;
     }
 
-    private static string _prefix = Path.Join(Path.DirectorySeparatorChar.ToString(), "usr", "local");
-    public string Prefix
-    {
-        get => _prefix;
-        set => _prefix = value;
-    }
+    public string Prefix { get; set; } = Path.Join(Path.DirectorySeparatorChar.ToString(), "usr", "local");
 
-    private string? _binDir;
     public string BinDir
     {
-        get => _binDir ?? Path.Join(_destdir, _prefix, "bin");
-        set => _binDir = value;
+        get => field ?? Path.Join(DestDir, Prefix, "bin");
+        set;
     }
+
     public string Datadir => Path.Join(DestDir, Prefix, "share");
 
-    private static string? _docdir;
     public string Docdir
     {
-        get => _docdir ??= Path.Join(Datadir, "doc", "snapx");
-        set => _docdir = value;
+        get => field ??= Path.Join(Datadir, "doc", "snapx");
+        set;
     }
 
     public string Licensedir => Path.Join(Datadir, "licenses", "snapx");
@@ -49,11 +42,10 @@ public class BuildConfig
 
     public string PackagingUsrDir => Path.Combine(PackagingDirectory, "usr");
 
-    private string? _libdir;
     public string LibDir
     {
-        get => _libdir ?? Path.Join(DestDir, Prefix, "lib", "snapx");
-        set => _libdir = value;
+        get => field ?? Path.Join(DestDir, Prefix, "lib", "snapx");
+        set;
     }
 
     public string? NMHostPath => !OperatingSystem.IsWindows() ? Path.Join(LibDir, NMHassemblyName) : null;
@@ -93,7 +85,7 @@ public class BuildConfig
     public bool EnableWrapperScriptFallback { get; init; }
     public bool DisableWrapperScript { get; set; } = OperatingSystem.IsWindows();
     public string ExtraArgs { get; init; } = "";
-    const string Namespace = "SnapX.";
+    private const string Namespace = "SnapX.";
     public readonly string SnapXVersion = Assembly
         .GetExecutingAssembly()
         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
