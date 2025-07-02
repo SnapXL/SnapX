@@ -176,6 +176,13 @@ exec $SHELL -l
 >
 > On **macOS**, it's `~/Library/Application Support/SnapX`
 
+### System Requirements for Compiling
+
+To successfully compile SnapX from source, ensure your system meets the following requirements:
+
+* **Memory (RAM):** A minimum of 8GiB free memory is required during the compilation process.
+* **Disk Space:** At least 15 GiB of free disk space is recommended, preferably on a Solid State Drive (SSD) for optimal compilation speed.
+
 ```bash
 git clone https://github.com/BrycensRanch/SnapX
 cd SnapX
