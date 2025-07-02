@@ -84,7 +84,14 @@ else
     # Download install script
     DOTNET_INSTALL_FILE="$TEMP_DIRECTORY/dotnet-install.sh"
     mkdir -p "$TEMP_DIRECTORY"
-    curl -Lsfo "$DOTNET_INSTALL_FILE" "$DOTNET_INSTALL_URL"
+    if command -v curl >/dev/null 2>&1; then
+        curl -Lsfo "$DOTNET_INSTALL_FILE" "$DOTNET_INSTALL_URL"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -qO "$DOTNET_INSTALL_FILE" "$DOTNET_INSTALL_URL"
+    else
+        echo "Neither curl nor wget is installed. Please install one to proceed."
+        exit 1
+    fi
     chmod +x "$DOTNET_INSTALL_FILE"
 
     # Install by channel or version
