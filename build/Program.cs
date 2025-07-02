@@ -79,7 +79,7 @@ internal class Program
             await uninstallProcessor.ProcessUninstall();
         });
         Target("tarball",
-            async() =>
+            async () =>
             {
                 if (config.ShouldSkip("tarball")) return;
                 var tarballCreator = new Tarball(logger, commandRunner, fileSystem, config);
@@ -87,7 +87,7 @@ internal class Program
             });
         Target("appimage",
             dependsOn: ["tarball"],
-            async() =>
+            async () =>
         {
             if (config.ShouldSkip("appimage")) return;
 
