@@ -72,10 +72,7 @@ public partial class LogViewer : AppWindow
                 Foreground = GetBrushForLevel(logEvent.Level)
             });
 
-            _logTextBlock.Inlines.Add(new Run($"{message}\n")
-            {
-                Foreground = Brushes.White
-            });
+            _logTextBlock.Inlines.Add(new Run($"{message}\n"));
 
             if (logEvent.Exception != null)
             {

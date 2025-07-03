@@ -298,7 +298,6 @@
                                         asyncImageLoader:ImageLoader.Source="{Binding task.BestImageSource}" />
                                     <SelectableTextBlock
                                         FontWeight="SemiBold"
-                                        Foreground="White"
                                         HorizontalAlignment="Center"
                                         Text="{Binding task.FileName}"
                                         TextTrimming="CharacterEllipsis"
