@@ -22,9 +22,6 @@
     <AvaloniaVersion>11.3.2</AvaloniaVersion>
     <SkiaSharpVersion>3.119.0</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
-    <!-- After investigation, this needs to be an absolute path. It should be set by our build script later down the road. -->
-    <!-- That way, you hopefully wouldn't need to have the snapx-ui executable right alongside it's .so/.dll/.dylib -->
-    <AvaloniaNativeLibraryPath>/usr/local/lib/snapx</AvaloniaNativeLibraryPath>
 
     <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called snapx-ui. Instead create a executable shell script that calls snapx-ui -->
   </PropertyGroup>
@@ -59,9 +56,7 @@
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="$(HarfBuzzSharpVersion)" />
     <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
     <PackageReference Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
-    <!-- We prefer the NoDependencies flavor -->
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="$(SkiaSharpVersion)" ExcludeAssets="all" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="$(SkiaSharpVersion)" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="$(SkiaSharpVersion)" />
     <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="$(SkiaSharpVersion)" />
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
     <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
