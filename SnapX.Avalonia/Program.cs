@@ -18,9 +18,13 @@ static AppBuilder BuildAvaloniaApp()
         builder = builder.WithSystemFontSource(new Uri("fonts:Inter", UriKind.Absolute));
         builder = builder.With(new FontManagerOptions
         {
-            DefaultFamilyName = "Inter",
+            DefaultFamilyName = "fonts:Inter#Inter",
             FontFallbacks = new List<FontFallback>
             {
+                new()
+                {
+                    FontFamily = "Inter"
+                },
                 new()
                 {
                     FontFamily = "Noto Sans"
