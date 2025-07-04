@@ -15,9 +15,29 @@ static AppBuilder BuildAvaloniaApp()
 
     if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
     {
+        builder = builder.WithSystemFontSource(new Uri("fonts:Inter", UriKind.Absolute));
         builder = builder.With(new FontManagerOptions
         {
             DefaultFamilyName = "Inter",
+            FontFallbacks = new List<FontFallback>
+            {
+                new()
+                {
+                    FontFamily = "Noto Sans"
+                },
+                new()
+                {
+                    FontFamily = "Segoe UI"
+                },
+                new()
+                {
+                    FontFamily = "Roboto"
+                },
+                new()
+                {
+                    FontFamily = "Adwaita Sans"
+                }
+            }
         });
     }
 
