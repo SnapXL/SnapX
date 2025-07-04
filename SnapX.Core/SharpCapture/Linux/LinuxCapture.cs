@@ -11,9 +11,13 @@ public class LinuxCapture : BaseCapture
 {
     public override async Task<Image?> CaptureFullscreen()
     {
-        // if (LinuxAPI.IsWayland()) return await TakeScreenshotWithPortal();
+        if (LinuxAPI.IsWayland() && !IsCompositorKwin) return await TakeScreenshotWithPortal();
+        var screen = Methods.GetScreen(Methods.GetCursorPosition());
+        if (!IsCompositorKwin)
+        {
+            return LinuxAPI.TakeScreenshotWithX11(screen);
+        }
 
-        if (!IsCompositorKwin) return await TakeScreenshotWithPortal();
         // Todo: replace try catch with method that checks for valid kwin permissions.
         try
         {
@@ -23,7 +27,6 @@ public class LinuxCapture : BaseCapture
         {
             // Fallback to portal method.
         }
-
         return await TakeScreenshotWithPortal();
     }
 

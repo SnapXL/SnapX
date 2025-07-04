@@ -60,7 +60,8 @@ public static class Methods
     public static async Task<Rectangle> GetPrimaryScreen() => await SharpCapture.GetPrimaryScreen();
     public static async Task<Rectangle> GetActiveScreen() => await SharpCapture.GetScreen(GetCursorPosition());
 
-    public static Rectangle GetScreen(Point pos) => SharpCapture.GetScreen(pos).GetAwaiter().GetResult();
+    public static Rectangle GetScreenBounds(Point pos) => SharpCapture.GetScreen(pos).GetAwaiter().GetResult();
+    public static Screen? GetScreen(Point pos) => NativeAPI.GetScreen(pos);
 
     public static void CopyImage(Image image, string? fileName) => NativeAPI.CopyImage(image, fileName);
 
