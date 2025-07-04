@@ -124,11 +124,6 @@ public class LinuxCapture : BaseCapture
     }
     public override async Task<Image?> CaptureScreen(Rectangle bounds)
     {
-        // TODO: Implement pure X11 screenshotting instead of using portal
-        // if (LinuxAPI.IsWayland())
-        // {
-
-
         var fullscreenImage = await CaptureFullscreen().ConfigureAwait(false);
         var croppedImage = CropFullscreenScreenshotToBounds(bounds, fullscreenImage);
         Console.WriteLine($"Original: {fullscreenImage.Width}x{fullscreenImage.Height} After: {croppedImage.Width}x{croppedImage.Height}");
