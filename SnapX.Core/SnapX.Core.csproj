@@ -6,7 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Dapper.AOT</InterceptorsPreviewNamespaces>
     <PaddleOCRVersion>3.0.1</PaddleOCRVersion>
-    <PaddleInferenceVersion>3.0.0.51</PaddleInferenceVersion>
+    <PaddleInferenceVersion>3.1.0.54</PaddleInferenceVersion>
     <OpenCvSharp4Version>4.11.0.34</OpenCvSharp4Version>
     <SQLitePCLRawVersion>2.1.11</SQLitePCLRawVersion>
     <MSExtensionsVersion>9.0.6</MSExtensionsVersion>
