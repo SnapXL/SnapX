@@ -1,5 +1,5 @@
 assembly-informational-format: '{SemVer}+g{ShortSha}'
-commit-date-format: "yyyy-MM-dd hh:mm:ss zzzz"
+commit-date-format: "yyyy-MM-dd HH:mm:ss zzzz"
 update-build-number: true
 semantic-version-format: Strict
 mode: ContinuousDelivery
@@ -9,7 +9,36 @@ strategies:
   - MergeMessage
   - TrackReleaseBranches
   - VersionInBranchName
-commit-message-incrementing: Enabled
+increment: None
+branches:
+  develop:
+    mode: ContinuousDelivery
+    label: alpha
+    increment: None
+    prevent-increment:
+      when-current-commit-tagged: false
+    track-merge-target: true
+    track-merge-message: true
+    regex: ^dev(elop(ment)?)?$
+    is-source-branch-for: []
+    tracks-release-branches: true
+    is-release-branch: false
+    is-main-branch: false
+    pre-release-weight: 0
+  main:
+    label: ''
+    increment: None
+    prevent-increment:
+      of-merged-branch: true
+    track-merge-target: false
+    track-merge-message: true
+    regex: ^master$|^main$
+    source-branches: []
+    is-source-branch-for: []
+    tracks-release-branches: false
+    is-release-branch: false
+    is-main-branch: false
+    pre-release-weight: 55000
 major-version-bump-message: "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-,/\\\\]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)"
 minor-version-bump-message: "^(feat)(\\([\\w\\s-,/\\\\]*\\))?:"
 patch-version-bump-message: "^(fix|perf|revert)(\\([\\w\\s-,/\\\\]*\\))?:|^Revert\\s+\\\"[^\\\"]+\\\""
