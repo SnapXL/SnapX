@@ -1,9 +1,6 @@
 ﻿<Project>
-<ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Condition="!Exists('packages.config')">
-      <PrivateAssets>all</PrivateAssets>
-      <Version>6.3.0</Version>
-    </PackageReference>
+  <ItemGroup>
+    <PackageReference Include="GitVersion.MsBuild" Condition="!Exists('packages.config')" Version="6.3.0" PrivateAssets="all"/>
   </ItemGroup>
   <PropertyGroup>
     <Company>BrycensRanch and ShareX Team</Company>
@@ -12,7 +9,7 @@
     <Description>Capture, share, and boost productivity. All in one.</Description>
     <Copyright>Copyright (c) 2025 BrycensRanch and ShareX Team</Copyright>
     <!-- Breaks builds on my computer -->
-<!--    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+    <!--    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <IncludeDebugSymbolsProjectOutputGroup>false</IncludeDebugSymbolsProjectOutputGroup>
     <Optimize>true</Optimize>
@@ -24,12 +21,11 @@
     <TargetFramework Condition="'$(OS)' == 'Windows_NT'">net9.0-windows10.0.26100.0</TargetFramework>
     <RollForward>LatestMajor</RollForward>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Version>0.4.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="!Exists('.git')">
     <UpdateAssemblyInfo>false</UpdateAssemblyInfo>
     <DisableGitVersionTask>true</DisableGitVersionTask>
-
-    <Version Condition="'$(VERSION)' != ''">$(VERSION)</Version>
   </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) and
                          ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
