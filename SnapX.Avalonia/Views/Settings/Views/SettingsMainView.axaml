@@ -25,6 +25,25 @@
         PaneDisplayMode="Left"
         UseLayoutRounding="True">
         <controls:NavigationView.MenuItems>
+            <controls:NavigationViewItem Content="General" IsExpanded="True">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="AppGeneric"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+                <controls:NavigationView.MenuItems>
+                    <controls:NavigationViewItem Content="Theme">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="StyleGuide"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+
+                    </controls:NavigationViewItem>
+                </controls:NavigationView.MenuItems>
+            </controls:NavigationViewItem>
             <controls:NavigationViewItem Content="Destinations">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
@@ -33,7 +52,19 @@
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
                 <controls:NavigationView.MenuItems>
-                    <controls:NavigationViewItem Content="Placeholder">
+                    <controls:NavigationViewItem Content="Image uploader: Unknown">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="Image"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <controls:NavigationViewItem.MenuItems>
+                            <controls:NavigationViewItem Content="Imgur" />
+                        </controls:NavigationViewItem.MenuItems>
+
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Custom uploader">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="GlobeLocation"
@@ -87,6 +118,14 @@
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="DatabaseWindow"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+            </controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Import/Export">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="ArchiveSettings"
                         IconSize="Size32"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>

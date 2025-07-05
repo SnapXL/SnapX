@@ -4,6 +4,7 @@
     mc:Ignorable="d"
     x:Class="SnapX.Avalonia.Views.Settings.Views.SettingsHomePageView"
     xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -40,6 +41,36 @@
             TextAlignment="Center">
             Cross-platform. GPU-accelerated. Open source.
         </TextBlock>
+        <controls:FAComboBox
+            IsEditable="True"
+            Name="FontComboBox"
+            SelectionChanged="FontComboBox_OnSelectionChanged"
+            SelectionChangedTrigger="Always"
+            UseLayoutRounding="True"
+            Width="250">
+            <controls:FAComboBox.ItemTemplate>
+                <DataTemplate DataType="FontFamily">
+                    <StackPanel>
+                        <ToolTip.Tip>
+                            <TextBlock FontFamily="{Binding}">
+                                The quick brown fox jumps over the lazy dog.
+                                Pack my box with five dozen liquor jugs.
+                                How vexingly quick daft zebras jump!
+                                0123456789. "$#!%&amp;*,.;:/?@()[{}]\"'-_+=&lt;&gt;`~"
+                            </TextBlock>
+                        </ToolTip.Tip>
+                        <TextBlock
+                            FontFamily="{Binding}"
+                            HorizontalAlignment="Stretch"
+                            MaxLines="1"
+                            Text="{Binding}"
+                            TextTrimming="CharacterEllipsis"
+                            TextWrapping="NoWrap"
+                            Width="200" />
+                    </StackPanel>
+                </DataTemplate>
+            </controls:FAComboBox.ItemTemplate>
+        </controls:FAComboBox>
     </StackPanel>
 </UserControl>
 
