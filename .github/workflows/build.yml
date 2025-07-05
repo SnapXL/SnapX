@@ -79,6 +79,33 @@ jobs:
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet
+      - name: Update fallback version
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && always()
+        continue-on-error: true
+        run: |
+          fallback_version=$(./build.sh --version | sed 's/-.*//')
+          echo "Fallback version: $fallback_version"
+          cp Directory.Build.props Directory.Build.props.bak
+          sed -i "s|<Version>.*</Version>|<Version>${fallback_version}</Version>|" Directory.Build.props
+
+      - name: Commit fallback version
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && always()
+        continue-on-error: true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Extract the new fallback version from the props file
+          fallback_version=$(grep -oP '(?<=<Version>).*?(?=</Version>)' Directory.Build.props)
+
+          # Check if there are any changes
+          if ! git diff --quiet Directory.Build.props; then
+            git add Directory.Build.props
+            git commit -m "chore(release): update fallback version to ${fallback_version}"
+            git push
+          else
+            echo "No changes to commit."
+          fi
       - name: 🛠 Generate NuGet.config
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: |
@@ -90,7 +117,6 @@ jobs:
             '    <add key="Local" value="vendor" />' \
             '  </packageSources>' \
             '</configuration>' > NuGet.config
-
       - name: 🛠 Ensure RestorePackagesPath in Directory.Build.props
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: |
@@ -141,12 +167,3 @@ jobs:
           path: "Output/snapx-ui"
           compression-level: 9
           if-no-files-found: error
-      - name: Start building on other arches
-        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && always()
-        continue-on-error: true
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: build-on-other-arches.yml
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref }}
-          token: ${{ secrets.GITHUB_TOKEN || github.token }}
-          repo: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
