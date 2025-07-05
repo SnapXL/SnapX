@@ -1,7 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Media;
@@ -153,34 +152,41 @@ public partial class LinuxAPI : NativeAPI
     }
 
     [LibraryImport(LibX11, StringMarshalling = StringMarshalling.Utf16)]
-    private static partial IntPtr XOpenDisplay(string? display);
+    internal static partial IntPtr XOpenDisplay(string? display);
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XRootWindow(IntPtr display, int screen_number);
+    internal static partial IntPtr XRootWindow(IntPtr display, int screen_number);
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XDefaultRootWindow(IntPtr display);
+    internal static partial IntPtr XDefaultRootWindow(IntPtr display);
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XScreenOfDisplay(IntPtr display, int screeenNumber);
+    internal static partial int XEventsQueued(IntPtr display, int mode); // mode 0 for QueuedAfterReading,
+                                                                         // 1 for QueuedAlready, 2 for QueuedAfterFlush
 
     [LibraryImport(LibX11)]
-    private static partial int XWidthOfScreen(IntPtr screen);
+    internal static partial int XSelectInput(IntPtr display, IntPtr w, long event_mask);
 
     [LibraryImport(LibX11)]
-    private static partial int XHeightOfScreen(IntPtr screen);
+    internal static partial IntPtr XScreenOfDisplay(IntPtr display, int screeenNumber);
 
     [LibraryImport(LibX11)]
-    private static partial int XScreenCount(IntPtr display);
+    internal static partial int XWidthOfScreen(IntPtr screen);
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XRootWindowOfScreen(IntPtr screen);
+    internal static partial int XHeightOfScreen(IntPtr screen);
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XDefaultScreenOfDisplay(IntPtr display);
+    internal static partial int XScreenCount(IntPtr display);
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XGetImage(
+    internal static partial IntPtr XRootWindowOfScreen(IntPtr screen);
+
+    [LibraryImport(LibX11)]
+    internal static partial IntPtr XDefaultScreenOfDisplay(IntPtr display);
+
+    [LibraryImport(LibX11)]
+    internal static partial IntPtr XGetImage(
         IntPtr display,
         IntPtr drawable,
         int x,
@@ -192,7 +198,7 @@ public partial class LinuxAPI : NativeAPI
     );
 
     [LibraryImport(LibX11)]
-    private static partial int XGetGeometry(
+    internal static partial int XGetGeometry(
         IntPtr display,
         IntPtr window,
         out IntPtr root,
@@ -205,14 +211,14 @@ public partial class LinuxAPI : NativeAPI
     );
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XGetInputFocus(
+    internal static partial IntPtr XGetInputFocus(
         IntPtr display,
         out IntPtr focus_window,
         out int revert_to
     );
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XGetWindowProperty(
+    internal static partial IntPtr XGetWindowProperty(
         IntPtr display,
         IntPtr window,
         IntPtr property,
@@ -227,10 +233,10 @@ public partial class LinuxAPI : NativeAPI
     );
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XGetWMName(IntPtr display, IntPtr window, out IntPtr name);
+    internal static partial IntPtr XGetWMName(IntPtr display, IntPtr window, out IntPtr name);
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XGetSubImage(
+    internal static partial IntPtr XGetSubImage(
         IntPtr display,
         IntPtr drawable,
         int x,
@@ -245,10 +251,13 @@ public partial class LinuxAPI : NativeAPI
     );
 
     [LibraryImport(LibX11)]
-    private static partial int XGetWMState(IntPtr display, IntPtr window, out IntPtr state);
+    internal static partial int XGetWMState(IntPtr display, IntPtr window, out IntPtr state);
+    [LibraryImport(LibX11)]
+    internal static partial IntPtr XGetAtomName(IntPtr display, IntPtr atom); // Returns char*, needs marshalling
+
 
     [LibraryImport(LibX11)]
-    private static partial void XStoreBytes(
+    internal static partial void XStoreBytes(
         IntPtr display,
         IntPtr property,
         byte[] data,
@@ -256,8 +265,11 @@ public partial class LinuxAPI : NativeAPI
     );
 
     [LibraryImport(LibX11)]
-    private static partial int XFlush(IntPtr display);
-
+    internal static partial int XFlush(IntPtr display);
+    [LibraryImport(LibX11)]
+    internal static partial int XDestroyWindow(IntPtr display, IntPtr w);
+    [LibraryImport(LibX11)]
+    internal static partial int XFree(IntPtr data);
     private static bool IsWindowMinimized(IntPtr display, IntPtr hwnd)
     {
         XGetWMState(display, hwnd, out var state);
@@ -331,7 +343,7 @@ public partial class LinuxAPI : NativeAPI
             // XImage's bytes_per_line is typically the width * bytes_per_pixel (depth / 8)
             // However, it's safer to use the XImage's width and height fields directly for allocation,
             // and then copy row by row if byte order or padding is an issue.
-            // For simplicity, assuming a direct byte copy is feasible for common ZPIXMAP depths (e.g., 24 or 32 bit).
+            // For simplicity, assuming a direct byte copy is feasible for common ZPIXMAP depths (e.g., 24 or 32 bits).
             var bytesPerPixel = xImage.depth / 8;
             var pixelDataSize = xImage.width * xImage.height * bytesPerPixel;
             DebugHelper.Logger?.Debug("bytesPerPixel: {bytesPerPixel}", bytesPerPixel);
@@ -386,7 +398,7 @@ public partial class LinuxAPI : NativeAPI
 
             // Create the Image<Rgba32> from the pixel data
             // Ensure the pixelData format matches what Rgba32 expects (typically RGBA).
-            // The width and height from the screen object are used.
+            // The width and height of the screen object are used.
             var image = Image.LoadPixelData<Rgba32>(
                 pixelData,
                 screen.Bounds.Width,
@@ -411,10 +423,10 @@ public partial class LinuxAPI : NativeAPI
     }
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XGetSelectionOwner(IntPtr display, IntPtr selection);
+    internal static partial IntPtr XGetSelectionOwner(IntPtr display, IntPtr selection);
 
     [LibraryImport(LibX11)]
-    private static partial void XSetSelectionOwner(
+    internal static partial void XSetSelectionOwner(
         IntPtr display,
         IntPtr selection,
         IntPtr owner,
@@ -422,14 +434,14 @@ public partial class LinuxAPI : NativeAPI
     );
 
     [LibraryImport(LibX11, StringMarshalling = StringMarshalling.Utf16)]
-    private static partial IntPtr XInternAtom(
+    internal static partial IntPtr XInternAtom(
         IntPtr display,
         string type,
         [MarshalAs(UnmanagedType.Bool)] bool only_if_exists
     );
 
     [LibraryImport(LibX11)]
-    private static partial int XQueryTree(
+    internal static partial int XQueryTree(
         IntPtr display,
         IntPtr window,
         out IntPtr root,
@@ -439,16 +451,16 @@ public partial class LinuxAPI : NativeAPI
     );
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XFetchName(IntPtr display, IntPtr window);
+    internal static partial IntPtr XFetchName(IntPtr display, IntPtr window);
 
     [LibraryImport(LibX11)]
-    private static partial int XDestroyImage(IntPtr ximage);
+    internal static partial int XDestroyImage(IntPtr ximage);
 
     [LibraryImport(LibX11)]
-    private static partial void XCloseDisplay(IntPtr display);
+    internal static partial void XCloseDisplay(IntPtr display);
 
     [LibraryImport(LibX11)]
-    private static partial IntPtr XCreateSimpleWindow(
+    internal static partial IntPtr XCreateSimpleWindow(
         IntPtr display,
         IntPtr parent,
         int x,
@@ -460,20 +472,21 @@ public partial class LinuxAPI : NativeAPI
         ulong background
     );
 
-    [LibraryImport(LibX11)]
-    private static partial int XSendEvent(
+    [DllImport(LibX11)]
+    internal static extern int XSendEvent(
         IntPtr display,
         IntPtr window,
         [MarshalAs(UnmanagedType.Bool)] bool propagate,
         int event_mask,
         ref XEvent xevent
     );
+    [LibraryImport(LibX11)]
+    internal static partial int XSendEvent(IntPtr display, IntPtr window, [MarshalAs(UnmanagedType.Bool)] bool propagate, long event_mask, IntPtr xevent_ptr);
+    [DllImport(LibX11)]
+    internal static extern int XNextEvent(IntPtr display, out XEvent xevent);
 
     [LibraryImport(LibX11)]
-    private static partial int XNextEvent(IntPtr display, out XEvent xevent);
-
-    [LibraryImport(LibX11)]
-    private static partial int XChangeProperty(
+    internal static partial int XChangeProperty(
         IntPtr display,
         IntPtr window,
         IntPtr property,
@@ -485,17 +498,21 @@ public partial class LinuxAPI : NativeAPI
     );
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct XEvent
+    internal struct XEvent
     {
         public int type;
+
         public XSelectionRequestEvent xselectionrequest;
+
+        public XSelectionClearEvent xselectionclear;
     }
 
-    private const int SelectionRequest = 30;
-    private const int SelectionNotify = 31;
-    private const int PropModeReplace = 0;
-    private const int CurrentTime = 0;
-    private static readonly IntPtr XA_STRING = new IntPtr(31);
+
+    internal const int SelectionRequest = 30;
+    internal const int SelectionNotify = 31;
+    internal const int PropModeReplace = 0;
+    internal const int CurrentTime = 0;
+    private static readonly IntPtr XA_STRING = new(31);
 
     [StructLayout(LayoutKind.Sequential)]
     public struct XSelectionRequestEvent
@@ -511,7 +528,7 @@ public partial class LinuxAPI : NativeAPI
 
     // X11 Constants
     // private static readonly IntPtr XA_PRIMARY = 1;
-    private const IntPtr XA_CLIPBOARD = 2;
+    internal const IntPtr XA_CLIPBOARD = 2;
 
     public override void CopyText(string text)
     {
@@ -532,8 +549,8 @@ public partial class LinuxAPI : NativeAPI
                     {
                         // This code will execute whenever the 'Name' event is raised
                         DebugHelper.WriteLine($"WlOutput name received: {name}");
-                        // You might store this name in a property of your own object
-                        // For example: this.OutputActualName = name;
+                        // You might store this name in a property of your own object,
+                        // For example, this.OutputActualName = name;
                     };
                 }
                 DebugHelper.WriteLine($"{e.Name}:{e.Interface}:{e.Version}");
@@ -629,53 +646,33 @@ public partial class LinuxAPI : NativeAPI
     public override void CopyImage(Image image, string? filename)
     {
         using var ms = new MemoryStream();
-        if (
-            image.Metadata.DecodedImageFormat != null
-            && !(image.Metadata.DecodedImageFormat is BmpFormat)
-        )
-        {
-            image.Save(ms, image.Metadata.DecodedImageFormat);
-        }
-        else
-        {
-            image.Save(ms, new PngEncoder());
-        }
+        // Save the image in a format that ImageSharp understands for re-loading/processing
+        // Using PngEncoder for internal consistency as the clipboard will provide PNG
+        image.Save(ms, new PngEncoder());
+        // This is important: reload the image from memory to ensure it's in a known state
+        // and to get a Rgba32 image, as that's often what ImageSharp works best with internally.
+        // If you always work with Rgba32 from TakeScreenshotWithX11, this might be redundant.
+        var imageForClipboard = Image.Load<Rgba32>(ms.ToArray());
 
-        var imageBytes = ms.ToArray();
+
         if (IsWayland())
         {
             DebugHelper.Logger?.Debug("LinuxAPI.CopyImage - Wayland only code");
-            // var wlDisplay = WlDisplay.Connect();
-            // var wlRegistry = wlDisplay.GetRegistry();
-            // DebugHelper.Logger?.Debug($"WlDisplay connected to WL {wlRegistry.Version}");
-            //
-            // wlDisplay.Roundtrip();
-
-            return;
+            // For Wayland, you'd need wl-clipboard or similar native Wayland protocols.
+            // This X11 implementation does not apply to Wayland.
+            // return;
         }
 
-        var display = XOpenDisplay(null);
-        if (display == IntPtr.Zero)
+        try
         {
-            DebugHelper.Logger?.Debug("Unable to open X11 display");
-            return;
+            // Get the singleton instance of the clipboard handler and set the image
+            X11ClipboardHandler.Instance.SetImage(imageForClipboard, filename);
+            DebugHelper.Logger?.Debug("X11 image clipboard initiated.");
         }
-
-        var rootWindow = XRootWindow(display, 0);
-        var selection = XA_CLIPBOARD;
-
-        var xaString = XInternAtom(display, "STRING", false);
-
-        XSetSelectionOwner(display, selection, rootWindow, 0);
-        XStoreBytes(display, selection, imageBytes, imageBytes.Length);
-
-        if (!string.IsNullOrEmpty(filename))
+        catch (Exception ex)
         {
-            var filenameBytes = Encoding.UTF8.GetBytes(filename);
-            XStoreBytes(display, xaString, filenameBytes, filenameBytes.Length);
+            DebugHelper.Logger?.Error($"Failed to set X11 clipboard image: {ex.Message}");
         }
-
-        XFlush(display);
     }
 
     private static Rectangle GetWindowRectangleX11(IntPtr windowHandle)
@@ -694,7 +691,7 @@ public partial class LinuxAPI : NativeAPI
     }
 
     [LibraryImport(LibX11)]
-    private static partial int XQueryPointer(
+    internal static partial int XQueryPointer(
         IntPtr display,
         IntPtr window,
         out IntPtr root,
@@ -791,5 +788,48 @@ public partial class LinuxAPI : NativeAPI
         public uint blue_mask;
         public nint obdata;
         // ReSharper restore MemberCanBePrivate.Global
+    }
+
+    // Event Masks
+    internal const long ExposureMask = (1L << 15);
+    internal const long StructureNotifyMask = (1L << 17);
+    internal const long SubstructureNotifyMask = (1L << 19);
+    internal const long KeyPressMask = (1L << 0);
+    internal const long KeyReleaseMask = (1L << 1);
+    internal const long ButtonPressMask = (1L << 2);
+    internal const long ButtonReleaseMask = (1L << 3);
+    internal const long PointerMotionMask = (1L << 6);
+    internal const long FocusChangeMask = (1L << 20);
+    internal const long PropertyChangeMask = (1L << 22);
+    internal const long SelectionClearMask = (1L << 23); // Important for clipboard ownership
+    internal const long SelectionRequestMask = (1L << 24); // Important for clipboard ownership
+    internal const long SelectionNotifyMask = (1L << 25); // Important for clipboard ownership
+    internal const long EnterWindowMask = (1L << 4);
+    internal const long LeaveWindowMask = (1L << 5);
+
+    internal const int SelectionClear = 29;
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct XSelectionClearEvent
+    {
+        public int type;
+        public IntPtr serial;
+        public bool send_event;
+        public IntPtr display;
+        public IntPtr selection; // Atom
+        public long time;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct XSelectionEvent
+    {
+        public int type;
+        public IntPtr serial;
+        public bool send_event;
+        public IntPtr display;
+        public IntPtr requestor;
+        public IntPtr selection;
+        public IntPtr target;
+        public IntPtr property;
+        public long time;
     }
 }
