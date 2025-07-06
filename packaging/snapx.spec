@@ -18,7 +18,7 @@
 # This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
 
 
-%global version         0.3.0
+%global version         0.4.0
 # This build switch is not intended to be used as a method to make s390x and Ppc64le work
 %global build_with_aot  false
 %ifarch x86_64 aarch64
@@ -51,6 +51,7 @@ BuildRequires:  pkgconfig(libbrotlidec)
 BuildRequires:  clang
 BuildRequires:  openssl-devel
 BuildRequires:  zlib-devel
+BuildRequires:  patchelf
 %endif
 
 Recommends:     /usr/bin/ffmpeg
@@ -100,16 +101,19 @@ export PKGTYPE=RPM
 %install
 export VERSION=%{version}
 export ELEVATION_NOT_NEEDED=1
+./build.sh install --no-color --no-extended-chars --prefix %{_prefix} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
 # Bandaid fix until upstream addresses these issues.
 #ERROR   0002: file '/usr/lib/snapx/libphi.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi:/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
 #ERROR   0002: file '/usr/lib/snapx/libphi.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi:/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
 #ERROR   0002: file '/usr/lib/snapx/libphi_core.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
-export QA_RPATHS=$(( 0x0001|0x0010 ))
-./build.sh install --no-color --no-extended-chars --prefix %{_prefix} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
+for f in %{buildroot}%{_prefix}/lib/%{name}/*.so; do
+    echo "Patching $f ..."
+    patchelf --set-rpath '$ORIGIN' "$f"
+done
 
 %files
 %{_bindir}/%{name}
-%{_libdir}/%{name}
+%{_prefix}/lib/%{name}
 %{_datadir}/SnapX
 %{_docdir}/%{name}
 %license LICENSE.md
