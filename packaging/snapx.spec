@@ -121,7 +121,7 @@ for f in %{buildroot}%{_prefix}/lib/%{name}/*.so; do
     if [ "$PATCH_CMD" = "patchelf" ]; then
         patchelf --set-rpath '$ORIGIN' "$f"
     else
-        chrpath -r '$ORIGIN' "$f"
+        chrpath -r '$ORIGIN' "$f" || true # Not every *.so has a rpath
     fi
 done
 
