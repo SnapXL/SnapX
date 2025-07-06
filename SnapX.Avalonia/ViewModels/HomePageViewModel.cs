@@ -217,10 +217,9 @@ public partial class HomePageViewModel : ViewModelBase
             newDesiredTasks = await Task.Run(async () =>
             {
                 var historyItems = await TaskManager.History.GetHistoryItemsAsync(30_000).ConfigureAwait(false);
-                return historyItems.AsParallel()
-                    .OrderByDescending(task => task.Id)
-                    .Select(task => new ListTaskTemplate(typeofVM, task))
-                    .ToList();
+                var tasks = historyItems.Select(task => Task.Run(() => new ListTaskTemplate(typeofVM, task)));
+                var results = await Task.WhenAll(tasks);
+                return results.OrderByDescending(item => item.task.Id).ToList();
             }).ConfigureAwait(false);
 
             // Update cache
