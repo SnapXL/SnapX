@@ -51,7 +51,7 @@ BuildRequires:  pkgconfig(libbrotlidec)
 BuildRequires:  clang
 BuildRequires:  openssl-devel
 BuildRequires:  zlib-devel
-BuildRequires:  patchelf or chrpath
+BuildRequires:  patchelf OR chrpath
 %endif
 
 Recommends:     /usr/bin/ffmpeg
