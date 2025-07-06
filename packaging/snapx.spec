@@ -51,7 +51,7 @@ BuildRequires:  pkgconfig(libbrotlidec)
 BuildRequires:  clang
 BuildRequires:  openssl-devel
 BuildRequires:  zlib-devel
-BuildRequires:  patchelf
+BuildRequires:  (patchelf or chrpath)
 %endif
 
 Recommends:     /usr/bin/ffmpeg
@@ -102,13 +102,27 @@ export PKGTYPE=RPM
 export VERSION=%{version}
 export ELEVATION_NOT_NEEDED=1
 ./build.sh install --no-color --no-extended-chars --prefix %{_prefix} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
+
+if command -v patchelf >/dev/null 2>&1; then
+    PATCH_CMD="patchelf"
+elif command -v chrpath >/dev/null 2>&1; then
+    PATCH_CMD="chrpath"
+else
+    echo "ERROR: Neither patchelf nor chrpath found! Cannot patch RPATH."
+    exit 1
+fi
+
 # Bandaid fix until upstream addresses these issues.
 #ERROR   0002: file '/usr/lib/snapx/libphi.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi:/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
 #ERROR   0002: file '/usr/lib/snapx/libphi.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi:/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
 #ERROR   0002: file '/usr/lib/snapx/libphi_core.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
 for f in %{buildroot}%{_prefix}/lib/%{name}/*.so; do
     echo "Patching $f ..."
-    patchelf --set-rpath '$ORIGIN' "$f"
+    if [ "$PATCH_CMD" = "patchelf" ]; then
+        patchelf --set-rpath '$ORIGIN' "$f"
+    else
+        chrpath -r '$ORIGIN' "$f" || true # Not every *.so has a rpath
+    fi
 done
 
 %files
