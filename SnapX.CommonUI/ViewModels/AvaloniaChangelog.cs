@@ -1,4 +1,4 @@
-namespace SnapX.Avalonia;
+namespace SnapX.CommonUI.ViewModels;
 
 public class AvaloniaChangelog : SnapX.CommonUI.Changelog
 {

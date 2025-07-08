@@ -9,5 +9,6 @@
     <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />
     <!-- GitVersion class must not be trimmed -->
     <TrimmerRootAssembly Include="$(AssemblyName)" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
   </ItemGroup>
 </Project>

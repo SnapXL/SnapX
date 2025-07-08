@@ -4,7 +4,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using SnapX.Avalonia.Models;
+using SnapX.CommonUI.Models;
+using SnapX.CommonUI.ViewModels;
 
 namespace SnapX.Avalonia.ViewModels;
 
@@ -37,11 +38,9 @@ public partial class MainViewModel : ViewModelBase
     partial void OnSelectedListItemChanged(ListItemTemplate? value)
     {
         if (value is null) return;
-#pragma warning disable IL2072 // The code works, leave me alone
         var vm = Design.IsDesignMode
             ? Activator.CreateInstance(value.ModelType)
             : Ioc.Default.GetService(value.ModelType);
-#pragma warning restore IL2072
 
         if (vm is not ViewModelBase vmb) return;
 

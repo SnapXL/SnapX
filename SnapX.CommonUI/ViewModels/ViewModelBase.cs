@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace SnapX.Avalonia.ViewModels;
+namespace SnapX.CommonUI.ViewModels;
 
 public class ViewModelBase : ObservableObject;

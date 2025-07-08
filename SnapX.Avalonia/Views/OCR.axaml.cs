@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FluentAvalonia.UI.Windowing;
-using SnapX.Avalonia.ViewModels;
+using SnapX.CommonUI.ViewModels;
 using SnapX.Core;
 using SnapX.Core.History;
 using SnapX.Core.Utils;

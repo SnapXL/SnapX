@@ -57,7 +57,7 @@ public class TaskThumbnailView : INotifyPropertyChanged
         if (img != null) return ImageHelpers.ResizeImage(img, ThumbnailSize, false);
         if (string.IsNullOrWhiteSpace(filePath)) filePath = Task.Info.FileName;
         else if (File.Exists(filePath)) return ImageHelpers.ResizeImage(Image.Load(filePath), ThumbnailSize, true);
-        if (string.IsNullOrEmpty(filePath)) return null; // TODO: Embed error image
+        if (string.IsNullOrEmpty(filePath)) return Image.Load([]); // TODO: Embed error image
         var icon = Methods.GetJumboFileIcon(filePath, false);
         return ImageHelpers.ResizeImage(icon, ThumbnailSize, false, true);
     }

@@ -11,7 +11,7 @@ public class TaskMetadata : IDisposable
 {
     private const int WindowInfoMaxLength = 255;
 
-    public Image Image { get; set; }
+    public Image? Image { get; set; }
 
     private string? windowTitle;
 

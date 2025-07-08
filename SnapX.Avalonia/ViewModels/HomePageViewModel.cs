@@ -4,8 +4,9 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
-using SnapX.Avalonia.Models;
 using SnapX.Avalonia.Views;
+using SnapX.CommonUI.Models;
+using SnapX.CommonUI.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
@@ -208,20 +209,17 @@ public partial class HomePageViewModel : ViewModelBase
         List<ListTaskTemplate> newDesiredTasks;
 
         // Check cache first
-        if (DateTime.Now - _lastCacheTime < _cacheDuration && _cachedTasks != null)
+        if (DateTime.Now - _lastCacheTime < _cacheDuration)
         {
             newDesiredTasks = _cachedTasks;
         }
         else
         {
-            newDesiredTasks = await Task.Run(async () =>
-            {
-                var historyItems = await TaskManager.History.GetHistoryItemsAsync(30_000).ConfigureAwait(false);
-                return historyItems.AsParallel()
-                    .OrderByDescending(task => task.Id)
-                    .Select(task => new ListTaskTemplate(typeofVM, task))
-                    .ToList();
-            }).ConfigureAwait(false);
+            var historyItems = await TaskManager.History.GetHistoryItemsAsync(30_000).ConfigureAwait(false);
+            newDesiredTasks = historyItems
+                .OrderByDescending(task => task.Id)
+                .Select(task => new ListTaskTemplate(typeofVM, task))
+                .ToList();
 
             // Update cache
             _cachedTasks = newDesiredTasks;

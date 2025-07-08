@@ -710,7 +710,7 @@ public class SnapX
 
         // Add the event handler for handling non-UI thread exceptions to the event
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-        AppDomain.CurrentDomain.ProcessExit += ((_, _) => CloseSequence());
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => CloseSequence();
     }
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) => OnError((Exception)e.ExceptionObject);
     private static void OnError(Exception e) => DebugHelper.WriteException(e);

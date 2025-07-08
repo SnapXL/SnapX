@@ -1,10 +1,9 @@
-using Avalonia.Collections;
-using Avalonia.Controls;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using SnapX.Avalonia.Models;
+using SnapX.CommonUI.Models;
 
-namespace SnapX.Avalonia.ViewModels;
+namespace SnapX.CommonUI.ViewModels;
 
 public partial class SettingsMainViewVM : ViewModelBase
 {
@@ -15,23 +14,19 @@ public partial class SettingsMainViewVM : ViewModelBase
     private ViewModelBase _currentPage = new SettingsHomePageViewVM();
     [ObservableProperty]
     private ListItemTemplate? _selectedListItem;
-    public AvaloniaList<ListItemTemplate> Items { get; }
+    public ObservableCollection<ListItemTemplate> Items { get; }
 
     public SettingsMainViewVM()
     {
         _currentPage = new SettingsHomePageViewVM();
-        Items = new AvaloniaList<ListItemTemplate>(_templates);
+        Items = new ObservableCollection<ListItemTemplate>(_templates);
 
         SelectedListItem = Items.First(vm => vm.ModelType == typeof(SettingsHomePageViewVM));
     }
     partial void OnSelectedListItemChanged(ListItemTemplate? value)
     {
         if (value is null) return;
-#pragma warning disable IL2072 // The code works, leave me alone
-        var vm = Design.IsDesignMode
-            ? Activator.CreateInstance(value.ModelType)
-            : Ioc.Default.GetService(value.ModelType);
-#pragma warning restore IL2072
+        var vm = Ioc.Default.GetService(value.ModelType);
 
         if (vm is not ViewModelBase vmb) return;
 

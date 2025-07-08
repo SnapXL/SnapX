@@ -1,4 +1,4 @@
-namespace SnapX.Avalonia.ViewModels;
+namespace SnapX.CommonUI.ViewModels;
 
 public class SettingsHomePageViewVM : ViewModelBase
 {

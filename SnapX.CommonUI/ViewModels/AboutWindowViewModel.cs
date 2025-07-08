@@ -1,11 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SnapX.CommonUI;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Miscellaneous;
 
-namespace SnapX.Avalonia.ViewModels;
+namespace SnapX.CommonUI.ViewModels;
 
 public partial class AboutWindowViewModel : ViewModelBase
 {
@@ -18,9 +17,7 @@ public partial class AboutWindowViewModel : ViewModelBase
      RelayCommand]
     private Task InitDataAsync()
     {
-        var combinedLoadedAssemblies = AppDomain.CurrentDomain.GetAssemblies()
-            .Concat(App.SnapX.GetAssemblies())
-            .Distinct();
+        var combinedLoadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
         LoadedAssemblies = string.Join(Environment.NewLine, combinedLoadedAssemblies
             .Where(a => a.GetName().Name != null)
             .Where(a =>

@@ -203,60 +203,6 @@ internal static class SettingManager
         HotkeysConfigBackwardCompatibilityTasks();
     }
 
-    // private static void MigrateApplicationConfigJSONToSQLite()
-    // {
-    //     try
-    //     {
-    //             DebugHelper.WriteLine($"JSON -> SQLite Migration: Migrating {ApplicationConfigFileName} at {ApplicationConfigFilePath}");
-    //             var json = File.ReadAllText(ApplicationConfigFilePath);
-    //             var node = JsonNode.Parse(json)!.AsObject();
-    //             node.Remove("RecentTasks");
-    //
-    //             var nodeJSON = node.ToJsonString();
-    //
-    //             var root = JsonDocument.Parse(nodeJSON).RootElement;
-    //             foreach (var property in root.EnumerateObject())
-    //             {
-    //                 var key = property.Name;
-    //                 var value = property.Value;
-    //
-    //                 switch (value.ValueKind)
-    //                 {
-    //                     case JsonValueKind.Object:
-    //                         FlattenAndInsert(value, key);
-    //                         break;
-    //
-    //                     case JsonValueKind.Array:
-    //                         var index = 0;
-    //                         foreach (var item in value.EnumerateArray())
-    //                         {
-    //                             // Compose a "key:index" prefix for each item and recurse
-    //                             FlattenAndInsert(item, $"{key}:{index++}");
-    //                         }
-    //
-    //                         break;
-    //
-    //                     case JsonValueKind.String:
-    //                     case JsonValueKind.Number:
-    //                     case JsonValueKind.True:
-    //                     case JsonValueKind.False:
-    //                     case JsonValueKind.Null:
-    //                     case JsonValueKind.Undefined:
-    //                     default:
-    //                         FlattenAndInsert(value, key);
-    //                         break;
-    //                 }
-    //             }
-    //             var migratedPath = ApplicationConfigFilePath + ".migrated";
-    //             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-    //             migratedPath = ApplicationConfigFilePath + $"{timestamp}.migrated";
-    //             File.Move(ApplicationConfigFilePath, migratedPath);
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         DebugHelper.WriteException(ex);
-    //     }
-    // }
     public static void SaveApplicationConfig()
     {
         if (SnapX.Sandbox)
@@ -524,18 +470,6 @@ internal static class SettingManager
 
     private static void HotkeysConfigBackwardCompatibilityTasks()
     {
-
-        // if (Settings.IsUpgradeFrom("15.0.1"))
-        // {
-        //     foreach (var taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
-        //     {
-        //         if (tasktaskSettings.CaptureSettings != null)
-        //         {
-        //             // taskSettings.CaptureSettings.ScrollingCaptureOptions = new ScrollingCaptureOptions();
-        //             // taskSettings.CaptureSettings.FFmpegOptions.FixSources();
-        //         }
-        //     }
-        // }
     }
 
     public static void Dispose() => theLaw.Dispose();
@@ -652,28 +586,6 @@ internal static class SettingManager
         }
 
         return false;
-    }
-
-    // This method validates the setting before restoration to ensure it fits the defined type
-    private static bool IsValidValue(string value, string dataType)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return false; // Prevent null or empty values.
-
-        switch (dataType)
-        {
-            case "int":
-                return int.TryParse(value, out _);
-            case "double":
-                return double.TryParse(value, out _);
-            case "bool":
-                return bool.TryParse(value, out _);
-            case "string":
-                return true;
-            default:
-                DebugHelper.WriteLine($"Unknown data type: {dataType}");
-                return false;
-        }
     }
 }
 

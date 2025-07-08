@@ -7,6 +7,7 @@ using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views;
 using SnapX.Avalonia.Views.Settings;
 using SnapX.Avalonia.Views.Settings.Views;
+using SnapX.CommonUI.ViewModels;
 
 namespace SnapX.Avalonia;
 

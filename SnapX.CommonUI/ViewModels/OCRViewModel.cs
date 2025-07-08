@@ -5,7 +5,7 @@ using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using Image = SixLabors.ImageSharp.Image;
 
-namespace SnapX.Avalonia.ViewModels;
+namespace SnapX.CommonUI.ViewModels;
 
 public partial class OCRViewModel : ViewModelBase
 {

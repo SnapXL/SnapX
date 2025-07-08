@@ -8,7 +8,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using SnapX.Avalonia.ViewModels;
+using SnapX.CommonUI.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;

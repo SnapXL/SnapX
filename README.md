@@ -53,7 +53,7 @@
 - Keeps compatibility with the custom uploader configuration format (.sxcu)
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
-What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and *modern* application.
+What does this all mean? You'll have an app that **flies**, is **reliable**, and looks **sleek**.
 
 You will *not* receive any support from the ShareX project for this software. \
 If you have any issues with this project, please **open an issue** in this repository.
