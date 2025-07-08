@@ -123,7 +123,7 @@
     <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
   </ItemGroup>
 <ItemGroup>
-  <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
+  <Compile Include=".\SharpCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
   <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
