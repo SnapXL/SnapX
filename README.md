@@ -40,7 +40,7 @@
 
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
 - Dependency on Newtonsoft.JSON dropped, traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
-- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [ image metadata like image hashes & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet [~~keeping JSON as an option~~](https://github.com/BrycensRanch/SnapX/issues/28#issuecomment-2764614506).
+- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet [~~keeping JSON as an option~~](https://github.com/BrycensRanch/SnapX/issues/28#issuecomment-2764614506).
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
@@ -73,6 +73,16 @@ This project is built on Ubuntu 24.04 and is tested on the following distributio
 
 > [!NOTE]
 > If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
+
+## Supported Desktop Environments
+
+This application relies on XDG portals to handle screenshots in a secure and desktop-agnostic way. It is actively tested on:
+
+- **KDE Plasma**
+- **GNOME**
+
+> [!TIP]
+> Other desktop environments or Wayland compositors—such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal—should also work, but are not officially tested. 
 
 ## Packages for testers
 
@@ -187,7 +197,7 @@ To successfully compile SnapX from source, ensure your system meets the followin
 git clone https://github.com/BrycensRanch/SnapX
 cd SnapX
 ./build.sh # Linux/macOS
-.\build.ps1 # If on Windows
+.\build.ps1 # Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
 # Nothing is stopping you from using regular .NET building tools
 # dotnet publish -c Release ./SnapX.sln
