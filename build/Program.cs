@@ -8,9 +8,8 @@ namespace DefaultNamespace;
 
 internal class Program
 {
-    private static readonly ConsoleLogger logger = new();
-    private static readonly CommandRunner commandRunner = new(logger);
-    internal static readonly DirectoryService directoryService = new(logger, commandRunner);
+    private static readonly IBuildLogger logger = new ConsoleLogger();
+    private static readonly ICommandRunner commandRunner = new CommandRunner(logger);
     private static readonly FS fileSystem = new(logger, commandRunner);
 
     private async Task ExecuteAsync(BuildConfig config)

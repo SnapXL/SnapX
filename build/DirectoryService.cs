@@ -53,7 +53,7 @@ public class DirectoryService
             TryDeleteFile(file);
         }
     }
-    public static void EnsureDirectoryExists(string directory)
+    public void EnsureDirectoryExists(string directory)
     {
         if (Directory.Exists(directory)) return;
         try

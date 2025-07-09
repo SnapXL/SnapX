@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>DefaultNamespace</RootNamespace>
     <LangVersion>preview</LangVersion>
+    <InternalsVisibleToFriends>Build.Tests</InternalsVisibleToFriends>
   </PropertyGroup>
 
   <ItemGroup>

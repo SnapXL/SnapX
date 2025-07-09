@@ -100,7 +100,6 @@ public class CLI
         {
             Description = "The directory to output builds artifacts to.",
             Arity = ArgumentArity.ExactlyOne,
-            DefaultValueFactory = _ => "Output"
         };
         rootCommand.Options.Add(outputDirOption);
 
@@ -163,7 +162,7 @@ public class CLI
             var config = new BuildConfig
             {
                 Targets = parseResult.GetValue(targetsArgument) ?? [],
-                OutputDir = parseResult.GetValue(outputDirOption) ?? "Output",
+                OutputDir = parseResult.GetValue(outputDirOption)!,
                 Configuration = parseResult.GetValue(configurationOption) ?? "Release",
                 ExtraArgs = parseResult.GetValue(extraArgsOption) ?? "",
                 SkippedStepsRaw = parseResult.GetValue(skipStepOption) ?? [],
@@ -195,7 +194,6 @@ public class CLI
             if (prefix is not null) config.Prefix = prefix;
             if (libDir is not null) config.LibDir = libDir;
             if (docDir is not null) config.Docdir = docDir;
-
             // Set skipped steps based on parsed options
             config.SetSkippedSteps(config.SkippedStepsRaw);
 

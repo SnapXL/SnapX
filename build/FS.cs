@@ -1,6 +1,6 @@
 namespace DefaultNamespace;
 
-public class FS(IBuildLogger Logger, CommandRunner CommandRunner) : IFileSystem
+public class FS(IBuildLogger Logger, ICommandRunner CommandRunner) : IFileSystem
 {
     public async Task TryDeleteFile(string path)
     {
@@ -89,7 +89,7 @@ public class FS(IBuildLogger Logger, CommandRunner CommandRunner) : IFileSystem
 
     public Task EnsureDirectoryExistsAsync(string path)
     {
-        DirectoryService.EnsureDirectoryExists(path);
+        new DirectoryService(Logger, CommandRunner).EnsureDirectoryExists(path);
         return Task.CompletedTask;
     }
 }

@@ -1,6 +1,6 @@
 namespace DefaultNamespace;
 
-public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileSystem, BuildConfig config)
+public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, IFileSystem FileSystem, BuildConfig config)
 {
     public async Task ProcessInstall()
     {
@@ -13,6 +13,7 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
     private void LogInstallationPaths()
     {
         Logger.Information($"--- Installation Paths ---");
+        Logger.Information($"Build Output: {config.OutputDir}");
         Logger.Information($"Root directory: {config.RootDirectory}");
         Logger.Information($"Destination Directory (DESTDIR): {config.DestDir}");
         Logger.Information($"Prefix: {config.Prefix}");

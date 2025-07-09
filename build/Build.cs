@@ -78,7 +78,7 @@ public class Build(IBuildLogger Logger, ICommandRunner CommandRunner, IFileSyste
     private Task HandleRustLibCopy(string rootDirectory, string outputDir)
     {
         const string rustLib = "libsnapxrust.dylib";
-        var sourcePath = Path.Combine(rootDirectory, "SnapX.Core", "ScreenCapture", "Rust", "target", "release", rustLib);
+        var sourcePath = Path.Combine(rootDirectory, "SnapX.Core", "SharpCapture", "Rust", "target", "release", rustLib);
 
         if (!File.Exists(sourcePath)) return Task.CompletedTask;
 

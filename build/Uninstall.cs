@@ -1,6 +1,6 @@
 namespace DefaultNamespace;
 
-public class Uninstall(IBuildLogger Logger, FS FileSystem, BuildConfig config)
+public class Uninstall(IBuildLogger Logger, IFileSystem FileSystem, BuildConfig config)
 {
     private static readonly string[] libraryExtensions = ["*.so", "*.dylib", "*.dll"];
     public async Task ProcessUninstall()

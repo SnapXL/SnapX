@@ -1,6 +1,6 @@
 namespace DefaultNamespace;
 
-public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileSystem, BuildConfig config)
+public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, IFileSystem FileSystem, BuildConfig config)
 {
     public async Task ProcessTarball()
     {

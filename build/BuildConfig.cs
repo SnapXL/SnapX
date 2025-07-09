@@ -34,7 +34,7 @@ public class BuildConfig
     public string Icondir => Path.Join(Datadir, "icons", "hicolor");
     public string Runtime { get; set; } = RuntimeInformation.RuntimeIdentifier;
     public string Metainfodir => Path.Join(Datadir, "metainfo");
-    public string RootDirectory { get; } = Path.GetRelativePath(Directory.GetCurrentDirectory(), DirectoryService.FindRoot());
+    public string RootDirectory { get; set; } = Path.GetRelativePath(Directory.GetCurrentDirectory(), DirectoryService.FindRoot());
     public string PackagingDirectory => Path.Combine(RootDirectory, "packaging");
     public string Tarballdir => Path.Combine(PackagingDirectory, "tarball");
     public string Appdir => Path.Combine(PackagingDirectory, "AppDir");
@@ -80,7 +80,11 @@ public class BuildConfig
 
     public string[] Targets { get; init; } = [];
     public string[] SkippedStepsRaw { get; init; } = [];
-    public string OutputDir { get; init; } = "Output";
+    public string OutputDir
+    {
+        get => field ??= Path.Combine(RootDirectory, "Output");
+        set;
+    }
     public string Configuration { get; init; } = "Release";
     public bool EnableWrapperScriptFallback { get; init; }
     public bool DisableWrapperScript { get; set; } = OperatingSystem.IsWindows();

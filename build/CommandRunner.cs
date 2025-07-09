@@ -16,7 +16,7 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
             var directoryPath = Path.GetDirectoryName(destination);
             if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath) && !File.Exists(directoryPath))
             {
-                DirectoryService.EnsureDirectoryExists(directoryPath);
+                new DirectoryService(Logger, this).EnsureDirectoryExists(directoryPath);
             }
             if (source.Contains("dSYM", StringComparison.InvariantCultureIgnoreCase))
             {
