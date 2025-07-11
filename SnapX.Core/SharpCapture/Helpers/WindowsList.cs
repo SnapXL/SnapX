@@ -4,7 +4,7 @@ using SnapX.Core.Media;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
 
-namespace SnapX.Core.ScreenCapture.Helpers;
+namespace SnapX.Core.SharpCapture.Helpers;
 
 public class WindowsList
 {

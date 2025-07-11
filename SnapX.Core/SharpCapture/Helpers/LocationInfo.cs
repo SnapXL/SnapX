@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-namespace SnapX.Core.ScreenCapture.Helpers;
+namespace SnapX.Core.SharpCapture.Helpers;
 
 
 public class LocationInfo

@@ -4,7 +4,7 @@
 
 using System.ComponentModel;
 
-namespace SnapX.Core.ScreenCapture;
+namespace SnapX.Core.SharpCapture;
 
 public enum ScreenRecordOutput
 {

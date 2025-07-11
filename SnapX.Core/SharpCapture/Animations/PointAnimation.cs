@@ -4,7 +4,7 @@
 
 using SixLabors.ImageSharp;
 
-namespace SnapX.Core.ScreenCapture.Animations;
+namespace SnapX.Core.SharpCapture.Animations;
 
 internal class PointAnimation : BaseAnimation
 {

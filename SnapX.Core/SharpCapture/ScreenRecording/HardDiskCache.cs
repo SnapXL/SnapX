@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using SixLabors.ImageSharp;
-using SnapX.Core.ScreenCapture.Helpers;
+using SnapX.Core.SharpCapture.Helpers;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
-namespace SnapX.Core.ScreenCapture.ScreenRecording;
+namespace SnapX.Core.SharpCapture.ScreenRecording;
 
 public class HardDiskCache : ImageCache
 {

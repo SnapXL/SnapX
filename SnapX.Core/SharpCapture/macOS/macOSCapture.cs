@@ -1,4 +1,5 @@
 using SixLabors.ImageSharp;
+using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
 using uniffi.snapxrust;
@@ -319,29 +320,29 @@ namespace SnapX.Core.SharpCapture.macOS;
 //     }
 // }
 
-public class macOSCapture : BaseCapture
+public class macOSCapture : BaseSharpCapture
 {
-    public override async Task<Image?> CaptureFullscreen()
+    public override async Task<Image?> CaptureFullscreen(TaskSettings? taskSettings = null)
     {
         return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureFullscreen());
     }
 
-    public override async Task<Image?> CaptureScreen(Rectangle bounds)
+    public override async Task<Image?> CaptureScreen(Rectangle bounds, TaskSettings? taskSettings = null)
     {
         return CaptureRectangleNative(bounds);
     }
 
-    public override async Task<Image?> CaptureScreen(Point? pos)
+    public override async Task<Image?> CaptureScreen(Point? pos, TaskSettings? taskSettings = null)
     {
         return CaptureMonitor(Methods.GetCursorPosition());
     }
 
-    public override async Task<Image?> CaptureRectangle(Rectangle rect)
+    public override async Task<Image?> CaptureRectangle(Rectangle rect, TaskSettings? taskSettings = null)
     {
         return CaptureRectangleNative(rect);
     }
 
-    public override async Task<Image?> CaptureWindow(Point pos)
+    public override async Task<Image?> CaptureWindow(Point pos, TaskSettings? taskSettings = null)
     {
         return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureWindow((uint)pos.X, (uint)pos.Y));
     }

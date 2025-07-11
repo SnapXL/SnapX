@@ -4,7 +4,7 @@
 
 using SixLabors.ImageSharp;
 
-namespace SnapX.Core.ScreenCapture.Helpers;
+namespace SnapX.Core.SharpCapture.Helpers;
 
 public class InputManager
 {

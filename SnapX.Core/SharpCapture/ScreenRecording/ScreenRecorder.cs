@@ -8,7 +8,7 @@ using SixLabors.ImageSharp;
 using SnapX.Core.Media;
 using SnapX.Core.Utils;
 
-namespace SnapX.Core.ScreenCapture.ScreenRecording;
+namespace SnapX.Core.SharpCapture.ScreenRecording;
 
 public class ScreenRecorder : IDisposable
 {

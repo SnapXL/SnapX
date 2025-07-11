@@ -2,37 +2,30 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using SnapX.Core.Interfaces;
 using SnapX.Core.Job;
+using SnapX.Core.SharpCapture.Interfaces;
 
-namespace SnapX.Core.Capture;
-public class CaptureRegion : CaptureBase
+namespace SnapX.Core.SharpCapture;
+public class CaptureRegion(IMainWindowService MainWindowService, INotificationService NotificationService, IUploadManager UploadManager, IDelayService DelayService, ILoggerService LoggerService, ICaptureService CaptureService, RegionCaptureType RegionCaptureType) : CaptureBase(MainWindowService, NotificationService, UploadManager, DelayService, LoggerService, CaptureService)
 {
     protected static RegionCaptureType lastRegionCaptureType = RegionCaptureType.Default;
 
-    public RegionCaptureType RegionCaptureType { get; protected set; }
+    public RegionCaptureType RegionCaptureType { get; protected set; } = RegionCaptureType;
 
-    public CaptureRegion()
-    {
-    }
-
-    public CaptureRegion(RegionCaptureType regionCaptureType)
-    {
-        RegionCaptureType = regionCaptureType;
-    }
-
-    protected override TaskMetadata Execute(TaskSettings taskSettings)
-    {
-        switch (RegionCaptureType)
-        {
-            default:
-            case RegionCaptureType.Default:
-                return ExecuteRegionCapture(taskSettings);
-            case RegionCaptureType.Light:
-                return ExecuteRegionCaptureLight(taskSettings);
-            case RegionCaptureType.Transparent:
-                return ExecuteRegionCaptureTransparent(taskSettings);
-        }
-    }
+    // protected override TaskMetadata Execute(TaskSettings taskSettings)
+    // {
+    //     switch (RegionCaptureType)
+    //     {
+    //         default:
+    //         case RegionCaptureType.Default:
+    //             return ExecuteRegionCapture(taskSettings);
+    //         case RegionCaptureType.Light:
+    //             return ExecuteRegionCaptureLight(taskSettings);
+    //         case RegionCaptureType.Transparent:
+    //             return ExecuteRegionCaptureTransparent(taskSettings);
+    //     }
+    // }
 
     protected TaskMetadata ExecuteRegionCapture(TaskSettings taskSettings)
     {
@@ -139,6 +132,11 @@ public class CaptureRegion : CaptureBase
         // }
 
         return null;
+    }
+
+    protected override async Task<TaskMetadata> ExecuteAsync(TaskSettings taskSettings)
+    {
+        throw new NotImplementedException();
     }
 }
 

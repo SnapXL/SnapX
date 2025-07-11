@@ -4,7 +4,7 @@
 
 using System.Diagnostics;
 
-namespace SnapX.Core.ScreenCapture.Animations;
+namespace SnapX.Core.SharpCapture.Animations;
 
 internal class BaseAnimation
 {

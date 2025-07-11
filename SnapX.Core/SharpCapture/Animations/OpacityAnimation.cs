@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-namespace SnapX.Core.ScreenCapture.Animations;
+namespace SnapX.Core.SharpCapture.Animations;
 
 internal class OpacityAnimation : BaseAnimation
 {

@@ -5,7 +5,7 @@
 using SixLabors.ImageSharp;
 using SnapX.Core.Utils;
 
-namespace SnapX.Core.ScreenCapture.Animations;
+namespace SnapX.Core.SharpCapture.Animations;
 
 internal class ColorBlinkAnimation : BaseAnimation
 {

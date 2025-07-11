@@ -4,7 +4,7 @@
 
 using System.Drawing;
 
-namespace SnapX.Core.ScreenCapture.Helpers;
+namespace SnapX.Core.SharpCapture.Helpers;
 
 public class SnapSize
 {

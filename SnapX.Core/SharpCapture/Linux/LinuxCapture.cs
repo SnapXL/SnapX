@@ -1,5 +1,6 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Job;
 using SnapX.Core.SharpCapture.Linux.DBus;
 using SnapX.Core.Utils.Native;
 using Tmds.DBus;
@@ -7,15 +8,15 @@ using Tmds.DBus.Protocol;
 
 namespace SnapX.Core.SharpCapture.Linux;
 
-public class LinuxCapture : BaseCapture
+public class LinuxCapture : BaseSharpCapture
 {
-    public override async Task<Image?> CaptureFullscreen()
+    public override async Task<Image?> CaptureFullscreen(TaskSettings? taskSettings = null)
     {
         if (LinuxAPI.IsWayland() && !IsCompositorKwin) return await TakeScreenshotWithPortal();
         var screen = Methods.GetScreen(Methods.GetCursorPosition());
         if (!IsCompositorKwin)
         {
-            return LinuxAPI.TakeScreenshotWithX11(screen);
+            return ((LinuxAPI)Methods.NativeAPI).TakeScreenshotWithX11(screen);
         }
 
         // Todo: replace try catch with method that checks for valid kwin permissions.
@@ -122,7 +123,7 @@ public class LinuxCapture : BaseCapture
 
         return img;
     }
-    public override async Task<Image?> CaptureScreen(Rectangle bounds)
+    public override async Task<Image?> CaptureScreen(Rectangle bounds, TaskSettings? taskSettings = null)
     {
         var fullscreenImage = await CaptureFullscreen().ConfigureAwait(false);
         var croppedImage = CropFullscreenScreenshotToBounds(bounds, fullscreenImage);
@@ -132,7 +133,7 @@ public class LinuxCapture : BaseCapture
 
         // return LinuxAPI.TakeScreenshotWithX11(screen);
     }
-    public override async Task<Image?> CaptureScreen(Point? pos)
+    public override async Task<Image?> CaptureScreen(Point? pos, TaskSettings? taskSettings = null)
     {
         if (pos == null || !pos.HasValue) throw new ArgumentNullException(nameof(pos));
         return await CaptureScreen(await GetScreen(pos.Value));
@@ -141,7 +142,7 @@ public class LinuxCapture : BaseCapture
     public override async Task<Rectangle> GetScreen(Point pos) => Methods.NativeAPI.GetScreen(pos).Bounds;
 
     public override async Task<Rectangle> GetWorkingArea() => ((LinuxAPI)Methods.NativeAPI).GetScreenBounds();
-    public override async Task<Image?> CaptureRectangle(Rectangle rect)
+    public override async Task<Image?> CaptureRectangle(Rectangle rect, TaskSettings? taskSettings = null)
     {
         return CropFullscreenScreenshotToBounds(rect, await CaptureFullscreen().ConfigureAwait(false));
     }

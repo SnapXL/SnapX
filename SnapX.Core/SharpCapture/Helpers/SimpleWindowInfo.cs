@@ -5,7 +5,7 @@
 using SixLabors.ImageSharp;
 using SnapX.Core.Media;
 
-namespace SnapX.Core.ScreenCapture.Helpers;
+namespace SnapX.Core.SharpCapture.Helpers;
 
 
 public class SimpleWindowInfo

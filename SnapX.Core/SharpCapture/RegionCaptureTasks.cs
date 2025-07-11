@@ -4,9 +4,9 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Media;
-using SnapX.Core.ScreenCapture.Helpers;
+using SnapX.Core.SharpCapture.Helpers;
 
-namespace SnapX.Core.ScreenCapture;
+namespace SnapX.Core.SharpCapture;
 
 public static class RegionCaptureTasks
 {

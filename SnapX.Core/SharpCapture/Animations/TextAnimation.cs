@@ -4,7 +4,7 @@
 
 using System.Drawing;
 
-namespace SnapX.Core.ScreenCapture.Animations;
+namespace SnapX.Core.SharpCapture.Animations;
 
 internal class TextAnimation : OpacityAnimation
 {
