@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <PublishAot>true</PublishAot>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="0.25.21" />
+<!--    <PackageReference Include="FsCheck" Version="3.3.0" />-->
+<!--    <PackageReference Include="TngTech.ArchUnitNET" Version="0.12.0" />-->
+<!--    <PackageReference Include="Bogus" Version="35.6.3" />-->
+<!--    <PackageReference Include="Shouldly" Version="4.3.0" />-->
+<!--    <PackageReference Include="FakeItEasy" Version="8.3.0" />-->
+    <ProjectReference Include="..\..\build\build.csproj" />
+
+  </ItemGroup>
+
+</Project>
