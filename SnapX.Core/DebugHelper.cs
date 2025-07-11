@@ -2,8 +2,6 @@
 
 
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.InMemory;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace SnapX.Core;
@@ -12,8 +10,7 @@ public static class DebugHelper
 {
     public static ILogger? Logger { get; private set; }
     private static List<string?> messageBuffer = new();
-    private static InMemorySink inMemorySink = new();
-    public static IEnumerable<LogEvent> LogEvents => inMemorySink.LogEvents;
+    public static ObservableSink observableSink { get; private set; } = new();
     public static void Init(string logFilePath)
     {
         if (string.IsNullOrEmpty(logFilePath)) return;
@@ -21,7 +18,7 @@ public static class DebugHelper
 #if DEBUG
             .MinimumLevel.Debug()
 #endif
-            .WriteTo.Sink(inMemorySink)
+            .WriteTo.Sink(observableSink)
             // If you run multiple SnapX instances, this will be the first to break. :)
             .WriteTo.Async(a => a.File(logFilePath, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]: {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day, buffered: true));
         if (SnapX.LogToConsole)

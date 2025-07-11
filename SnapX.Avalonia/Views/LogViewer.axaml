@@ -1,7 +1,7 @@
 <windowing:AppWindow
     Closed="AppWindow_OnClosed"
     Height="800"
-    Loaded="AppWindow_OnLoaded"
+    Opened="AppWindow_OnLoaded"
     Title="Log Viewer"
     Width="900"
     x:Class="SnapX.Avalonia.Views.LogViewer"
