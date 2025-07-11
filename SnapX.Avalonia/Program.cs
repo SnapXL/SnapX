@@ -5,6 +5,10 @@ using Avalonia.Dialogs;
 using Avalonia.Media;
 using SnapX.Avalonia;
 
+var snapx = new SnapXAvalonia();
+
+snapx.loadApplicationSettingsPartial();
+
 BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
 
@@ -23,7 +27,7 @@ static AppBuilder BuildAvaloniaApp()
             {
                 new()
                 {
-                    FontFamily = "Inter"
+                    FontFamily = "fonts:Inter#Inter"
                 },
                 new()
                 {

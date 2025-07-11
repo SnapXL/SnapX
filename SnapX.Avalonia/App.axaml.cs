@@ -7,16 +7,13 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Windowing;
-using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views;
+using SnapX.Avalonia.Views.About;
 using SnapX.Avalonia.Views.Settings;
-using SnapX.Avalonia.Views.Settings.Views;
-using SnapX.CommonUI.ViewModels;
 using SnapX.Core;
+using SnapX.Core.Interfaces;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
 
@@ -31,23 +28,13 @@ public partial class App : Application
 
     public static SnapXAvalonia SnapX { get; private set; } = null!;
     public static MainWindow? MyMainWindow { get; private set; }
-    public static string TrayTitle => $"SnapX v{SimpleVersion()}";
-
-    private static string SimpleVersion()
-    {
-        var version = Version.Parse(Helpers.GetApplicationVersion());
-        var versionString = $"{version.Major}.{version.Minor}.{version.Revision}";
-        if (version.Build > 0)
-            versionString += $".{version.Build}";
-        return versionString;
-    }
 
     public override void Initialize()
     {
         SnapX = new SnapXAvalonia();
         // SnapX.setQualifier(" UI");
         AvaloniaXamlLoader.Load(this);
-        AppDomain.CurrentDomain.UnhandledException += (Sender, Args) =>
+        AppDomain.CurrentDomain.UnhandledException += (_, Args) =>
         {
             ShowErrorDialog(Lang.UnhandledException, Args.ExceptionObject as Exception);
         };
@@ -229,13 +216,7 @@ public partial class App : Application
     {
         var locator = new ViewLocator();
         DataTemplates.Add(locator);
-        var services = new ServiceCollection();
-        ConfigureServices(services);
 
-        var provider = services.BuildServiceProvider();
-
-        Ioc.Default.ConfigureServices(provider);
-        Ioc.Default.AddStaticLogging();
         var vm = Ioc.Default.GetRequiredService<MainViewModel>();
 
         switch (ApplicationLifetime)
@@ -294,6 +275,8 @@ public partial class App : Application
 
                     MyMainWindow = Window;
                     desktop.MainWindow = Window;
+                    var tray = new OSTray(this, Ioc.Default.GetRequiredService<ILoggerService>());
+                    tray.display();
                     break;
                 }
             case ISingleViewApplicationLifetime singleView when SnapX.isSilent():
@@ -344,7 +327,7 @@ public partial class App : Application
             aboutWindow.Show();
         }
     }
-    public static void NativeMenuAboutSnapXClick(object? Sender, EventArgs E)
+    public void NativeMenuAboutSnapXClick(object? Sender, EventArgs E)
     {
         CreateAboutWindowStatic();
     }
@@ -365,28 +348,5 @@ public partial class App : Application
             settingsWindow.ShowAsDialog = false;
             settingsWindow.Show();
         }
-    }
-
-    public static void ConfigureServices(IServiceCollection services)
-    {
-        services.AddLogging(loggingBuilder =>
-            loggingBuilder.AddSerilog(dispose: true));
-
-
-        services.AddTransient<MainViewModel>();
-        services.AddSingleton<MainWindow>();
-        services.AddTransient<SettingsWindow>();
-        services.AddTransient<SettingsMainView>();
-        services.AddTransient<SettingsMainViewVM>();
-        services.AddTransient<SettingsHomePageView>();
-        services.AddTransient<SettingsHomePageViewVM>();
-
-        services.AddTransient<AboutWindow>();
-        services.AddSingleton<AboutWindowViewModel>();
-
-        services.AddTransient<HomePageView>();
-        services.AddSingleton<HomePageViewModel>();
-
-        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
     }
 }

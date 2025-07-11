@@ -1,16 +1,18 @@
 using System.Diagnostics;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using Aptabase.Core;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using SnapX.Core.CLI;
 using SnapX.Core.Hotkey;
+using SnapX.Core.Interfaces;
 using SnapX.Core.Job;
+using SnapX.Core.Services;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
@@ -23,7 +25,7 @@ using Xdg.Directories;
 
 
 namespace SnapX.Core;
-public class SnapX
+public class SnapX(IServiceProvider serviceProvider)
 {
     public const string AppName = "SnapX";
     public static string Qualifier { get; set; } = "";
@@ -88,6 +90,18 @@ public class SnapX
     {
         CloseSequence();
     }
+
+    public static void ConfigureServices(ServiceCollection services)
+    {
+        services.AddLogging(loggingBuilder =>
+            loggingBuilder.AddSerilog(dispose: true));
+        services.AddSingleton<ILoggerService>(_ => new SerilogLogService(LogsFilePath, true, Configuration));
+        services.AddSingleton<VersionEnforcer>(provider =>
+        {
+            var logger = provider.GetRequiredService<ILoggerService>();
+            return new VersionEnforcer(LockDirectory, logger);
+        });
+    }
     public static string Title
     {
         get
@@ -119,13 +133,13 @@ public class SnapX
     public static bool IgnoreHotkeyWarning { get; private set; }
     public static bool PuushMode { get; private set; }
 
-    public static RootConfiguration Settings { get; set; } = new();
+    public static ApplicationConfig Settings { get; set; } = new();
     public static List<string> Flags { get; set; } = new();
 
     internal static IConfiguration Configuration { get; set; }
-    internal static TaskSettings DefaultTaskSettings { get; set; } = TaskSettings.GetDefaultTaskSettings();
-    internal static UploadersConfig UploadersConfig { get; set; }
-    internal static HotkeysConfig HotkeysConfig { get; set; }
+    internal static TaskSettings? DefaultTaskSettings { get; set; } = TaskSettings.GetDefaultTaskSettings();
+    internal static UploadersConfig? UploadersConfig { get; set; } = new();
+    internal static HotkeysConfig? HotkeysConfig { get; set; } = new();
 
     internal static Stopwatch StartTimer { get; private set; }
     internal static HotkeyManager HotkeyManager { get; set; }
@@ -162,11 +176,10 @@ public class SnapX
         AppName, PersonalPathConfigFileName);
 
     private static readonly string PortableCheckFilePath = FileHelpers.GetAbsolutePath("Portable");
-    public static EventAggregator EventAggregator { get; } = new();
     private static string CustomPersonalPath { get; set; }
 
     private static string CustomConfigPath { get; set; }
-    public static SqliteConnection DbConnection { get; set; }
+    public static SqliteConnection? DbConnection { get; set; }
     public static string ShortenPath(string? path) =>
         OperatingSystem.IsWindows() ? path : path.Replace(Environment.GetEnvironmentVariable("HOME") ?? "", "~");
 
@@ -263,11 +276,10 @@ public class SnapX
     {
         CloseSequence();
     }
-    public Assembly[] GetAssemblies() => AppDomain.CurrentDomain.GetAssemblies();
     public void start(string?[] args)
     {
         HandleExceptions();
-
+        new SettingManager(serviceProvider).LoadSettings();
         StartTimer = Stopwatch.StartNew();
         // TODO: Implement CLI in a better way than what it is now.
         CLIManager = new SnapXCLIManager(args);
@@ -290,7 +302,11 @@ public class SnapX
     }
 
     public long getStartupTime() => StartTimer.ElapsedMilliseconds;
-    public EventAggregator getEventAggregator() => EventAggregator;
+    public static IServiceCollection ConfigureCoreSnapXServices(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<IConfiguration>(configuration);
+        return services;
+    }
     public bool isSilent() => SilentRun;
     public static object? aptabaseClientObject;
 
@@ -302,8 +318,12 @@ public class SnapX
     public static bool CanAutoUpdate() =>
         !FeatureFlags.DisableAutoUpdates && Settings.AutoCheckUpdate;
 
+    public void loadApplicationSettingsPartial()
+    {
+        SettingManager.LoadApplicationConfig();
+    }
     [DapperAot]
-    private static void Run()
+    private void Run()
     {
         DebugHelper.WriteLine("SnapX starting.");
         DebugHelper.WriteLine("Version: " + VersionText);
@@ -404,7 +424,6 @@ public class SnapX
         {
             DebugHelper.WriteLine($"DB: {Args.CurrentState}");
         };
-        SettingManager.LoadSettings();
         if (TelemetryEnabled())
         {
             var loggerFactory = LoggerFactory.Create(builder =>
@@ -423,7 +442,7 @@ public class SnapX
                 IsDebugMode = false
 #endif
             }, logger);
-            var telemetry = new Telemetry(DbConnection, aptabaseClient);
+            var telemetry = new Telemetry(DbConnection, aptabaseClient, serviceProvider.GetRequiredService<ILoggerService>());
             aptabaseClientObject = aptabaseClient;
             telemetry.TrackEvent("app_started", new Dictionary<string, object>
             {
@@ -452,7 +471,6 @@ public class SnapX
 #if DEBUG
                 options.Environment = "development";
                 options.CreateHttpMessageHandler = () => new LoggingHttpMessageHandler(new SentryHttpMessageHandler(), DebugHelper.Logger);
-                options.DisableSentryHttpMessageHandler = true;
 #else
                 options.Environment = "production";
 #endif
@@ -512,7 +530,7 @@ public class SnapX
         task.GetAwaiter().GetResult(); // propagate exceptions
     }
     public SnapXCLIManager GetCLIManager() => CLIManager;
-    public RootConfiguration GetConfiguration() => Settings;
+    public ApplicationConfig GetConfiguration() => Settings;
 
     public static void CloseSequence()
     {

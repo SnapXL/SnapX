@@ -12,6 +12,7 @@ using Dapper;
 using Esatto.Win32.Registry;
 #endif
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using SnapX.Core.History;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Job;
@@ -22,13 +23,13 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SnapX.Core;
 
-[JsonSerializable(typeof(RootConfiguration))]
+[JsonSerializable(typeof(ApplicationConfig))]
 [JsonSerializable(typeof(IConfiguration))]
 [JsonSerializable(typeof(UploadersConfig))]
 [JsonSerializable(typeof(HotkeysConfig))]
 
 internal partial class SettingsContext : JsonSerializerContext;
-internal static class SettingManager
+internal class SettingManager(IServiceProvider serviceProvider)
 {
     private const string ApplicationConfigFileName = "ApplicationConfig.json";
 
@@ -90,21 +91,20 @@ internal static class SettingManager
 
     public static string? SnapshotFolder => Path.Combine(SnapX.PersonalFolder, "Snapshots");
 
-    private static RootConfiguration Settings { get => SnapX.Settings; set => SnapX.Settings = value; }
-    private static TaskSettings DefaultTaskSettings { get => SnapX.DefaultTaskSettings; set => SnapX.DefaultTaskSettings = value; }
+    private static ApplicationConfig Settings { get => SnapX.Settings; set => SnapX.Settings = value; }
+    private static TaskSettings? DefaultTaskSettings { get => SnapX.DefaultTaskSettings; set => SnapX.DefaultTaskSettings = value; }
     private static UploadersConfig UploadersConfig { get => SnapX.UploadersConfig; set => SnapX.UploadersConfig = value; }
     private static HotkeysConfig HotkeysConfig { get => SnapX.HotkeysConfig; set => SnapX.HotkeysConfig = value; }
-    private static VersionEnforcer theLaw;
+    private static VersionEnforcer? theLaw;
 
     private static ManualResetEvent uploadersConfigResetEvent = new(false);
     private static ManualResetEvent hotkeysConfigResetEvent = new(false);
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public static void LoadSettings()
+    public void LoadSettings()
     {
-        theLaw = new VersionEnforcer(SnapX.LockDirectory);
+        theLaw = serviceProvider.GetRequiredService<VersionEnforcer>();
         theLaw.Enforce();
-        LoadApplicationConfig();
         LoadUploadersConfig();
         LoadHotkeysConfig();
     }
@@ -150,7 +150,7 @@ internal static class SettingManager
         {
             // DebugHelper.WriteLine($"{kv.Key} = {kv.Value}");
         }
-        var settings = new RootConfiguration();
+        var settings = new ApplicationConfig();
         SnapX.Configuration.Bind(settings);
         Settings = settings;
         if (string.IsNullOrWhiteSpace(Settings.SQLitePath))
@@ -278,6 +278,12 @@ internal static class SettingManager
             .Where(name => name.Contains("Migrations") && name.EndsWith(".sql"))
             .OrderBy(name => name) // Ensure migrations are processed in numerical order
             .ToList();
+
+        if (SnapX.DbConnection is null)
+        {
+            DebugHelper.WriteLine("SnapX.DbConnection is null, skipping backward compatibility tasks.");
+            return;
+        }
 
         // Ensure MigrationLog table exists for the checks below
         // This is crucial if it's the very first time running migrations.
@@ -472,7 +478,7 @@ internal static class SettingManager
     {
     }
 
-    public static void Dispose() => theLaw.Dispose();
+    public static void Dispose() => theLaw?.Dispose();
     public static void CleanupHotkeysConfig()
     {
         foreach (var taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
