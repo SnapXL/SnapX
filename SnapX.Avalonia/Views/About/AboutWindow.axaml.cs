@@ -8,11 +8,11 @@ using Avalonia.Styling;
 using FluentAvalonia.Styling;
 using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
-using SnapX.Avalonia.ViewModels;
+using SnapX.CommonUI.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Utils;
 
-namespace SnapX.Avalonia;
+namespace SnapX.Avalonia.Views.About;
 
 public partial class AboutWindow : AppWindow
 {

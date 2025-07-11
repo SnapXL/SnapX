@@ -1,18 +1,16 @@
 using Avalonia.Controls;
 using Avalonia.Media;
-using SnapX.Avalonia.ViewModels;
+using SnapX.CommonUI.ViewModels;
 using SnapX.Core;
 
 namespace SnapX.Avalonia.Views.Settings.Views;
 
 public partial class SettingsHomePageView : UserControl
 {
-    private SettingsHomePageViewVM ViewModel;
 
     public SettingsHomePageView(SettingsHomePageViewVM vm)
     {
         DataContext = vm;
-        ViewModel = vm;
         InitializeComponent();
         var itemsAsList = FontManager.Current.SystemFonts
             .OrderBy<FontFamily, string>(font => font.Name)

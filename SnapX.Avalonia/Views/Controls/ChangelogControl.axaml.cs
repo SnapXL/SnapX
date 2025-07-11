@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using SnapX.Avalonia.ViewModels;
+using SnapX.CommonUI.ViewModels;
 
 namespace SnapX.Avalonia.Views.Controls;
 
