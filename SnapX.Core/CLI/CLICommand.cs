@@ -3,17 +3,11 @@
 
 
 namespace SnapX.Core.CLI;
-public class CLICommand
+public record CLICommand(string? Command = null, string? Parameter = null)
 {
-    public string? Command { get; set; }
-    public string? Parameter { get; set; }
+    public string? Command { get; set; } = Command;
+    public string? Parameter { get; set; } = Parameter;
     public bool IsCommand { get; set; } // Starts with hyphen?
-
-    public CLICommand(string? command = null, string? parameter = null)
-    {
-        Command = command;
-        Parameter = parameter;
-    }
 
     public bool CheckCommand(string command, StringComparison comparisonType = StringComparison.OrdinalIgnoreCase)
     {
@@ -22,7 +16,7 @@ public class CLICommand
 
     public override string? ToString()
     {
-        string? text = "";
+        var text = "";
 
         if (IsCommand)
         {

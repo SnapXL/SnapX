@@ -4,7 +4,7 @@
 
 namespace SnapX.Core.History;
 
-public class HistorySettings
+public record HistorySettings
 {
     public bool RememberWindowState { get; set; } = true;
     public int SplitterDistance { get; set; } = 550;

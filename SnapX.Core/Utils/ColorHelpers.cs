@@ -313,7 +313,7 @@ public static class ColorHelpers
 
     public static int PerceivedBrightness(Rgba64 color)
     {
-        return (int)System.Math.Sqrt((color.R * color.R * .299) + (color.G * color.G * .587) + (color.B * color.B * .114));
+        return (int)Math.Sqrt((color.R * color.R * .299) + (color.G * color.G * .587) + (color.B * color.B * .114));
     }
 
     public static Color VisibleColor(Color color)

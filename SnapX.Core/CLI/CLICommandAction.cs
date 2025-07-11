@@ -3,17 +3,12 @@
 
 
 namespace SnapX.Core.CLI;
-public class CLICommandAction
+public record CLICommandAction(params string[] Commands)
 {
-    public string[] Commands;
+    public string[] Commands = Commands;
     public Action DefaultAction;
     public Action<string> TextAction;
     public Action<int> NumberAction;
-
-    public CLICommandAction(params string[] commands)
-    {
-        Commands = commands;
-    }
 
     public bool CheckCommands(List<CLICommand> commands)
     {

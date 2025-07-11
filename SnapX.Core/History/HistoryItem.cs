@@ -15,7 +15,7 @@ namespace SnapX.Core.History;
 internal partial class HistoryContext : JsonSerializerContext;
 
 [Table("HistoryItems")]
-public class HistoryItem
+public record HistoryItem
 {
     [Key]
     public int Id { get; set; }

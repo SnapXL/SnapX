@@ -10,14 +10,14 @@ public static class HtmlHelper
 {
     public static string StartTag(string tag, string style = "", string otherFields = "")
     {
-        string css = "";
+        var css = "";
 
         if (!string.IsNullOrEmpty(style))
         {
             css = $" style=\"{style}\"";
         }
 
-        string fields = "";
+        var fields = "";
 
         if (!string.IsNullOrEmpty(otherFields))
         {
