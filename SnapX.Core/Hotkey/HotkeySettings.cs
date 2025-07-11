@@ -5,16 +5,11 @@
 using SnapX.Core.Job;
 
 namespace SnapX.Core.Hotkey;
-public class HotkeySettings
+public record HotkeySettings()
 {
-    public HotkeyInfo HotkeyInfo { get; set; }
+    public HotkeyInfo? HotkeyInfo { get; set; } = new();
 
-    public TaskSettings TaskSettings { get; set; }
-
-    public HotkeySettings()
-    {
-        HotkeyInfo = new HotkeyInfo();
-    }
+    public TaskSettings? TaskSettings { get; set; }
 
     public HotkeySettings(HotkeyType job, Keys hotkey = Keys.None) : this()
     {
@@ -27,7 +22,7 @@ public class HotkeySettings
     {
         if (HotkeyInfo != null && TaskSettings != null)
         {
-            return string.Format("Hotkey: {0}, Description: {1}, Job: {2}", HotkeyInfo, TaskSettings, TaskSettings.Job);
+            return $"Hotkey: {HotkeyInfo}, Description: {TaskSettings}, Job: {TaskSettings.Job}";
         }
 
         return "";

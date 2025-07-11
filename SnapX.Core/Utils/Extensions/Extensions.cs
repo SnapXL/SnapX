@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace SnapX.Core.Utils.Extensions;
 
@@ -229,7 +230,10 @@ public static class Extensions
         return Range(source, startIndex, endIndex);
     }
 
-    public static bool IsTransparent(this Color color) => color.IsTransparent();
+    public static bool IsTransparent(this Color color)
+    {
+        return color.ToPixel<Rgba32>().A < 255;
+    }
     public static string ToStringProper(this Rectangle rect) =>
         $"X: {rect.X}, Y: {rect.Y}, Width: {rect.Width}, Height: {rect.Height}";
 }

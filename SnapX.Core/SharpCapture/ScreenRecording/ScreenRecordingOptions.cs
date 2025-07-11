@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Text;
 using SixLabors.ImageSharp;
 
-namespace SnapX.Core.ScreenCapture.ScreenRecording;
+namespace SnapX.Core.SharpCapture.ScreenRecording;
 
 public class ScreenRecordingOptions
 {

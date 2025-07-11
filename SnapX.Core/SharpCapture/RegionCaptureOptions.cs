@@ -3,10 +3,11 @@
 
 
 using SixLabors.ImageSharp;
+using SnapX.Core.History;
 using SnapX.Core.ImageEffects;
-using SnapX.Core.ScreenCapture.Helpers;
+using SnapX.Core.SharpCapture.Helpers;
 
-namespace SnapX.Core.ScreenCapture;
+namespace SnapX.Core.SharpCapture;
 
 public class RegionCaptureOptions
 {
@@ -34,16 +35,20 @@ public class RegionCaptureOptions
     public string CustomInfoText = "X: $x, Y: $y$nR: $r, G: $g, B: $b$nHex: $hex"; // Formats: $x, $y, $r, $g, $b, $hex, $HEX, $n
     public List<SnapSize> SnapSizes =
     [
-        new(426, 240), // 240p
-        new(640, 360), // 360p
-        new(854, 480), // 480p
-        new(1280, 720), // 720p
-        new(1920, 1080) // 1080p
+        new(426, 240),    // 240p
+        new(640, 360),    // 360p
+        new(854, 480),    // 480p
+        new(1280, 720),   // 720p
+        new(1920, 1080),  // 1080p
+        new(2560, 1440),  // 1440p
+        new(3840, 2160),  // 2160p
+        new(5120, 2880),  // 2880p / 5K
+        new(7680, 4320)   // 4320p / 8K
     ];
     public bool ShowInfo = true;
     public bool ShowMagnifier = true;
     public bool UseSquareMagnifier = false;
-    public int MagnifierPixelCount = 15; // Must be odd number like 11, 13, 15 etc.
+    public int MagnifierPixelCount = 15; // Must be odd number like 11, 13, 15, etc.
     public int MagnifierPixelSize = 10;
     public bool ShowCrosshair = false;
     public bool UseLightResizeNodes = false;
@@ -76,7 +81,7 @@ public class RegionCaptureOptions
     public bool AutoCloseEditorOnTask = false;
     public bool ShowEditorPanTip = true;
     public ImageInterpolationMode ImageEditorResizeInterpolationMode = ImageInterpolationMode.Bicubic;
-    public Size EditorNewImageSize = new Size(800, 600);
+    public Size EditorNewImageSize = new(800, 600);
     public bool EditorNewImageTransparent = false;
     public Color EditorNewImageBackgroundColor = Color.White;
     public Color EditorCanvasColor = Color.Transparent;

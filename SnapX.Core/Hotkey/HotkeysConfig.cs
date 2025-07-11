@@ -2,7 +2,7 @@
 
 namespace SnapX.Core.Hotkey;
 
-public class HotkeysConfig
+public record HotkeysConfig
 {
     public List<HotkeySettings> Hotkeys = HotkeyManager.GetDefaultHotkeyList();
 }

@@ -1,179 +1,21 @@
 using System.ComponentModel;
 using SixLabors.ImageSharp;
 using SnapX.Core.History;
+using SnapX.Core.ImageEffects;
 using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core;
 
-public class GradientColor
+public class ApplicationConfig
 {
-    public string Color { get; set; }
-    public double Location { get; set; }
-}
-
-public class PinToScreenOptions
-{
-    public int InitialScale { get; set; }
-    public int ScaleStep { get; set; }
-    public bool HighQualityScale { get; set; }
-    public int InitialOpacity { get; set; }
-    public int OpacityStep { get; set; }
-    public string Placement { get; set; }
-    public int PlacementOffset { get; set; }
-    public bool TopMost { get; set; }
-    public bool KeepCenterLocation { get; set; }
-    public string BackgroundColor { get; set; }
-    public bool Shadow { get; set; }
-    public bool Border { get; set; }
-    public int BorderSize { get; set; }
-    public string BorderColor { get; set; }
-    public string MinimizeSize { get; set; }
-}
-
-public class ImageBeautifierOptions
-{
-    public int Margin { get; set; }
-    public int Padding { get; set; }
-    public bool SmartPadding { get; set; }
-    public int RoundedCorner { get; set; }
-    public int ShadowRadius { get; set; }
-    public int ShadowOpacity { get; set; }
-    public int ShadowDistance { get; set; }
-    public int ShadowAngle { get; set; }
-    public string ShadowColor { get; set; }
-    public string BackgroundType { get; set; }
-    public BackgroundGradient BackgroundGradient { get; set; }
-    public string BackgroundColor { get; set; }
-    public string BackgroundImageFilePath { get; set; }
-}
-
-public class BackgroundGradient
-{
-    public string Type { get; set; }
-    public List<GradientColor> Colors { get; set; }
-}
-
-public class ImageCombinerOptions
-{
-    public string Orientation { get; set; }
-    public string Alignment { get; set; }
-    public int Space { get; set; }
-    public int WrapAfter { get; set; }
-    public bool AutoFillBackground { get; set; }
-}
-
-public class VideoConverterOptions
-{
-    public string InputFilePath { get; set; }
-    public string OutputFolderPath { get; set; }
-    public string OutputFileName { get; set; }
-    public string VideoCodec { get; set; }
-    public int VideoQuality { get; set; }
-    public bool VideoQualityUseBitrate { get; set; }
-    public int VideoQualityBitrate { get; set; }
-    public bool UseCustomArguments { get; set; }
-    public string CustomArguments { get; set; }
-    public bool AutoOpenFolder { get; set; }
-}
-
-public class VideoThumbnailOptions
-{
-    public string DefaultOutputDirectory { get; set; }
-    public string LastVideoPath { get; set; }
-    public string OutputLocation { get; set; }
-    public string CustomOutputDirectory { get; set; }
-    public string ImageFormat { get; set; }
-    public int ThumbnailCount { get; set; }
-    public string FilenameSuffix { get; set; }
-    public bool RandomFrame { get; set; }
-    public bool UploadThumbnails { get; set; }
-    public bool KeepScreenshots { get; set; }
-    public bool OpenDirectory { get; set; }
-    public int MaxThumbnailWidth { get; set; }
-    public bool CombineScreenshots { get; set; }
-    public int Padding { get; set; }
-    public int Spacing { get; set; }
-    public int ColumnCount { get; set; }
-    public bool AddVideoInfo { get; set; }
-    public bool AddTimestamp { get; set; }
-    public bool DrawShadow { get; set; }
-    public bool DrawBorder { get; set; }
-}
-
-public class BorderlessWindowSettings
-{
-    public bool RememberWindowTitle { get; set; }
-    public string WindowTitle { get; set; }
-    public bool AutoCloseWindow { get; set; }
-    public bool ExcludeTaskbarArea { get; set; }
-}
-
-public class QuickTaskPreset
-{
-    public string Name { get; set; }
-    public List<QuickTaskInfo> AfterCaptureTasks { get; set; }
-    public List<QuickTaskInfo> AfterUploadTasks { get; set; }
-}
-
-public class Theme
-{
-    public string Name { get; set; }
-    public string BackgroundColor { get; set; }
-    public string LightBackgroundColor { get; set; }
-    public string DarkBackgroundColor { get; set; }
-    public string TextColor { get; set; }
-    public string BorderColor { get; set; }
-    public string CheckerColor { get; set; }
-    public string CheckerColor2 { get; set; }
-    public int CheckerSize { get; set; }
-    public string LinkColor { get; set; }
-    public string MenuHighlightColor { get; set; }
-    public string MenuHighlightBorderColor { get; set; }
-    public string MenuBorderColor { get; set; }
-    public string MenuCheckBackgroundColor { get; set; }
-    public string MenuFont { get; set; }
-    public string ContextMenuFont { get; set; }
-    public int ContextMenuOpacity { get; set; }
-    public string SeparatorLightColor { get; set; }
-    public string SeparatorDarkColor { get; set; }
-}
-
-public class ProxySettings
-{
-    public string ProxyMethod { get; set; }
-    public string Host { get; set; }
-    public int Port { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
-}
-
-public class WindowState
-{
-    public string Location { get; set; }
-    public string Size { get; set; }
-    public bool IsMaximized { get; set; }
-}
-
-public class ImageHistorySettings
-{
-    public bool RememberWindowState { get; set; }
-    public WindowState WindowState { get; set; }
-    public string ThumbnailSize { get; set; }
-    public int MaxItemCount { get; set; }
-    public bool FilterMissingFiles { get; set; }
-    public bool RememberSearchText { get; set; }
-    public string SearchText { get; set; }
-}
-
-public class RootConfiguration
-{
-    public TaskSettings DefaultTaskSettings = TaskSettings.GetDefaultTaskSettings();
+    public TaskSettings? DefaultTaskSettings = TaskSettings.GetDefaultTaskSettings();
     public DateTime FirstTimeRunDate = DateTime.Now;
     public string FileUploadDefaultDirectory = "";
     public int NameParserAutoIncrementNumber = 0;
-    public List<QuickTaskPreset> QuickTaskPresets = [];
+
+    public List<QuickTaskInfo> QuickTaskPresets = QuickTaskInfo.DefaultPresets;
     // Main window
     public bool FirstTimeMinimizeToTray = true;
     public List<int> TaskListViewColumnWidths = [];
@@ -196,8 +38,8 @@ public class RootConfiguration
     // TEMP: For backward compatibility
     public bool CheckPreReleaseUpdates = false;
     public bool UseCustomTheme { get; set; }
-    public List<Theme> Themes { get; set; }
-    public int SelectedTheme { get; set; }
+    public List<Theme> Themes { get; set; } = Theme.GetDefaultThemes();
+    public int SelectedTheme { get; set; } = 0;
     public bool UseCustomScreenshotsPath = false;
     public string? CustomScreenshotsPath = "";
     public string? SaveImageSubFolderPattern = "%y-%mo";
@@ -224,7 +66,6 @@ public class RootConfiguration
     public List<Upload.FileDestination> SecondaryFileUploaders = [];
     public bool HistorySaveTasks = true;
     public bool HistoryCheckURL = false;
-    public List<HistoryItem> RecentTasks { get; set; }
     public bool RecentTasksSave = false;
     public int RecentTasksMaxCount = 10;
     public bool RecentTasksShowInMainWindow = true;
@@ -306,14 +147,8 @@ public class RootConfiguration
     [Category("Hotkey"), DefaultValue(500), Description("If you hold hotkeys then it will only trigger every this milliseconds.")]
     public int HotkeyRepeatLimit
     {
-        get
-        {
-            return hotkeyRepeatLimit;
-        }
-        set
-        {
-            hotkeyRepeatLimit = Math.Max(value, 200);
-        }
+        get => hotkeyRepeatLimit;
+        set => hotkeyRepeatLimit = Math.Max(value, 200);
     }
     [Category("Clipboard"), DefaultValue(true), Description("Show clipboard content viewer when using clipboard upload in main window.")]
     public bool ShowClipboardContentViewer { get; set; }
@@ -362,10 +197,9 @@ public class RootConfiguration
 
     [Category("Drag and drop window"), DefaultValue(255), Description("When you drag file to drop window then opacity will change to this.")]
     public int DropHoverOpacity { get; set; }
-    // [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
-    // public ContentAlignment DropAlignment { get; set; }
+    [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
+    public ContentAlignment DropAlignment { get; set; }
     public string ApplicationVersion { get; set; } = Helpers.GetApplicationVersion();
-
     public string? SQLitePath { get; set; }
 }
 

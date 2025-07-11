@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace SnapX.Core.Hotkey;
 
-public class HotkeyInfo
+public record HotkeyInfo()
 {
     public Keys Hotkey { get; set; }
 
@@ -11,7 +11,7 @@ public class HotkeyInfo
     public ushort ID { get; set; }
 
     [JsonIgnore]
-    public HotkeyStatus Status { get; set; }
+    public HotkeyStatus Status { get; set; } = HotkeyStatus.NotConfigured;
 
     public Keys KeyCode => Hotkey & Keys.KeyCode;
 
@@ -29,7 +29,7 @@ public class HotkeyInfo
     {
         get
         {
-            Modifiers modifiers = Modifiers.None;
+            var modifiers = Modifiers.None;
 
             if (Alt) modifiers |= Modifiers.Alt;
             if (Control) modifiers |= Modifiers.Control;
@@ -44,11 +44,6 @@ public class HotkeyInfo
 
     public bool IsValidHotkey => KeyCode != Keys.None && !IsOnlyModifiers;
 
-    public HotkeyInfo()
-    {
-        Status = HotkeyStatus.NotConfigured;
-    }
-
     public HotkeyInfo(Keys hotkey) : this()
     {
         Hotkey = hotkey;
@@ -61,7 +56,7 @@ public class HotkeyInfo
 
     public override string ToString()
     {
-        string text = "";
+        var text = "";
 
         if (Control)
         {
@@ -107,13 +102,13 @@ public class HotkeyInfo
         {
             text += "Scroll Lock";
         }
-        else if (KeyCode >= Keys.D0 && KeyCode <= Keys.D9)
+        else if (KeyCode is >= Keys.D0 and <= Keys.D9)
         {
             text += (KeyCode - Keys.D0).ToString();
         }
-        else if (KeyCode >= Keys.NumPad0 && KeyCode <= Keys.NumPad9)
+        else if (KeyCode is >= Keys.NumPad0 and <= Keys.NumPad9)
         {
-            text += "Numpad " + (KeyCode - Keys.NumPad0).ToString();
+            text += "Numpad " + (KeyCode - Keys.NumPad0);
         }
         else
         {
@@ -125,11 +120,11 @@ public class HotkeyInfo
 
     private string ToStringWithSpaces(Keys key)
     {
-        string name = key.ToString();
+        var name = key.ToString();
 
         var result = new StringBuilder();
 
-        for (int i = 0; i < name.Length; i++)
+        for (var i = 0; i < name.Length; i++)
         {
             if (i > 0 && char.IsUpper(name[i]))
             {
