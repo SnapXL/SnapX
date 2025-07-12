@@ -5,21 +5,17 @@ using SnapX.Core.Utils;
 
 namespace SnapX.Core.CLI;
 
-public class SnapXCLIManager : CLIManager
+public class SnapXCLIManager(string?[] Arguments) : CLIManager(Arguments)
 {
-    public SnapXCLIManager(string?[] arguments) : base(arguments)
-    {
-    }
-
     public async Task UseCommandLineArgs() => UseCommandLineArgs(Commands);
 
     public async Task UseCommandLineArgs(List<CLICommand> commands)
     {
-        if (commands != null && commands.Count > 0)
+        if (commands is { Count: > 0 })
         {
-            TaskSettings taskSettings = FindCLITask(commands);
+            var taskSettings = FindCLITask(commands);
 
-            foreach (CLICommand command in commands)
+            foreach (var command in commands)
             {
 
                 if (command.IsCommand)
@@ -45,25 +41,12 @@ public class SnapXCLIManager : CLIManager
         }
     }
 
-    private TaskSettings FindCLITask(List<CLICommand> commands)
+    private TaskSettings? FindCLITask(List<CLICommand> commands)
     {
-        if (SnapX.HotkeysConfig != null)
-        {
-            CLICommand command = commands.FirstOrDefault(x => x.CheckCommand("task") && !string.IsNullOrEmpty(x.Parameter));
+        if (SnapX.HotkeysConfig == null) return null;
+        var command = commands.FirstOrDefault(x => x.CheckCommand("task") && !string.IsNullOrEmpty(x.Parameter));
 
-            if (command != null)
-            {
-                foreach (HotkeySettings hotkeySetting in SnapX.HotkeysConfig.Hotkeys)
-                {
-                    if (command.Parameter == hotkeySetting.TaskSettings.ToString())
-                    {
-                        return TaskSettings.GetSafeTaskSettings(hotkeySetting.TaskSettings);
-                    }
-                }
-            }
-        }
-
-        return null;
+        return command == null ? null : (from hotkeySetting in SnapX.HotkeysConfig.Hotkeys where command.Parameter == hotkeySetting.TaskSettings.ToString() select TaskSettings.GetSafeTaskSettings(hotkeySetting.TaskSettings)).FirstOrDefault();
     }
 
     private bool CheckCustomUploader(CLICommand command)

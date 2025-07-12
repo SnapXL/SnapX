@@ -1,5 +1,5 @@
 namespace SnapX.Core.Hotkey;
-
+[Flags]
 public enum Keys
 {
     None = 0,
@@ -158,6 +158,7 @@ public enum Keys
 
 }
 
+[Flags]
 public enum Modifiers
 {
     None = 0,

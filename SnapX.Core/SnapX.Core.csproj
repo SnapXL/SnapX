@@ -9,7 +9,7 @@
     <PaddleInferenceVersion>3.1.0.54</PaddleInferenceVersion>
     <OpenCvSharp4Version>4.11.0.34</OpenCvSharp4Version>
     <SQLitePCLRawVersion>2.1.11</SQLitePCLRawVersion>
-    <MSExtensionsVersion>9.0.6</MSExtensionsVersion>
+    <MSExtensionsVersion>9.0.7</MSExtensionsVersion>
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
 
@@ -79,6 +79,7 @@
     while these are only useful for Linux,
     hiding them behind a compiler conditional makes debugging more difficult. -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
+    <PackageReference Include="Tmds.DBus.SourceGenerator" Version="0.0.21" PrivateAssets="all" />
     <PackageReference Include="WaylandSharper" Version="0.1.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -119,7 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="WaylandProtocol" />
-    <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
+    <AdditionalFiles Include="XML\wayland.xml" WaylandProtocol="client" />
   </ItemGroup>
 <ItemGroup>
   <Compile Include=".\SharpCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
@@ -127,9 +128,7 @@
   <!-- Exclude Windows-specific files from macOS and Linux -->
   <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
     <Compile Remove=".\Utils\Native\WindowsAPI.cs" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Compile Remove="SharpCapture/Windows/*.cs" />
+    <Compile Remove="SharpCapture\Windows\*.cs" />
   </ItemGroup>
   <Import Project="./Linux.props" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
   <Import Project="./OSX.props" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />

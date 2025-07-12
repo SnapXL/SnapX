@@ -1,10 +1,14 @@
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using SnapX.CLI;
 using SnapX.Core;
 using SnapX.Core.Utils;
 
+var services = new ServiceCollection();
+var provider = services.BuildServiceProvider();
 
-var snapx = new SnapX.Core.SnapX();
+var snapx = new SnapX.Core.SnapX(provider);
+snapx.loadApplicationSettingsPartial();
 #if RELEASE
 snapx.silenceLogging();
 #elif DEBUG

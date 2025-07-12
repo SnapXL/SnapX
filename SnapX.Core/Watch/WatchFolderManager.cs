@@ -46,7 +46,7 @@ public class WatchFolderManager : IDisposable
         return FindWatchFolder(watchFolderSetting) != null;
     }
 
-    public void AddWatchFolder(WatchFolderSettings watchFolderSetting, TaskSettings taskSettings)
+    public void AddWatchFolder(WatchFolderSettings watchFolderSetting, TaskSettings? taskSettings)
     {
         if (!IsExist(watchFolderSetting))
         {

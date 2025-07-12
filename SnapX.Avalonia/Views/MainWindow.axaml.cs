@@ -1,9 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
-using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using FluentAvalonia.Styling;
 using FluentAvalonia.UI.Media;
@@ -13,7 +11,6 @@ using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views.Controls;
 using SnapX.Core;
 using SnapX.Core.Job;
-using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using Color = Avalonia.Media.Color;
 
@@ -53,47 +50,8 @@ public partial class MainWindow : AppWindow
             Position = new PixelPoint(config.MainFormPosition.X, config.MainFormPosition.Y);
         }
         InitializeComponent();
-        ListenForEvents();
     }
     public MainWindow() : this(new MainViewModel()) { }
-
-    public void ListenForEvents()
-    {
-        Core.SnapX.EventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
-    }
-    private async void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
-    {
-        var topLevel = TopLevel.GetTopLevel(this);
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = @event.Title,
-            AllowMultiple = @event.Multiselect,
-            SuggestedFileName = @event.FileName,
-            SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(@event.Directory)
-        });
-
-        if (files.Count > 0)
-        {
-            string?[] filePaths = files.Select(f => f.Path.ToString()).ToArray();
-            UploadManager.UploadFile(filePaths, @event.TaskSettings);
-        }
-    }
-
-    // Event handler for the button click
-    private void OnDemoTestButtonClick(object sender, RoutedEventArgs e)
-    {
-        DebugHelper.WriteLine("Upload Demo Image triggered");
-
-        // try
-        // {
-        //     var imageUrl = ImageURLTextBox.Text ?? ImageURLTextBox.Watermark;
-        //     UploadManager.DownloadAndUploadFile(imageUrl!);
-        // }
-        // catch (Exception ex)
-        // {
-        //     DebugHelper.Logger.Error(ex.ToString());
-        // }
-    }
 
     private void ApplicationActualThemeVariantChanged(object? sender, EventArgs e)
     {

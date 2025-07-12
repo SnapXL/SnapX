@@ -71,6 +71,30 @@ public class HistoryManagerSQLite : HistoryManager
             new { historyItem.Id });
         return rowsAffected > 0;
     }
+    [DapperAot]
+    public override bool RemoveHistoryItems(HistoryItem[] items)
+    {
+        if (items.Length == 0)
+            return false;
+
+        var allIds = items.Select(x => x.Id).ToArray();
+        var deleted = 0;
+
+        using var transaction = _connection.BeginTransaction();
+
+        for (var i = 0; i < allIds.Length; i += 999)
+        {
+            var batch = allIds.Skip(i).Take(999).ToArray();
+            var parameters = batch.Select((id, index) => new { Name = $"@id{index}", Value = id }).ToList();
+            var sql = $"DELETE FROM HistoryItems WHERE Id IN ({string.Join(", ", parameters.Select(p => p.Name))})";
+            var paramDict = parameters.ToDictionary(p => p.Name, p => (object)p.Value);
+            deleted += _connection.Execute(sql, paramDict, transaction);
+        }
+
+        transaction.Commit();
+
+        return deleted > 0;
+    }
 
     [DapperAot]
     public override HistoryItem UpdateHistoryItem(HistoryItem historyItem)
@@ -159,9 +183,8 @@ public class HistoryManagerSQLite : HistoryManager
                     (h, t) => new
                     {
                         HistoryItemId = h.Id,
-                        t.Text,
-                        t.WindowTitle,
-                        t.ProcessName
+                        t.Name,
+                        t.Value,
                     });
 
             if (allTags.Any())

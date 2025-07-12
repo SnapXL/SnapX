@@ -13,54 +13,51 @@ public abstract class ExternalCLIManager : IDisposable
 
     public bool IsProcessRunning { get; private set; }
 
-    protected Process process;
+    protected Process? process;
 
-    public virtual int Open(string? path, string args = null)
+    public virtual int Open(string? path, string? args = null)
     {
-        if (System.IO.File.Exists(path))
+        if (!File.Exists(path)) return -1;
+        using (process = new Process())
         {
-            using (process = new Process())
+            var psi = new ProcessStartInfo
             {
-                ProcessStartInfo psi = new ProcessStartInfo()
-                {
-                    FileName = path,
-                    WorkingDirectory = Path.GetDirectoryName(path),
-                    Arguments = args,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    StandardOutputEncoding = Encoding.UTF8,
-                    StandardErrorEncoding = Encoding.UTF8
-                };
+                FileName = path,
+                WorkingDirectory = Path.GetDirectoryName(path),
+                Arguments = args,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8
+            };
 
-                process.EnableRaisingEvents = true;
-                if (psi.RedirectStandardOutput) process.OutputDataReceived += cli_OutputDataReceived;
-                if (psi.RedirectStandardError) process.ErrorDataReceived += cli_ErrorDataReceived;
-                process.StartInfo = psi;
+            process.EnableRaisingEvents = true;
+            if (psi.RedirectStandardOutput) process.OutputDataReceived += cli_OutputDataReceived;
+            if (psi.RedirectStandardError) process.ErrorDataReceived += cli_ErrorDataReceived;
+            process.StartInfo = psi;
 
-                Console.WriteLine($"CLI: \"{psi.FileName}\" {psi.Arguments}");
-                process.Start();
+            Console.WriteLine($"CLI: \"{psi.FileName}\" {psi.Arguments}");
+            process.Start();
 
-                if (psi.RedirectStandardOutput) process.BeginOutputReadLine();
-                if (psi.RedirectStandardError) process.BeginErrorReadLine();
+            if (psi.RedirectStandardOutput) process.BeginOutputReadLine();
+            if (psi.RedirectStandardError) process.BeginErrorReadLine();
 
-                try
-                {
-                    IsProcessRunning = true;
-                    process.WaitForExit();
-                }
-                finally
-                {
-                    IsProcessRunning = false;
-                }
-
-                return process.ExitCode;
+            try
+            {
+                IsProcessRunning = true;
+                process.WaitForExit();
             }
+            finally
+            {
+                IsProcessRunning = false;
+            }
+
+            return process.ExitCode;
         }
 
-        return -1;
     }
 
     private void cli_OutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -81,7 +78,7 @@ public abstract class ExternalCLIManager : IDisposable
 
     public void WriteInput(string input)
     {
-        if (IsProcessRunning && process != null && process.StartInfo != null && process.StartInfo.RedirectStandardInput)
+        if (IsProcessRunning && process is { StartInfo.RedirectStandardInput: true })
         {
             process.StandardInput.WriteLine(input);
         }
@@ -97,10 +94,8 @@ public abstract class ExternalCLIManager : IDisposable
 
     public void Dispose()
     {
-        if (process != null)
-        {
-            process.Dispose();
-        }
+        process?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
 

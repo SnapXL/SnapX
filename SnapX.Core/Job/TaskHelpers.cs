@@ -22,11 +22,10 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tiff;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SnapX.Core.Capture;
 using SnapX.Core.CLI;
 using SnapX.Core.ImageEffects;
 using SnapX.Core.Media;
-using SnapX.Core.ScreenCapture;
+using SnapX.Core.SharpCapture;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.SharingServices;
@@ -47,12 +46,12 @@ public static class TaskHelpers
         await ExecuteJob(SnapX.DefaultTaskSettings, job, command);
     }
 
-    public static async Task ExecuteJob(TaskSettings taskSettings)
+    public static async Task ExecuteJob(TaskSettings? taskSettings)
     {
         await ExecuteJob(taskSettings, taskSettings.Job);
     }
 
-    public static async Task ExecuteJob(TaskSettings taskSettings, HotkeyType job, CLICommand command = null)
+    public static async Task ExecuteJob(TaskSettings? taskSettings, HotkeyType job, CLICommand command = null)
     {
         if (job == HotkeyType.None) return;
 
@@ -100,31 +99,31 @@ public static class TaskHelpers
                 break;
             // Screen capture
             case HotkeyType.PrintScreen:
-                new CaptureFullscreen().Capture(safeTaskSettings);
+                // new CaptureFullscreen().CaptureAsync(safeTaskSettings);
                 break;
             case HotkeyType.ActiveWindow:
-                new CaptureActiveWindow().Capture(safeTaskSettings);
+                // new CaptureActiveWindow().CaptureAsync(safeTaskSettings);
                 break;
             case HotkeyType.ActiveMonitor:
-                new CaptureActiveMonitor().Capture(safeTaskSettings);
+                // new CaptureActiveMonitor().CaptureAsync(safeTaskSettings);
                 break;
             case HotkeyType.RectangleRegion:
-                new CaptureRegion().Capture(safeTaskSettings);
+                // new CaptureRegion().CaptureAsync(safeTaskSettings);
                 break;
             case HotkeyType.RectangleLight:
-                new CaptureRegion(RegionCaptureType.Light).Capture(safeTaskSettings);
+                // new CaptureRegion(RegionCaptureType.Light).Capture(safeTaskSettings);
                 break;
             case HotkeyType.RectangleTransparent:
-                new CaptureRegion(RegionCaptureType.Transparent).Capture(safeTaskSettings);
+                // new CaptureRegion(RegionCaptureType.Transparent).Capture(safeTaskSettings);
                 break;
             case HotkeyType.CustomRegion:
-                new CaptureCustomRegion().Capture(safeTaskSettings);
+                // new CaptureCustomRegion().Capture(safeTaskSettings);
                 break;
             case HotkeyType.CustomWindow:
-                new CaptureCustomWindow().Capture(safeTaskSettings);
+                // new CaptureCustomWindow().Capture(safeTaskSettings);
                 break;
             case HotkeyType.LastRegion:
-                new CaptureLastRegion().Capture(safeTaskSettings);
+                // new CaptureLastRegion().Capture(safeTaskSettings);
                 break;
             case HotkeyType.ScrollingCapture:
                 DebugHelper.WriteException("HotkeyType.ScrollingCapture is NOT implemented.");
@@ -321,7 +320,7 @@ public static class TaskHelpers
         }
     }
 
-    public static ImageData PrepareImage(Image img, TaskSettings taskSettings)
+    public static ImageData PrepareImage(Image img, TaskSettings? taskSettings)
     {
         var imageData = new ImageData();
         imageData.ImageStream = SaveImageAsStream(img, taskSettings.ImageSettings.ImageFormat, taskSettings);
@@ -371,7 +370,7 @@ public static class TaskHelpers
     //     return null;
     // }
 
-    public static MemoryStream SaveImageAsStream(Image img, EImageFormat imageFormat, TaskSettings taskSettings)
+    public static MemoryStream SaveImageAsStream(Image img, EImageFormat imageFormat, TaskSettings? taskSettings)
     {
         return SaveImageAsStream(img, imageFormat, taskSettings.ImageSettings.ImagePNGBitDepth,
             taskSettings.ImageSettings.ImageJPEGQuality, taskSettings.ImageSettings.ImageGIFQuality);
@@ -417,7 +416,7 @@ public static class TaskHelpers
         return ms;
     }
 
-    public static void SaveImageAsFile(Image img, TaskSettings taskSettings, bool overwriteFile = false)
+    public static void SaveImageAsFile(Image img, TaskSettings? taskSettings, bool overwriteFile = false)
     {
         using (ImageData imageData = PrepareImage(img, taskSettings))
         {
@@ -437,7 +436,7 @@ public static class TaskHelpers
             }
         }
     }
-    public static string? HandleExistsFile(string? filePath, TaskSettings taskSettings)
+    public static string? HandleExistsFile(string? filePath, TaskSettings? taskSettings)
     {
         if (File.Exists(filePath))
         {
@@ -457,18 +456,18 @@ public static class TaskHelpers
 
         return filePath;
     }
-    public static string? HandleExistsFile(string? folderPath, string? fileName, TaskSettings taskSettings)
+    public static string? HandleExistsFile(string? folderPath, string? fileName, TaskSettings? taskSettings)
     {
         var filePath = Path.Combine(folderPath, fileName);
         return HandleExistsFile(filePath, taskSettings);
     }
-    public static string? GetFileName(TaskSettings taskSettings, string extension, Image bmp)
+    public static string? GetFileName(TaskSettings? taskSettings, string extension, Image bmp)
     {
         var metadata = new TaskMetadata(bmp);
         return GetFileName(taskSettings, extension, metadata);
     }
 
-    public static string? GetFileName(TaskSettings taskSettings, string extension = null, TaskMetadata metadata = null)
+    public static string? GetFileName(TaskSettings? taskSettings, string extension = null, TaskMetadata metadata = null)
     {
         string? fileName;
 
@@ -511,7 +510,7 @@ public static class TaskHelpers
         return fileName;
     }
 
-    public static string? GetScreenshotsFolder(TaskSettings taskSettings = null, TaskMetadata metadata = null, DateTime? date = null)
+    public static string? GetScreenshotsFolder(TaskSettings? taskSettings = null, TaskMetadata metadata = null, DateTime? date = null)
     {
         date ??= DateTime.Now;
         var dt = date.Value;
@@ -753,7 +752,7 @@ public static class TaskHelpers
         return result.Text;
     }
 
-    public static void PinToScreen(TaskSettings taskSettings = null)
+    public static void PinToScreen(TaskSettings? taskSettings = null)
     {
         throw new NotImplementedException("PinToScreen is not implemented");
     }
@@ -763,7 +762,7 @@ public static class TaskHelpers
         throw new NotImplementedException("TweetMessage is not implemented");
     }
 
-    public static EDataType FindDataType(string? filePath, TaskSettings taskSettings)
+    public static EDataType FindDataType(string? filePath, TaskSettings? taskSettings)
     {
         if (FileHelpers.CheckExtension(filePath, taskSettings.AdvancedSettings.ImageExtensions))
         {
@@ -796,7 +795,7 @@ public static class TaskHelpers
         return true;
     }
 
-    public static Screenshot GetScreenshot(TaskSettings taskSettings = null)
+    public static Screenshot GetScreenshot(TaskSettings? taskSettings = null)
     {
         if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
 
@@ -909,7 +908,7 @@ public static class TaskHelpers
         }
     }
 
-    public static async Task HandleNativeMessagingInput(string? filePath, TaskSettings taskSettings = null)
+    public static async Task HandleNativeMessagingInput(string? filePath, TaskSettings? taskSettings = null)
     {
         if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
         {

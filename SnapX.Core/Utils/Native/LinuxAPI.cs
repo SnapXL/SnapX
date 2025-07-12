@@ -3,12 +3,13 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
+using SnapX.Core.Interfaces;
 using SnapX.Core.Media;
 using WaylandSharp;
 
 namespace SnapX.Core.Utils.Native;
 
-public partial class LinuxAPI : NativeAPI
+public partial class LinuxAPI(ILoggerService Logger) : INativeAPI
 {
     private const string LibX11 = "libX11.so.6";
 
@@ -31,12 +32,17 @@ public partial class LinuxAPI : NativeAPI
             && sessionVersion.Contains("gnome", StringComparison.OrdinalIgnoreCase);
     }
 
-    public override Rectangle GetWindowRectangle(IntPtr windowHandle)
+    public Rectangle GetWindowRectangle(WindowInfo window)
+    {
+        return GetWindowRectangleX11(window.Handle);
+    }
+
+    public Rectangle GetWindowRectangle(IntPtr windowHandle)
     {
         return GetWindowRectangleX11(windowHandle);
     }
 
-    public override Screen? GetScreen(Point pos)
+    public Screen? GetScreen(Point pos)
     {
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
@@ -63,7 +69,7 @@ public partial class LinuxAPI : NativeAPI
 
             if (pos.X < x || pos.X > x + (int)width || pos.Y < y || pos.Y > y + (int)height)
                 continue;
-            DebugHelper.Logger?.Debug("Point {Pos} is within screen {I} bounds", pos, i);
+            Logger.Debug("Point {Pos} is within screen {I} bounds", pos, i);
             return new Screen()
             {
                 Bounds = new Rectangle(x, y, (int)width, (int)height),
@@ -76,22 +82,47 @@ public partial class LinuxAPI : NativeAPI
         return null;
     }
 
-    public override List<WindowInfo> GetWindowList()
+    public void ShowWindow(WindowInfo windowInfo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ShowWindow(IntPtr hwnd)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Image GetJumboFileIcon(string filePath, bool jumboSize = true)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HideWindow(WindowInfo windowInfo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HideWindow(IntPtr handle)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<WindowInfo> GetWindowList()
     {
         var windows = new List<WindowInfo>();
         if (IsWayland())
         {
-            if (IsPlasma())
-            {
-                // Interact with Plasmashell over DBus
-                return windows;
-            }
-
-            if (IsGNOME())
-            {
-                // Interact with GNOME Shell
-                return windows;
-            }
+            // if (IsPlasma())
+            // {
+            //     // Interact with Plasmashell over DBus
+            //     return windows;
+            // }
+            //
+            // if (IsGNOME())
+            // {
+            //     // Interact with GNOME Shell
+            //     return windows;
+            // }
 
             return windows;
         }
@@ -99,7 +130,7 @@ public partial class LinuxAPI : NativeAPI
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
-            DebugHelper.Logger?.Debug("Unable to open X display");
+            Logger.Debug("Unable to open X display");
             return windows;
         }
 
@@ -116,7 +147,7 @@ public partial class LinuxAPI : NativeAPI
         );
         if (status == 0)
         {
-            DebugHelper.Logger?.Debug("XQueryTree failed");
+            Logger.Debug("XQueryTree failed");
             XCloseDisplay(display);
             return windows;
         }
@@ -280,7 +311,7 @@ public partial class LinuxAPI : NativeAPI
     private const long ALL_PLANES = -1;
     public const int ZPIXMAP = 2;
 
-    internal static Image TakeScreenshotWithX11(Screen screen)
+    internal Image TakeScreenshotWithX11(Screen screen)
     {
         unsafe
         {
@@ -306,18 +337,18 @@ public partial class LinuxAPI : NativeAPI
             }
 
             XGetWindowAttributes(display, rootWindow, out var attributes);
-            DebugHelper.Logger?.Debug("x: {AttributesX}", attributes.x);
-            DebugHelper.Logger?.Debug("y: {AttributesY}", attributes.y);
-            DebugHelper.Logger?.Debug("width: {AttributesWidth}", attributes.width);
-            DebugHelper.Logger?.Debug("height: {AttributesHeight}", attributes.height);
-            DebugHelper.Logger?.Debug(
+            Logger.Debug("x: {AttributesX}", attributes.x);
+            Logger.Debug("y: {AttributesY}", attributes.y);
+            Logger.Debug("width: {AttributesWidth}", attributes.width);
+            Logger.Debug("height: {AttributesHeight}", attributes.height);
+            Logger.Debug(
                 "border_width: {AttributesBorderWidth}",
                 attributes.border_width
             );
-            DebugHelper.Logger?.Debug("depth: {AttributesDepth}", attributes.depth);
-            DebugHelper.Logger?.Debug("visual: {AttributesVisual}", attributes.visual);
-            DebugHelper.Logger?.Debug("root: {AttributesRoot}", attributes.root);
-            DebugHelper.Logger?.Debug("colormap: {AttributesColormap}", attributes.colormap);
+            Logger.Debug("depth: {AttributesDepth}", attributes.depth);
+            Logger.Debug("visual: {AttributesVisual}", attributes.visual);
+            Logger.Debug("root: {AttributesRoot}", attributes.root);
+            Logger.Debug("colormap: {AttributesColormap}", attributes.colormap);
 
             var screenBounds = screen.Bounds;
             var imagePtr = XGetImage(
@@ -346,8 +377,8 @@ public partial class LinuxAPI : NativeAPI
             // For simplicity, assuming a direct byte copy is feasible for common ZPIXMAP depths (e.g., 24 or 32 bits).
             var bytesPerPixel = xImage.depth / 8;
             var pixelDataSize = xImage.width * xImage.height * bytesPerPixel;
-            DebugHelper.Logger?.Debug("bytesPerPixel: {bytesPerPixel}", bytesPerPixel);
-            DebugHelper.Logger?.Debug("pixelDataSize: {pixelDataSize}", pixelDataSize);
+            Logger.Debug("bytesPerPixel: {BytesPerPixel}", bytesPerPixel);
+            Logger.Debug("pixelDataSize: {PixelDataSize}", pixelDataSize);
 
             // Create a byte array to hold the pixel data
             var pixelData = new byte[pixelDataSize];
@@ -530,7 +561,7 @@ public partial class LinuxAPI : NativeAPI
     // private static readonly IntPtr XA_PRIMARY = 1;
     internal const IntPtr XA_CLIPBOARD = 2;
 
-    public override void CopyText(string text)
+    public void CopyText(string text)
     {
         if (IsWayland())
         {
@@ -562,7 +593,7 @@ public partial class LinuxAPI : NativeAPI
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
-            DebugHelper.Logger?.Debug("Unable to open X11 display");
+            Logger.Debug("Unable to open X11 display");
             return;
         }
         var root = XDefaultRootWindow(display);
@@ -643,7 +674,7 @@ public partial class LinuxAPI : NativeAPI
         }
     }
 
-    public override void CopyImage(Image image, string? filename)
+    public void CopyImage(Image image, string? filename)
     {
         using var ms = new MemoryStream();
         // Save the image in a format that ImageSharp understands for re-loading/processing
@@ -657,7 +688,7 @@ public partial class LinuxAPI : NativeAPI
 
         if (IsWayland())
         {
-            DebugHelper.Logger?.Debug("LinuxAPI.CopyImage - Wayland only code");
+            Logger.Debug("LinuxAPI.CopyImage - Wayland only code");
             // For Wayland, you'd need wl-clipboard or similar native Wayland protocols.
             // This X11 implementation does not apply to Wayland.
             // return;
@@ -666,12 +697,12 @@ public partial class LinuxAPI : NativeAPI
         try
         {
             // Get the singleton instance of the clipboard handler and set the image
-            X11ClipboardHandler.Instance.SetImage(imageForClipboard, filename);
-            DebugHelper.Logger?.Debug("X11 image clipboard initiated.");
+            new X11ClipboardHandler(Logger).SetImage(imageForClipboard, filename);
+            Logger.Debug("X11 image clipboard initiated");
         }
         catch (Exception ex)
         {
-            DebugHelper.Logger?.Error($"Failed to set X11 clipboard image: {ex.Message}");
+            Logger.Error("Failed to set X11 clipboard image: {ExMessage}", ex.Message);
         }
     }
 
@@ -681,13 +712,7 @@ public partial class LinuxAPI : NativeAPI
         if (display == IntPtr.Zero)
             throw new InvalidOperationException("Unable to open X11 display.");
 
-        var attributes = new XWindowAttributes();
-        if (XGetWindowAttributes(display, windowHandle, out attributes) != 0)
-        {
-            return new Rectangle(attributes.x, attributes.y, attributes.width, attributes.height);
-        }
-
-        throw new InvalidOperationException("Unable to get window attributes.");
+        return XGetWindowAttributes(display, windowHandle, out var attributes) != 0 ? new Rectangle(attributes.x, attributes.y, attributes.width, attributes.height) : throw new InvalidOperationException("Unable to get window attributes.");
     }
 
     [LibraryImport(LibX11)]
@@ -703,9 +728,9 @@ public partial class LinuxAPI : NativeAPI
         out int mask
     );
 
-    public override Point GetCursorPosition()
+    public Point GetCursorPosition()
     {
-        DebugHelper.Logger?.Debug("Get cursor position");
+        Logger.Debug("Get cursor position");
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
@@ -729,7 +754,7 @@ public partial class LinuxAPI : NativeAPI
         );
 
         XCloseDisplay(display);
-        DebugHelper.Logger?.Debug(
+        Logger.Debug(
             "Cursor position: {RootX}, {RootY}, {WinX}, {WinY}, {Mask}",
             rootX,
             rootY,

@@ -114,7 +114,7 @@ public partial class HomePageViewModel : ViewModelBase
         if (Sender is not ListTaskTemplate ltt) return;
         var task = ltt.task;
         DebugHelper.WriteLine($"Removing {task.FilePath ?? task.FileName} (Id: {task.Id}) from history");
-        var success = TaskManager.History.RemoveHistoryItem(task);
+        var success = TaskManager.History.RemoveHistoryItems([task]);
         var status = success ? "Success" : "Failure";
         DebugHelper.WriteLine($"{status} removing history item {task.FilePath ?? task.FileName}");
     }

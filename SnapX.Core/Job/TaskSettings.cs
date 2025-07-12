@@ -7,7 +7,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using SixLabors.ImageSharp;
 using SnapX.Core.Indexer;
-using SnapX.Core.ScreenCapture;
+using SnapX.Core.Media;
+using SnapX.Core.SharpCapture;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
@@ -18,7 +19,7 @@ namespace SnapX.Core.Job;
 public class TaskSettings
 {
     [JsonIgnore]
-    public TaskSettings TaskSettingsReference { get; private set; }
+    public TaskSettings? TaskSettingsReference { get; private set; }
 
     [JsonIgnore]
     public bool IsSafeTaskSettings => TaskSettingsReference != null;
@@ -132,17 +133,17 @@ public class TaskSettings
         }
     }
 
-    public static TaskSettings GetDefaultTaskSettings()
+    public static TaskSettings? GetDefaultTaskSettings()
     {
-        TaskSettings taskSettings = new TaskSettings();
+        var taskSettings = new TaskSettings();
         taskSettings.SetDefaultSettings();
         taskSettings.TaskSettingsReference = SnapX.DefaultTaskSettings;
         return taskSettings;
     }
 
-    public static TaskSettings GetSafeTaskSettings(TaskSettings taskSettings)
+    public static TaskSettings? GetSafeTaskSettings(TaskSettings? taskSettings)
     {
-        TaskSettings safeTaskSettings;
+        TaskSettings? safeTaskSettings;
 
         if (taskSettings.IsUsingDefaultSettings && SnapX.DefaultTaskSettings != null)
         {
@@ -164,7 +165,7 @@ public class TaskSettings
     {
         if (SnapX.DefaultTaskSettings != null)
         {
-            TaskSettings defaultTaskSettings = SnapX.DefaultTaskSettings.Copy();
+            TaskSettings? defaultTaskSettings = SnapX.DefaultTaskSettings.Copy();
 
             if (UseDefaultAfterCaptureJob)
             {
@@ -369,7 +370,7 @@ public class TaskSettingsCapture
     // public FFmpegOptions FFmpegOptions = new FFmpegOptions();
     public int ScreenRecordFPS = 30;
     public int GIFFPS = 15;
-    public RegionCaptureOptions SurfaceOptions = new RegionCaptureOptions();
+    public RegionCaptureOptions SurfaceOptions = new();
     public bool ScreenRecordShowCursor = true;
     public bool ScreenRecordAutoStart = true;
     public float ScreenRecordStartDelay = 0f;
@@ -431,13 +432,13 @@ public class TaskSettingsTools
     public string ScreenColorPickerFormat = "$hex";
     public string ScreenColorPickerFormatCtrl = "$r255, $g255, $b255";
     public string ScreenColorPickerInfoText = "RGB: $r255, $g255, $b255$nHex: $hex$nX: $x Y: $y";
-    public PinToScreenOptions PinToScreenOptions = new();
+    // public PinToScreenOptions PinToScreenOptions = new();
     public IndexerSettings IndexerSettings = new();
     public ImageBeautifierOptions ImageBeautifierOptions = new();
     public ImageCombinerOptions ImageCombinerOptions = new();
     public VideoConverterOptions VideoConverterOptions = new();
     public VideoThumbnailOptions VideoThumbnailOptions = new();
-    public BorderlessWindowSettings BorderlessWindowSettings = new();
+    // public BorderlessWindowSettings BorderlessWindowSettings = new();
 }
 
 public class TaskSettingsAdvanced

@@ -3,34 +3,36 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SnapX.Core.Interfaces;
 
 namespace SnapX.Core;
 
-
-// I might've lost my marbles working on this class.
-// Sorry for the bad code, but, it works!
 
 [JsonSerializable(typeof(VersionEnforcer.LockFileContent))]
 internal sealed partial class VersionEnforcerContext : JsonSerializerContext;
 public sealed class VersionEnforcer : IDisposable
 {
+    private ILoggerService _logger;
     private readonly string _lockFilePath;
     private FileStream? _lockFileStream;
     private readonly string _currentVersion;
     private readonly int _currentPID;
     private readonly bool _startupFailed;
     private bool _ownsLockFile;
+
     internal record LockFileContent
     {
-        public int ProcessId { get; set; }
-        public string Version { get; set; }
+        public required int ProcessId { get; set; }
+        public required string Version { get; set; }
     }
-    public VersionEnforcer(string lockDirectory)
+    public VersionEnforcer(string lockDirectory, ILoggerService logger)
     {
         if (string.IsNullOrWhiteSpace(lockDirectory))
         {
-            throw new ArgumentException("Lock directory cannot be null or empty.", nameof(lockDirectory));
+            throw new ArgumentException($"Lock directory cannot be null or empty {nameof(lockDirectory)}");
         }
+
+        _logger = logger;
 
         try
         {
@@ -38,8 +40,8 @@ public sealed class VersionEnforcer : IDisposable
         }
         catch (Exception ex)
         {
-            DebugHelper.WriteLine($"VersionEnforcer failed to create lock directory '{lockDirectory}' . Skipping version lock checks. Good luck.");
-            DebugHelper.WriteException(ex);
+            _logger.Information("VersionEnforcer failed to create lock directory \'{LockDirectory}\' . Skipping version lock checks. Good luck", lockDirectory);
+            _logger.Error(ex.ToString());
             _startupFailed = true;
         }
 
@@ -135,7 +137,7 @@ public sealed class VersionEnforcer : IDisposable
         var statement = !isPreviousInstanceRunning
             ? $"Took ownership from previous dead instance (same version, PID: {previousInstance})"
             : $"An existing instance (same version, PID: {lockFileInfo?.ProcessId}) was detected. This is supported. :)";
-        DebugHelper.WriteLine($"Application (Version: {_currentVersion}) started. {statement}");
+        _logger.Information("Application (Version: {CurrentVersion}) started. {Statement}", _currentVersion, statement);
     }
 
     private void HandleNoExistingVersion(ref LockFileContent? lockFileInfo)
@@ -147,14 +149,12 @@ public sealed class VersionEnforcer : IDisposable
         };
         _ownsLockFile = true;
         WriteVersionInfoToLockFile(lockFileInfo);
-        DebugHelper.WriteLine(
-            $"Application (Version: {_currentVersion}) started. First instance of this version (or lock file was empty).");
+        _logger.Information("Application (Version: {CurrentVersion}) started. First instance of this version (or lock file was empty)", _currentVersion);
     }
 
     private void HandleLockFileInUse()
     {
-        DebugHelper.WriteLine(
-            $"Application (Version: {_currentVersion}) detected another instance running which holds the lock. This instance will try to read its version.");
+        _logger.Information("Application (Version: {CurrentVersion}) detected another instance running which holds the lock. This instance will try to read its version", _currentVersion);
 
         try
         {
@@ -187,8 +187,7 @@ public sealed class VersionEnforcer : IDisposable
             }
 
             if (lockFileInfo?.ProcessId == _currentPID) _ownsLockFile = true;
-            DebugHelper.WriteLine(
-                $"Application Lock (Version: {_currentVersion}) is compatible with the running instance (same version). Running alongside.");
+            _logger.Information("Application Lock (Version: {CurrentVersion}) is compatible with the running instance (same version). Running alongside", _currentVersion);
         }
         catch (Exception innerEx)
         {
@@ -221,7 +220,7 @@ public sealed class VersionEnforcer : IDisposable
         }
         catch (Exception ex)
         {
-            DebugHelper.WriteLine($"VersionLock failed to parse/deserialize LockFile at {_lockFilePath}. Nuking file from orbit.");
+            _logger.Information("VersionLock failed to parse/deserialize LockFile at {LockFilePath}. Nuking file from orbit", _lockFilePath);
             DebugHelper.WriteException(ex);
             try
             {
@@ -260,7 +259,7 @@ public sealed class VersionEnforcer : IDisposable
         }
         catch (InvalidOperationException)
         {
-            // Process has exited (may occur if HasExited was not yet updated).
+            // The process has exited (may occur if HasExited was not yet updated).
             return false;
         }
         catch (Exception)
@@ -274,7 +273,7 @@ public sealed class VersionEnforcer : IDisposable
     {
         if (_lockFileStream == null)
         {
-            DebugHelper.WriteLine($"VersionEnforcer.WriteVersionInfoToLockFile() called when _lockFileStream is null. Redefining.");
+            _logger.Information($"VersionEnforcer.WriteVersionInfoToLockFile() called when _lockFileStream is null. Redefining.");
             _lockFileStream = new FileStream(
                 _lockFilePath,
                 FileMode.OpenOrCreate,
@@ -302,9 +301,10 @@ public sealed class VersionEnforcer : IDisposable
     {
         if (_lockFileStream == null)
         {
-            DebugHelper.WriteLine(_ownsLockFile
-                ? $"VersionEnforcer owns the lock file at {_lockFilePath} yet _lockFileStream is null! BUG!"
-                : $"VersionLock _lockFileStream is null! Lockfile at {_lockFilePath} ");
+            _logger.Information(_ownsLockFile
+                ? string.Format($"VersionEnforcer owns the lock file at {{0}} yet {nameof(_lockFileStream)} is null! BUG!",
+                    _lockFilePath)
+                : string.Format($"VersionLock {nameof(_lockFileStream)} is null! Lockfile at {{0}} ", _lockFilePath));
         }
         var lockfileInfo = ReadLockFileContent();
         if (lockfileInfo is not null && !IsProcessRunning(lockfileInfo.ProcessId)) _ownsLockFile = true;
@@ -317,13 +317,12 @@ public sealed class VersionEnforcer : IDisposable
             }
             catch (Exception ex)
             {
-                DebugHelper.WriteLine($"VersionLock failed to delete lockfile {_lockFilePath} while disposing.");
-                DebugHelper.WriteException(ex);
+                _logger.Error(ex, "VersionLock failed to delete lockfile {LockFilePath} while disposing", _lockFilePath);
             }
         }
         else
         {
-            DebugHelper.WriteLine($"VersionEnforcer does not own lockfile {_lockFilePath}. Leaving it be.");
+            _logger.Information("VersionEnforcer does not own lockfile {LockFilePath}. Leaving it be", _lockFilePath);
         }
         _lockFileStream?.Dispose();
         _lockFileStream = null;

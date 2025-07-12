@@ -7,7 +7,7 @@ using SnapX.Core.Utils;
 
 if (args.Length == 0)
 {
-    Console.WriteLine("This executable is used to receive data from a browser addon and send it to SnapX.");
+    Console.WriteLine(@"This executable is used to receive data from a browser addon and send it to SnapX.");
     return;
 }
 

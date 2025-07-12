@@ -15,26 +15,24 @@ public class IndexerXml : Indexer
 
     public string Index(string folderPath)
     {
-        FolderInfo folderInfo = new FolderInfo(folderPath);
+        var folderInfo = new FolderInfo(folderPath);
         folderInfo.Update();
 
-        XmlWriterSettings xmlWriterSettings = new XmlWriterSettings();
+        var xmlWriterSettings = new XmlWriterSettings();
         xmlWriterSettings.Encoding = new UTF8Encoding(false);
         xmlWriterSettings.ConformanceLevel = ConformanceLevel.Document;
         xmlWriterSettings.Indent = true;
 
-        using (MemoryStream ms = new MemoryStream())
+        using var ms = new MemoryStream();
+        using (xmlWriter = XmlWriter.Create(ms, xmlWriterSettings))
         {
-            using (xmlWriter = XmlWriter.Create(ms, xmlWriterSettings))
-            {
-                xmlWriter.WriteStartDocument();
-                IndexFolder(folderInfo);
-                xmlWriter.WriteEndDocument();
-                xmlWriter.Flush();
-            }
-
-            return Encoding.UTF8.GetString(ms.ToArray());
+            xmlWriter.WriteStartDocument();
+            IndexFolder(folderInfo);
+            xmlWriter.WriteEndDocument();
+            xmlWriter.Flush();
         }
+
+        return Encoding.UTF8.GetString(ms.ToArray());
     }
 
     protected override void IndexFolder(FolderInfo dir, int level = 0)
@@ -45,7 +43,7 @@ public class IndexerXml : Indexer
         {
             xmlWriter.WriteStartElement("Files");
 
-            foreach (FileInfo fi in dir.Files)
+            foreach (var _ in dir.Files)
             {
                 xmlWriter.WriteStartElement("File");
 
@@ -59,9 +57,9 @@ public class IndexerXml : Indexer
         {
             xmlWriter.WriteStartElement("Folders");
 
-            foreach (FolderInfo subdir in dir.Folders)
+            foreach (var subDir in dir.Folders)
             {
-                IndexFolder(subdir);
+                IndexFolder(subDir);
             }
 
             xmlWriter.WriteEndElement();

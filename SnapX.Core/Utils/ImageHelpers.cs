@@ -27,29 +27,22 @@ public static class ImageHelpers
         Image.LoadPixelData<Rgba32>(imageData.image, (int)imageData.width, (int)imageData.height);
     public static Size ApplyAspectRatio(int width, int height, Image img)
     {
-        // Get the original aspect ratio of the image
-        float aspectRatio = (float)img.Width / img.Height;
+        var aspectRatio = (float)img.Width / img.Height;
 
-        // Determine the target aspect ratio (width to height ratio)
-        float targetAspectRatio = (float)width / height;
+        var targetAspectRatio = (float)width / height;
 
-        // Variables to hold the new width and height
-        int newWidth = width;
-        int newHeight = height;
+        var newWidth = width;
+        var newHeight = height;
 
-        // Adjust the size based on the aspect ratio comparison
         if (aspectRatio > targetAspectRatio)
         {
-            // The image is wider than the target aspect ratio, so adjust based on width
-            newHeight = (int)(width / aspectRatio); // Calculate new height to maintain aspect ratio
+            newHeight = (int)(width / aspectRatio);
         }
         else if (aspectRatio < targetAspectRatio)
         {
-            // The image is taller than the target aspect ratio, so adjust based on height
-            newWidth = (int)(height * aspectRatio); // Calculate new width to maintain aspect ratio
+            newWidth = (int)(height * aspectRatio);
         }
 
-        // Return the new size that maintains the aspect ratio
         return new Size(newWidth, newHeight);
     }
     // See how clean the code is?!
@@ -57,7 +50,7 @@ public static class ImageHelpers
     // BLESSED.
     public static Image ResizeImage(Image img, Size TargetSize, bool preserveAspectRatio = false, bool fill = false, Color? growFillColor = null)
     {
-        if (growFillColor == null) growFillColor = Color.Transparent;
+        growFillColor ??= Color.Transparent;
         // Mutate the image to apply resizing and fill (if necessary)
         img.Mutate(ctx =>
         {
@@ -431,7 +424,24 @@ public static class ImageHelpers
 
         return finalImage;
     }
-
+    /// <summary>
+    /// Fills the image with a checkerboard pattern.
+    /// </summary>
+    public static void DrawCheckerPattern(Image image, int cellSize, Color[] colors)
+    {
+        image.Mutate(ctx =>
+        {
+            for (var y = 0; y < image.Height; y += cellSize)
+            {
+                for (var x = 0; x < image.Width; x += cellSize)
+                {
+                    var isEven = ((x / cellSize) + (y / cellSize)) % 2 == 0;
+                    var color = isEven ? colors[0] : colors[1];
+                    ctx.Fill(color, new RectangleF(x, y, cellSize, cellSize));
+                }
+            }
+        });
+    }
     private static float[] CreateAlphaGradient(int height, float maxAlpha, float minAlpha)
     {
         float[] gradient = new float[height];
@@ -618,13 +628,9 @@ public static class ImageHelpers
         foreach (var pixel in pixelRow)
         {
             var color = new Rgba32(pixel.R, pixel.G, pixel.B);
-            if (colorCounts.ContainsKey(color))
+            if (!colorCounts.TryAdd(color, 1))
             {
                 colorCounts[color]++;
-            }
-            else
-            {
-                colorCounts[color] = 1;
             }
         }
 

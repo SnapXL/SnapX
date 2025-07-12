@@ -11,6 +11,7 @@
     <AssemblyName>snapx-ui</AssemblyName>
     <AssemblyTitle>SnapX UI</AssemblyTitle>
     <ApplicationIcon>Assets\SnapX_Icon.ico</ApplicationIcon>
+    <InternalsVisibleToFriends>SnapX.Avalonia.Tests</InternalsVisibleToFriends>
     <InvariantGlobalization>false</InvariantGlobalization>
     <!-- Recommended Avalonia trimming settings for Native AOT -->
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -48,7 +49,6 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
     <PackageReference Include="FluentAvaloniaUI" Version="2.3.0" />
     <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="1.1.303" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
     <PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="$(HarfBuzzSharpVersion)" />

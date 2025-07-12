@@ -19,7 +19,7 @@ namespace SnapX.Core.Utils.Native;
 
 // Windows 10 version 1903
 [SupportedOSPlatform("windows10.0.18362")]
-public class WindowsAPI : NativeAPI
+public class WindowsAPI : INativeAPI
 {
     // Constants for allocating memory and setting data format
     public const uint CF_TEXT = 1;

@@ -3,10 +3,11 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using SnapX.Core.Media;
 
 namespace SnapX.Core.Utils.Native;
 
-public class MacOSAPI : NativeAPI
+public partial class MacOSAPI : INativeAPI
 {
     private static string GenerateFastString(int length)
     {
@@ -17,13 +18,12 @@ public class MacOSAPI : NativeAPI
             result[i] = chars[random.Next(chars.Length)];
         return new string(result);
     }
-    public override void CopyImage(Image image)
-    {
-        CopyImage(image, GenerateFastString(8) + ".png");
-    }
+    private const string CoreGraphics = "/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics";
 
-    public override void CopyImage(Image image, string? fileName)
+
+    public void CopyImage(Image image, string? fileName)
     {
+        fileName ??= GenerateFastString(8) + ".png";
         var tempPath = Path.Combine(Path.GetTempPath(), $"{Path.GetFileNameWithoutExtension(fileName)}.jpg");
         image.Save(tempPath, new JpegEncoder());
         var appleScript = $"set the clipboard to (read (POSIX file \"{tempPath}\") as JPEG picture)";
@@ -51,30 +51,65 @@ public class MacOSAPI : NativeAPI
         File.Delete(tempPath);
     }
 
+    public Rectangle GetWindowRectangle(WindowInfo window)
+    {
+        throw new NotImplementedException();
+    }
 
-    public override void CopyText(string text)
+    public Rectangle GetWindowRectangle(IntPtr windowHandle)
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public void ShowWindow(WindowInfo windowInfo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ShowWindow(IntPtr hwnd)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Image GetJumboFileIcon(string filePath, bool jumboSize = true)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HideWindow(WindowInfo windowInfo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HideWindow(IntPtr handle)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<WindowInfo> GetWindowList()
+    {
+        throw new NotImplementedException();
+    }
+    public void CopyText(string text)
     {
         // Escape quotes in the text to ensure AppleScript handles them correctly
         // 1. Escape double quotes by replacing `"` with `""` for AppleScript
         var escapedText = text.Replace("\"", "\"\"");
 
-        // 2. Escape backslashes by replacing `\` with `\\` (for C# string formatting)
-        escapedText = "\"" + Regex.Replace(escapedText, @"(\\+)$", @"$1$1") + "\""; ;
+        // 2. Escape backslashes by replacing `\` with `\\`
+        escapedText = "\"" + Regex.Replace(escapedText, @"(\\+)$", @"$1$1") + "\"";
 
-        // Properly format the AppleScript to set the clipboard
         var appleScript = $"set the clipboard to \"{escapedText}\"";
 
-        // Create the process to execute the AppleScript
         var process = new Process();
         process.StartInfo.FileName = "osascript";
         process.StartInfo.Arguments = $"-e \"{appleScript}\"";
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.UseShellExecute = false;
 
-        // Start the process
         process.Start();
 
-        // Wait for the process to finish
         process.WaitForExit();
     }
     [StructLayout(LayoutKind.Sequential)]
@@ -83,19 +118,23 @@ public class MacOSAPI : NativeAPI
         public double X;
         public double Y;
     }
+    [LibraryImport(CoreGraphics)]
+    private static partial CGPoint CGEventGetLocation(IntPtr eventRef);
 
-    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
-    static extern CGPoint CGEventGetLocation(IntPtr eventRef);
-
-    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
-    static extern IntPtr CGEventCreate(IntPtr source);
-    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
-    static extern IntPtr CFRelease(IntPtr eventRef);
-    public override Point GetCursorPosition()
+    [LibraryImport(CoreGraphics)]
+    private static partial IntPtr CGEventCreate(IntPtr source);
+    [LibraryImport(CoreGraphics)]
+    private static partial void CFRelease(IntPtr eventRef);
+    public Point GetCursorPosition()
     {
         var ev = CGEventCreate(IntPtr.Zero);
         var point = CGEventGetLocation(ev);
         CFRelease(ev);
         return new Point((int)point.X, (int)point.Y);
+    }
+
+    public Screen? GetScreen(Point pos)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -4,7 +4,7 @@
 
 namespace SnapX.Core.CLI;
 
-public class NativeMessagingInput
+public record NativeMessagingInput
 {
     public NativeMessagingAction Action { get; set; }
     public string? URL { get; set; }

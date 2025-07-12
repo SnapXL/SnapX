@@ -10,6 +10,7 @@
     <PublishAot>true</PublishAot>
     <AssemblyName>snapx</AssemblyName>
     <AssemblyTitle>SnapX CLI</AssemblyTitle>
+    <InternalsVisibleToFriends>SnapX.CLI.Tests</InternalsVisibleToFriends>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" />

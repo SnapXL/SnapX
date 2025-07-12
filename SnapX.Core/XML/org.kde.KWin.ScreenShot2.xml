@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+<interface name="org.kde.KWin.ScreenShot2">
+  <property access="read" type="u" name="Version"/>
+  <method name="CaptureWindow">
+    <arg direction="in" type="s" name="handle"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.In1"/>
+    <arg direction="in" type="a{sv}" name="options"/>
+    <arg direction="in" type="h" name="pipe"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.Out0"/>
+    <arg direction="out" type="a{sv}" name="results"/>
+  </method>
+  <method name="CaptureActiveWindow">
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.In0"/>
+    <arg direction="in" type="a{sv}" name="options"/>
+    <arg direction="in" type="h" name="pipe"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.Out0"/>
+    <arg direction="out" type="a{sv}" name="results"/>
+  </method>
+  <method name="CaptureArea">
+    <arg direction="in" type="i" name="x"/>
+    <arg direction="in" type="i" name="y"/>
+    <arg direction="in" type="u" name="width"/>
+    <arg direction="in" type="u" name="height"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.In4"/>
+    <arg direction="in" type="a{sv}" name="options"/>
+    <arg direction="in" type="h" name="pipe"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.Out0"/>
+    <arg direction="out" type="a{sv}" name="results"/>
+  </method>
+  <method name="CaptureScreen">
+    <arg direction="in" type="s" name="name"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.In1"/>
+    <arg direction="in" type="a{sv}" name="options"/>
+    <arg direction="in" type="h" name="pipe"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.Out0"/>
+    <arg direction="out" type="a{sv}" name="results"/>
+  </method>
+  <method name="CaptureActiveScreen">
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.In0"/>
+    <arg direction="in" type="a{sv}" name="options"/>
+    <arg direction="in" type="h" name="pipe"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.Out0"/>
+    <arg direction="out" type="a{sv}" name="results"/>
+  </method>
+  <method name="CaptureInteractive">
+    <arg direction="in" type="u" name="kind"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.In1"/>
+    <arg direction="in" type="a{sv}" name="options"/>
+    <arg direction="in" type="h" name="pipe"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.Out0"/>
+    <arg direction="out" type="a{sv}" name="results"/>
+  </method>
+  <method name="CaptureWorkspace">
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.In0"/>
+    <arg direction="in" type="a{sv}" name="options"/>
+    <arg direction="in" type="h" name="pipe"/>
+    <annotation value="QVariantMap" name="org.qtproject.QtDBus.QtTypeName.Out0"/>
+    <arg direction="out" type="a{sv}" name="results"/>
+  </method>
+</interface>
+<interface name="org.freedesktop.DBus.Properties">
+  <method name="Get">
+    <arg name="interface_name" type="s" direction="in"/>
+    <arg name="property_name" type="s" direction="in"/>
+    <arg name="value" type="v" direction="out"/>
+  </method>
+  <method name="Set">
+    <arg name="interface_name" type="s" direction="in"/>
+    <arg name="property_name" type="s" direction="in"/>
+    <arg name="value" type="v" direction="in"/>
+  </method>
+  <method name="GetAll">
+    <arg name="interface_name" type="s" direction="in"/>
+    <arg name="values" type="a{sv}" direction="out"/>
+    <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+  </method>
+  <signal name="PropertiesChanged">
+    <arg name="interface_name" type="s" direction="out"/>
+    <arg name="changed_properties" type="a{sv}" direction="out"/>
+    <annotation name="org.qtproject.QtDBus.QtTypeName.Out1" value="QVariantMap"/>
+    <arg name="invalidated_properties" type="as" direction="out"/>
+  </signal>
+</interface>
+<interface name="org.freedesktop.DBus.Introspectable">
+  <method name="Introspect">
+    <arg name="xml_data" type="s" direction="out"/>
+  </method>
+</interface>
+<interface name="org.freedesktop.DBus.Peer">
+  <method name="Ping"/>
+  <method name="GetMachineId">
+    <arg name="machine_uuid" type="s" direction="out"/>
+  </method>
+</interface>
+</node>

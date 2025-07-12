@@ -1,23 +1,26 @@
 using SixLabors.ImageSharp;
+using SnapX.Core.Interfaces;
 using SnapX.Core.Media;
 using SnapX.Core.SharpCapture;
 using SnapX.Core.SharpCapture.Linux;
 using SnapX.Core.SharpCapture.macOS;
+using SnapX.Core.Utils.Extensions;
 #if TARGET_WINDOWS
 using SnapX.Core.SharpCapture.Windows;
 #endif
 
 namespace SnapX.Core.Utils.Native;
 
-public static class Methods
+public class Methods(ILoggerService _logger)
 {
+    private ILoggerService Logger => _logger;
     private static bool IsMacOS => OperatingSystem.IsMacOS();
     private static bool IsLinux => OperatingSystem.IsLinux();
     private static bool IsWindows => OperatingSystem.IsWindows();
     private static bool IsFreeBSD => OperatingSystem.IsFreeBSD();
 
 
-    internal static NativeAPI NativeAPI
+    internal static INativeAPI NativeAPI
     {
         get
         {
@@ -25,12 +28,12 @@ public static class Methods
             return new WindowsAPI();
 #else
             if (IsMacOS) return new MacOSAPI();
-            if (IsLinux || IsFreeBSD) return new LinuxAPI();
+            if (IsLinux || IsFreeBSD) return new LinuxAPI(DebugHelper.Logger as ILoggerService);
             throw new PlatformNotSupportedException("This platform is not supported for native API calls.");
 #endif
         }
     }
-    private static BaseCapture SharpCapture
+    private static BaseSharpCapture SharpCapture
     {
         get
         {
@@ -44,7 +47,6 @@ public static class Methods
         }
     }
     public static List<WindowInfo> GetWindowList() => NativeAPI.GetWindowList();
-
     public static Image GetJumboFileIcon(string filePath, bool jumboSize = true) =>
         NativeAPI.GetJumboFileIcon(filePath, jumboSize);
     public static void ShowWindow(WindowInfo window) => NativeAPI.ShowWindow(window);
@@ -75,7 +77,7 @@ public static class Methods
         }
         catch (Exception ex)
         {
-            DebugHelper.Logger.Warning(ex.ToString());
+            ex.ShowError();
         }
         DebugHelper.WriteLine($"GetCursorPosition returned {point}");
         return point;

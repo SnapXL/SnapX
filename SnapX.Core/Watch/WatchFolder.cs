@@ -11,7 +11,7 @@ namespace SnapX.Core.Watch;
 public class WatchFolder : IDisposable
 {
     public WatchFolderSettings Settings { get; set; }
-    public TaskSettings TaskSettings { get; set; }
+    public TaskSettings? TaskSettings { get; set; }
 
     public delegate void FileWatcherTriggerEventHandler(string? path);
 

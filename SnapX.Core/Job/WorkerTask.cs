@@ -51,13 +51,13 @@ public class WorkerTask : IDisposable
 
     #region Constructors
 
-    private WorkerTask(TaskSettings taskSettings)
+    private WorkerTask(TaskSettings? taskSettings)
     {
         Status = TaskStatus.InQueue;
         Info = new TaskInfo(taskSettings);
     }
 
-    public static WorkerTask CreateDataUploaderTask(EDataType dataType, Stream stream, string? fileName, TaskSettings taskSettings)
+    public static WorkerTask CreateDataUploaderTask(EDataType dataType, Stream stream, string? fileName, TaskSettings? taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = TaskJob.DataUpload;
@@ -67,7 +67,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateFileUploaderTask(string? filePath, TaskSettings taskSettings)
+    public static WorkerTask CreateFileUploaderTask(string? filePath, TaskSettings? taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.FilePath = filePath;
@@ -98,7 +98,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateImageUploaderTask(TaskMetadata metadata, TaskSettings taskSettings, string customFileName = null)
+    public static WorkerTask CreateImageUploaderTask(TaskMetadata metadata, TaskSettings? taskSettings, string customFileName = null)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = TaskJob.Job;
@@ -118,7 +118,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateTextUploaderTask(string? text, TaskSettings taskSettings)
+    public static WorkerTask CreateTextUploaderTask(string? text, TaskSettings? taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = TaskJob.TextUpload;
@@ -128,7 +128,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateURLShortenerTask(string? url, TaskSettings taskSettings)
+    public static WorkerTask CreateURLShortenerTask(string? url, TaskSettings? taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = TaskJob.ShortenURL;
@@ -138,7 +138,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateShareURLTask(string? url, TaskSettings taskSettings)
+    public static WorkerTask CreateShareURLTask(string? url, TaskSettings? taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = TaskJob.ShareURL;
@@ -148,7 +148,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateFileJobTask(string? filePath, TaskMetadata metadata, TaskSettings taskSettings, string customFileName = null)
+    public static WorkerTask CreateFileJobTask(string? filePath, TaskMetadata metadata, TaskSettings? taskSettings, string customFileName = null)
     {
         var task = new WorkerTask(taskSettings);
         task.Info.FilePath = filePath;
@@ -176,7 +176,7 @@ public class WorkerTask : IDisposable
         return task;
     }
 
-    public static WorkerTask CreateDownloadTask(string? url, bool upload, TaskSettings taskSettings)
+    public static WorkerTask CreateDownloadTask(string? url, bool upload, TaskSettings? taskSettings)
     {
         WorkerTask task = new WorkerTask(taskSettings);
         task.Info.Job = upload ? TaskJob.DownloadUpload : TaskJob.Download;

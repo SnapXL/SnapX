@@ -5,34 +5,32 @@
 using System.Text;
 
 namespace SnapX.Core.CLI;
-public class NativeMessagingHost
+public record NativeMessagingHost
 {
     public string Read()
     {
-        string input = null;
+        var input = "";
 
-        Stream inputStream = Console.OpenStandardInput();
+        var inputStream = Console.OpenStandardInput();
 
-        byte[] bytesLength = new byte[4];
+        var bytesLength = new byte[4];
         inputStream.ReadExactly(bytesLength);
-        int inputLength = BitConverter.ToInt32(bytesLength, 0);
+        var inputLength = BitConverter.ToInt32(bytesLength, 0);
 
-        if (inputLength > 0)
-        {
-            byte[] bytesInput = new byte[inputLength];
-            inputStream.ReadExactly(bytesInput);
-            input = Encoding.UTF8.GetString(bytesInput);
-        }
+        if (inputLength <= 0) return input;
+        var bytesInput = new byte[inputLength];
+        inputStream.ReadExactly(bytesInput);
+        input = Encoding.UTF8.GetString(bytesInput);
 
         return input;
     }
 
     public void Write(string data)
     {
-        Stream outputStream = Console.OpenStandardOutput();
+        var outputStream = Console.OpenStandardOutput();
 
-        byte[] bytesData = Encoding.UTF8.GetBytes(data);
-        byte[] bytesLength = BitConverter.GetBytes(bytesData.Length);
+        var bytesData = Encoding.UTF8.GetBytes(data);
+        var bytesLength = BitConverter.GetBytes(bytesData.Length);
 
         outputStream.Write(bytesLength, 0, bytesLength.Length);
 

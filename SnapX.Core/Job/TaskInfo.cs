@@ -10,9 +10,9 @@ using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Job;
-public class TaskInfo
+public record TaskInfo
 {
-    public TaskSettings TaskSettings { get; set; }
+    public TaskSettings? TaskSettings { get; set; }
 
     public string Status { get; set; }
     public TaskJob Job { get; set; }
@@ -128,12 +128,9 @@ public class TaskInfo
 
     public UploadResult Result { get; set; }
 
-    public TaskInfo(TaskSettings taskSettings)
+    public TaskInfo(TaskSettings? taskSettings = null)
     {
-        if (taskSettings == null)
-        {
-            taskSettings = TaskSettings.GetDefaultTaskSettings();
-        }
+        taskSettings ??= TaskSettings.GetDefaultTaskSettings();
 
         TaskSettings = taskSettings;
         Metadata = new TaskMetadata();
@@ -149,16 +146,15 @@ public class TaskInfo
 
         if (!string.IsNullOrEmpty(Metadata.WindowTitle))
         {
-            tags.Add(new HistoryItem.Tag { Text = Metadata.WindowTitle });
+            tags.Add(new HistoryItem.Tag { Name = "WindowTitle", Value = Metadata.WindowTitle });
         }
 
-        // Add ProcessName tag if present
         if (!string.IsNullOrEmpty(Metadata.ProcessName))
         {
-            tags.Add(new HistoryItem.Tag { Text = Metadata.ProcessName });
+            tags.Add(new HistoryItem.Tag { Name = "ProcessName", Value = Metadata.ProcessName });
         }
 
-        return tags.Count != 0 ? tags : null;
+        return tags.Count != 0 ? tags : [];
     }
 
 

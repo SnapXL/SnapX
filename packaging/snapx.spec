@@ -31,7 +31,11 @@
 
 Name:           snapx
 Version:        %{version}
+%if 0%{?fedora}
+Release:        %autorelease
+%else
 Release:        1%{?dist}
+%endif
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>SnapX_NativeMessagingHost</AssemblyName>
+    <InternalsVisibleToFriends>SnapX.NativeMessagingHost.Tests</InternalsVisibleToFriends>
     <AssemblyTitle>SnapX NativeMessagingHost</AssemblyTitle>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>

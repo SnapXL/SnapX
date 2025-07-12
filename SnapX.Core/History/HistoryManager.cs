@@ -62,6 +62,18 @@ public abstract class HistoryManager
 
         return Save(FilePath, allHistoryItems);
     }
+    public virtual bool RemoveHistoryItems(HistoryItem[] historyItems)
+    {
+        var allHistoryItems = Load();
+        foreach (var historyItem in historyItems)
+        {
+            var index = allHistoryItems.FindIndex(h => h.Id == historyItem.Id);
+            if (index == -1)
+                throw new InvalidOperationException($"History item with ID {historyItem.Id} was not found.");
+            allHistoryItems.RemoveAt(index);
+        }
+        return Save(FilePath, allHistoryItems);
+    }
 
 
     public virtual async Task<List<HistoryItem>> GetHistoryItemsAsync(int Items = int.MaxValue)

@@ -33,14 +33,14 @@ public record HistoryItem
     public record Tag
     {
         public int Id { get; set; }
-        public string? Text { get; set; }
-        public string? WindowTitle { get; set; }
-        public string? ProcessName { get; set; }
+        public required string Name { get; set; }
+
+        public string Value { get; set; } = "";
     }
     public List<Tag>? Tags { get; set; } = [];
     public override string ToString()
     {
-        string text = "";
+        var text = "";
 
         if (!string.IsNullOrEmpty(ShortenedURL))
         {
@@ -57,6 +57,7 @@ public record HistoryItem
 
         return text;
     }
+    [JsonIgnore]
     public string TrayMenuText
     {
         get
@@ -66,59 +67,10 @@ public record HistoryItem
             return $"[{DateTime:HH:mm:ss}] {text}";
         }
     }
+    [JsonIgnore]
     public string? BestImageSource =>
         !string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath)
             ? FilePath
             : URL ?? ThumbnailURL;
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is not HistoryItem other)
-        {
-            return false;
-        }
-
-        return Id == other.Id &&
-               FileName == other.FileName &&
-               FilePath == other.FilePath &&
-               DateTime == other.DateTime &&
-               Type == other.Type &&
-               Hidden == other.Hidden &&
-               Host == other.Host &&
-               URL == other.URL &&
-               ThumbnailURL == other.ThumbnailURL &&
-               DeletionURL == other.DeletionURL &&
-               ShortenedURL == other.ShortenedURL &&
-               // Deep equality for Tags might be needed if you care about changes within the list
-               // This gets complex. Often, for lists, you might compare counts and then item-by-item,
-               // or just rely on a "LastModified" timestamp on the parent object.
-               (Tags?.SequenceEqual(other.Tags ?? Enumerable.Empty<Tag>()) ?? (other.Tags == null));
-    }
-    public override int GetHashCode()
-    {
-        var hash = new HashCode();
-
-        hash.Add(Id);
-        hash.Add(FileName);
-        hash.Add(FilePath);
-        hash.Add(DateTime);
-        hash.Add(Type);
-        hash.Add(Hidden);
-        hash.Add(Host);
-        hash.Add(URL);
-        hash.Add(ThumbnailURL);
-        hash.Add(DeletionURL);
-        hash.Add(ShortenedURL);
-
-        if (Tags != null)
-        {
-            foreach (var tag in Tags)
-            {
-                hash.Add(tag);
-            }
-        }
-
-        return hash.ToHashCode();
-    }
 }
 
