@@ -52,9 +52,9 @@ jobs:
           android: true
           dotnet: false
           haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
