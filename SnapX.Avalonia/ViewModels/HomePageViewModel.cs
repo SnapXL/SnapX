@@ -216,13 +216,12 @@ public partial class HomePageViewModel : ViewModelBase
         {
             var historyItems = await TaskManager.History.GetHistoryItemsAsync(30_000).ConfigureAwait(false);
 
-            var tasks = historyItems.Select(task =>  new ListTaskTemplate(typeofVM, task));
+            var tasks = historyItems.Select(task => new ListTaskTemplate(typeofVM, task));
 
             newDesiredTasks = tasks
                 .OrderByDescending(item => item.task.Id)
                 .ToList();
 
-            // Update cache
             _cachedTasks = newDesiredTasks;
             _lastCacheTime = DateTime.Now;
         }
