@@ -10,13 +10,14 @@ using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
 using Windows.Win32;
+using SnapX.Core.Job;
 using WinRT;
 
 
 namespace SnapX.Core.SharpCapture.Windows;
 
 [SupportedOSPlatform("windows10.0.19045")]
-public class WindowsCapture : BaseCapture
+public class WindowsCapture : BaseSharpCapture
 {
     private bool IsSupportedFeatureLevel(IDXGIAdapter1 adapter, FeatureLevel featureLevel,
         DeviceCreationFlags creationFlags)
@@ -40,7 +41,7 @@ public class WindowsCapture : BaseCapture
         return false;
     }
 
-    public override async Task<Image?> CaptureFullscreen()
+    public override async Task<Image?> CaptureFullscreen(TaskSettings? taskSettings = null)
     {
         var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>()!;
 
@@ -103,7 +104,7 @@ public class WindowsCapture : BaseCapture
     }
 
 
-    public override async Task<Image?> CaptureScreen(Point? pos)
+    public override async Task<Image?> CaptureScreen(Point? pos, TaskSettings? taskSettings = null)
     {
         var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>()!;
 
@@ -184,7 +185,7 @@ public class WindowsCapture : BaseCapture
         var texture = access.QueryInterface<ID3D11Texture2D>();
         return texture;
     }
-    public override async Task<Image?> CaptureWindow(Point pos)
+    public override async Task<Image?> CaptureWindow(Point pos, TaskSettings? taskSettings = null)
     {
         if (!GraphicsCaptureSession.IsSupported())
         {

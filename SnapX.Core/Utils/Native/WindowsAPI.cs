@@ -26,7 +26,7 @@ public class WindowsAPI : INativeAPI
     private const uint CF_DIB = 8;
     private const uint CF_HDROP = 15;
 
-    public override void ShowWindow(WindowInfo Window)
+    public void ShowWindow(WindowInfo Window)
     {
         var handle = Window.Handle;
         if (handle == IntPtr.Zero)
@@ -37,7 +37,7 @@ public class WindowsAPI : INativeAPI
         PInvoke.ShowWindow(new HWND(handle), SHOW_WINDOW_CMD.SW_SHOW);
     }
 
-    public override void ShowWindow(IntPtr hwnd)
+    public void ShowWindow(IntPtr hwnd)
     {
         if (hwnd == IntPtr.Zero)
         {
@@ -45,6 +45,21 @@ public class WindowsAPI : INativeAPI
         }
 
         PInvoke.ShowWindow(new HWND(hwnd), SHOW_WINDOW_CMD.SW_SHOW);
+    }
+
+    public Image GetJumboFileIcon(string filePath, bool jumboSize = true)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HideWindow(WindowInfo windowInfo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HideWindow(IntPtr handle)
+    {
+        throw new NotImplementedException();
     }
 
     // Method to check if a window is minimized
@@ -99,7 +114,7 @@ public class WindowsAPI : INativeAPI
 
     private static List<WindowInfo> windowList = [];
 
-    public override List<WindowInfo> GetWindowList()
+    public List<WindowInfo> GetWindowList()
     {
         windowList.Clear();
         unsafe
@@ -114,7 +129,7 @@ public class WindowsAPI : INativeAPI
         return windowList;
     }
 
-    public override void CopyText(string text)
+    public void CopyText(string text)
     {
         if (!PInvoke.OpenClipboard(new HWND()))
         {
@@ -142,12 +157,23 @@ public class WindowsAPI : INativeAPI
         }
     }
 
-    public override Point GetCursorPosition()
+    public Rectangle GetWindowRectangle(IntPtr windowHandle)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Point GetCursorPosition()
     {
         PInvoke.GetCursorPos(out var LpPoint);
         return new Point(LpPoint.X, LpPoint.Y);
     }
-    public override void CopyImage(Image image, string? filename = null)
+
+    public Screen? GetScreen(Point pos)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void CopyImage(Image image, string? filename = null)
     {
         PInvoke.OpenClipboard(new HWND());
         PInvoke.EmptyClipboard();
@@ -202,7 +228,7 @@ public class WindowsAPI : INativeAPI
         }
     }
 
-    public override Rectangle GetWindowRectangle(WindowInfo Window)
+    public Rectangle GetWindowRectangle(WindowInfo Window)
     {
         var handle = Window.Handle;
         if (handle == IntPtr.Zero)
