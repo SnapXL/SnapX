@@ -4,7 +4,7 @@ First off, thank you for considering contributing to this project.
 
 Following these guidelines helps to communicate that you respect the time of the developers managing and developing this open-source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
 
-This is an open source project, and we love to receive contributions from our community — **you**! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the SnapX itself.
+This is an open source project, and we love to receive contributions from our community — **you**! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests, or writing code that can be incorporated into the SnapX itself.
 
 ## Ground Rules
 
@@ -31,6 +31,7 @@ Pull requests are the best way to propose changes to the codebase (we use [GitHu
 - Create issues for any major changes and enhancements that you wish to make. Discuss things transparently and get community feedback.
 - Keep feature versions as small as possible, preferably one new feature per version.
 - [Be welcoming to newcomers and encourage diverse new contributors from all backgrounds](./CODE_OF_CONDUCT.md).
+- Fill out the PR template within 4 days of opening the pull request, even if it is a draft.
 
 ## Your First Contribution
 
@@ -56,7 +57,7 @@ If a maintainer asks you to "rebase" your PR, they're saying that a lot of code 
 
 ## Code review process
 
-The core team will look at your change as soon as possible and review it. However, since this a project that is done in free time, reviewing might sometimes take some time.
+The core team will look at your change as soon as possible and review it. However, since this is a project that is done in free time, reviewing might sometimes take some time.
 
 ### Code, commit message, and labeling conventions
 
@@ -156,11 +157,11 @@ refactor(Core): use asynchronous save instead of sync
 
 ## Releasing a new version of SnapX
 
-One of the major benefits of this approach is the fact that it will **automatically release a new version** on every successful push to either `develop` based on the commit messages. This makes sure SnapX is released following the [semantic versioning](https://semver.org/) guidelines. For this to work, you have to follow a few simple rules:
+One of the major benefits of this approach is that it will **automatically release a new version** on every successful push to either `develop` based on the commit messages. This ensures SnapX is released according to the [semantic versioning](https://semver.org/) guidelines. For this to work, you have to follow a few simple rules:
 
 - The master branch should always have working code that is tested. _Use Pull Requests to work on bigger features or bug fixes and merge them when you are ready._
 - Every bugfix, feature, and change should have one commit associated with it. _Do not mix multiple bugs, features, etc., into one huge commit message. Keep your commit size small and commit often._
-- Your commit messages must follow the [conventional commit rules](https://www.conventionalcommits.org/) additionally, the Angular flavor is accepted as well.
+- Your commit messages must follow the [conventional commit rules](https://www.conventionalcommits.org/). Additionally, the Angular flavor is accepted as well.
 
 #### Versioning Rules
 
