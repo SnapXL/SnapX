@@ -115,7 +115,15 @@ public partial class HomePageView : UserControl
     private void DynamicCopy(object? sender, RoutedEventArgs e)
     {
         if (sender is not MenuFlyoutItem menuItem) return;
-        var text = menuItem.Tag as string;
-        ClipboardService.Owner.Clipboard?.SetTextAsync(text);
+        var tag = menuItem.Tag;
+        if (tag is null)
+        {
+            DebugHelper.WriteLine("DynamicCopy: Tag is null");
+            return;
+        }
+        var text = tag as string;
+        var topLevel = TopLevel.GetTopLevel(this);
+        var clipboard = topLevel?.Clipboard;
+        clipboard?.SetTextAsync(text);
     }
 }
