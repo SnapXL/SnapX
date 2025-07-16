@@ -11,6 +11,6 @@
   <ItemGroup>
     <PackageReference Include="Bullseye" Version="6.0.0" />
     <PackageReference Include="SimpleExec" Version="12.0.0" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25306.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta6.25358.103" />
   </ItemGroup>
 </Project>
