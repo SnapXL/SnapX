@@ -19,10 +19,10 @@
 
 
 %global version         0.4.0
-# This build switch is not intended to be used as a method to make s390x and Ppc64le work
-%global build_with_aot  false
 %ifarch x86_64 aarch64
-%global build_with_aot true
+    %{!?build_with_aot:%global build_with_aot true}
+%else
+    %{!?build_with_aot:%global build_with_aot false}
 %endif
 
 # .NET is not supported by either of these.
@@ -34,7 +34,7 @@ Version:        %{version}
 %if 0%{?fedora}
 Release:        %autorelease
 %else
-Release:        1%{?dist}
+Release:        2%{?dist}
 %endif
 Summary:        Screenshot tool that handles images, text, and video.
 
@@ -43,9 +43,10 @@ URL:            https://github.com/BrycensRanch/SnapX
 Source:         %{url}/archive/refs/heads/develop.tar.gz
 
 # RISCV64 support is coming soon. Maybe .NET 10 will add it?
-ExclusiveArch:  x86_64 aarch64
+ExclusiveArch:  x86_64 aarch64 ppc64le s390x
 
 BuildRequires:  dotnet-sdk-9.0
+BuildRequires:  (patchelf or chrpath)
 
 %if "%{build_with_aot}" == "true"
 # When installing AOT support, also install all dependencies needed to build
@@ -55,7 +56,10 @@ BuildRequires:  pkgconfig(libbrotlidec)
 BuildRequires:  clang
 BuildRequires:  openssl-devel
 BuildRequires:  zlib-devel
-BuildRequires:  (patchelf or chrpath)
+%endif
+
+%if "%{build_with_aot}" != "true"
+Requires:       dotnet-runtime-9.0
 %endif
 
 Recommends:     /usr/bin/ffmpeg
@@ -95,15 +99,15 @@ export PATH=$PATH:/usr/local/bin
 export VERSION=%{version}
 export PKGTYPE=RPM
 
-%global build_extra_args %{nil}
 %if "%{build_with_aot}" != "true"
-%global build_extra_args --extra-args="-p:PublishAot=false"
+    %{!?build_extra_args:%global build_extra_args --extra-args="-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false -p:SelfContained=false -p:PublishTrimmed=false -p:Optimize=false --use-current-runtime"}
+%else
+    %{!?build_extra_args:%global build_extra_args %{nil}}
 %endif
 
 ./build.sh --no-color --no-extended-chars --configuration Release %{build_extra_args}
 
 %install
-export VERSION=%{version}
 export ELEVATION_NOT_NEEDED=1
 ./build.sh install --no-color --no-extended-chars --prefix %{_prefix} --dest-dir %{buildroot} --doc-dir %{buildroot}%{_docdir}/%{name} --skip compile
 
