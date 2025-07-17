@@ -3,18 +3,11 @@
 
 namespace SnapX.Core.Utils.DNS;
 
-public class DNSInfo
+public class DNSInfo(string Name, string PrimaryDns, string SecondaryDns)
 {
-    public string Name { get; set; }
-    public string PrimaryDNS { get; set; }
-    public string SecondaryDNS { get; set; }
-
-    public DNSInfo(string name, string primaryDNS, string secondaryDNS)
-    {
-        Name = name;
-        PrimaryDNS = primaryDNS;
-        SecondaryDNS = secondaryDNS;
-    }
+    public string Name { get; set; } = Name;
+    public string PrimaryDNS { get; set; } = PrimaryDns;
+    public string SecondaryDNS { get; set; } = SecondaryDns;
 
     public override string ToString()
     {

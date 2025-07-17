@@ -33,10 +33,23 @@ public record HistoryItem
     {
         public int Id { get; set; }
         public required string Name { get; set; }
-
         public string Value { get; set; } = "";
+
+        public virtual bool Equals(Tag? other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Id == other.Id &&
+                   Name == other.Name &&
+                   Value == other.Value;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, Name, Value);
+        }
     }
-    public List<Tag>? Tags { get; set; } = [];
+    public List<Tag>? Tags = [];
     public override string ToString()
     {
         var text = "";
@@ -71,5 +84,60 @@ public record HistoryItem
         !string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath)
             ? FilePath
             : URL ?? ThumbnailURL;
+    public virtual bool Equals(HistoryItem? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return FileName == other.FileName &&
+               FilePath == other.FilePath &&
+               DateTime == other.DateTime &&
+               Type == other.Type &&
+               Id == other.Id &&
+               Hidden == other.Hidden &&
+               Host == other.Host &&
+               URL == other.URL &&
+               ThumbnailURL == other.ThumbnailURL &&
+               DeletionURL == other.DeletionURL &&
+               ShortenedURL == other.ShortenedURL &&
+               TagsEqual(Tags, other.Tags);
+    }
+
+    private static bool TagsEqual(List<Tag>? a, List<Tag>? b)
+    {
+        if (a is null && b is null) return true;
+        if (a is null || b is null) return false;
+        if (a.Count != b.Count) return false;
+
+        var orderedA = a.OrderBy(t => t.Id).ThenBy(t => t.Name).ThenBy(t => t.Value);
+        var orderedB = b.OrderBy(t => t.Id).ThenBy(t => t.Name).ThenBy(t => t.Value);
+        return orderedA.SequenceEqual(orderedB);
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(FileName);
+        hash.Add(FilePath);
+        hash.Add(DateTime);
+        hash.Add(Type);
+        hash.Add(Id);
+        hash.Add(Hidden);
+        hash.Add(Host);
+        hash.Add(URL);
+        hash.Add(ThumbnailURL);
+        hash.Add(DeletionURL);
+        hash.Add(ShortenedURL);
+
+        if (Tags != null)
+        {
+            foreach (var tag in Tags.OrderBy(t => t.Id).ThenBy(t => t.Name).ThenBy(t => t.Value))
+            {
+                hash.Add(tag);
+            }
+        }
+
+        return hash.ToHashCode();
+    }
 }
 

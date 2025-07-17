@@ -5,7 +5,7 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Interfaces;
 using SnapX.Core.Media;
-using WaylandSharp;
+using WaylandSharper;
 
 namespace SnapX.Core.Utils.Native;
 

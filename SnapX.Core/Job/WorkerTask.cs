@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Hotkey;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.BaseServices;
@@ -39,13 +38,13 @@ public class WorkerTask : IDisposable
     public bool StopRequested { get; private set; }
     public bool RequestSettingUpdate { get; private set; }
     public bool EarlyURLCopied { get; private set; }
-    public Stream Data { get; private set; }
-    public Image Image { get; private set; }
+    public Stream? Data { get; private set; }
+    public Image? Image { get; private set; }
     public bool KeepImage { get; set; }
     public string? Text { get; private set; }
 
     private ThreadWorker threadWorker;
-    private GenericUploader uploader;
+    private GenericUploader? uploader;
     private TaskReferenceHelper taskReferenceHelper;
 
     #region Constructors
@@ -287,10 +286,10 @@ public class WorkerTask : IDisposable
                 Clipboard.Clear();
             }
 
-            if ((Info.Job == TaskJob.Job || (Info.Job == TaskJob.FileUpload && Info.TaskSettings.AdvancedSettings.UseAfterCaptureTasksDuringFileUpload))
-                && Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.DeleteFile) && !string.IsNullOrEmpty(Info.FilePath) && System.IO.File.Exists(Info.FilePath))
+            if ((Info.Job == TaskJob.Job || (Info.Job == TaskJob.FileUpload && (Info.TaskSettings?.AdvancedSettings.UseAfterCaptureTasksDuringFileUpload ?? true)))
+                && Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.DeleteFile) && !string.IsNullOrEmpty(Info.FilePath) && File.Exists(Info.FilePath))
             {
-                System.IO.File.Delete(Info.FilePath);
+                File.Delete(Info.FilePath);
             }
         }
 
@@ -490,10 +489,7 @@ public class WorkerTask : IDisposable
 
     private void AddErrorMessage(string? error)
     {
-        if (Info.Result == null)
-        {
-            Info.Result = new UploadResult();
-        }
+        Info.Result ??= new UploadResult();
 
         Info.Result.Errors.Add(error);
     }
@@ -670,29 +666,24 @@ public class WorkerTask : IDisposable
         {
             if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.PerformActions) && Info.TaskSettings.ExternalPrograms != null)
             {
-                IEnumerable<ExternalProgram> actions = Info.TaskSettings.ExternalPrograms.Where(x => x.IsActive);
+                var actions = Info.TaskSettings.ExternalPrograms.Where(x => x.IsActive);
 
-                if (actions.Count() > 0)
+                if (actions.Any())
                 {
-                    bool isFileModified = false;
-                    string? fileName = Info.FileName;
+                    var isFileModified = false;
+                    var fileName = Info.FileName;
 
                     foreach (ExternalProgram fileAction in actions)
                     {
-                        string? modifiedPath = fileAction.Run(Info.FilePath);
+                        var modifiedPath = fileAction.Run(Info.FilePath);
 
-                        if (!string.IsNullOrEmpty(modifiedPath))
-                        {
-                            isFileModified = true;
-                            Info.FilePath = modifiedPath;
+                        if (string.IsNullOrEmpty(modifiedPath)) continue;
+                        isFileModified = true;
+                        Info.FilePath = modifiedPath;
 
-                            if (Data != null)
-                            {
-                                Data.Dispose();
-                            }
+                        Data?.Dispose();
 
-                            fileAction.DeletePendingInputFile();
-                        }
+                        fileAction.DeletePendingInputFile();
                     }
 
                     if (isFileModified)
@@ -790,16 +781,7 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterUploadJob.HasFlag(AfterUploadTasks.CopyURLToClipboard))
             {
-                string? txt;
-
-                if (!string.IsNullOrEmpty(Info.TaskSettings.AdvancedSettings.ClipboardContentFormat))
-                {
-                    txt = new UploadInfoParser().Parse(Info, Info.TaskSettings.AdvancedSettings.ClipboardContentFormat);
-                }
-                else
-                {
-                    txt = Info.Result.ToString();
-                }
+                var txt = !string.IsNullOrEmpty(Info.TaskSettings.AdvancedSettings.ClipboardContentFormat) ? new UploadInfoParser().Parse(Info, Info.TaskSettings.AdvancedSettings.ClipboardContentFormat) : Info.Result.ToString();
 
                 if (!string.IsNullOrEmpty(txt))
                 {
@@ -809,16 +791,7 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterUploadJob.HasFlag(AfterUploadTasks.OpenURL))
             {
-                string? result;
-
-                if (!string.IsNullOrEmpty(Info.TaskSettings.AdvancedSettings.OpenURLFormat))
-                {
-                    result = new UploadInfoParser().Parse(Info, Info.TaskSettings.AdvancedSettings.OpenURLFormat);
-                }
-                else
-                {
-                    result = Info.Result.ToString();
-                }
+                var result = !string.IsNullOrEmpty(Info.TaskSettings.AdvancedSettings.OpenURLFormat) ? new UploadInfoParser().Parse(Info, Info.TaskSettings.AdvancedSettings.OpenURLFormat) : Info.Result.ToString();
 
                 URLHelpers.OpenURL(result);
             }

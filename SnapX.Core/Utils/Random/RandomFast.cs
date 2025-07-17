@@ -5,8 +5,8 @@ namespace SnapX.Core.Utils.Random;
 
 public static class RandomFast
 {
-    private static readonly object randomLock = new object();
-    private static readonly System.Random random = new System.Random();
+    private static readonly Lock randomLock = new();
+    private static readonly System.Random random = new();
 
     /// <summary>Returns a non-negative random integer.</summary>
     /// <returns>A 32-bit signed integer that is greater than or equal to 0 and less than <c>System.Int32.MaxValue.</c></returns>

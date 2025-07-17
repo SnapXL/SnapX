@@ -2,20 +2,9 @@
 
 
 namespace SnapX.Core.Utils.Parsers;
-public abstract class CodeMenuEntry
+public abstract class CodeMenuEntry(string Value, string Description, string? Category = null)
 {
     protected abstract string Prefix { get; }
-
-    public string Value { get; private set; }
-    public string Description { get; private set; }
-    public string Category { get; private set; }
-
-    public CodeMenuEntry(string value, string description, string category = null)
-    {
-        Value = value;
-        Description = description;
-        Category = category;
-    }
 
     public string ToPrefixString()
     {

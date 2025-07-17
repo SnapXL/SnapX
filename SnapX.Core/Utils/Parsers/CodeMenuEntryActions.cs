@@ -1,15 +1,11 @@
 namespace SnapX.Core.Utils.Parsers;
 
-public class CodeMenuEntryActions : CodeMenuEntry
+public class CodeMenuEntryActions(string Value, string Description) : CodeMenuEntry(Value, Description)
 {
     protected override string Prefix { get; } = "$";
 
     public static readonly CodeMenuEntryActions input = new("input", "File path");
     public static readonly CodeMenuEntryActions output = new("output", "File path with output file name extension");
-
-    public CodeMenuEntryActions(string value, string description) : base(value, description)
-    {
-    }
 
     public static string Parse(string pattern, string inputPath, string outputPath)
     {

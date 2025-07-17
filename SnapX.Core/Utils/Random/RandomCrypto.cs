@@ -8,8 +8,8 @@ namespace SnapX.Core.Utils.Random;
 // https://docs.microsoft.com/en-us/archive/msdn-magazine/2007/september/net-matters-tales-from-the-cryptorandom
 public static class RandomCrypto
 {
-    private static readonly object randomLock = new object();
-    private static byte[] uint32Buffer = new byte[4];
+    private static readonly Lock randomLock = new();
+    private static readonly byte[] uint32Buffer = new byte[4];
 
     /// <summary>Returns a non-negative random integer.</summary>
     /// <returns>A 32-bit signed integer that is greater than or equal to 0 and less than <c>System.Int32.MaxValue.</c></returns>

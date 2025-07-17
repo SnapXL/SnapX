@@ -5,30 +5,19 @@ using System.Diagnostics;
 
 namespace SnapX.Core.Utils.Miscellaneous;
 
-public class FPSManager
+public class FPSManager(int FPSLimit)
 {
     public event Action FPSUpdated;
 
     public int FPS { get; private set; }
-    public int FPSLimit { get; set; }
 
     private int frameCount;
-    private Stopwatch fpsTimer, frameTimer;
+    private readonly Stopwatch fpsTimer = new();
+    private readonly Stopwatch frameTimer = new();
 
-    public FPSManager()
+    private void OnFPSUpdated()
     {
-        fpsTimer = new Stopwatch();
-        frameTimer = new Stopwatch();
-    }
-
-    public FPSManager(int fpsLimit) : this()
-    {
-        FPSLimit = fpsLimit;
-    }
-
-    protected void OnFPSUpdated()
-    {
-        FPSUpdated?.Invoke();
+        FPSUpdated.Invoke();
     }
 
     public void Update()
@@ -38,7 +27,7 @@ public class FPSManager
         if (!fpsTimer.IsRunning) fpsTimer.Start();
         else if (fpsTimer.ElapsedMilliseconds >= 1000)
         {
-            FPS = (int)System.Math.Round(frameCount / fpsTimer.Elapsed.TotalSeconds);
+            FPS = (int)Math.Round(frameCount / fpsTimer.Elapsed.TotalSeconds);
 
             OnFPSUpdated();
 
@@ -46,29 +35,27 @@ public class FPSManager
             fpsTimer.Restart();
         }
 
-        if (FPSLimit > 0)
+        if (FPSLimit <= 0) return;
+        if (!frameTimer.IsRunning)
         {
-            if (!frameTimer.IsRunning)
-            {
-                frameTimer.Start();
-            }
-            else
-            {
-                double currentFrameDuration = frameTimer.Elapsed.TotalMilliseconds;
-                double targetFrameDuration = 1000d / FPSLimit;
+            frameTimer.Start();
+        }
+        else
+        {
+            var currentFrameDuration = frameTimer.Elapsed.TotalMilliseconds;
+            var targetFrameDuration = 1000d / FPSLimit;
 
-                if (currentFrameDuration < targetFrameDuration)
+            if (currentFrameDuration < targetFrameDuration)
+            {
+                var sleepDuration = (int)Math.Round(targetFrameDuration - currentFrameDuration);
+
+                if (sleepDuration > 0)
                 {
-                    int sleepDuration = (int)System.Math.Round(targetFrameDuration - currentFrameDuration);
-
-                    if (sleepDuration > 0)
-                    {
-                        Thread.Sleep(sleepDuration);
-                    }
+                    Thread.Sleep(sleepDuration);
                 }
-
-                frameTimer.Restart();
             }
+
+            frameTimer.Restart();
         }
     }
 }

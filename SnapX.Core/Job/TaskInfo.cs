@@ -125,7 +125,7 @@ public record TaskInfo
 
     public Stopwatch UploadDuration { get; set; }
 
-    public UploadResult Result { get; set; }
+    public UploadResult? Result { get; set; }
 
     public TaskInfo(TaskSettings? taskSettings = null)
     {

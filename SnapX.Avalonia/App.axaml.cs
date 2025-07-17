@@ -19,7 +19,7 @@ using SnapX.Core.Utils.Native;
 
 namespace SnapX.Avalonia;
 
-public partial class App : Application
+public class App : Application
 {
     public App()
     {
@@ -36,10 +36,10 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
         AppDomain.CurrentDomain.UnhandledException += (_, Args) =>
         {
-            ShowErrorDialog(Lang.UnhandledException, Args.ExceptionObject as Exception);
+            ShowErrorDialog(Lang.UnhandledException, (Args.ExceptionObject as Exception)!);
         };
 #if DEBUG
-        Current.AttachDevTools();
+        Current?.AttachDevTools();
 #endif
 
         // Default logic doesn't auto-detect windows theme anymore in designer
@@ -92,7 +92,7 @@ public partial class App : Application
                 // Padding = new Thickness(10),
             });
         }
-        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        var version = Assembly.GetExecutingAssembly().GetName().Version!;
         var semver = version.Major + "." + version.Minor + "." + version.Revision;
         stackPanel.Children.Add(new SelectableTextBlock
         {
@@ -117,7 +117,7 @@ public partial class App : Application
             FontWeight = FontWeight.Bold,
             CornerRadius = new CornerRadius(5)
         };
-        reportButton.Click += (sender, e) => OnReportErrorClicked();
+        reportButton.Click += (_, _) => OnReportErrorClicked();
 
         var githubButton = new Button
         {
@@ -133,7 +133,7 @@ public partial class App : Application
             FontWeight = FontWeight.Bold,
             CornerRadius = new CornerRadius(5)
         };
-        githubButton.Click += (sender, e) => OnGitHubButtonClicked(ex);
+        githubButton.Click += (_, _) => OnGitHubButtonClicked(ex);
 
 
         var copyButton = new Button
@@ -152,7 +152,7 @@ public partial class App : Application
         };
 
         // Copy error to clipboard when clicked
-        copyButton.Click += (sender, e) => CopyErrorToClipboard(ex.ToString());
+        copyButton.Click += (_, _) => CopyErrorToClipboard(ex.ToString());
 
 
         buttonPanel.Children.Add(reportButton);
@@ -195,14 +195,14 @@ public partial class App : Application
     {
         // For now, do nothing when the button is clicked
         // This is where Sentry comes in
-        Console.WriteLine("Report Error button clicked. No action yet. If you have telemetry enabled, (it is by default) it will have already been sent to Sentry.");
+        DebugHelper.WriteLine("Report Error button clicked. No action yet. If you have telemetry enabled, (it is by default) it will have already been sent to Sentry.");
     }
 
     public static void Shutdown()
     {
         try
         {
-            SnapX?.shutdown();
+            SnapX.shutdown();
         }
         catch (Exception e)
         {
@@ -279,7 +279,7 @@ public partial class App : Application
                     tray.display();
                     break;
                 }
-            case ISingleViewApplicationLifetime singleView when SnapX.isSilent():
+            case ISingleViewApplicationLifetime when SnapX.isSilent():
                 return;
             case ISingleViewApplicationLifetime singleView:
                 {
@@ -327,7 +327,7 @@ public partial class App : Application
             aboutWindow.Show();
         }
     }
-    public void NativeMenuAboutSnapXClick(object? Sender, EventArgs E)
+    public void NativeMenuAboutSnapXClick(object? _, EventArgs E)
     {
         CreateAboutWindowStatic();
     }

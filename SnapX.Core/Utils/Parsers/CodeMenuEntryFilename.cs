@@ -1,6 +1,7 @@
 namespace SnapX.Core.Utils.Parsers;
 
-public class CodeMenuEntryFilename : CodeMenuEntry
+public class CodeMenuEntryFilename(string Value, string Description, string Category = null)
+    : CodeMenuEntry(Value, Description, Category)
 {
     protected override string Prefix => "%";
 
@@ -38,9 +39,5 @@ public class CodeMenuEntryFilename : CodeMenuEntry
     public static readonly CodeMenuEntryFilename uln = new("uln", "User login name", "Computer");
     public static readonly CodeMenuEntryFilename cn = new("cn", "Computer name/HOSTNAME", "Computer");
     public static readonly CodeMenuEntryFilename n = new("n", "New line");
-
-    public CodeMenuEntryFilename(string value, string description, string category = null) : base(value, description, category)
-    {
-    }
 }
 

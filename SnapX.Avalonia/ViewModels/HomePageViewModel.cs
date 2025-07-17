@@ -17,25 +17,14 @@ namespace SnapX.Avalonia.ViewModels;
 public partial class HomePageViewModel : ViewModelBase
 {
     public AvaloniaList<ListTaskTemplate> SelectedTasks { get; set; } = [];
-    public AvaloniaList<ListTaskTemplate> recentTasks { get; set; } =
-        [];
-    private System.Timers.Timer _refreshTimer;
-    private bool _isRefreshing; // Guard flag to prevent concurrent refreshes
+    public AvaloniaList<ListTaskTemplate> recentTasks { get; set; } = [];
+    private readonly System.Timers.Timer _refreshTimer = new(5000); // Refresh every 5 seconds
+    private bool _isRefreshing;
     private int _failedRefreshTasks;
-    private DateTime _lastCacheTime = DateTime.MinValue;
-    private List<ListTaskTemplate> _cachedTasks;
-    private readonly TimeSpan _cacheDuration = TimeSpan.FromSeconds(4);
-
     public void InvalidateCache()
     {
-        _lastCacheTime = DateTime.MinValue;
-        _cachedTasks = [];
     }
-    public HomePageViewModel()
-    {
-        // ShowContextMenuCommand = new RelayCommand<ToggleButton>(ShowContextMenu);
-        _refreshTimer = new System.Timers.Timer(5000); // Refresh every 5 seconds
-    }
+    // ShowContextMenuCommand = new RelayCommand<ToggleButton>(ShowContextMenu);
 
     public async Task Initialize()
     {
@@ -49,34 +38,40 @@ public partial class HomePageViewModel : ViewModelBase
     public void StartTimer() => _refreshTimer.Start();
     private async void OnRefreshTimerElapsed(object sender, ElapsedEventArgs e)
     {
-        if (_isRefreshing)
-        {
-            DebugHelper.WriteLine("Previous timer run already in progress. Skipping this timer tick.");
-            // Apply more conservative _refreshTimer interval when we know that there's a bunch of tasks.
-            if (recentTasks.Count > 3000) _refreshTimer.Interval = 10_000;
-            if (_failedRefreshTasks > 15) _refreshTimer.Interval = 30_000;
-            if (_failedRefreshTasks > 10) _refreshTimer.Interval = 20_000;
-            if (_failedRefreshTasks > 5) _refreshTimer.Interval = 10_000;
-            if (_failedRefreshTasks > 19) _refreshTimer.Interval = 60_000;
-            // Fuck it, give up.
-            if (_failedRefreshTasks > 20) _refreshTimer.Stop();
-            _failedRefreshTasks++;
-            return;
-        }
-
-        _isRefreshing = true;
         try
         {
-            // ConfigureAwait(false) is good practice here as it's background work.
-            await RefreshTasks().ConfigureAwait(false);
+            if (_isRefreshing)
+            {
+                DebugHelper.WriteLine("Previous timer run already in progress. Skipping this timer tick.");
+                // Apply more conservative _refreshTimer interval when we know that there's a bunch of tasks.
+                if (recentTasks.Count > 3000) _refreshTimer.Interval = 10_000;
+                if (_failedRefreshTasks > 15) _refreshTimer.Interval = 30_000;
+                if (_failedRefreshTasks > 10) _refreshTimer.Interval = 20_000;
+                if (_failedRefreshTasks > 5) _refreshTimer.Interval = 10_000;
+                if (_failedRefreshTasks > 19) _refreshTimer.Interval = 60_000;
+                // Fuck it, give up.
+                if (_failedRefreshTasks > 20) _refreshTimer.Stop();
+                _failedRefreshTasks++;
+                return;
+            }
+
+            _isRefreshing = true;
+            try
+            {
+                await RefreshTasks().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                DebugHelper.WriteException(ex);
+            }
+            finally
+            {
+                _isRefreshing = false;
+            }
         }
         catch (Exception ex)
         {
-            DebugHelper.WriteException(ex);
-        }
-        finally
-        {
-            _isRefreshing = false; // Reset the flag when the refresh is complete (or fails)
+            DebugHelper.WriteException(ex, "Error while refreshing tasks");
         }
     }
     [RelayCommand]
@@ -206,27 +201,14 @@ public partial class HomePageViewModel : ViewModelBase
     {
         var typeofVM = typeof(HomePageViewModel);
 
-        List<ListTaskTemplate> newDesiredTasks;
-
-        // Check cache first
-        if (DateTime.Now - _lastCacheTime < _cacheDuration)
-        {
-            newDesiredTasks = _cachedTasks;
-        }
-        else
-        {
-            var historyItems = await TaskManager.History.GetHistoryItemsAsync(30_000).ConfigureAwait(false);
+        var historyItems = await TaskManager.History.GetHistoryItemsAsync().ConfigureAwait(false);
 
             var tasks = historyItems.Select(task => new ListTaskTemplate(typeofVM, task));
 
-            newDesiredTasks = tasks
+            var newDesiredTasks = tasks
                 .OrderByDescending(item => item.task.Id)
                 .ToList();
-
-            _cachedTasks = newDesiredTasks;
-            _lastCacheTime = DateTime.Now;
-        }
-
+            await Task.Yield();
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             if (newDesiredTasks.Count > 50_000)
@@ -244,6 +226,7 @@ public partial class HomePageViewModel : ViewModelBase
             {
                 if (!newDesiredTaskIds.Contains(recentTasks[i].task.Id))
                 {
+                    DebugHelper.WriteLine($"Removing {recentTasks[i].task.Id}");
                     recentTasks.RemoveAt(i);
                 }
             }
@@ -257,6 +240,8 @@ public partial class HomePageViewModel : ViewModelBase
                         continue;
                     }
                     var index = recentTasks.IndexOf(existingItem);
+                    DebugHelper.WriteLine($"Replacing {index}");
+
                     if (index == -1) continue;
                     recentTasks.RemoveAt(index);
                     recentTasks.Insert(index, newItem);

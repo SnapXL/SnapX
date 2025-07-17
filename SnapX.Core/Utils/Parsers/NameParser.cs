@@ -107,14 +107,7 @@ public class NameParser
 
         string hour;
 
-        if (sb.ToString().Contains(CodeMenuEntryFilename.pm.ToPrefixString()))
-        {
-            hour = Helpers.HourTo12(dt.Hour);
-        }
-        else
-        {
-            hour = Helpers.AddZeroes(dt.Hour);
-        }
+        hour = sb.ToString().Contains(CodeMenuEntryFilename.pm.ToPrefixString()) ? Helpers.HourTo12(dt.Hour) : Helpers.AddZeroes(dt.Hour);
 
         sb.Replace(CodeMenuEntryFilename.h.ToPrefixString(), hour)
             .Replace(CodeMenuEntryFilename.mi.ToPrefixString(), Helpers.AddZeroes(dt.Minute))

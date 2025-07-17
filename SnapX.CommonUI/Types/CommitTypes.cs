@@ -32,13 +32,13 @@ public record Author(
     );
 
 public record Commit(
-    [property: JsonPropertyName("author")] Author Author,
-    [property: JsonPropertyName("committer")] Committer Committer,
+    [property: JsonPropertyName("author")] Author? Author,
+    [property: JsonPropertyName("committer")] Committer? Committer,
     [property: JsonPropertyName("message")] string Message,
-    [property: JsonPropertyName("tree")] Tree Tree,
+    [property: JsonPropertyName("tree")] Tree? Tree,
     [property: JsonPropertyName("html_url")] string Url,
     [property: JsonPropertyName("comment_count")] int? CommentCount,
-    [property: JsonPropertyName("verification")] Verification Verification
+    [property: JsonPropertyName("verification")] Verification? Verification
 );
 
 public record Committer(
@@ -75,13 +75,13 @@ public record Parent(
 public record Root(
     [property: JsonPropertyName("sha")] string Sha,
     [property: JsonPropertyName("node_id")] string NodeId,
-    [property: JsonPropertyName("commit")] Commit Commit,
+    [property: JsonPropertyName("commit")] Commit? Commit,
     [property: JsonPropertyName("url")] string Url,
     [property: JsonPropertyName("html_url")] string HtmlUrl,
     [property: JsonPropertyName("comments_url")] string CommentsUrl,
-    [property: JsonPropertyName("author")] Author Author,
-    [property: JsonPropertyName("committer")] Committer Committer,
-    [property: JsonPropertyName("parents")] IReadOnlyList<Parent> Parents
+    [property: JsonPropertyName("author")] Author? Author,
+    [property: JsonPropertyName("committer")] Committer? Committer,
+    [property: JsonPropertyName("parents")] IReadOnlyList<Parent>? Parents
 
 );
 

@@ -4,7 +4,7 @@ using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Utils.Parsers;
 
-public class CodeMenuEntryPixelInfo : CodeMenuEntry
+public class CodeMenuEntryPixelInfo(string Value, string Description) : CodeMenuEntry(Value, Description)
 {
     protected override string Prefix { get; } = "$";
 
@@ -35,10 +35,6 @@ public class CodeMenuEntryPixelInfo : CodeMenuEntry
     public static readonly CodeMenuEntryPixelInfo x = new("x", "X position");
     public static readonly CodeMenuEntryPixelInfo y = new("y", "Y position");
     public static readonly CodeMenuEntryPixelInfo n = new("n", "New line");
-
-    public CodeMenuEntryPixelInfo(string value, string description) : base(value, description)
-    {
-    }
 
     public static string Parse(string input, Rgba64 color, Point position)
     {

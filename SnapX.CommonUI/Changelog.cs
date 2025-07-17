@@ -21,17 +21,18 @@ internal partial class ChangelogContext : JsonSerializerContext;
 public abstract class Changelog
 {
     private static readonly HttpClient Client = HttpClientFactory.Get();
-    public string Version { get; init; }
-    public Version versionSemver;
-    public int major;
-    public int minor;
-    public int patch;
+    protected string Version { get; init; }
+    private readonly Version versionSemver;
+    private readonly int major;
+    private readonly int minor;
+    private readonly int patch;
 
-    public JsonSerializerOptions Options = new()
+    private readonly JsonSerializerOptions Options = new()
     {
         TypeInfoResolver = ChangelogContext.Default
     };
-    public Changelog(string version)
+
+    protected Changelog(string version)
     {
         Version = version;
         versionSemver = new Version(version);
@@ -42,8 +43,8 @@ public abstract class Changelog
 
     public record ChangelogVersion
     {
-        public string Version { get; set; }
-        public string Content { get; set; }
+        public string Version { get; set; } = "0.0.0";
+        public string Content { get; set; } = "";
     }
     public virtual async Task<string> GetChangeSummary()
     {
@@ -78,7 +79,7 @@ public abstract class Changelog
             return false;
         }
 #if DEBUG
-        DebugHelper.WriteLine($"Validating changelog: {changelog?.Substring(0, Math.Min(100, changelog.Length))}...");
+        DebugHelper.WriteLine($"Validating changelog: {changelog[..Math.Min(100, changelog.Length)]}...");
 #endif
         return changelog!.Length > 4;
     }
@@ -158,7 +159,7 @@ public abstract class Changelog
             })
             .Select(tag =>
             {
-                var firstLineOfMessage = tag.Commit?.Message?.Split('\n').FirstOrDefault()?.Trim();
+                var firstLineOfMessage = tag.Commit?.Message.Split('\n').FirstOrDefault()?.Trim();
                 return $"Tag: {tag.Name} - {firstLineOfMessage}";
             })
             .ToList();
@@ -180,7 +181,7 @@ public abstract class Changelog
                 return string.Empty;
 
             var buildSummaries = actions.WorkflowRuns
-                .Where(run => (run?.RunNumber > patch) && (run.Name.Contains("build", StringComparison.OrdinalIgnoreCase)) && run.Status.Contains("success", StringComparison.InvariantCultureIgnoreCase))
+                .Where(run => run.RunNumber > patch && (run.Name.Contains("build", StringComparison.OrdinalIgnoreCase)) && run.Status.Contains("success", StringComparison.InvariantCultureIgnoreCase))
                 .Select(run => $"{run.Name} #{run.RunNumber}:  {run.DisplayTitle} - {run.Actor.Login}")
                 .ToList();
 
@@ -234,13 +235,12 @@ public abstract class Changelog
     /// Defaults to splitting on two or more consecutive newline sequences.
     /// </param>
     /// <returns>An enumerable of individual changelog entries.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if changelogs is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if changelogs are null.</exception>
     public static IEnumerable<string> SeparateChangelogEntries(
         IEnumerable<string> changelogs,
         string? pattern = null)
     {
-        if (changelogs == null)
-            throw new ArgumentNullException(nameof(changelogs));
+        ArgumentNullException.ThrowIfNull(changelogs);
 
         // Default pattern for separating traditional multi-line changelog entries
         pattern ??= @"(?:\r?\n){2,}";

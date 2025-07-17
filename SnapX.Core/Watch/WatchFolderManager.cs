@@ -10,7 +10,7 @@ namespace SnapX.Core.Watch;
 
 public class WatchFolderManager : IDisposable
 {
-    public List<WatchFolder> WatchFolders { get; private set; }
+    public List<WatchFolder>? WatchFolders { get; private set; }
 
     public void UpdateWatchFolders()
     {
@@ -26,16 +26,16 @@ public class WatchFolderManager : IDisposable
             AddWatchFolder(defaultWatchFolderSetting, SnapX.DefaultTaskSettings);
         }
 
-        foreach (HotkeySettings hotkeySetting in SnapX.HotkeysConfig.Hotkeys)
+        foreach (var hotkeySetting in SnapX.HotkeysConfig.Hotkeys)
         {
-            foreach (WatchFolderSettings watchFolderSetting in hotkeySetting.TaskSettings.WatchFolderList)
+            foreach (var watchFolderSetting in hotkeySetting.TaskSettings.WatchFolderList)
             {
                 AddWatchFolder(watchFolderSetting, hotkeySetting.TaskSettings);
             }
         }
     }
 
-    private WatchFolder FindWatchFolder(WatchFolderSettings watchFolderSetting)
+    private WatchFolder? FindWatchFolder(WatchFolderSettings watchFolderSetting)
     {
         return WatchFolders.FirstOrDefault(watchFolder => watchFolder.Settings == watchFolderSetting);
     }
@@ -54,19 +54,19 @@ public class WatchFolderManager : IDisposable
                 taskSettings.WatchFolderList.Add(watchFolderSetting);
             }
 
-            WatchFolder watchFolder = new WatchFolder();
+            var watchFolder = new WatchFolder();
             watchFolder.Settings = watchFolderSetting;
             watchFolder.TaskSettings = taskSettings;
 
             watchFolder.FileWatcherTrigger += origPath =>
             {
                 var taskSettingsCopy = TaskSettings.GetSafeTaskSettings(taskSettings);
-                string? destPath = origPath;
+                var destPath = origPath;
 
                 if (watchFolderSetting.MoveFilesToScreenshotsFolder)
                 {
-                    string? screenshotsFolder = TaskHelpers.GetScreenshotsFolder(taskSettingsCopy);
-                    string fileName = Path.GetFileName(origPath);
+                    var screenshotsFolder = TaskHelpers.GetScreenshotsFolder(taskSettingsCopy);
+                    var fileName = Path.GetFileName(origPath);
                     destPath = Path.Combine(screenshotsFolder, fileName);
                     FileHelpers.CreateDirectoryFromFilePath(destPath);
                     File.Move(origPath, destPath);
@@ -86,43 +86,32 @@ public class WatchFolderManager : IDisposable
 
     public void RemoveWatchFolder(WatchFolderSettings watchFolderSetting)
     {
-        using (WatchFolder watchFolder = FindWatchFolder(watchFolderSetting))
-        {
-            if (watchFolder != null)
-            {
-                watchFolder.TaskSettings.WatchFolderList.Remove(watchFolderSetting);
-                WatchFolders.Remove(watchFolder);
-            }
-        }
+        using var watchFolder = FindWatchFolder(watchFolderSetting);
+        if (watchFolder == null) return;
+        watchFolder.TaskSettings?.WatchFolderList.Remove(watchFolderSetting);
+        WatchFolders?.Remove(watchFolder);
     }
 
     public void UpdateWatchFolderState(WatchFolderSettings watchFolderSetting)
     {
-        WatchFolder watchFolder = FindWatchFolder(watchFolderSetting);
-        if (watchFolder != null)
+        var watchFolder = FindWatchFolder(watchFolderSetting);
+        if (watchFolder == null) return;
+        if (watchFolder.TaskSettings?.WatchFolderEnabled  ?? false)
         {
-            if (watchFolder.TaskSettings.WatchFolderEnabled)
-            {
-                watchFolder.Enable();
-            }
-            else
-            {
-                watchFolder.Dispose();
-            }
+            watchFolder.Enable();
+        }
+        else
+        {
+            watchFolder.Dispose();
         }
     }
 
     public void UnregisterAllWatchFolders()
     {
-        if (WatchFolders != null)
+        if (WatchFolders == null) return;
+        foreach (var watchFolder in WatchFolders.OfType<WatchFolder>())
         {
-            foreach (WatchFolder watchFolder in WatchFolders)
-            {
-                if (watchFolder != null)
-                {
-                    watchFolder.Dispose();
-                }
-            }
+            watchFolder.Dispose();
         }
     }
 

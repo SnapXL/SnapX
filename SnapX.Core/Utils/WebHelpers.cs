@@ -25,7 +25,7 @@ public static class WebHelpers
 
         if (!responseMessage.IsSuccessStatusCode)
         {
-            DebugHelper.Logger.Error("{url}: {responseMessage.ReasonPhrase}", url, responseMessage);
+            DebugHelper.Logger?.Error("{Url}: {ResponseMessageReasonPhrase}", url, responseMessage);
             return;
         }
 
@@ -54,14 +54,14 @@ public static class WebHelpers
 
         var base64Data = match.Groups["data"].Value;
 
-        byte[] imageBytes = Convert.FromBase64String(base64Data);
+        var imageBytes = Convert.FromBase64String(base64Data);
 
         using var ms = new MemoryStream(imageBytes);
         var image = await Image.LoadAsync(ms);
         return image;
     }
 
-    public static async Task<string> DownloadStringAsync(string url)
+    public static async Task<string?> DownloadStringAsync(string url)
     {
         if (string.IsNullOrEmpty(url))
         {
@@ -70,13 +70,10 @@ public static class WebHelpers
 
         var client = HttpClientFactory.Get();
         using var responseMessage = await client.GetAsync(url);
-        if (!responseMessage.IsSuccessStatusCode)
-        {
-            DebugHelper.Logger.Error("{url}: {responseMessage.ReasonPhrase}", url, responseMessage);
-            return null;
-        }
+        if (responseMessage.IsSuccessStatusCode) return await responseMessage.Content.ReadAsStringAsync();
+        DebugHelper.Logger?.Error("{Url}: {ResponseMessageReasonPhrase}", url, responseMessage);
+        return null;
 
-        return await responseMessage.Content.ReadAsStringAsync();
     }
 
 
@@ -94,7 +91,7 @@ public static class WebHelpers
     }
 
 
-    public static async Task<Image> DownloadImageAsync(string? url)
+    public static async Task<Image?> DownloadImageAsync(string? url)
     {
         if (string.IsNullOrEmpty(url)) return null;
 
@@ -108,13 +105,13 @@ public static class WebHelpers
             return null;
         }
 
-        var mediaType = responseMessage.Content.Headers.ContentType.MediaType;
+        var mediaType = responseMessage.Content.Headers.ContentType?.MediaType;
         if (mediaType == null)
         {
-            DebugHelper.Logger.Error("{url}: mediaType is null.", url);
+            DebugHelper.Logger?.Error("{Url}: mediaType is null", url);
             return null;
         }
-        if (!MimeTypesPlus.IsImageMimeType(mediaType))
+        if (!mediaType.Contains("image/"))
             return null;
 
         var data = await responseMessage.Content.ReadAsByteArrayAsync();
@@ -126,7 +123,7 @@ public static class WebHelpers
         }
         catch (Exception ex)
         {
-            DebugHelper.Logger.Error("{url}: {message}", url, ex.Message);
+            DebugHelper.Logger?.Error("{Url}: {Message}", url, ex.Message);
             DebugHelper.WriteException(ex);
             return null;
         }

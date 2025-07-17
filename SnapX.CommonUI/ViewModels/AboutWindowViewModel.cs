@@ -9,7 +9,7 @@ namespace SnapX.CommonUI.ViewModels;
 public partial class AboutWindowViewModel : ViewModelBase
 {
     // Internal instance of the base class (SnapX.CommonUI.AboutDialog)
-    private AboutDialog _commonAboutDialog = new();
+    private readonly AboutDialog _commonAboutDialog = new();
 
     [UnconditionalSuppressMessage("Trimming",
          "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
@@ -21,6 +21,7 @@ public partial class AboutWindowViewModel : ViewModelBase
         LoadedAssemblies = string.Join(Environment.NewLine, combinedLoadedAssemblies
             .Where(a => a.GetName().Name != null)
             .Where(a =>
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 !a.GetName().Name.StartsWith("System") &&
                 !a.GetName().Name.StartsWith("SnapX", StringComparison.OrdinalIgnoreCase) &&
                 !a.GetName().Name.StartsWith("Anonymous", StringComparison.OrdinalIgnoreCase) &&
@@ -37,8 +38,10 @@ public partial class AboutWindowViewModel : ViewModelBase
             .Select(g => g.Count() > 1
                 ? $"{g.Key} {g.First().Version.Major}.{g.First().Version.Minor}.{g.First().Version.Build}"
                 : $"{g.First().Name} {g.First().Version.Major}.{g.First().Version.Minor}.{g.First().Version.Build}")
-            .Append($"SQLite {Core.SnapX.DbConnection.ServerVersion}")
+            .Append($"SQLite {Core.SnapX.DbConnection?.ServerVersion}")
             .OrderBy(name => name));
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
         Description = _commonAboutDialog.GetDescription();
         Version = _commonAboutDialog.GetVersion();
         Copyright = _commonAboutDialog.GetCopyright();
@@ -56,48 +59,21 @@ public partial class AboutWindowViewModel : ViewModelBase
         SystemInformationText = $"{SystemInfo} ({OsArchitecture}, {OsPlatform}) powered by {Runtime}!";
         return Task.CompletedTask;
     }
-    [ObservableProperty]
-    public string dialogTitle = Lang.AboutSnapX;
-    [ObservableProperty]
-    private string? description;
-    [ObservableProperty]
-    public string? buildInformation;
-    [ObservableProperty]
-
-    public string? version;
-    [ObservableProperty]
-    public string? copyright;
-    [ObservableProperty]
-
-    public string? license;
-    [ObservableProperty]
-
-    public string? website;
-    [ObservableProperty]
-
-    public string? systemInfo;
-    [ObservableProperty]
-
-    public string? osArchitecture;
-    [ObservableProperty]
-
-    public string? runtime;
-    [ObservableProperty]
-
-    public string? osPlatform;
-    [ObservableProperty]
-
-    public string? documentation;
-    [ObservableProperty]
-
-    public string? issues;
-    [ObservableProperty]
-    public string? discord;
-    [ObservableProperty]
-    public string? donate;
-    [ObservableProperty]
-    public string? loadedAssemblies;
-
-    [ObservableProperty]
-    public string? systemInformationText;
+    [ObservableProperty] private string dialogTitle = Lang.AboutSnapX;
+    [ObservableProperty] private string? description;
+    [ObservableProperty] private string? buildInformation;
+    [ObservableProperty] private string? version;
+    [ObservableProperty] private string? copyright;
+    [ObservableProperty] private string? license;
+    [ObservableProperty] private string? website;
+    [ObservableProperty] private string? systemInfo;
+    [ObservableProperty] private string? osArchitecture;
+    [ObservableProperty] private string? runtime;
+    [ObservableProperty] private string? osPlatform;
+    [ObservableProperty] private string? documentation;
+    [ObservableProperty] private string? issues;
+    [ObservableProperty] private string? discord;
+    [ObservableProperty] private string? donate;
+    [ObservableProperty] private string? loadedAssemblies;
+    [ObservableProperty] private string? systemInformationText;
 }
