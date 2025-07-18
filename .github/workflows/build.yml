@@ -136,6 +136,8 @@ jobs:
             echo "❌ Directory.Build.props does not exist. Cannot insert RestorePackagesPath for Vendored build. Build will FAIL."
             exit 1
           fi
+      # Packagers: This vendored source does not have the APIKeys SnapX uses.
+      # I cannot provide them in public source code.
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         uses: actions/upload-artifact@v4
@@ -143,6 +145,25 @@ jobs:
           name: SnapX-Vendored-Source-${{ runner.arch }}
           path: .
           include-hidden-files: false
+      - name: Download API keys
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != '' && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          try {
+            Invoke-WebRequest -Uri $env:API_KEYS -OutFile "SnapX.Core\Upload\APIKeysLocal.cs" -ErrorAction Stop | Out-Null
+          } catch {
+            throw "Failed to download API keys. Error has been redacted for security reasons."
+          }
+      - name: Download API keys
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != '' && runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
       - name: Enforce code style using dotnet format
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
         run: dotnet format --exclude build --verify-no-changes -v diagnostic SnapX.slnx
