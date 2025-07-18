@@ -40,7 +40,7 @@
     <!-- Google Photos Library from Microsoft employee -->
     <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
     <!-- Privacy friendly user/feature analytics -->
-    <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.2" />
+    <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.3" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Dapper.AOT" Version="1.0.48" />
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
@@ -80,7 +80,7 @@
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->
     <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.17" />
-    <PackageReference Include="FluentFTP" Version="53.0.0" />
+    <PackageReference Include="FluentFTP" Version="53.0.1" />
     <PackageReference Include="BrycensRanch.MegaApiClient" Version="1.0.0" />
     <PackageReference Include="SSH.NET" Version="2025.0.0" />
   </ItemGroup>
