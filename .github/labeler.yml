@@ -29,3 +29,12 @@ dependencies:
 build:
   - changed-files:
     - any-glob-to-any-file: build/**
+linux:
+  - changed-files:
+    - any-glob-to-any-file: SnapX.Core/Linux.props
+windows:
+  - changed-files:
+    - any-glob-to-any-file: SnapX.Core/Windows.props
+macOS:
+  - changed-files:
+    - any-glob-to-any-file: SnapX.Core/OSX.props
