@@ -53,16 +53,10 @@
 - Keeps compatibility with the custom uploader configuration format (.sxcu)
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
-What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and *modern* application.
+What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
 
 You will *not* receive any support from the ShareX project for this software. \
 If you have any issues with this project, please **open an issue** in this repository.
-
-However, it's important to note that this project is maintained by volunteers. \
-We may not be able to provide support for all issues. \
-We will do our best to help you, but we cannot guarantee that we will be able to resolve your issue.
-
-<p align="center"> For further information, please check the source code.</p>
 
 ## Supported Linux Distributions
 
@@ -82,7 +76,7 @@ This application relies on XDG portals to handle screenshots in a secure and des
 - **GNOME**
 
 > [!TIP]
-> Other desktop environments or Wayland compositors—such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal—should also work, but are not officially tested. 
+> Other desktop environments or Wayland compositors—such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal—should also work, but are not officially tested.
 
 ## Packages for testers
 
