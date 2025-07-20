@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using SnapX.Core.Hotkey;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
@@ -96,7 +95,7 @@ public class WatchFolderManager : IDisposable
     {
         var watchFolder = FindWatchFolder(watchFolderSetting);
         if (watchFolder == null) return;
-        if (watchFolder.TaskSettings?.WatchFolderEnabled  ?? false)
+        if (watchFolder.TaskSettings?.WatchFolderEnabled ?? false)
         {
             watchFolder.Enable();
         }

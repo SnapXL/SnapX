@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MimeTypeCore;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -53,7 +54,7 @@ public sealed class Plik : FileUploader
         metaDataReq.Files = new UploadMetadataRequestFile0();
         metaDataReq.Files.File0 = new UploadMetadataRequestFile();
         metaDataReq.Files.File0.FileName = fileName;
-        metaDataReq.Files.File0.FileType = MimeTypes.GetMimeType(fileName);
+        metaDataReq.Files.File0.FileType = MimeTypeMap.GetMimeType(fileName);
         metaDataReq.Files.File0.FileSize = Convert.ToInt32(stream.Length);
         metaDataReq.Removable = Settings.Removable;
         metaDataReq.OneShot = Settings.OneShot;

@@ -4,6 +4,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
+using MimeTypeCore;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Custom;
@@ -108,7 +109,7 @@ public sealed class AmazonS3 : FileUploader
         var scope = URLHelpers.CombineURL(credentialDate, region, "s3", "aws4_request");
         var credential = URLHelpers.CombineURL(Settings.AccessKeyID, scope);
         var timeStamp = DateTime.UtcNow.ToString("yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture);
-        var contentType = MimeTypes.GetMimeType(fileName);
+        var contentType = MimeTypeMap.GetMimeType(fileName);
         string hashedPayload;
 
         if (Settings.SignedPayload)

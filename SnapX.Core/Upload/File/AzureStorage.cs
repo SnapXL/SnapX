@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using MimeTypeCore;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -73,7 +74,7 @@ public sealed class AzureStorage : FileUploader
 
         OnEarlyURLCopyRequested(resultURL);
 
-        var contentType = MimeTypes.GetMimeType(fileName);
+        var contentType = MimeTypeMap.GetMimeType(fileName);
         var requestHeaders = new NameValueCollection
         {
             { "x-ms-date", date },

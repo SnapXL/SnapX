@@ -9,6 +9,7 @@ using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using MimeTypeCore;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -404,7 +405,7 @@ public sealed class BackblazeB2 : ImageUploader
             ["X-Bz-Info-b2-content-disposition"] = URLHelpers.URLEncode(contentDisposition.ToString()),
         };
 
-        string contentType = MimeTypes.GetMimeType(destinationPath);
+        string contentType = MimeTypeMap.GetMimeType(destinationPath);
 
         using var response = GetResponse(HttpMethod.Post, b2UploadUrl.uploadUrl,
             data: file, contentType: contentType, headers: headers, allowNon2xxResponses: true);

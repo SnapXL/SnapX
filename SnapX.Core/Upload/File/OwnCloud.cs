@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MimeTypeCore;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
@@ -88,7 +89,7 @@ public sealed class OwnCloud : FileUploader
         var headers = RequestHelpers.CreateAuthenticationHeader(Username, Password);
         headers["OCS-APIREQUEST"] = "true";
 
-        var response = SendRequest(HttpMethod.Put, url, stream, MimeTypes.GetMimeType(fileName), null, headers);
+        var response = SendRequest(HttpMethod.Put, url, stream, MimeTypeMap.GetMimeType(fileName), null, headers);
 
         var result = new UploadResult(response);
 

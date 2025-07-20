@@ -2,6 +2,7 @@
 
 
 using System.Text;
+using MimeTypeCore;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Custom;
@@ -122,7 +123,7 @@ public sealed class CustomTextUploader : TextUploader
                         uploader.RequestMethod,
                         uploader.GetRequestURL(input),
                         binaryStream,
-                        MimeTypes.GetMimeType(fileName),
+                        MimeTypeMap.GetMimeType(fileName),
                         null,
                         uploader.GetHeaders(input)
                     );

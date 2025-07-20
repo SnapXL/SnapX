@@ -203,12 +203,12 @@ public partial class HomePageViewModel : ViewModelBase
 
         var historyItems = await TaskManager.History.GetHistoryItemsAsync().ConfigureAwait(false);
 
-            var tasks = historyItems.Select(task => new ListTaskTemplate(typeofVM, task));
+        var tasks = historyItems.Select(task => new ListTaskTemplate(typeofVM, task));
 
-            var newDesiredTasks = tasks
-                .OrderByDescending(item => item.task.Id)
-                .ToList();
-            await Task.Yield();
+        var newDesiredTasks = tasks
+            .OrderByDescending(item => item.task.Id)
+            .ToList();
+        await Task.Yield();
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             if (newDesiredTasks.Count > 50_000)

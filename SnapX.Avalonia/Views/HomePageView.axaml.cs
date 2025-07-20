@@ -2,7 +2,6 @@ using AsyncImageLoader.Loaders;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FluentAvalonia.UI.Controls;
-using SnapX.Avalonia.Services;
 using SnapX.Avalonia.ViewModels;
 using SnapX.CommonUI.Models;
 using SnapX.Core;

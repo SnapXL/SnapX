@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using MimeTypeCore;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Custom;
@@ -63,7 +64,7 @@ public sealed class CustomFileUploader : FileUploader
         }
         else if (uploader.Body == CustomUploaderBody.Binary)
         {
-            result.Response = SendRequest(uploader.RequestMethod, uploader.GetRequestURL(input), stream, MimeTypes.GetMimeType(fileName), null,
+            result.Response = SendRequest(uploader.RequestMethod, uploader.GetRequestURL(input), stream, MimeTypeMap.GetMimeType(fileName), null,
                 uploader.GetHeaders(input));
         }
         else
