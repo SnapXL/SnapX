@@ -24,10 +24,7 @@
     <DefineConstants>$(DefineConstants);DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
   <!-- Windows 11 ARM64, Musl based distributions, and FreeBSD are not supported for OCR -->
-  <PropertyGroup Condition="'$(DisableOCR)' == '1'
-  OR $([MSBuild]::IsOsPlatform('FreeBSD'))
-  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')
-  OR $([System.String]::Copy('$(RuntimeIdentifier)').Contains('musl'))">
+  <PropertyGroup Condition="'$(DisableOCR)' == '1'&#xA;  OR $([MSBuild]::IsOsPlatform('FreeBSD'))&#xA;  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')&#xA;  OR $([System.String]::Copy('$(RuntimeIdentifier)').Contains('musl'))">
     <DefineConstants>$(DefineConstants);DISABLE_OCR</DefineConstants>
   </PropertyGroup>
 
@@ -48,6 +45,7 @@
     <PackageReference Include="JsonPath.Net" Version="2.1.1" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
     <PackageReference Include="Microsoft.Data.Sqlite" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="MimeTypeCore" Version="2.0.4" />
     <!-- Builds are notably not provided for FreeBSD. Dynamic loading of normal system sqlite3 supported. -->
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
     <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="$(SQLitePCLRawVersion)" />

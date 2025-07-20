@@ -4,6 +4,7 @@
 using System.Collections.Specialized;
 using System.Net;
 using System.Text;
+using MimeTypeCore;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
@@ -255,7 +256,7 @@ public class Uploader
             }
             contentLength = Math.Min(contentLength, data.Length - contentPosition);
 
-            string contentType = MimeTypes.GetMimeType(fileName);
+            var contentType = MimeTypeMap.GetMimeType(fileName);
 
             if (headers == null)
             {
