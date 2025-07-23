@@ -34,6 +34,7 @@ public static class DebugHelper
             loggerConfig.ReadFrom.Configuration(SnapX.Configuration);
         }
         Logger = loggerConfig.CreateLogger();
+        Log.Logger = Logger;
     }
 
     public static void WriteLine(string? message = "")

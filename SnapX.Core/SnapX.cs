@@ -292,7 +292,7 @@ public class SnapX
     public long getStartupTime() => StartTimer.ElapsedMilliseconds;
     public EventAggregator getEventAggregator() => EventAggregator;
     public bool isSilent() => SilentRun;
-    public static object? aptabaseClientObject;
+    public static AptabaseClient? aptabaseClient;
 
     // Supports the failed standard https://consoledonottrack.com/
     public static bool TelemetryEnabled() => !FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry &&
@@ -424,7 +424,7 @@ public class SnapX
 #endif
             }, logger);
             var telemetry = new Telemetry(DbConnection, aptabaseClient);
-            aptabaseClientObject = aptabaseClient;
+            SnapX.aptabaseClient = aptabaseClient;
             telemetry.TrackEvent("app_started", new Dictionary<string, object>
             {
                 { "CPU", SnapXResources.CPU },
@@ -532,7 +532,7 @@ public class SnapX
 
         if (TelemetryEnabled())
         {
-            var client = aptabaseClientObject as AptabaseClient;
+            var client = aptabaseClient;
             client!.DisposeAsync();
         }
 
