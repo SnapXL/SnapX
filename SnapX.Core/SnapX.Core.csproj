@@ -40,7 +40,7 @@
     <!-- Google Photos Library from Microsoft employee -->
     <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
     <!-- Privacy friendly user/feature analytics -->
-    <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.3" />
+    <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.4" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Dapper.AOT" Version="1.0.48" />
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
