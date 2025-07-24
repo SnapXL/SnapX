@@ -429,8 +429,14 @@ public class SnapX
             {
                 { "CPU", SnapXResources.CPU },
                 { "CPUCount", SnapXResources.CPUCount},
-                { "Build", nameof(Build) },
-                { "graphicsInfo", SnapXResources.graphicsInfo },
+                { "Build", $"{Build}" },
+                {
+                    "GPUS",
+                    SnapXResources.graphicsInfo.Gpus is { Count: > 0 } gpus
+                        ? string.Join(", ", gpus.Select(gpu => $"{gpu.Description} ({gpu.DriverVersion})"))
+                        : string.Empty
+                },
+                { "Monitors", string.Join(", ", SnapXResources.graphicsInfo?.Monitors ?? []) },
                 { "totalMemory", totalMemory },
                 { "usedMemory", usedMemory },
                 { "Dotnet", SnapXResources.Dotnet },
@@ -708,7 +714,6 @@ public class SnapX
         }
 #endif
 
-        // Add the event handler for handling non-UI thread exceptions to the event
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         AppDomain.CurrentDomain.ProcessExit += ((_, _) => CloseSequence());
     }
