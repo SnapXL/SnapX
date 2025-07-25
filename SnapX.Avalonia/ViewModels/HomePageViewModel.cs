@@ -226,7 +226,6 @@ public partial class HomePageViewModel : ViewModelBase
             {
                 if (!newDesiredTaskIds.Contains(recentTasks[i].task.Id))
                 {
-                    DebugHelper.WriteLine($"Removing {recentTasks[i].task.Id}");
                     recentTasks.RemoveAt(i);
                 }
             }
@@ -240,7 +239,6 @@ public partial class HomePageViewModel : ViewModelBase
                         continue;
                     }
                     var index = recentTasks.IndexOf(existingItem);
-                    DebugHelper.WriteLine($"Replacing {index}");
 
                     if (index == -1) continue;
                     recentTasks.RemoveAt(index);
