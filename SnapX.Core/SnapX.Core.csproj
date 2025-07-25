@@ -73,7 +73,7 @@
     hiding them behind a compiler conditional makes debugging more difficult. -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
     <PackageReference Include="Tmds.DBus.SourceGenerator" Version="0.0.21" PrivateAssets="all" />
-    <PackageReference Include="WaylandSharper" Version="0.1.2" ReferenceOutputAssembly="false" />
+    <PackageReference Include="WaylandSharper" Version="0.1.2" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="all" ExcludeAssets="runtime" />
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->
