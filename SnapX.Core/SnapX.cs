@@ -391,6 +391,10 @@ public class SnapX(IServiceProvider serviceProvider)
         var connectionString = new SqliteConnectionStringBuilder { DataSource = dataSource, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true, }.ToString();
         DbConnection = new SqliteConnection(connectionString);
         RunWithTimeout(() => DbConnection.OpenAsync(), $"Opening the database connection at {DBPath}");
+        RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA busy_timeout = 5000;"), "Setting busy timeout");
+        RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA temp_store = MEMORY;"), "Setting temp_store");
+        RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA mmap_size = 30000000000;"), "Setting mmap_size");
+        RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA cache_size = -64000;"), "Setting cache_size");
         RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA journal_mode=WAL;"), "Setting journal mode");
         _ = Task.Run(() =>
         {
@@ -442,7 +446,9 @@ public class SnapX(IServiceProvider serviceProvider)
                 IsDebugMode = false
 #endif
             }, logger);
-            var telemetry = new Telemetry(DbConnection, aptabaseClient);
+            var loggerService = serviceProvider.GetRequiredService<ILoggerService>();
+
+            var telemetry = new Telemetry(DbConnection, aptabaseClient, loggerService);
             SnapX.aptabaseClient = aptabaseClient;
             telemetry.TrackEvent("app_started", new Dictionary<string, object>
             {
