@@ -4,6 +4,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using SnapX.Avalonia.Extensions;
 using SnapX.Avalonia.Views;
 using SnapX.CommonUI.Models;
 using SnapX.CommonUI.ViewModels;
@@ -203,52 +204,59 @@ public partial class HomePageViewModel : ViewModelBase
 
         var historyItems = await TaskManager.History.GetHistoryItemsAsync().ConfigureAwait(false);
 
-        var tasks = historyItems.Select(task => new ListTaskTemplate(typeofVM, task));
-
-        var newDesiredTasks = tasks
+        var tasks = historyItems
+            .Select(task => new ListTaskTemplate(typeofVM, task))
             .OrderByDescending(item => item.task.Id)
             .ToList();
-        await Task.Yield();
-        await Dispatcher.UIThread.InvokeAsync(() =>
+
+        List<ListTaskTemplate> toAdd = [];
+        List<ListTaskTemplate> toUpdate = [];
+        List<int> toRemove;
+
         {
-            if (newDesiredTasks.Count > 50_000)
-            {
-                recentTasks.ResetBehavior = ResetBehavior.Remove;
-                recentTasks.Clear();
-                recentTasks.AddRange(newDesiredTasks);
-                return;
-            }
-            var currentTasksById = recentTasks.ToDictionary(template => template.task.Id);
+            var currentTasksById = recentTasks.ToDictionary(t => t.task.Id);
+            var newTaskIds = tasks.Select(t => t.task.Id).ToHashSet();
 
-            var newDesiredTaskIds = newDesiredTasks.Select(template => template.task.Id).ToHashSet();
+            toRemove = recentTasks
+                .Where(t => !newTaskIds.Contains(t.task.Id))
+                .Select(t => t.task.Id)
+                .ToList();
 
-            for (var i = recentTasks.Count - 1; i >= 0; i--)
+            foreach (var newItem in tasks)
             {
-                if (!newDesiredTaskIds.Contains(recentTasks[i].task.Id))
+                if (currentTasksById.TryGetValue(newItem.task.Id, out var existing))
                 {
-                    recentTasks.RemoveAt(i);
-                }
-            }
-
-            foreach (var newItem in newDesiredTasks)
-            {
-                if (currentTasksById.TryGetValue(newItem.task.Id, out var existingItem))
-                {
-                    if (existingItem.Equals(newItem))
-                    {
-                        continue;
-                    }
-                    var index = recentTasks.IndexOf(existingItem);
-
-                    if (index == -1) continue;
-                    recentTasks.RemoveAt(index);
-                    recentTasks.Insert(index, newItem);
+                    if (!existing.Equals(newItem))
+                        toUpdate.Add(newItem);
                 }
                 else
                 {
-                    recentTasks.Insert(0, newItem);
+                    toAdd.Add(newItem);
                 }
             }
-        });
+        }
+        // Warning: Computations on the UIThread are precious.
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+
+            for (var i = recentTasks.Count - 1; i >= 0; i--)
+            {
+                if (toRemove.Contains(recentTasks[i].task.Id))
+                    recentTasks.RemoveAt(i);
+            }
+
+            foreach (var item in toUpdate)
+            {
+                var index = recentTasks.FindIndex(t => t.task.Id == item.task.Id);
+                if (index == -1) continue;
+                recentTasks.RemoveAt(index);
+                recentTasks.Insert(index, item);
+            }
+
+            foreach (var item in toAdd)
+            {
+                recentTasks.Insert(0, item);
+            }
+        }).GetTask().ConfigureAwait(false);
     }
 }
