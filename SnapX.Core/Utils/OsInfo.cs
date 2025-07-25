@@ -688,7 +688,7 @@ public static partial class OsInfo
 
                 var gpu = line.Trim();
                 var extraGlxArgs = string.Empty;
-                var driverVersion =  string.Empty;
+                var driverVersion = string.Empty;
                 if (gpuLines.Length > 1 && gpuIndex > 0)
                 {
                     extraGlxArgs += $"env DRI_PRIME={gpuIndex} ";
@@ -754,7 +754,7 @@ public static partial class OsInfo
             }
             catch (Exception ex)
             {
-                 DebugHelper.WriteLine("Error while getting graphics info on Linux: " + ex.Message);
+                DebugHelper.WriteLine("Error while getting graphics info on Linux: " + ex.Message);
             }
 
             return new LinuxGraphicsInfo(gpuInfoList, monitors);
