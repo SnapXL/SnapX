@@ -39,7 +39,7 @@
 ## Technical Details
 
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
-- Dependency on Newtonsoft.JSON dropped, traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
+- The dependency on Newtonsoft.JSON has been dropped and traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
 - And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet [~~keeping JSON as an option~~](https://github.com/BrycensRanch/SnapX/issues/28#issuecomment-2764614506).
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
@@ -58,18 +58,12 @@ What does this all mean? You'll have an app that **flies**, is **reliable**, and
 You will *not* receive any support from the ShareX project for this software. \
 If you have any issues with this project, please **open an issue** in this repository.
 
-However, it's important to note that this project is maintained by volunteers. \
-We may not be able to provide support for all issues. \
-We will do our best to help you, but we cannot guarantee that we will be able to resolve your issue.
-
-<p align="center"> For further information, please check the source code.</p>
-
 ## Supported Linux Distributions
 
 This project is built on Ubuntu 24.04 and is tested on the following distributions:
 
-- **F**edora 41+
-- **U**buntu 24.04+
+- **Fedora 41+**
+- **Ubuntu 24.04+**
 
 > [!NOTE]
 > If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
@@ -82,7 +76,7 @@ This application relies on XDG portals to handle screenshots in a secure and des
 - **GNOME**
 
 > [!TIP]
-> Other desktop environments or Wayland compositors—such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal—should also work, but are not officially tested. 
+> Other desktop environments or Wayland compositors—such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal—should also work, but are not officially tested.
 
 ## Packages for testers
 
@@ -94,7 +88,7 @@ SnapX is packaged on:
 
 - [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
 
-- [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo) (Thank you [@ok-coder1](https://github.com/ok-coder1)!)
+- [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo)
 
 Additionally, you can download nightly builds from [here](https://nightly.link/BrycensRanch/SnapX/workflows/build/develop?preview).
 
@@ -164,7 +158,7 @@ git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
 > [!TIP]
-> If you're using MacPorts, run this instead of the `brew install` command:
+> If you're using MacPorts, run this instead of `brew install`:
 > ```zsh
 > sudo port selfupdate
 > sudo port install ffmpeg7 cargo
@@ -190,7 +184,7 @@ exec $SHELL -l
 
 To successfully compile SnapX from source, ensure your system meets the following requirements:
 
-* **Memory (RAM):** A minimum of 8GiB free memory is required during the compilation process.
+* **Memory (RAM):** A minimum of 8 GiB free memory is required during the compilation process.
 * **Disk Space:** At least 15 GiB of free disk space is recommended, preferably on a Solid State Drive (SSD) for optimal compilation speed.
 
 ```bash
@@ -215,6 +209,6 @@ Contributions are welcome. The documentation for contributing is a work in progr
 
 Thank you so much!
 
-### Roadmap
+## Roadmap
 
-See [Progress.md](./.github/Progress.md)
+See [Progress.md](./.github/Progress.md).

@@ -308,7 +308,7 @@ public class SnapX(IServiceProvider serviceProvider)
         return services;
     }
     public bool isSilent() => SilentRun;
-    public static object? aptabaseClientObject;
+    public static AptabaseClient? aptabaseClient;
 
     // Supports the failed standard https://consoledonottrack.com/
     public static bool TelemetryEnabled() => !FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry &&
@@ -442,14 +442,20 @@ public class SnapX(IServiceProvider serviceProvider)
                 IsDebugMode = false
 #endif
             }, logger);
-            var telemetry = new Telemetry(DbConnection, aptabaseClient, serviceProvider.GetRequiredService<ILoggerService>());
-            aptabaseClientObject = aptabaseClient;
+            var telemetry = new Telemetry(DbConnection, aptabaseClient);
+            SnapX.aptabaseClient = aptabaseClient;
             telemetry.TrackEvent("app_started", new Dictionary<string, object>
             {
                 { "CPU", SnapXResources.CPU },
                 { "CPUCount", SnapXResources.CPUCount},
-                { "Build", nameof(Build) },
-                { "graphicsInfo", SnapXResources.graphicsInfo },
+                { "Build", $"{Build}" },
+                {
+                    "GPUS",
+                    SnapXResources.graphicsInfo.Gpus is { Count: > 0 } gpus
+                        ? string.Join(", ", gpus.Select(gpu => $"{gpu.Description} ({gpu.DriverVersion})"))
+                        : string.Empty
+                },
+                { "Monitors", string.Join(", ", SnapXResources.graphicsInfo?.Monitors ?? []) },
                 { "totalMemory", totalMemory },
                 { "usedMemory", usedMemory },
                 { "Dotnet", SnapXResources.Dotnet },
@@ -550,7 +556,7 @@ public class SnapX(IServiceProvider serviceProvider)
 
         if (TelemetryEnabled())
         {
-            var client = aptabaseClientObject as AptabaseClient;
+            var client = aptabaseClient;
             client!.DisposeAsync();
         }
 
@@ -726,7 +732,6 @@ public class SnapX(IServiceProvider serviceProvider)
         }
 #endif
 
-        // Add the event handler for handling non-UI thread exceptions to the event
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         AppDomain.CurrentDomain.ProcessExit += (_, _) => CloseSequence();
     }

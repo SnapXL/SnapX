@@ -20,6 +20,7 @@
 - [ ] Add to Winget, Chocolately, and Scoop
 - [X] [Add to COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
 - [x] [Add to Homebrew](https://github.com/BrycensRanch/homebrew-repo)
+- [ ] Make a v1.0.0 release date ETA that aligns with a ShareX release date ie (a day after a new major version)
 - [ ] Add to Itch.io
 - [x] [Add to AUR (see PR #56 for the initial PKGBUILD)](https://aur.archlinux.org/packages/snapx-ui)
 - [ ] Add to FOSS Torrents
@@ -30,11 +31,11 @@
 - [ ] Search for missing files button in main window and locate missing file to allow users to fix broken entries.
 - [x] Bring in XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
 - [x] Remove SnapX as a fork of ShareX that can be merged into upstream. *Completed at 233 commits ahead of upstream*
-- [ ] Add Tools from ShareX to SnapX. Notably, upgrade [ExifTool](https://exiftool.org/) from a "Tool" to an optional feature that shows more information, like a properties button on a screenshot's flyout menu.
+- [ ] Add Tools from ShareX to SnapX. Notably, upgrade [ExifTool](https://exiftool.org/) from a "Tool" to an optional feature that shows more information, like a properties button on a screenshot's flyout menu. ImageSharp has its features.
 - [ ] Add a New Tool that will transcode/reencode videos/images to a certain size based off of the options Discord provides. I believe this can be done with FFMPEG easily.
 - [ ] Add first-class support for [ImgBB](https://imgbb.com/), [Mastodon](https://mastodon.social/explore), [Bluesky](https://bsky.app/), [Pcloud](https://www.pcloud.com/), [SourceBin](https://sourceb.in/), [PrivateBin](https://github.com/PrivateBin/PrivateBin/wiki/API),  and [Pixeldrain](https://pixeldrain.com/)
 - [ ] Add Custom Uploader List to SnapX via a build-time HTTP Fetch, or if the file is there already, use that. Can be disabled by packagers as they need offline builds. Or they could fetch the list, or rather, JSON, as part of their build script that isn't done during packaging time. That list is then embedded into the binary, and then at runtime it is checked *again* for any new entries to said list. Thus, the functionality keeps working even in an environment where SnapX cannot access the internet.
-- [ ] Add automatic region detection that suggests to users in Egypt, Russia, Ukraine, and possibly more to switch their default image uploader from Imgur to ImgBB. According to my tests, ImgBB doesn't have such region blocks for Ukraine & Egypt. Russia is untested because PIA doesn't have any servers there.
+- [ ] ~~Add automatic region detection that suggests to users in Egypt, Russia, Ukraine, and possibly more to switch their default image uploader from Imgur to ImgBB. According to my tests, ImgBB doesn't have such region blocks for Ukraine & Egypt. Russia is untested because PIA doesn't have any servers there.~~ Imgur continually gets less reliable. I am investigating making ImgBB the default uploader for now until a more suitable alternative is found.
 
 ## Studying ShareX's behavior on Windows 11 24H2
 

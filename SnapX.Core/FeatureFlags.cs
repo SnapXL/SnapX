@@ -1,7 +1,7 @@
 namespace SnapX.Core;
 
 // These constants are defined at build time.
-// Thanks to NativeAOT trimming, once a feature flag is disabled, the code for it is gone poof.
+// Thanks to compiler conditionals, once a feature flag is disabled, the code for it is gone poof.
 
 public static class FeatureFlags
 {
