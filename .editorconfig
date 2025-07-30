@@ -42,6 +42,21 @@ dotnet_diagnostic.IDE0005.severity = warning
 # noinspection EditorConfigKeyCorrectness
 dotnet_diagnostic.CA1869.severity = none
 
+
+# External file that shouldn't be logged or touched.
+[SnapX.Core/Upload/APIKeysLocal.cs]
+indent_style = unset
+indent_size = unset
+tab_width = unset
+insert_final_newline = unset
+end_of_line = unset
+charset = unset
+trim_trailing_whitespace = unset
+# noinspection EditorConfigKeyCorrectness
+dotnet_diagnostic.IDE0000.severity = none
+# noinspection EditorConfigKeyCorrectness
+dotnet_diagnostic.IDE0055.severity = none
+
 # Xml project files
 [*.{csproj,vcxproj,vcxproj.filters,proj,nativeproj,locproj}]
 indent_size = 2
