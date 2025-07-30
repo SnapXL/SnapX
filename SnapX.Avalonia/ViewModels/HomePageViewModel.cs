@@ -27,13 +27,14 @@ public partial class HomePageViewModel : ViewModelBase
     }
     // ShowContextMenuCommand = new RelayCommand<ToggleButton>(ShowContextMenu);
 
-    public async Task Initialize()
+    public Task Initialize()
     {
         TaskManager.InitHistoryManager();
         _refreshTimer.Elapsed += OnRefreshTimerElapsed;
         _refreshTimer.AutoReset = true;
         _refreshTimer.Start();
-        RefreshTasks();
+        _ = RefreshTasks();
+        return Task.CompletedTask;
     }
     public void StopTimer() => _refreshTimer.Stop();
     public void StartTimer() => _refreshTimer.Start();
@@ -78,13 +79,14 @@ public partial class HomePageViewModel : ViewModelBase
     [RelayCommand]
     public void ContextMenuSelection(object Sender)
     {
-        SelectedTasks.Add(Sender as ListTaskTemplate);
+        if (Sender is not ListTaskTemplate Template) return;
+        SelectedTasks.Add(Template);
     }
 
     [RelayCommand]
     public void DeleteHistoryItemLocally(object Sender)
     {
-        var ltt = Sender as ListTaskTemplate;
+        if (Sender is not ListTaskTemplate ltt) return;
         var task = ltt.task;
         if (string.IsNullOrWhiteSpace(task.FilePath))
         {
@@ -145,7 +147,7 @@ public partial class HomePageViewModel : ViewModelBase
 
         if (e.GetCurrentPoint(button).Properties.IsRightButtonPressed)
         {
-            // Right-click: Show context menu on the toggle button itself
+            // Right-click: Show a context menu on the toggle button itself
             vm.ContextMenuSelectionCommand.Execute(button);
         }
         else if (e.GetCurrentPoint(button).Properties.IsLeftButtonPressed)
