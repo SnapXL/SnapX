@@ -56,6 +56,8 @@ trim_trailing_whitespace = unset
 dotnet_diagnostic.IDE0000.severity = none
 # noinspection EditorConfigKeyCorrectness
 dotnet_diagnostic.IDE0055.severity = none
+# noinspection EditorConfigKeyCorrectness
+dotnet_analyzer_diagnostic.category-Formatting.severity = none
 
 # Xml project files
 [*.{csproj,vcxproj,vcxproj.filters,proj,nativeproj,locproj}]
