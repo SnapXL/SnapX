@@ -11,11 +11,12 @@ using System.Text.Json.Serialization;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.Custom;
 
-public class CustomUploaderItem
+public record CustomUploaderItem
 {
     [DefaultValue("")]
     public string Version { get; set; }
@@ -24,48 +25,50 @@ public class CustomUploaderItem
     public string? Name { get; set; }
 
     public bool ShouldSerializeName() => !string.IsNullOrEmpty(Name) && Name != URLHelpers.GetHostName(RequestURL);
-
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     [DefaultValue(CustomUploaderDestinationType.None)]
     public CustomUploaderDestinationType DestinationType { get; set; }
-
+    [JsonConverter(typeof(HttpMethodConverter))]
+    [JsonInclude]
+    // System.Text.Json does not automatically apply custom converters to built-in reference types like HttpMethod,
+    // even if the converter is registered globally.
+    // To ensure the converter is used during serialization and deserialization,
+    // we must explicitly declare [JsonConverter(typeof(HttpMethodConverter))] on the property or type.
     public HttpMethod RequestMethod { get; set; } = HttpMethod.Post;
-
-    // TEMP: For backward compatibility
-    [JsonPropertyName("RequestType")]
-    private HttpMethod RequestType { set => RequestMethod = value; }
 
     [DefaultValue("")]
     public string? RequestURL { get; set; }
 
     [DefaultValue(null)]
-    public Dictionary<string, string?> Parameters { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, string?>? Parameters { get; set; }
 
-    public bool ShouldSerializeParameters() => Parameters != null && Parameters.Count > 0;
+    public bool ShouldSerializeParameters() => Parameters is { Count: > 0 };
 
-    [DefaultValue(null)]
+    [DefaultValue(null)] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Dictionary<string, string?> Headers { get; set; }
 
-    public bool ShouldSerializeHeaders() => Headers != null && Headers.Count > 0;
-
+    public bool ShouldSerializeHeaders() => Headers is { Count: > 0 };
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     [DefaultValue(CustomUploaderBody.None)]
     public CustomUploaderBody Body { get; set; }
 
-    [DefaultValue(null)]
+    [DefaultValue(null)] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Dictionary<string, string?>? Arguments { get; set; }
 
     public bool ShouldSerializeArguments() => (Body == CustomUploaderBody.MultipartFormData || Body == CustomUploaderBody.FormURLEncoded) &&
-        Arguments != null && Arguments.Count > 0;
+                                              Arguments is { Count: > 0 };
 
-    [DefaultValue("")]
-    public string FileFormName { get; set; }
+    [DefaultValue("")] public string FileFormName { get; set; } = "";
 
     public bool ShouldSerializeFileFormName() => Body == CustomUploaderBody.MultipartFormData && !string.IsNullOrEmpty(FileFormName);
 
-    [DefaultValue("")]
+    [DefaultValue(null)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Data { get; set; }
 
     public bool ShouldSerializeData() => (Body == CustomUploaderBody.JSON || Body == CustomUploaderBody.XML) && !string.IsNullOrEmpty(Data);
-
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     // TEMP: For backward compatibility
     public ResponseType ResponseType { private get; set; }
 
@@ -126,13 +129,15 @@ public class CustomUploaderItem
             throw new Exception("Custom uploader RequestURL must be configured.");
         }
 
-        ShareXCustomUploaderSyntaxParser parser = new ShareXCustomUploaderSyntaxParser(input);
-        parser.URLEncode = true;
-        string? url = parser.Parse(RequestURL);
+        var parser = new ShareXCustomUploaderSyntaxParser(input)
+        {
+            URLEncode = true
+        };
+        var url = parser.Parse(RequestURL);
 
         url = URLHelpers.FixPrefix(url);
 
-        Dictionary<string, string?> parameters = GetParameters(input);
+        var parameters = GetParameters(input);
         return URLHelpers.CreateQueryString(url, parameters);
     }
 
@@ -140,15 +145,15 @@ public class CustomUploaderItem
     {
         Dictionary<string, string?> parameters = [];
 
-        if (Parameters != null)
+        if (Parameters == null) return parameters;
+        var parser = new ShareXCustomUploaderSyntaxParser(input)
         {
-            ShareXCustomUploaderSyntaxParser parser = new ShareXCustomUploaderSyntaxParser(input);
-            parser.UseNameParser = true;
+            UseNameParser = true
+        };
 
-            foreach (KeyValuePair<string, string?> parameter in Parameters)
-            {
-                parameters.Add(parameter.Key, parser.Parse(parameter.Value));
-            }
+        foreach (KeyValuePair<string, string?> parameter in Parameters)
+        {
+            parameters.Add(parameter.Key, parser.Parse(parameter.Value));
         }
 
         return parameters;
@@ -222,8 +227,10 @@ public class CustomUploaderItem
 
         if (Arguments != null)
         {
-            var parser = new ShareXCustomUploaderSyntaxParser(input);
-            parser.UseNameParser = true;
+            var parser = new ShareXCustomUploaderSyntaxParser(input)
+            {
+                UseNameParser = true
+            };
 
             foreach (KeyValuePair<string, string?> arg in Arguments)
             {
@@ -236,12 +243,14 @@ public class CustomUploaderItem
 
     public NameValueCollection GetHeaders(CustomUploaderInput input)
     {
-        if (Headers != null && Headers.Count > 0)
+        if (Headers is { Count: > 0 })
         {
             var collection = new NameValueCollection();
 
-            var parser = new ShareXCustomUploaderSyntaxParser(input);
-            parser.UseNameParser = true;
+            var parser = new ShareXCustomUploaderSyntaxParser(input)
+            {
+                UseNameParser = true
+            };
 
             foreach (KeyValuePair<string, string?> header in Headers)
             {
@@ -256,62 +265,57 @@ public class CustomUploaderItem
 
     public void ParseResponse(UploadResult result, ResponseInfo responseInfo, UploaderErrorManager errors, CustomUploaderInput input, bool isShortenedURL = false)
     {
-        if (result != null && responseInfo != null)
+        if (result == null || responseInfo == null) return;
+        result.ResponseInfo = responseInfo;
+
+        responseInfo.ResponseText ??= "";
+
+        var parser = new ShareXCustomUploaderSyntaxParser()
         {
-            result.ResponseInfo = responseInfo;
+            FileName = input.FileName,
+            ResponseInfo = responseInfo,
+            URLEncode = true
+        };
 
-            if (responseInfo.ResponseText == null)
+        if (responseInfo.IsSuccess)
+        {
+            string? url;
+
+            if (!string.IsNullOrEmpty(URL))
             {
-                responseInfo.ResponseText = "";
-            }
+                url = parser.Parse(URL);
 
-            var parser = new ShareXCustomUploaderSyntaxParser()
-            {
-                FileName = input.FileName,
-                ResponseInfo = responseInfo,
-                URLEncode = true
-            };
-
-            if (responseInfo.IsSuccess)
-            {
-                string? url;
-
-                if (!string.IsNullOrEmpty(URL))
+                if (string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(URL) && URL.Contains("{output:"))
                 {
-                    url = parser.Parse(URL);
-
-                    if (string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(URL) && URL.Contains("{output:"))
-                    {
-                        result.IsURLExpected = false;
-                    }
+                    result.IsURLExpected = false;
                 }
-                else
-                {
-                    url = parser.ResponseInfo.ResponseText;
-                }
-
-                if (isShortenedURL)
-                {
-                    result.ShortenedURL = url;
-                }
-                else
-                {
-                    result.URL = url;
-                }
-
-                result.ThumbnailURL = parser.Parse(ThumbnailURL);
-                result.DeletionURL = parser.Parse(DeletionURL);
             }
             else
             {
-                if (!string.IsNullOrEmpty(ErrorMessage))
-                {
-                    string? parsedErrorMessage = parser.Parse(ErrorMessage);
+                url = parser.ResponseInfo.ResponseText;
+            }
 
-                    if (!string.IsNullOrEmpty(parsedErrorMessage))
-                    {
-                        errors.AddFirst(parsedErrorMessage);
-                    }
+            if (isShortenedURL)
+            {
+                result.ShortenedURL = url;
+            }
+            else
+            {
+                result.URL = url;
+            }
+
+            result.ThumbnailURL = parser.Parse(ThumbnailURL);
+            result.DeletionURL = parser.Parse(DeletionURL);
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                string? parsedErrorMessage = parser.Parse(ErrorMessage);
+
+                if (!string.IsNullOrEmpty(parsedErrorMessage))
+                {
+                    errors.AddFirst(parsedErrorMessage);
                 }
             }
         }
@@ -353,10 +357,7 @@ public class CustomUploaderItem
 
                 if (Arguments != null)
                 {
-                    if (Parameters == null)
-                    {
-                        Parameters = [];
-                    }
+                    Parameters ??= [];
 
                     foreach (KeyValuePair<string, string?> pair in Arguments)
                     {
@@ -481,38 +482,28 @@ public class CustomUploaderItem
 
     private void CheckRequestURL()
     {
-        if (!string.IsNullOrEmpty(RequestURL))
+        if (string.IsNullOrEmpty(RequestURL)) return;
+        var nvc = URLHelpers.ParseQueryString(RequestURL);
+
+        if (nvc is not { Count: > 0 }) return;
+        Parameters ??= [];
+
+        foreach (string key in nvc)
         {
-            var nvc = URLHelpers.ParseQueryString(RequestURL);
-
-            if (nvc != null && nvc.Count > 0)
+            if (key == null)
             {
-                if (Parameters == null)
+                foreach (string value in nvc.GetValues(key))
                 {
-                    Parameters = [];
+                    Parameters.TryAdd(value, "");
                 }
-
-                foreach (string key in nvc)
-                {
-                    if (key == null)
-                    {
-                        foreach (string value in nvc.GetValues(key))
-                        {
-                            if (!Parameters.ContainsKey(value))
-                            {
-                                Parameters.Add(value, "");
-                            }
-                        }
-                    }
-                    else if (!Parameters.ContainsKey(key))
-                    {
-                        string value = nvc[key];
-                        Parameters.Add(key, value);
-                    }
-                }
-
-                RequestURL = URLHelpers.RemoveQueryString(RequestURL);
+            }
+            else if (!Parameters.ContainsKey(key))
+            {
+                var value = nvc[key];
+                Parameters.Add(key, value);
             }
         }
+
+        RequestURL = URLHelpers.RemoveQueryString(RequestURL);
     }
 }

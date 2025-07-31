@@ -4,14 +4,8 @@
 
 namespace SnapX.Core.Upload.Custom;
 
-public class CustomUploaderInput
+public record CustomUploaderInput(string? FileName, string? Input)
 {
-    public string? FileName { get; set; }
-    public string? Input { get; set; }
-
-    public CustomUploaderInput(string? fileName, string? input)
-    {
-        FileName = fileName;
-        Input = input;
-    }
+    public string? FileName { get; set; } = FileName;
+    public string? Input { get; set; } = Input;
 }

@@ -14,7 +14,7 @@ namespace SnapX.Core.Utils;
 
 [JsonSerializable(typeof(NativeMessagingInput))]
 [JsonSerializable(typeof(CustomUploaderItem))]
-
+[JsonSerializable(typeof(CustomUploaderInput))]
 internal partial class JsonHelpersContext : JsonSerializerContext;
 
 public static class JsonHelpers
@@ -22,11 +22,11 @@ public static class JsonHelpers
     public static readonly JsonSerializerOptions defaultOptions = new()
     {
         TypeInfoResolver = JsonHelpersContext.Default,
-        DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         AllowTrailingCommas = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
         RespectNullableAnnotations = true,
-        Converters = { new JsonStringEnumConverter(), new HttpMethodConverter() },
+        Converters = { new HttpMethodConverter(), new JsonStringEnumConverter() },
         WriteIndented = true
     };
 

@@ -8,7 +8,7 @@ internal abstract class CustomUploaderFunction
 {
     public abstract string Name { get; }
 
-    public virtual string[] Aliases { get; }
+    public virtual string[]? Aliases { get; }
 
     public virtual int MinParameterCount { get; } = 0;
 
