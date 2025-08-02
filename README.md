@@ -40,7 +40,7 @@
 
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
 - The dependency on Newtonsoft.JSON has been dropped and traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
-- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet [~~keeping JSON as an option~~](https://github.com/BrycensRanch/SnapX/issues/28#issuecomment-2764614506).
+- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/BrycensRanch/SnapX/issues/28)
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
