@@ -109,7 +109,9 @@ JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. I
   <img
     src="https://github.com/user-attachments/assets/96b8e44e-47b3-4850-b4f3-c4e7ed8dd385"
     alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
-    style="width: 400px; height: auto;" />
+    alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
+    style="width: 400px; height: auto;"
+  />
 </a>
 
 ### Fedora 41+ 🌟
@@ -145,11 +147,11 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-### macOS Ventura+ (13) 🍎
+### macOS Ventura (13)+ 🍎
 
 End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
-#### Using the script to install the .NET SDK from the .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
+#### Using the script to install the .NET SDK from the .NET team makes sure you don't run into Homebrew .NET weirdness with Rider not detecting it.
 
 ```zsh
 xcode-select --install
