@@ -45,7 +45,8 @@ public record CustomUploaderItem
 
     public bool ShouldSerializeParameters() => Parameters is { Count: > 0 };
 
-    [DefaultValue(null)] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [DefaultValue(null)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Dictionary<string, string?> Headers { get; set; }
 
     public bool ShouldSerializeHeaders() => Headers is { Count: > 0 };
@@ -53,7 +54,8 @@ public record CustomUploaderItem
     [DefaultValue(CustomUploaderBody.None)]
     public CustomUploaderBody Body { get; set; }
 
-    [DefaultValue(null)] [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [DefaultValue(null)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Dictionary<string, string?>? Arguments { get; set; }
 
     public bool ShouldSerializeArguments() => (Body == CustomUploaderBody.MultipartFormData || Body == CustomUploaderBody.FormURLEncoded) &&
