@@ -73,7 +73,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.InMemory" Version="0.16.0" />
     <!-- Cross platform image library -->
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.10" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <!-- Helpers for drawing -->
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
     <!-- Wayland support,
