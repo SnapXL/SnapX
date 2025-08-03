@@ -215,7 +215,8 @@ internal class SettingManager(IServiceProvider serviceProvider)
             {
                 WriteIndented = true,
                 TypeInfoResolver = SettingsContext.Default,
-                DefaultIgnoreCondition = JsonIgnoreCondition.Never
+                DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+                Converters = { new JsonStringEnumConverter() }
             });
             File.WriteAllText(configFilePath, json);
         }
@@ -236,7 +237,9 @@ internal class SettingManager(IServiceProvider serviceProvider)
             var json = JsonSerializer.Serialize(UploadersConfig, new JsonSerializerOptions
             {
                 WriteIndented = true,
-                TypeInfoResolver = SettingsContext.Default
+                TypeInfoResolver = SettingsContext.Default,
+                Converters = { new JsonStringEnumConverter() }
+
             });
             File.WriteAllText(configFilePath, json);
         }
@@ -257,7 +260,8 @@ internal class SettingManager(IServiceProvider serviceProvider)
             var json = JsonSerializer.Serialize(HotkeysConfig, new JsonSerializerOptions
             {
                 WriteIndented = true,
-                TypeInfoResolver = SettingsContext.Default
+                TypeInfoResolver = SettingsContext.Default,
+                Converters = { new JsonStringEnumConverter() }
             });
             File.WriteAllText(configFilePath, json);
         }
