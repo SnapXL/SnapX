@@ -30,22 +30,18 @@ internal class CustomUploaderFunctionJson : CustomUploaderFunction
         else
         {
             // {json:jsonPath}
-            input = parser.ResponseInfo.ResponseText;
+            input = parser.ResponseInfo?.ResponseText;
             jsonPath = parameters[0];
         }
 
-        if (!string.IsNullOrEmpty(input) && !string.IsNullOrEmpty(jsonPath))
+        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(jsonPath)) return null;
+        if (!jsonPath.StartsWith("$."))
         {
-            if (!jsonPath.StartsWith("$."))
-            {
-                jsonPath = "$." + jsonPath;
-            }
-            var json = JsonPath.Parse(jsonPath);
-            var parsed = JsonNode.Parse(input);
-            return json.Evaluate(parsed).ToString();
-
+            jsonPath = "$." + jsonPath;
         }
+        var json = JsonPath.Parse(jsonPath);
+        var parsed = JsonNode.Parse(input);
+        return json.Evaluate(parsed).ToString();
 
-        return null;
     }
 }

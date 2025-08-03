@@ -40,7 +40,7 @@
 
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
 - The dependency on Newtonsoft.JSON has been dropped and traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
-- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/BrycensRanch/SnapX/issues/28) by default yet [~~keeping JSON as an option~~](https://github.com/BrycensRanch/SnapX/issues/28#issuecomment-2764614506).
+- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/BrycensRanch/SnapX/issues/28)
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
@@ -109,7 +109,9 @@ JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. I
   <img
     src="https://github.com/user-attachments/assets/96b8e44e-47b3-4850-b4f3-c4e7ed8dd385"
     alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
-    style="width: 400px; height: auto;" />
+    alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
+    style="width: 400px; height: auto;"
+  />
 </a>
 
 ### Fedora 41+ 🌟
@@ -145,11 +147,11 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-### macOS Ventura+ (13) 🍎
+### macOS Ventura (13)+ 🍎
 
 End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
-#### Using the script to install the .NET SDK from the .NET team makes sure you don't run into homebrew .NET weirdness with Rider not detecting it.
+#### Using the script to install the .NET SDK from the .NET team makes sure you don't run into Homebrew .NET weirdness with Rider not detecting it.
 
 ```zsh
 xcode-select --install

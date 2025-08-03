@@ -327,11 +327,17 @@ public static class URLHelpers
 
     public static string? GetHostName(string? url)
     {
-        return Uri.TryCreate(url, UriKind.Absolute, out Uri uri) && !string.IsNullOrEmpty(uri.Host)
-            ? uri.Host.StartsWith("www.", StringComparison.OrdinalIgnoreCase)
-                ? uri.Host.Substring(4)
-                : uri.Host
-            : url;
+        if (string.IsNullOrWhiteSpace(url))
+            return null;
+
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && !string.IsNullOrEmpty(uri.Host))
+        {
+            return uri.Host.StartsWith("www.", StringComparison.OrdinalIgnoreCase)
+                ? uri.Host[4..]
+                : uri.Host;
+        }
+
+        return url;
     }
 
     public static string? CreateQueryString(Dictionary<string, string?> args, bool customEncoding = false)

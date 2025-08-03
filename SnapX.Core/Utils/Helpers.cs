@@ -434,7 +434,7 @@ public static class Helpers
 
         return true;
     }
-
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
     [RequiresUnreferencedCode("Uploader")]
     public static IEnumerable<T> GetInstances<T>() where T : class
     {
