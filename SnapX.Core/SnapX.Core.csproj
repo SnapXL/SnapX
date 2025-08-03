@@ -64,7 +64,7 @@
     <PackageReference Include="Sdcb.PaddleOCR" Version="$(PaddleOCRVersion)" />
     <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="$(PaddleOCRVersion)" />
     <!-- Crash forensics & performance analytics -->
-    <PackageReference Include="Sentry.Profiling" Version="5.12.0" />
+    <PackageReference Include="Sentry.Profiling" Version="5.13.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
