@@ -75,7 +75,7 @@
     <!-- Cross platform image library -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <!-- Helpers for drawing -->
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
     <!-- Wayland support,
     while these are only useful for Linux,
     hiding them behind a compiler conditional makes debugging more difficult. -->
