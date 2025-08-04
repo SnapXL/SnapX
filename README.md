@@ -10,7 +10,7 @@
   <br>
   <br>
   <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base" title="AUR Package Base"/></a>
-  <a href="https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/copr_vector.svg" height="40" alt="COPR" TITLE="COPR"/></a>
+  <a href="https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/copr_vector.svg" height="40" alt="COPR" title="COPR"/></a>
   <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap" title="My Homebrew Tap"/></a>
   <br>
   <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord" title="Discord"/></a>
