@@ -1,24 +1,25 @@
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="./.github/Linux.png" alt="SnapX Banner"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="./.github/Linux.png" alt="SnapX Banner" title="SnapX Banner"/></a></p>
 <h1 align="center">SnapX</h1>
 <h3 align="center">Capture, share, and boost productivity. All in one.</h3>
 <br>
 <div align="center">
-  <a href="https://github.com/BrycensRanch/SnapX/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BrycensRanch/SnapX/build.yml?branch=develop&label=Build&cacheSeconds=3600" alt="GitHub Workflow Status"/></a>
-  <a href="./LICENSE.md"><img src="https://img.shields.io/github/license/BrycensRanch/SnapX?label=License&color=brightgreen&cacheSeconds=3600" alt="License"/></a>
-  <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/v/release/BrycensRanch/SnapX?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release"/></a>
-  <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/downloads/BrycensRanch/SnapX/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a>
+  <a href="https://github.com/BrycensRanch/SnapX/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BrycensRanch/SnapX/build.yml?branch=develop&label=Build&cacheSeconds=3600" alt="GitHub Workflow Status" title="GitHub Workflow Status"/></a>
+  <a href="./LICENSE.md"><img src="https://img.shields.io/github/license/BrycensRanch/SnapX?label=License&color=brightgreen&cacheSeconds=3600" alt="License" title="License"/></a>
+  <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/v/release/BrycensRanch/SnapX?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release" title="Release"/></a>
+  <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/downloads/BrycensRanch/SnapX/total?label=Downloads&cacheSeconds=3600" alt="Downloads" title="Downloads"/></a>
   <br>
   <br>
-  <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base"/></a>
-  <a href="https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/copr_vector.svg" height="40" alt="COPR"/></a>
-  <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap"/></a>
+  <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base" title="AUR Package Base"/></a>
+  <a href="https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/copr_vector.svg" height="40" alt="COPR" TITLE="COPR"/></a>
+  <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap" title="My Homebrew Tap"/></a>
   <br>
-  <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord"/></a>
-  <a href="https://ko-fi.com/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/kofi-singular_vector.svg" height="40" alt="Support me on Ko-fi"/></a>
-  <a href="https://paypal.me/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/paypal-singular_vector.svg" height="40" alt="Support me on PayPal"/></a>
+  <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord" title="Discord"/></a>
+  <a href="https://liberapay.com/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/ghsponsors-singular_vector.svg" height="40" alt="Support me through GitHub Sponsors" title="Support me through GitHub Sponsors"/></a>
+  <a href="https://ko-fi.com/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/kofi-singular_vector.svg" height="40" alt="Support me on Ko-fi" title="Support me on Ko-fi"/></a>
+  <a href="https://paypal.me/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/paypal-singular_vector.svg" height="40" alt="Support me on PayPal" title="Support me on PayPal"/></a>
 </div>
 <br>
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="./.github/Screenshot.png" alt="GitHub Repository"/></a></p>
+<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="./.github/Screenshot.png" alt="GitHub Repository" title="GitHub Repository"/></a></p>
 
 > [!CAUTION]
 > **This project is _under development_ and is _not_ ready for use.**
@@ -109,7 +110,7 @@ JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. I
   <img
     src="https://github.com/user-attachments/assets/96b8e44e-47b3-4850-b4f3-c4e7ed8dd385"
     alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
-    alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
+    title="JetBrains Rider - The world's most loved .NET and game dev IDE"
     style="width: 400px; height: auto;"
   />
 </a>
@@ -147,7 +148,7 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-### macOS Ventura (13)+ 🍎
+### macOS 13 Ventura+ 🍎
 
 End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
@@ -209,7 +210,7 @@ Contributions are welcome. The documentation for contributing is a work in progr
 - [Skorlok](https://github.com/Skorlok)
 - [Abdullah16M](https://github.com/Abdullah16M)
 
-Thank you so much!
+Thank you so much to all our donators!
 
 ## Roadmap
 
