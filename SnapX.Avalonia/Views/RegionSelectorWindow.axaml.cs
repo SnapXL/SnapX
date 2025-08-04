@@ -13,7 +13,6 @@ using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
 using Image = SixLabors.ImageSharp.Image;
 using Point = Avalonia.Point;
@@ -197,7 +196,7 @@ public partial class RegionSelectorWindow : Window
         }
         catch (Exception ex)
         {
-           ShowErrorDialog(ex);
+            ShowErrorDialog(ex);
         }
         App.MyMainWindow?.Show();
         Close();
