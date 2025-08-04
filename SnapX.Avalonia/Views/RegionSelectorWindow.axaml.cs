@@ -82,7 +82,97 @@ public partial class RegionSelectorWindow : Window
 
         _infoBox.IsVisible = true;
     }
+    private static void ShowErrorDialog(Exception ex, string? userMessage = null)
+    {
+        DebugHelper.WriteException(ex);
 
+        var dialog = new Window
+        {
+            Title = Lang.Error,
+            Width = 800,
+            Height = 450,
+            CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner
+        };
+
+        var autoCloseCts = new CancellationTokenSource();
+
+        var messageText = new TextBlock
+        {
+            Text = userMessage ?? Lang.FailedToScreenshot,
+            FontWeight = FontWeight.Bold,
+            Margin = new Thickness(0, 0, 0, 10)
+        };
+
+        var errorDetails = new ScrollViewer
+        {
+            Margin = new Thickness(2, 0, 0, 10),
+            Content = new TextBlock
+            {
+                Text = ex.ToString(),
+                TextWrapping = TextWrapping.Wrap
+            }
+        };
+
+        var okButton = new Button
+        {
+            Content = Lang.Ok,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            Margin = new Thickness(5, 10, 0, 0)
+        };
+        okButton.Click += (_, _) =>
+        {
+            autoCloseCts.Cancel();
+            dialog.Close();
+        };
+
+        void CancelAutoCloseOnInteraction(object? s, EventArgs e) => autoCloseCts.Cancel();
+
+        messageText.PointerPressed += CancelAutoCloseOnInteraction;
+        messageText.PointerReleased += CancelAutoCloseOnInteraction;
+        errorDetails.PointerPressed += CancelAutoCloseOnInteraction;
+        errorDetails.PointerReleased += CancelAutoCloseOnInteraction;
+
+        dialog.Content = new StackPanel
+        {
+            Margin = new Thickness(10),
+            Children =
+            {
+                messageText,
+                errorDetails,
+                new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Children = { okButton },
+                    Spacing = 10
+                }
+            }
+        };
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(20), autoCloseCts.Token);
+                await Dispatcher.UIThread.InvokeAsync(() => dialog.Close());
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignored: user interacted with the dialog
+            }
+        }, autoCloseCts.Token);
+
+        if (App.MyMainWindow != null)
+        {
+            App.MyMainWindow.Show(); // in case it was hidden
+            dialog.ShowDialog(App.MyMainWindow);
+        }
+        else
+        {
+            dialog.Show();
+        }
+    }
     private void OnPointerReleased(object? Sender, PointerReleasedEventArgs E)
     {
         _isSelecting = false;
@@ -107,90 +197,7 @@ public partial class RegionSelectorWindow : Window
         }
         catch (Exception ex)
         {
-            DebugHelper.WriteException(ex);
-            var dialog = new Window
-            {
-                Title = Lang.Error,
-                Width = 800,
-                Height = 450,
-                CanResize = false,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner
-            };
-
-            var autoCloseCts = new CancellationTokenSource();
-
-            var messageText = new TextBlock
-            {
-                Text = Lang.FailedToScreenshot,
-                FontWeight = FontWeight.Bold,
-                Margin = new Thickness(0, 0, 0, 10)
-            };
-
-            var errorDetails = new ScrollViewer
-            {
-                Margin = new Thickness(2, 0, 0, 10),
-                Content = new TextBlock
-                {
-                    Text = ex.ToString(),
-                    TextWrapping = TextWrapping.Wrap
-                }
-            };
-
-            var okButton = new Button
-            {
-                Content = Lang.Ok,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Margin = new Thickness(5, 10, 0, 0)
-            };
-            okButton.Click += (_, _) =>
-            {
-                autoCloseCts.Cancel();
-                dialog.Close();
-            };
-
-            errorDetails.PointerPressed += (_, _) => autoCloseCts.Cancel();
-            errorDetails.PointerReleased += (_, _) => autoCloseCts.Cancel();
-            messageText.PointerPressed += (_, _) => autoCloseCts.Cancel();
-            messageText.PointerReleased += (_, _) => autoCloseCts.Cancel();
-
-            dialog.Content = new StackPanel
-            {
-                Margin = new Thickness(10),
-                Children =
-        {
-            messageText,
-            errorDetails,
-            new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Children = { okButton },
-                Spacing = 10
-            }
-        }
-            };
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(20), autoCloseCts.Token);
-                    await Dispatcher.UIThread.InvokeAsync(() => dialog.Close());
-                }
-                catch (TaskCanceledException)
-                {
-                    // User clicked a button to prevent auto-close or already closed it
-                }
-            });
-            if (App.MyMainWindow != null)
-            {
-                App.MyMainWindow?.Show();
-                dialog.ShowDialog(App.MyMainWindow);
-            }
-            else
-            {
-                dialog.Show();
-            }
+           ShowErrorDialog(ex);
         }
         App.MyMainWindow?.Show();
         Close();
@@ -263,9 +270,9 @@ public partial class RegionSelectorWindow : Window
                 TaskCreationOptions.LongRunning
             ).ConfigureAwait(false).GetAwaiter().GetResult();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            e.ShowError();
+            ShowErrorDialog(ex);
         }
 
         if (_image == null) return;
@@ -282,9 +289,9 @@ public partial class RegionSelectorWindow : Window
                 Stretch = Stretch.UniformToFill,
             };
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            DebugHelper.WriteException(e);
+            ShowErrorDialog(ex);
         }
         _image.Dispose();
     }
