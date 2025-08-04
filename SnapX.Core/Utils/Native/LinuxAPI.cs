@@ -4,7 +4,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Media;
-using WaylandSharp;
 
 namespace SnapX.Core.Utils.Native;
 
@@ -536,27 +535,6 @@ public partial class LinuxAPI : NativeAPI
         {
             // call dbus to copy text to clipboard
             DebugHelper.WriteLine("This code will crash SnapX on Wayland.");
-            using var wlDisplay = WlDisplay.Connect();
-            using var wlRegistry = wlDisplay.GetRegistry();
-
-            wlRegistry.Global += (_, e) =>
-            {
-                if (e.Interface.Contains(WlInterface.WlOutput.Name))
-                {
-                    using var wlOutput = wlRegistry.Bind<WlOutput>(e.Name, e.Interface);
-                    DebugHelper.WriteLine("inside the wl_output interface");
-                    wlOutput.Name += (_, name) =>
-                    {
-                        // This code will execute whenever the 'Name' event is raised
-                        DebugHelper.WriteLine($"WlOutput name received: {name}");
-                        // You might store this name in a property of your own object,
-                        // For example, this.OutputActualName = name;
-                    };
-                }
-                DebugHelper.WriteLine($"{e.Name}:{e.Interface}:{e.Version}");
-            };
-
-            wlDisplay.Roundtrip();
             return;
         }
         var display = XOpenDisplay(null);

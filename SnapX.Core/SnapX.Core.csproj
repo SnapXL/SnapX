@@ -80,10 +80,6 @@
     while these are only useful for Linux,
     hiding them behind a compiler conditional makes debugging more difficult. -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
-    <PackageReference Include="WaylandSharper" Version="0.1.2">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->
