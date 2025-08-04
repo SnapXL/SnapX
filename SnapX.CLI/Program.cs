@@ -4,6 +4,12 @@ using SnapX.CLI;
 using SnapX.Core;
 using SnapX.Core.Utils;
 
+if (args[0] == "--version" || args[0] == "-v")
+{
+    var informationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
+    Console.WriteLine(informationalVersion);
+    return;
+}
 var services = new ServiceCollection();
 var provider = services.BuildServiceProvider();
 
@@ -28,13 +34,6 @@ if (args.Length == 0 || args[0] == "--help" || args[0] == "-h")
     changelog.Display();
 }
 
-if (args[0] == "--version" || args[0] == "-v")
-{
-    var informationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
-    Console.WriteLine(informationalVersion);
-    snapx.shutdown();
-    return;
-}
 var about = new CLIAbout();
 about.Show();
 
@@ -47,14 +46,12 @@ var sigintReceived = false;
 
 Console.CancelKeyPress += (_, ea) =>
 {
-    if (!sigintReceived)
-    {
-        ea.Cancel = true;
-        sigintReceived = true;
-        Console.WriteLine("Received SIGINT (Ctrl+C)");
-        snapx.shutdown();
-        Environment.Exit(0);
-    }
+    if (sigintReceived) return;
+    ea.Cancel = true;
+    sigintReceived = true;
+    Console.WriteLine("Received SIGINT (Ctrl+C)");
+    snapx.shutdown();
+    Environment.Exit(0);
 };
 AppDomain.CurrentDomain.ProcessExit += (_, _) =>
 {
