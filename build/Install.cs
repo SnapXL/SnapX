@@ -53,6 +53,10 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
     {
         if (!Directory.Exists(config.PackagingUsrDir)) return;
 
+        // snapx does not own these files.
+        // Only UI frontends (Avalonia, GTK) should.
+        if (config.TargetInstallAssembly is not null &&
+            string.Equals(config.TargetInstallAssembly, "snapx", StringComparison.OrdinalIgnoreCase)) return;
         var files = Directory.GetFiles(config.PackagingUsrDir, "*", SearchOption.AllDirectories);
         foreach (var sourceFile in files)
         {
@@ -64,6 +68,8 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
     }
     private async Task InstallDocumentationFiles()
     {
+        if (config.TargetInstallAssembly is not null &&
+            !string.Equals(config.TargetInstallAssembly, "snapx", StringComparison.OrdinalIgnoreCase)) return;
         await CommandRunner.InstallFile(Path.Combine(config.RootDirectory, "LICENSE.md"), Path.Combine(config.Licensedir, "LICENSE.md"), "0644");
         var documentation = Directory.GetFiles(config.RootDirectory, "*.md", SearchOption.TopDirectoryOnly);
 
@@ -77,12 +83,42 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
     {
         if (!Directory.Exists(config.OutputDir)) return;
 
-        var outputFiles = Directory.GetFiles(config.OutputDir, "*", SearchOption.AllDirectories).OrderBy(Path.GetFileName);
+        var seenFileOwners = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        var outputFiles = Directory.GetFiles(config.OutputDir, "*", SearchOption.AllDirectories)
+            .OrderBy(file =>
+            {
+                var relativePath = Path.GetRelativePath(config.OutputDir, file);
+                var topLevelDir = relativePath.Split(Path.DirectorySeparatorChar).FirstOrDefault() ?? "";
+                return (topLevelDir, Path.GetFileName(file));
+            });
         foreach (var outputFile in outputFiles)
         {
             var fileName = Path.GetFileName(outputFile);
             if (fileName.EndsWith(".dbg") || fileName.EndsWith(".pdb")) continue;
 
+            // Prevent package pollution
+            var assembly = GetOwningAssembly(outputFile);
+
+            if (config.TargetInstallAssembly is not null)
+            {
+                if (!seenFileOwners.TryAdd(fileName, assembly))
+                {
+                    // Someone else already owns this file
+                    if (!string.Equals(seenFileOwners[fileName], config.TargetInstallAssembly,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        Logger.Information($"{fileName} is owned by another assembly!");
+                        continue;
+                    }
+                }
+
+                if (!string.Equals(assembly, config.TargetInstallAssembly, StringComparison.OrdinalIgnoreCase))
+                {
+                    Logger.Information($"{outputFile} is not apart of the requested assembly!");
+                    continue;
+                }
+            }
             var (destinationFile, permissions) = GetBuildOutputDestination(outputFile);
 
             if (destinationFile == null) continue;
@@ -92,7 +128,12 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             await CreateWrapperScriptIfApplicable(outputFile);
         }
     }
-
+    private string GetOwningAssembly(string filePath)
+    {
+        var relativePath = Path.GetRelativePath(config.OutputDir, filePath);
+        var firstComponent = relativePath.Split(Path.DirectorySeparatorChar).FirstOrDefault() ?? "";
+        return firstComponent;
+    }
     private (string? destination, string permissions) GetBuildOutputDestination(string outputFile)
     {
         string permissions = "0644";

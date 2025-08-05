@@ -42,6 +42,8 @@ public class BuildConfig
 
     public string PackagingUsrDir => Path.Combine(PackagingDirectory, "usr");
 
+    public string? TargetInstallAssembly { get; set; }
+
     public string LibDir
     {
         get => field ?? Path.Join(DestDir, Prefix, "lib", "snapx");

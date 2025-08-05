@@ -147,6 +147,12 @@ public class CLI
             Arity = ArgumentArity.ExactlyOne
         };
         rootCommand.Options.Add(docDirOption);
+        var targetAssemblyOption = new Option<string>("--assembly")
+        {
+            Description = "Tell the install system to only install files related to an specific assembly (snapx-ui, snapx)",
+            Arity = ArgumentArity.ExactlyOne
+        };
+        rootCommand.Options.Add(targetAssemblyOption);
         var enableWrapperFallbackOption = new Option<bool>("--enable-wrapper-fallback")
         {
             Description = "Enable the fallback to the packaging DESTDIR path in the wrapper script.",
@@ -168,6 +174,7 @@ public class CLI
                 ExtraArgs = parseResult.GetValue(extraArgsOption) ?? "",
                 SkippedStepsRaw = parseResult.GetValue(skipStepOption) ?? [],
                 EnableWrapperScriptFallback = parseResult.GetValue(enableWrapperFallbackOption),
+                TargetInstallAssembly = parseResult.GetValue(targetAssemblyOption),
                 BullseyeOptions = new Options
                 {
                     Clear = parseResult.GetValue(clearOption),
