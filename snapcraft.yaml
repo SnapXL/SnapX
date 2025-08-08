@@ -1,5 +1,5 @@
 title: SnapX
-name: snapx
+name: snapx-ui
 summary: Screenshot tool that handles images, text, and video (fork of ShareX)
 description: |
   SnapX is a free, open-source, cross-platform tool that lets you capture or record any area of your screen and instantly share it with a single keypress.
@@ -12,7 +12,7 @@ description: |
 version: '0.4.0'
 license: GPL-3.0-or-later
 source-code: "https://github.com/BrycensRanch/SnapX"
-adopt-info: snapx
+adopt-info: snapx-ui
 grade: devel
 base: core24
 confinement: strict
@@ -43,27 +43,43 @@ platforms:
 
 apps:
   snapx:
+    extensions: [gnome]
+    command: usr/lib/snapx/snapx
+
+    plugs:
+      - network
+      - browser-native-messaging
+  snapx-ui:
     # Avalonia uses GNOME for some of its stuff. We just really need the base libraries.
     extensions: [gnome]
-    command: usr/bin/snapx-ui
+    command: usr/lib/snapx/snapx-ui
     # Snap has a issue detecting our icons and thus produces an error. Working on it.
-#    desktop: usr/share/applications/io.github.BrycensRanch.SnapX.desktop
+    desktop: usr/share/applications/io.github.BrycensRanch.SnapX.desktop
     plugs:
       - network
       - audio-playback
       - audio-record # FFMPEG Screen Capture is coming soon
-      - dbus # SnapX communicates over the DBus for its portal functionality
       - desktop
       - media-control # FFMPEG Screen Capture
-      - raw-input
-slots:
-  snapx:
-    interface: dbus
-    bus: session
-    name: io.github.BrycensRanch.SnapX
+      - browser-native-messaging
+plugs:
+  browser-native-messaging:
+    interface: personal-files
+    write:
+      - $HOME/.mozilla/native-messaging-hosts/host-manifest-firefox.json
+      - $HOME/.config/chromium/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.config/google-chrome/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.config/microsoft-edge/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.config/vivaldi/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.local/share/torbrowser/tbb/x86_64/tor-browser_en-US/Browser/TorBrowser/Data/Browser/.mozilla/native-messaging-hosts/host-manifest-firefox.json
+
+package-repositories:
+  - type: apt
+    ppa: ubuntuhandbook1/ffmpeg7
 
 parts:
-  snapx:
+  snapx-ui:
     parse-info: [usr/share/metainfo/io.github.BrycensRanch.SnapX.metainfo.xml]
     plugin: nil
     override-build: |
@@ -76,6 +92,12 @@ parts:
       - libsm6
     build-environment:
       - PKGTYPE: SNAP
+    stage-packages:
+      - x11-xserver-utils  # for `xrandr`
+      - pciutils           # for `lspci`
+      - mesa-utils         # for `glxinfo`
+      - ffmpeg             # for screen capture & sounds
+                           # I acknowledge ffplay probably is broken, it has a million and one dependencies.
     source: https://github.com/BrycensRanch/SnapX
     source-type: git
     override-pull: |
@@ -87,3 +109,14 @@ parts:
 
       # Set the version with truncation. Good luck everyone else! :)
       snapcraftctl set-version "$truncated_version"
+lint:
+  ignore:
+    - library:
+        - usr/lib/*/libEGL_mesa.so.*
+        - usr/lib/*/libGLX_mesa.so.*
+        - usr/lib/*/libicuio.so.*
+        - usr/lib/*/libicutest.so.*
+        - usr/lib/*/libicutu.so.*
+        - usr/lib/*/libxcb-glx.so.*
+        - usr/lib/*/libxcb-shm.so.*
+        - usr/lib/*libicui18n.so.*
