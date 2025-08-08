@@ -164,8 +164,8 @@
                                 Margin="0,0,4,0">
                                 <StackPanel>
                                     <mdxaml:MarkdownScrollViewer>[BrycensRanch (Lead)](https://github.com/BrycensRanch)</mdxaml:MarkdownScrollViewer>
+                                    <mdxaml:MarkdownScrollViewer>[ok-coder1 (Team, Documentation)](https://github.com/ok-coder1)</mdxaml:MarkdownScrollViewer>
                                     <mdxaml:MarkdownScrollViewer>[Rune580 (KWin Screenshotting)](https://github.com/Rune580)</mdxaml:MarkdownScrollViewer>
-                                    <mdxaml:MarkdownScrollViewer>[ok-coder1 (Documentation)](https://github.com/ok-coder1)</mdxaml:MarkdownScrollViewer>
                                     <mdxaml:MarkdownScrollViewer>[norz3n (Initial AUR package)](https://github.com/norz3n)</mdxaml:MarkdownScrollViewer>
                                 </StackPanel>
                             </Expander>
