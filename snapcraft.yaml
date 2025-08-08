@@ -11,15 +11,15 @@ description: |
   Cross-platform OCR powered by PaddleOCR that rivals PowerToys OCR, TesseractOCR, & Windows 10 built in OCR in accuracy
 version: '0.4.0'
 license: GPL-3.0-or-later
-source-code: "https://github.com/BrycensRanch/SnapX"
+source-code: "https://github.com/SnapXL/SnapX"
 adopt-info: snapx-ui
 grade: devel
 base: core24
 confinement: strict
 compression: lzo
 contact: "brycengranville+snapcraft.snapx@outlook.com"
-issues: "https://github.com/BrycensRanch/SnapX/issues"
-icon: "./packaging/usr/share/icons/256x256/apps/io.github.BrycensRanch.SnapX.png"
+issues: "https://github.com/SnapXL/SnapX/issues"
+icon: "./packaging/usr/share/icons/256x256/apps/io.github.SnapXL.SnapX.png"
 donation:
   - https://ko-fi.com/BrycensRanch
   - https://liberapay.com/BrycensRanch
@@ -57,7 +57,7 @@ apps:
     extensions: [gnome]
     command: usr/lib/snapx/snapx-ui
     # Snap has a issue detecting our icons and thus produces an error. Working on it.
-    desktop: usr/share/applications/io.github.BrycensRanch.SnapX.desktop
+    desktop: usr/share/applications/io.github.SnapXL.SnapX.desktop
     plugs:
       - network
       - audio-playback
@@ -83,7 +83,7 @@ package-repositories:
 
 parts:
   snapx-ui:
-    parse-info: [usr/share/metainfo/io.github.BrycensRanch.SnapX.metainfo.xml]
+    parse-info: [usr/share/metainfo/io.github.SnapXL.SnapX.metainfo.xml]
     plugin: nil
     override-build: |
       ./build.sh install --no-color --no-extended-chars --prefix /usr --dest-dir $SNAPCRAFT_PART_INSTALL
@@ -101,7 +101,7 @@ parts:
       - mesa-utils         # for `glxinfo`
       - ffmpeg             # for screen capture & sounds
                            # I acknowledge ffplay probably is broken, it has a million and one dependencies.
-    source: https://github.com/BrycensRanch/SnapX
+    source: https://github.com/SnapXL/SnapX
     source-type: git
     override-pull: |
       craftctl default
