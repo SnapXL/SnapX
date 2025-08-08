@@ -20,7 +20,10 @@ compression: lzo
 contact: "brycengranville+snapcraft.snapx@outlook.com"
 issues: "https://github.com/BrycensRanch/SnapX/issues"
 icon: "./packaging/usr/share/icons/256x256/apps/io.github.BrycensRanch.SnapX.png"
-donation: "https://ko-fi.com/brycensranch"
+donation:
+  - https://ko-fi.com/BrycensRanch
+  - https://liberapay.com/BrycensRanch
+  - https://opencollective.com/snapx
 # By default, snaps have an epoch of ‘0’. When a new version breaks data compatibility with this old version, incrementing the epoch in the new release stops those old users automatically refreshing to the new version.
 epoch: 0
 
@@ -58,9 +61,9 @@ apps:
     plugs:
       - network
       - audio-playback
-      - audio-record # FFMPEG Screen Capture is coming soon
+      - audio-record # FFmpeg Screen Capture is coming soon
       - desktop
-      - media-control # FFMPEG Screen Capture
+      - media-control # FFmpeg Screen Capture
       - browser-native-messaging
 plugs:
   browser-native-messaging:
