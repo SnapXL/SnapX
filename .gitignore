@@ -85,6 +85,7 @@ StyleCopReport.xml
 *.pdb
 *.dll
 *.dylib
+*.so
 *.ipdb
 *.pgc
 *.pgd
@@ -442,14 +443,39 @@ NSIS/Plugins/x86-unicode/
 # Local History for Visual Studio Code
 .history/
 
-# Windows Installer files from build outputs
+# Build outputs
 *.cab
 *.msi
 *.msix
 *.msixbundle
 *.msm
 *.msp
-
+*.exe
+*.a
+*.h
+*.d
+*.o
+*.pdf
+*.snap
+*.deb
+*.rpm
+*.AppImage
+*.flatpak
+*.dmg
+*.nupkg
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+*.tar.lz
+*.tar**
+*.tgz
+*.7z
+*.run*
+packaging/dmg/
+packaging/tarball/
+packaging/run/
+packaging/AppDir/
+*.pkg*
 # SnapX
 Output/
 APIKeysLocal.cs
