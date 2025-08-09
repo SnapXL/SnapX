@@ -4,7 +4,7 @@
   <!-- Semantic-release should generate Version changelogs -->
   <id>io.github.SnapXL.SnapX</id>
   <name>SnapX</name>
-  <summary>Capture, share, and boost productivity.</summary>
+  <summary>Capture, share, and boost productivity</summary>
   <developer id="app.brycen">
     <name>Brycen Granville</name>
     <email>brycengranville@outlook.com</email>
@@ -27,13 +27,10 @@
   <url type="homepage">https://github.com/SnapXL/SnapX</url>
   <url type="bugtracker">https://github.com/SnapXL/SnapX/issues</url>
   <url type="faq">https://github.com/SnapXL/SnapX/wiki/FAQ</url>
-  <!-- Don't like PayPal? Me either! Ko-fi blocks AppStream requests! https://ko-fi.com/BrycensRanch -->
-  <url type="donation">https://www.paypal.com/paypalme/BrycensRanch</url>
+  <url type="donation">https://liberapay.com/BrycensRanch</url>
   <categories>
-    <category>ScreenCapture</category>
     <category>Utility</category>
     <category>Graphics</category>
-    <category>Productivity</category>
   </categories>
   <recommends>
     <internet>always</internet>
