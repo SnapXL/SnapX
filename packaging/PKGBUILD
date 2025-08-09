@@ -5,7 +5,7 @@ pkgver=0.4.0
 pkgrel=3
 pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX)"
 arch=('x86_64' 'aarch64')
-url="https://github.com/BrycensRanch/SnapX"
+url="https://github.com/SnapXL/SnapX"
 license=('GPL-3.0-or-later')
 makedepends=(
     'git'
@@ -13,7 +13,7 @@ makedepends=(
     'clang'
     'zlib'
 )
-source=("$pkgbase::git+https://github.com/BrycensRanch/SnapX.git")
+source=("$pkgbase::git+https://github.com/SnapXL/SnapX.git")
 sha256sums=('SKIP')
 
 pkgver() {
