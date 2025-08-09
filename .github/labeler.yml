@@ -29,12 +29,17 @@ dependencies:
 build:
   - changed-files:
     - any-glob-to-any-file: build/**
+    - any-glob-to-any-file: build.sh
+    - any-glob-to-any-file: build.ps1
+
 linux:
   - changed-files:
     - any-glob-to-any-file: SnapX.Core/Linux.props
+
 windows:
   - changed-files:
     - any-glob-to-any-file: SnapX.Core/Windows.props
+
 macOS:
   - changed-files:
     - any-glob-to-any-file: SnapX.Core/OSX.props
