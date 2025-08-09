@@ -63,7 +63,7 @@ if [ "$os_name" = "Darwin" ] && [ "${SKIP_MACOS_VERSION_CHECK:-}" != "1" ]; then
     if [ "$USER_MACOS_VERSION_INT" -lt "$REQUIRED_VERSION_INT" ]; then
         echo "This build will most likely fail as you are running an old version of macOS. Continue anyway? (y/n)"
         read -r response
-        if [ "$response" = "n" ]; then
+        if [ "$response" != "y" ]; then
             echo "Exiting..."
             exit 1
         fi
