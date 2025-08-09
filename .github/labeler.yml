@@ -24,7 +24,7 @@ packaging:
     - any-glob-to-any-file: packaging/**
 
 dependencies:
-  - head-branch: ['^dep', '^depend', 'depend', 'dependency', 'dependencies']
+  - head-branch: ['^dep', 'dep', '^deps', 'deps', '^depend', 'depend', 'dependency', 'dependencies']
 
 build:
   - changed-files:
