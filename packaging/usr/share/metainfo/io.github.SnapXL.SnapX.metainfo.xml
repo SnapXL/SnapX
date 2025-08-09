@@ -2,9 +2,9 @@
 <component type="desktop-application">
   <!--Created with jdAppStreamEdit 9.0-->
   <!-- Semantic-release should generate Version changelogs -->
-  <id>io.github.BrycensRanch.SnapX</id>
+  <id>io.github.SnapXL.SnapX</id>
   <name>SnapX</name>
-  <summary>Capture, share, and boost productivity.</summary>
+  <summary>Capture, share, and boost productivity</summary>
   <developer id="app.brycen">
     <name>Brycen Granville</name>
     <email>brycengranville@outlook.com</email>
@@ -18,22 +18,19 @@
     <p>Upload images, videos, text, and more to multiple supported destinations—all with ease.</p>
     <p>It is a hard fork of the Windows application ShareX.</p>
   </description>
-<!--   <screenshots>
+  <screenshots>
     <screenshot type="default">
       <caption>The home screen</caption>
-      <image type="source">https://raw.githubusercontent.com/BrycensRanch/Rokon/master/screenshots/desktop.png</image>
+      <image type="source">https://raw.githubusercontent.com/SnapXL/SnapX/refs/heads/develop/.github/Screenshot.png</image>
     </screenshot>
-  </screenshots> -->
-  <url type="homepage">https://github.com/BrycensRanch/SnapX</url>
-  <url type="bugtracker">https://github.com/BrycensRanch/SnapX/issues</url>
-  <url type="faq">https://github.com/BrycensRanch/SnapX/wiki/FAQ</url>
-  <!-- Don't like PayPal? Me either! Kofi blocks AppStream requests! https://ko-fi.com/BrycensRanch -->
-  <url type="donation">https://www.paypal.com/paypalme/brycensranch</url>
+  </screenshots>
+  <url type="homepage">https://github.com/SnapXL/SnapX</url>
+  <url type="bugtracker">https://github.com/SnapXL/SnapX/issues</url>
+  <url type="faq">https://github.com/SnapXL/SnapX/wiki/FAQ</url>
+  <url type="donation">https://liberapay.com/BrycensRanch</url>
   <categories>
-    <category>ScreenCapture</category>
     <category>Utility</category>
     <category>Graphics</category>
-    <category>Productivity</category>
   </categories>
   <recommends>
     <internet>always</internet>
@@ -47,9 +44,9 @@
   <content_rating type="oars-1.1">
     <content_attribute id="social-info">moderate</content_attribute>
   </content_rating>
-  <launchable type="desktop-id">io.github.BrycensRanch.SnapX.desktop</launchable>
+  <launchable type="desktop-id">io.github.SnapXL.SnapX.desktop</launchable>
   <provides>
-    <id>io.github.BrycensRanch.SnapX.desktop</id>
+    <id>io.github.SnapXL.SnapX.desktop</id>
     <binary>snapx-ui</binary>
   </provides>
   <keywords>
