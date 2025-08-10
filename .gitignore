@@ -471,10 +471,13 @@ NSIS/Plugins/x86-unicode/
 *.tgz
 *.7z
 *.run*
+.flatpak-builder
 packaging/dmg/
 packaging/tarball/
 packaging/run/
 packaging/AppDir/
+packaging/flathub/repo/
+builddir/
 *.pkg*
 # SnapX
 Output/
