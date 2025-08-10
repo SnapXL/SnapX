@@ -23,7 +23,7 @@ icon: "./packaging/usr/share/icons/256x256/apps/io.github.SnapXL.SnapX.png"
 donation:
   - https://ko-fi.com/BrycensRanch
   - https://liberapay.com/BrycensRanch
-  - https://opencollective.com/snapx
+  - https://github.com/sponsors/BrycensRanch
 # By default, snaps have an epoch of ‘0’. When a new version breaks data compatibility with this old version, incrementing the epoch in the new release stops those old users automatically refreshing to the new version.
 epoch: 0
 
