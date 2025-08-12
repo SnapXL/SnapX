@@ -133,8 +133,8 @@
  <data name="UI_File_ToolTip">
   <value>Opens the file with the default associated program.</value>
  </data>
- <data name="UI_Folder">
-  <value>Folder</value>
+ <data name="UI_FolderName">
+  <value>Folder name</value>
  </data>
  <data name="UI_Folder_ToolTip">
   <value>Opens the folder with the default associated program</value>

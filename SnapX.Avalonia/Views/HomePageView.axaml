@@ -200,7 +200,7 @@
                                         <controls:MenuFlyoutItem
                                             IconSource="Copy"
                                             IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}"
-                                            Text="{x:Static core:Lang.UI_Folder}" />
+                                            Text="{x:Static core:Lang.UI_FolderName}" />
 
                                     </controls:MenuFlyoutSubItem>
                                     <controls:MenuFlyoutItem
