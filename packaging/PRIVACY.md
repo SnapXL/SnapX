@@ -38,7 +38,7 @@ anonymous - Not identified by name; of unknown name.
 
 ## Services Used
 
-All the services used for telemetry are open source. [None of our telemetry code is secret](https://github.com/BrycensRanch/SnapX/blob/2b1843d973424d737c195664efdadc75f21122a4/SnapX.Core/SnapX.cs#L326).
+All the services used for telemetry are open source. [None of our telemetry code is secret](https://github.com/SnapXL/SnapX/blob/2b1843d973424d737c195664efdadc75f21122a4/SnapX.Core/SnapX.cs#L326).
 
 - [Sentry](https://github.com/getsentry/sentry) - Application crash information & traces & performance analytics, i.e., specific code function taking a long time)
 - [Aptabase](https://github.com/aptabase/aptabase) - Usage analytics, i.e., how many users are using a specific function, such as uploading)

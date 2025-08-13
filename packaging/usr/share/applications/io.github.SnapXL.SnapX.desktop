@@ -4,8 +4,8 @@
 [Desktop Entry]
 Name=SnapX
 Comment=Capture, share, and boost productivity.
-Exec=snapx-ui
-Icon=io.github.BrycensRanch.SnapX
+Exec=snapx-ui %U
+Icon=io.github.SnapXL.SnapX
 Terminal=false
 Type=Application
 GenericName=Screenshot tool & sharing tool
@@ -19,5 +19,5 @@ X-KDE-DBUS-Restricted-Interfaces=org.kde.KWin.ScreenShot2
 
 [Desktop Action uploadWithSnapX]
 Name=Upload with SnapX
-Icon=io.github.BrycensRanch.SnapX
-Exec=snapx-ui %u
+Icon=io.github.SnapXL.SnapX
+Exec=snapx-ui %U

@@ -1,0 +1,125 @@
+title: SnapX
+name: snapx-ui
+summary: Screenshot tool that handles images, text, and video (fork of ShareX)
+description: |
+  SnapX is a free, open-source, cross-platform tool that lets you capture or record any area of your screen and instantly share it with a single keypress.
+  Upload images, videos, text, and more to multiple supported destinations—all with ease
+  This is a port of the original ShareX application to Linux.
+  It is not an official release and is not affiliated with the original ShareX project.
+  This project is under development and is *not* ready for use.
+  Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
+  Cross-platform OCR powered by PaddleOCR that rivals PowerToys OCR, TesseractOCR, & Windows 10 built in OCR in accuracy
+version: '0.4.0'
+license: GPL-3.0-or-later
+source-code: "https://github.com/SnapXL/SnapX"
+adopt-info: snapx-ui
+grade: devel
+base: core24
+confinement: strict
+compression: lzo
+contact: "brycengranville+snapcraft.snapx@outlook.com"
+issues: "https://github.com/SnapXL/SnapX/issues"
+icon: "./packaging/usr/share/icons/256x256/apps/io.github.SnapXL.SnapX.png"
+donation:
+  - https://ko-fi.com/BrycensRanch
+  - https://liberapay.com/BrycensRanch
+  - https://github.com/sponsors/BrycensRanch
+# By default, snaps have an epoch of ‘0’. When a new version breaks data compatibility with this old version, incrementing the epoch in the new release stops those old users automatically refreshing to the new version.
+epoch: 0
+
+assumes:
+  - snapd2.39
+  - snap-env
+
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+  arm64:
+    build-on: [arm64]
+    build-for: [arm64]
+  # For the time being, Microsoft hasn't removed support for Arm32 NativeAOT... yet
+  armhf:
+    build-on: [armhf]
+    build-for: [armhf]
+
+
+apps:
+  snapx:
+    extensions: [gnome]
+    command: usr/lib/snapx/snapx
+
+    plugs:
+      - network
+      - browser-native-messaging
+  snapx-ui:
+    # Avalonia uses GNOME for some of its stuff. We just really need the base libraries.
+    extensions: [gnome]
+    command: usr/lib/snapx/snapx-ui
+    # Snap has a issue detecting our icons and thus produces an error. Working on it.
+    desktop: usr/share/applications/io.github.SnapXL.SnapX.desktop
+    plugs:
+      - network
+      - audio-playback
+      - audio-record # FFmpeg Screen Capture is coming soon
+      - desktop
+      - media-control # FFmpeg Screen Capture
+      - browser-native-messaging
+plugs:
+  browser-native-messaging:
+    interface: personal-files
+    write:
+      - $HOME/.mozilla/native-messaging-hosts/host-manifest-firefox.json
+      - $HOME/.config/chromium/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.config/google-chrome/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.config/microsoft-edge/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.config/vivaldi/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/host-manifest-chrome.json
+      - $HOME/.local/share/torbrowser/tbb/x86_64/tor-browser_en-US/Browser/TorBrowser/Data/Browser/.mozilla/native-messaging-hosts/host-manifest-firefox.json
+
+package-repositories:
+  - type: apt
+    ppa: ubuntuhandbook1/ffmpeg7
+
+parts:
+  snapx-ui:
+    parse-info: [usr/share/metainfo/io.github.SnapXL.SnapX.metainfo.xml]
+    plugin: nil
+    override-build: |
+      ./build.sh install --no-color --no-extended-chars --prefix /usr --dest-dir $SNAPCRAFT_PART_INSTALL
+    build-snaps: [dotnet-sdk-90/latest/stable]
+    build-packages:
+      - git
+      - clang
+      - zlib1g-dev
+      - libsm6
+    build-environment:
+      - PKGTYPE: SNAP
+    stage-packages:
+      - x11-xserver-utils  # for `xrandr`
+      - pciutils           # for `lspci`
+      - mesa-utils         # for `glxinfo`
+      - ffmpeg             # for screen capture & sounds
+                           # I acknowledge ffplay probably is broken, it has a million and one dependencies.
+    source: https://github.com/SnapXL/SnapX
+    source-type: git
+    override-pull: |
+      craftctl default
+      version=$(./build.sh --version | tail -n1)
+
+      # Truncate the version to a maximum of 32 characters
+      truncated_version=$(echo "$version" | cut -c1-32)
+
+      # Set the version with truncation. Good luck everyone else! :)
+      snapcraftctl set-version "$truncated_version"
+lint:
+  ignore:
+    - library:
+        - usr/lib/*/libEGL_mesa.so.*
+        - usr/lib/*/libGLX_mesa.so.*
+        - usr/lib/*/libicuio.so.*
+        - usr/lib/*/libicutest.so.*
+        - usr/lib/*/libicutu.so.*
+        - usr/lib/*/libxcb-glx.so.*
+        - usr/lib/*/libxcb-shm.so.*
+        - usr/lib/*libicui18n.so.*

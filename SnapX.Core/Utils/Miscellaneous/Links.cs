@@ -6,7 +6,7 @@ namespace SnapX.Core.Utils.Miscellaneous;
 public static class Links
 {
     public const string Website = "https://snapx.brycen.app";
-    public const string Repo = "BrycensRanch/SnapX";
+    public const string Repo = "SnapXL/SnapX";
     public const string ApiGitHub = $"https://api.github.com/repos/{Repo}";
     public const string GitHub = $"https://github.com/{Repo}";
     public const string GitHubIssues = GitHub + "/issues?q=is%3Aissue";
@@ -16,7 +16,7 @@ public static class Links
     public const string PrivacyPolicy = Website + "/privacy-policy";
     public const string ImageEffects = Website + "/image-effects";
     public const string Actions = Website + "/actions";
-    public const string APP_ID = "io.github.BrycensRanch.SnapX";
+    public const string APP_ID = "io.github.SnapXL.SnapX";
     public const string Jaex = "https://github.com/Jaex";
     public const string McoreD = "https://github.com/McoreD";
     public const string BrycensRanch = "https://github.com/BrycensRanch";

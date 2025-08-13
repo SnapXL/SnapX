@@ -113,7 +113,7 @@
                                             IconSource="OpenFolder"
                                             IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}"
                                             Tag="{Binding task.FilePath}"
-                                            Text="{x:Static core:Lang.UI_Folder}"
+                                            Text="{x:Static core:Lang.UI_FolderName}"
                                             ToolTip.Tip="{x:Static core:Lang.UI_Folder_ToolTip}" />
                                         <controls:MenuFlyoutItem IsVisible="False" Text="{x:Static core:Lang.UI_ThumbnailFile}" />
 
@@ -197,7 +197,7 @@
                                         <controls:MenuFlyoutItem
                                             IconSource="Copy"
                                             IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}"
-                                            Text="{x:Static core:Lang.UI_Folder}" />
+                                            Text="{x:Static core:Lang.UI_FolderName}" />
 
                                     </controls:MenuFlyoutSubItem>
                                     <controls:MenuFlyoutItem

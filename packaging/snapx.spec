@@ -12,7 +12,7 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via https://github.com/BrycensRanch/SnapX/issues
+# Please submit bugfixes or comments via https://github.com/SnapXL/SnapX/issues
 
 
 # This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
@@ -39,7 +39,7 @@ Release:        2%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
-URL:            https://github.com/BrycensRanch/SnapX
+URL:            https://github.com/SnapXL/SnapX
 Source:         %{url}/archive/refs/heads/develop.tar.gz
 
 # RISCV64 support is coming soon. Maybe .NET 10 will add it?
@@ -121,9 +121,9 @@ else
 fi
 
 # Bandaid fix until upstream addresses these issues.
-#ERROR   0002: file '/usr/lib/snapx/libphi.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi:/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
-#ERROR   0002: file '/usr/lib/snapx/libphi.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi:/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
-#ERROR   0002: file '/usr/lib/snapx/libphi_core.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
+# ERROR   0002: file '/usr/lib/snapx/libphi.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi:/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
+# ERROR   0002: file '/usr/lib/snapx/libphi.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/phi:/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
+# ERROR   0002: file '/usr/lib/snapx/libphi_core.so' contains an invalid runpath '/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common' in [/home/runner/work/PaddleSharp/PaddleSharp/paddle-src/build/paddle/common]
 for f in %{buildroot}%{_prefix}/lib/%{name}/*.so; do
     echo "Patching $f ..."
     if [ "$PATCH_CMD" = "patchelf" ]; then

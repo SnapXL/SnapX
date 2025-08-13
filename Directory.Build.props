@@ -1,6 +1,6 @@
 ﻿<Project>
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Condition="!Exists('packages.config')" Version="6.3.0" PrivateAssets="all"/>
+    <PackageReference Include="GitVersion.MsBuild" Condition="!Exists('packages.config')" Version="6.4.0" PrivateAssets="all"/>
   </ItemGroup>
   <PropertyGroup>
     <Company>BrycensRanch and ShareX Team</Company>
@@ -8,17 +8,15 @@
     <Title>SnapX</Title>
     <Description>Capture, share, and boost productivity. All in one.</Description>
     <Copyright>Copyright (c) 2025 BrycensRanch and ShareX Team</Copyright>
-    <!-- Breaks builds on my computer -->
-    <!--    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <IncludeDebugSymbolsProjectOutputGroup>false</IncludeDebugSymbolsProjectOutputGroup>
     <Optimize>true</Optimize>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TargetFramework>net9.0</TargetFramework>
-    <GitVersionTargetFramework>net9.0</GitVersionTargetFramework>
+    <GitVersionTargetFramework>$(TargetFramework)</GitVersionTargetFramework>
     <WriteVersionInfoToBuildLog>true</WriteVersionInfoToBuildLog>
-    <TargetFramework Condition="'$(OS)' == 'Windows_NT'">net9.0-windows10.0.26100.0</TargetFramework>
+    <TargetFramework Condition="'$(OS)' == 'Windows_NT'">$(TargetFramework)-windows10.0.26100.0</TargetFramework>
     <RollForward>LatestMajor</RollForward>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Version>0.4.0</Version>

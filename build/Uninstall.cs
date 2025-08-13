@@ -36,7 +36,7 @@ public class Uninstall(IBuildLogger Logger, IFileSystem FileSystem, BuildConfig 
 
         if (Directory.Exists(config.Applicationsdir))
         {
-            foreach (var file in Directory.GetFiles(config.Applicationsdir, "io.github.BrycensRanch.SnapX.desktop",
+            foreach (var file in Directory.GetFiles(config.Applicationsdir, "io.github.SnapXL.SnapX.desktop",
                          SearchOption.TopDirectoryOnly))
             {
                 await FileSystem.TryDeleteFile(file);
@@ -45,7 +45,7 @@ public class Uninstall(IBuildLogger Logger, IFileSystem FileSystem, BuildConfig 
 
         if (Directory.Exists(config.Metainfodir))
         {
-            foreach (var file in Directory.GetFiles(config.Metainfodir, "io.github.BrycensRanch.SnapX.metainfo.xml",
+            foreach (var file in Directory.GetFiles(config.Metainfodir, "io.github.SnapXL.SnapX.metainfo.xml",
                          SearchOption.TopDirectoryOnly))
             {
                 await FileSystem.TryDeleteFile(file);
@@ -76,7 +76,7 @@ public class Uninstall(IBuildLogger Logger, IFileSystem FileSystem, BuildConfig 
         }
         if (Directory.Exists(config.Icondir))
         {
-            foreach (var file in Directory.GetFiles(config.Icondir, "*io.github.BrycensRanch.SnapX*",
+            foreach (var file in Directory.GetFiles(config.Icondir, "*io.github.SnapXL.SnapX*",
                          SearchOption.AllDirectories))
             {
                 await FileSystem.TryDeleteFile(file);

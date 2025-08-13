@@ -4,7 +4,7 @@ using SnapX.CLI;
 using SnapX.Core;
 using SnapX.Core.Utils;
 
-if (args[0] == "--version" || args[0] == "-v")
+if (args.Length != 0 && (args[0] == "--version" || args[0] == "-v"))
 {
     var informationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
     Console.WriteLine(informationalVersion);

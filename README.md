@@ -1,12 +1,12 @@
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="./.github/Linux.png" alt="SnapX Banner"/></a></p>
+<p align="center"><a href="https://github.com/SnapXL/SnapX"><img src="./.github/Linux.png" alt="SnapX Banner"/></a></p>
 <h1 align="center">SnapX</h1>
 <h3 align="center">Capture, share, and boost productivity. All in one.</h3>
 <br>
 <div align="center">
-  <a href="https://github.com/BrycensRanch/SnapX/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/BrycensRanch/SnapX/build.yml?branch=develop&label=Build&cacheSeconds=3600" alt="GitHub Workflow Status"/></a>
-  <a href="./LICENSE.md"><img src="https://img.shields.io/github/license/BrycensRanch/SnapX?label=License&color=brightgreen&cacheSeconds=3600" alt="License"/></a>
-  <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/v/release/BrycensRanch/SnapX?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release"/></a>
-  <a href="https://github.com/BrycensRanch/SnapX/releases/latest"><img src="https://img.shields.io/github/downloads/BrycensRanch/SnapX/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a>
+  <a href="https://github.com/SnapXL/SnapX/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/SnapXL/SnapX/build.yml?branch=develop&label=Build&cacheSeconds=3600" alt="GitHub Workflow Status"/></a>
+  <a href="./LICENSE.md"><img src="https://img.shields.io/github/license/SnapXL/SnapX?label=License&color=brightgreen&cacheSeconds=3600" alt="License"/></a>
+  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://img.shields.io/github/v/release/SnapXL/SnapX?label=Release&color=brightgreen&cacheSeconds=3600" alt="Release"/></a>
+  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://img.shields.io/github/downloads/SnapXL/SnapX/total?label=Downloads&cacheSeconds=3600" alt="Downloads"/></a>
   <br>
   <br>
   <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base"/></a>
@@ -18,7 +18,7 @@
   <a href="https://paypal.me/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/paypal-singular_vector.svg" height="40" alt="Support me on PayPal"/></a>
 </div>
 <br>
-<p align="center"><a href="https://github.com/BrycensRanch/SnapX"><img src="./.github/Screenshot.png" alt="GitHub Repository"/></a></p>
+<p align="center"><a href="https://github.com/SnapXL/SnapX"><img src="./.github/Screenshot.png" alt="GitHub Repository"/></a></p>
 
 > [!CAUTION]
 > **This project is _under development_ and is _not_ ready for use.**
@@ -40,7 +40,7 @@
 
 - It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
 - The dependency on Newtonsoft.JSON has been dropped and traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
-- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/BrycensRanch/SnapX/issues/28)
+- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28)
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
@@ -90,7 +90,7 @@ SnapX is packaged on:
 
 - [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo)
 
-Additionally, you can download nightly builds from [here](https://nightly.link/BrycensRanch/SnapX/workflows/build/develop?preview).
+Additionally, you can download nightly builds from [here](https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview).
 
 ## Development Dependencies
 
@@ -173,7 +173,7 @@ exec $SHELL -l
 > I do mean it when I say the project isn't ready for use.
 
 > [!IMPORTANT]
-> Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/BrycensRanch/SnapX/issues/66). \
+> Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/SnapXL/SnapX/issues/66). \
 > I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
 >
 > On **Linux**, it's `~/.config/SnapX`
@@ -190,7 +190,7 @@ To successfully compile SnapX from source, ensure your system meets the followin
 * **Disk Space:** At least 15 GiB of free disk space is recommended, preferably on a Solid State Drive (SSD) for optimal compilation speed.
 
 ```bash
-git clone https://github.com/BrycensRanch/SnapX
+git clone https://github.com/SnapXL/SnapX
 cd SnapX
 ./build.sh # Linux/macOS
 .\build.ps1 # Windows

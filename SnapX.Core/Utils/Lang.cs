@@ -49,7 +49,7 @@ public static class Lang
     public static string UI_DeletionURL_ToolTip => Get("UI_DeletionURL_ToolTip");
     public static string UI_File => Get("UI_File");
     public static string UI_File_ToolTip => Get("UI_File_ToolTip");
-    public static string UI_Folder => Get("UI_Folder");
+    public static string UI_FolderName => Get("UI_FolderName");
     public static string UI_Folder_ToolTip => Get("UI_Folder_ToolTip");
     public static string UI_ThumbnailFile => Get("UI_ThumbnailFile");
     public static string UI_Copy => Get("UI_Copy");
