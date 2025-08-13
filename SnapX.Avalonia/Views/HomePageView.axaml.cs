@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.Models;
-using SnapX.Avalonia.Services;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Utils;

@@ -9,16 +9,13 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
     xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-    xmlns:controls1="clr-namespace:SnapX.Avalonia.Views.Controls"
     xmlns:core="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
     xmlns:core1="clr-namespace:SnapX.Core;assembly=SnapX.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:extensions="clr-namespace:SnapX.Avalonia.Extensions"
-    xmlns:fluent="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia"
     xmlns:fluent1="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:SnapX.Avalonia.Models"
-    xmlns:snapx="clr-namespace:SnapX.Core;assembly=SnapX.Core"
     xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.DataContext>
@@ -116,7 +113,7 @@
                                             IconSource="OpenFolder"
                                             IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}"
                                             Tag="{Binding task.FilePath}"
-                                            Text="{x:Static core:Lang.UI_Folder}"
+                                            Text="{x:Static core:Lang.UI_FolderName}"
                                             ToolTip.Tip="{x:Static core:Lang.UI_Folder_ToolTip}" />
                                         <controls:MenuFlyoutItem IsVisible="False" Text="{x:Static core:Lang.UI_ThumbnailFile}" />
 
