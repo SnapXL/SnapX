@@ -12,7 +12,7 @@ snapx.loadApplicationSettingsPartial();
 BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
 
-static AppBuilder BuildAvaloniaApp()
+AppBuilder BuildAvaloniaApp()
 {
     var builder = AppBuilder.Configure<App>()
         .WithInterFont();
@@ -23,8 +23,8 @@ static AppBuilder BuildAvaloniaApp()
         builder = builder.With(new FontManagerOptions
         {
             DefaultFamilyName = "fonts:Inter#Inter",
-            FontFallbacks = new List<FontFallback>
-            {
+            FontFallbacks =
+            [
                 new()
                 {
                     FontFamily = "fonts:Inter#Inter"
@@ -45,12 +45,13 @@ static AppBuilder BuildAvaloniaApp()
                 {
                     FontFamily = "Adwaita Sans"
                 }
-            }
+            ]
         });
     }
 
     builder = builder.LogToTrace();
 
+    var useGPU = snapx.GetConfiguration().HardwareAccelerated;
     var x11Options = new X11PlatformOptions
     {
         // Fixes poor performance on my NVIDIA RTX 3060 Laptop GPU using Region Selector on Fedora KDE Wayland
@@ -58,6 +59,21 @@ static AppBuilder BuildAvaloniaApp()
         UseRetainedFramebuffer = true,
         OverlayPopups = true
     };
+    if (!useGPU) x11Options.RenderingMode = [X11RenderingMode.Software];
+
+    var macOSOptions = new AvaloniaNativePlatformOptions
+    {
+        RenderingMode = [AvaloniaNativeRenderingMode.Metal, AvaloniaNativeRenderingMode.OpenGl, AvaloniaNativeRenderingMode.Software],
+        OverlayPopups = true
+    };
+    if (!useGPU) macOSOptions.RenderingMode = [AvaloniaNativeRenderingMode.Software];
+
+    var win32Options = new Win32PlatformOptions
+    {
+        RenderingMode = [Win32RenderingMode.Vulkan, Win32RenderingMode.AngleEgl, Win32RenderingMode.Wgl, Win32RenderingMode.Software],
+        OverlayPopups = true
+    };
+    if (!useGPU) win32Options.RenderingMode = [Win32RenderingMode.Software];
 
     if (OperatingSystem.IsFreeBSD())
     {
@@ -72,8 +88,8 @@ static AppBuilder BuildAvaloniaApp()
             .UsePlatformDetect()
             .UseManagedSystemDialogs()
             .With(x11Options)
-            .With(new AvaloniaNativePlatformOptions { OverlayPopups = true })
-            .With(new Win32PlatformOptions { OverlayPopups = true });
+            .With(macOSOptions)
+            .With(win32Options);
     }
 
     return builder;
