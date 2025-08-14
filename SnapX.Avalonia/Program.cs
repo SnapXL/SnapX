@@ -70,7 +70,7 @@ AppBuilder BuildAvaloniaApp()
 
     var win32Options = new Win32PlatformOptions
     {
-        RenderingMode = [Win32RenderingMode.Vulkan, Win32RenderingMode.AngleEgl, Win32RenderingMode.Wgl, Win32RenderingMode.Software],
+        // RenderingMode = [Win32RenderingMode.Vulkan, Win32RenderingMode.AngleEgl, Win32RenderingMode.Wgl, Win32RenderingMode.Software],
         OverlayPopups = true
     };
     if (!useGPU) win32Options.RenderingMode = [Win32RenderingMode.Software];
