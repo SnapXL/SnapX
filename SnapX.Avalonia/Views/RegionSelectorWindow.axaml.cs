@@ -84,6 +84,7 @@ public partial class RegionSelectorWindow : Window
     private static void ShowErrorDialog(Exception ex, string? userMessage = null)
     {
         DebugHelper.WriteException(ex);
+        TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Error);
 
         var dialog = new Window
         {
@@ -182,17 +183,17 @@ public partial class RegionSelectorWindow : Window
         DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {selectedRegion}");
         try
         {
-            _ = Task.Run(() =>
+            Task.Run(() =>
             {
                 if (_imageStream == null)
                 {
                     DebugHelper.WriteLine("RegionSelectorWindow.OnPointerReleased: _imageStream is null");
                     return;
                 }
-                _image.Mutate(Context => Context.Crop(new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X, (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height)));
-
+                _image?.Mutate(Context => Context.Crop(new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X, (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height)));
+                DebugHelper.WriteLine("Runing image task");
                 UploadManager.RunImageTask(_image, TaskSettings.GetDefaultTaskSettings());
-            });
+            }).GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
@@ -274,7 +275,10 @@ public partial class RegionSelectorWindow : Window
             ShowErrorDialog(ex);
         }
 
-        if (_image == null) return;
+        if (_image == null)
+        {
+            DebugHelper.WriteLine("RegionSelectorWindow.OnOpened: _image is null");
+        }
         _imageStream = new MemoryStream();
         _image.SaveAsPng(_imageStream);
         _imageStream.Position = 0;
@@ -292,7 +296,6 @@ public partial class RegionSelectorWindow : Window
         {
             ShowErrorDialog(ex);
         }
-        _image.Dispose();
     }
     List<Window> TopoSortWindows(IEnumerable<Window> windows)
     {
