@@ -261,7 +261,7 @@ internal static class SettingManager
     {
         if (SnapX.Sandbox)
             return;
-
+        if (Settings is null) return;
         var configFilePath = ApplicationConfigFilePath;
 
         try
