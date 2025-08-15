@@ -41,7 +41,7 @@ public partial class MainView : UserControl
     }
 
     [RelayCommand]
-    private void ExecuteSelectedCaptureAction()
+    private async Task ExecuteSelectedCaptureAction()
     {
         var action = selectedAction ?? _captureRegionLabel.Content as string;
         DebugHelper.WriteLine($"Executing: {action}");
@@ -58,10 +58,10 @@ public partial class MainView : UserControl
                 new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
                 break;
             case "Window":
-                img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow();
+                img = await Task.Run(() => TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow());
                 break;
             case "Monitor":
-                img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor().ConfigureAwait(false).GetAwaiter().GetResult();
+                img = await Task.Run(() => TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor());
                 break;
         }
 
