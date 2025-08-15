@@ -227,7 +227,7 @@ public class SnapX
         }
     }
 
-    public static string DBPath => Path.Combine(PersonalFolder, "SnapX.db");
+    public static string DBPath => Settings?.SQLitePath ?? Path.Combine(PersonalFolder, "SnapX.db");
 
     public static string? ImageEffectsFolder => Path.Combine(PersonalFolder, "ImageEffects");
 
