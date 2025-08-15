@@ -42,7 +42,9 @@ internal class CustomUploaderFunctionJson : CustomUploaderFunction
         }
         var json = JsonPath.Parse(jsonPath);
         var parsed = JsonNode.Parse(input);
-        return json.Evaluate(parsed).ToString();
+        var matches = json.Evaluate(parsed).Matches;
+
+        return string.Join(",", matches.Select(m => m.Value));
 
     }
 }
