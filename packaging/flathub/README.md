@@ -25,10 +25,8 @@ flatpak build-bundle export io.github.SnapXL.SnapX.flatpak io.github.SnapXL.Snap
 
 ## Important for developers
 
-After you're done with your changes, you should go into the root of this repository and run `./build.sh clean`. This will get rid of the builddir, flatpak bundles, repos, etc. This is needed because on my machine, all these nested directories makes your code editors very very unhappy. At least on VSCode. :3
+After you're done with your changes, you should go into the root of this repository and run `./build.sh clean`. This will get rid of the builddir, flatpak bundles, repos, etc. This is needed because on my machine, all these nested directories makes your code editors very very unhappy. At least on VSCode.
 
 ## Note
 
-This repository is automatically managed by GitHub Actions. This includes: Go dependencies, commit SHAs.
-
-The "beta" flatpak with SnapX from git will never have a different ID. io.github.SnapXL.SnapX-beta is just a placeholder. To build the beta flatpak, simply replace any mentions of io.github.SnapXL.SnapX.yml to io.github.SnapXL.SnapX-beta.yml.
+The "beta" flatpak with SnapX from git will never have a different ID. `io.github.SnapXL.SnapX-beta` is just a placeholder. To build the beta flatpak, simply replace any mentions of `io.github.SnapXL.SnapX.yml` to `io.github.SnapXL.SnapX-beta.yml`.
