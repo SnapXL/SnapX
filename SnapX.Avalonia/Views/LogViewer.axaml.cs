@@ -2,11 +2,14 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Windowing;
 using Serilog.Events;
+using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
@@ -19,8 +22,10 @@ public partial class LogViewer : AppWindow
     private SelectableTextBlock? _logTextBlock;
     private int _lastDisplayedLogCount;
     private DispatcherTimer _refreshTimer;
-    public LogViewer()
+    private LogViewerViewModel _viewModel;
+    public LogViewer(LogViewerViewModel viewModel)
     {
+        _viewModel = viewModel;
         InitializeComponent();
         _refreshTimer = new DispatcherTimer
         {
@@ -29,15 +34,31 @@ public partial class LogViewer : AppWindow
         _refreshTimer.Tick += (_, _) => RefreshLogs();
     }
 
+    public LogViewer() : this(new LogViewerViewModel())
+    {
+    }
+
 
     private void AppWindow_OnLoaded(object? sender, RoutedEventArgs e)
     {
         _scrollViewer = this.FindControl<ScrollViewer>("ScrollViewer");
         _logTextBlock = this.FindControl<SelectableTextBlock>("LogTextBlock");
         _lastDisplayedLogCount = 0;
+        StartupPathText.Markdown = StartupPathText.Markdown!.Replace("$shortpath", SnapX.Core.SnapX.ShortenPath(Environment.CurrentDirectory)).Replace("$path", Environment.CurrentDirectory);
+
         _refreshTimer.Start();
     }
+    private void SearchBox_PointerEnter(object? sender, PointerEventArgs e)
+    {
+        if (sender is TextBox tb)
+            tb.Opacity = 1; // show when hovered
+    }
 
+    private void SearchBox_PointerLeave(object? sender, PointerEventArgs e)
+    {
+        if (sender is TextBox tb)
+            tb.Opacity = 0; // hide when not hovered
+    }
     private void AppWindow_OnClosed(object? sender, EventArgs e)
     {
         _lastDisplayedLogCount = 0;
