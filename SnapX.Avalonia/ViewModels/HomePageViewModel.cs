@@ -195,7 +195,8 @@ public partial class HomePageViewModel : ViewModelBase
         if (Sender is not ListTaskTemplate ltt) return;
         if (ltt.task.FilePath is null)
         {
-            DebugHelper.WriteLine("UploadButton called with a null path");
+            DebugHelper.WriteLine("UploadButton called with a null path, using BestImageSource instead");
+            UploadManager.DownloadAndUploadFile(ltt.task.BestImageSource);
             return;
         }
         UploadManager.UploadFile(ltt.task.FilePath);
