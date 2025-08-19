@@ -219,6 +219,7 @@
                                         Click="OCRImageClick"
                                         Command="{Binding OCRImageCommand, DataType=viewModels1:HomePageViewModel}"
                                         IconSource="ImageAltText"
+                                        IsEnabled="{Binding task.Type, Converter={StaticResource EqualsToParameterConverter}, ConverterParameter=image}"
                                         IsVisible="{Binding Source={x:Static core1:FeatureFlags.DisableOCR}, Converter={StaticResource NegateBool}}"
                                         Text="{x:Static core:Lang.UI_OCRImage}"
                                         ToolTip.Tip="{x:Static core:Lang.UI_OCRImage_ToolTip}" />
