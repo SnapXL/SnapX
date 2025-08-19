@@ -2,11 +2,9 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Windowing;
 using Serilog.Events;
 using SnapX.Avalonia.ViewModels;
@@ -21,7 +19,7 @@ public partial class LogViewer : AppWindow
     private ScrollViewer? _scrollViewer;
     private SelectableTextBlock? _logTextBlock;
     private int _lastDisplayedLogCount;
-    private DispatcherTimer _refreshTimer;
+    private readonly DispatcherTimer _refreshTimer;
     private LogViewerViewModel _viewModel;
     public LogViewer(LogViewerViewModel viewModel)
     {
@@ -48,17 +46,7 @@ public partial class LogViewer : AppWindow
 
         _refreshTimer.Start();
     }
-    private void SearchBox_PointerEnter(object? sender, PointerEventArgs e)
-    {
-        if (sender is TextBox tb)
-            tb.Opacity = 1; // show when hovered
-    }
 
-    private void SearchBox_PointerLeave(object? sender, PointerEventArgs e)
-    {
-        if (sender is TextBox tb)
-            tb.Opacity = 0; // hide when not hovered
-    }
     private void AppWindow_OnClosed(object? sender, EventArgs e)
     {
         _lastDisplayedLogCount = 0;
@@ -113,66 +101,66 @@ public partial class LogViewer : AppWindow
             {
                 StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
                 EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                GradientStops = new GradientStops
-            {
-                new GradientStop(Color.FromRgb(60, 60, 60), 0),
-                new GradientStop(Color.FromRgb(40, 40, 40), 1)
-            }
+                GradientStops =
+                [
+                    new GradientStop(Color.FromRgb(60, 60, 60), 0),
+                    new GradientStop(Color.FromRgb(40, 40, 40), 1)
+                ]
             },
 
             LogEventLevel.Debug => new LinearGradientBrush
             {
                 StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
                 EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                GradientStops = new GradientStops
-            {
-                new GradientStop(Color.FromRgb(50, 100, 150), 0),
-                new GradientStop(Color.FromRgb(30, 70, 120), 1)
-            }
+                GradientStops =
+                [
+                    new GradientStop(Color.FromRgb(50, 100, 150), 0),
+                    new GradientStop(Color.FromRgb(30, 70, 120), 1)
+                ]
             },
 
             LogEventLevel.Information => new LinearGradientBrush
             {
                 StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
                 EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                GradientStops = new GradientStops
-            {
-                new GradientStop(Color.FromRgb(70, 130, 70), 0),
-                new GradientStop(Color.FromRgb(40, 90, 40), 1)
-            }
+                GradientStops =
+                [
+                    new GradientStop(Color.FromRgb(70, 130, 70), 0),
+                    new GradientStop(Color.FromRgb(40, 90, 40), 1)
+                ]
             },
 
             LogEventLevel.Warning => new LinearGradientBrush
             {
                 StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
                 EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                GradientStops = new GradientStops
-            {
-                new GradientStop(Color.FromRgb(200, 160, 0), 0),
-                new GradientStop(Color.FromRgb(150, 110, 0), 1)
-            }
+                GradientStops =
+                [
+                    new GradientStop(Color.FromRgb(200, 160, 0), 0),
+                    new GradientStop(Color.FromRgb(150, 110, 0), 1)
+                ]
             },
 
             LogEventLevel.Error => new LinearGradientBrush
             {
                 StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
                 EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                GradientStops = new GradientStops
-            {
-                new GradientStop(Color.FromRgb(180, 50, 50), 0),
-                new GradientStop(Color.FromRgb(130, 30, 30), 1)
-            }
+                GradientStops =
+                [
+                    new GradientStop(Color.FromRgb(180, 50, 50), 0),
+                    new GradientStop(Color.FromRgb(130, 30, 30), 1)
+                ]
             },
 
             LogEventLevel.Fatal => new LinearGradientBrush
             {
                 StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
                 EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                GradientStops = new GradientStops
-            {
-                new GradientStop(Color.FromRgb(100, 0, 0), 0),
-                new GradientStop(Color.FromRgb(30, 0, 0), 1)
-            }
+                GradientStops =
+                [
+                    new GradientStop(Color.FromRgb(100, 0, 0), 0),
+                    new GradientStop(Color.FromRgb(30, 0, 0), 1)
+                ]
             },
 
             _ => new SolidColorBrush(Colors.DimGray)
