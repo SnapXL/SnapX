@@ -12,6 +12,7 @@
     <converters:FilePathValidConverter x:Key="FilePathValidConverter" />
     <converters:BooleanNegationConverter x:Key="NegateBool" />
     <converters:CountToBooleanConverter x:Key="CountToBoolean" />
+    <converters:EqualsToParameterConverter x:Key="EqualsToParameterConverter" />
     <converters:InvertedCountToBooleanConverter x:Key="InvertedCountToBoolean" />
     <converters:StringNotNullOrWhitespaceConverter x:Key="StringValid" />
     <converters:FilePathToSizeConverter x:Key="FileSizeConverter" />
