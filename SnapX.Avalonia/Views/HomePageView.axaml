@@ -42,10 +42,13 @@
                             Width="205">
                             <ToolTip.Tip>
                                 <WrapPanel>
-                                    <TextBlock Margin="5" Text="{Binding task.FilePath, TargetNullValue='{x:Static core:Lang.UI_NoFilePath}'}" />
+                                    <TextBlock
+                                        IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FilePathValidConverter}}"
+                                        Margin="5"
+                                        Text="{Binding task.FilePath, TargetNullValue='{x:Static core:Lang.UI_NoFilePath}'}" />
 
                                     <TextBlock
-                                        IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FileSizeConverter}}"
+                                        IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FilePathValidConverter}}"
                                         Margin="0,0,0,5"
                                         Text="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, StringFormat='File size: {0:N0} bytes'}" />
                                     <Image
