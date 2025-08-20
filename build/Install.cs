@@ -72,8 +72,11 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             !string.Equals(config.TargetInstallAssembly, "snapx", StringComparison.OrdinalIgnoreCase)) return;
         await CommandRunner.InstallFile(Path.Combine(config.RootDirectory, "LICENSE.md"), Path.Combine(config.Licensedir, "LICENSE.md"), "0644");
         var documentation = Directory.GetFiles(config.RootDirectory, "*.md", SearchOption.TopDirectoryOnly);
+        var packagingDoc = Directory.GetFiles(config.PackagingDirectory, "*.md", SearchOption.TopDirectoryOnly);
 
-        foreach (var docFile in documentation)
+        var allDocs = documentation.Concat(packagingDoc).ToArray();
+
+        foreach (var docFile in allDocs)
         {
             if (Path.GetFileName(docFile).Equals("LICENSE.md", StringComparison.OrdinalIgnoreCase)) continue;
             await CommandRunner.InstallFile(docFile, Path.Combine(config.Docdir, Path.GetFileName(docFile)), "0644");
