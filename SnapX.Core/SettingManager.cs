@@ -137,7 +137,7 @@ internal static class SettingManager
 
         configurationBuilder
 #if WINDOWS
-        .AddRegistry(@"Software\BrycensRanch\SnapX")
+        .AddRegistry(@"Software\SnapXL\SnapX")
 #endif
         .AddCommandLine(Environment.GetCommandLineArgs())
 
@@ -167,7 +167,7 @@ internal static class SettingManager
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
 #if WINDOWS
-            .AddRegistry(@"Software\BrycensRanch\SnapX")
+            .AddRegistry(@"Software\SnapXL\SnapX")
 #endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
@@ -189,7 +189,7 @@ internal static class SettingManager
             // Allows ALL settings to be managed via the Windows Registry.
             // This call does nothing on non-Windows Operating Systems
 #if WINDOWS
-            .AddRegistry(@"Software\BrycensRanch\SnapX")
+            .AddRegistry(@"Software\SnapXL\SnapX")
 #endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
