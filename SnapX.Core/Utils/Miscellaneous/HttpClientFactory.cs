@@ -35,8 +35,8 @@ public static class HttpClientFactory
         handler = loggingHandler;
 #endif
         var httpClient = new HttpClient(handler);
-        httpClient.DefaultRequestVersion = HttpVersion.Version20;
-        httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+        httpClient.DefaultRequestVersion = HttpVersion.Version30;
+        httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(SnapXResources.UserAgent);
         httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
         {
