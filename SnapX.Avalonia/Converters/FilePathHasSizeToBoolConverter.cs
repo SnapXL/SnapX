@@ -5,7 +5,6 @@ namespace SnapX.Avalonia.Converters;
 
 public class FilePathHasSizeToBoolConverter : IValueConverter
 {
-    public static readonly FilePathHasSizeToBoolConverter Instance = new();
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -15,7 +14,7 @@ public class FilePathHasSizeToBoolConverter : IValueConverter
         try
         {
             var fileInfo = new FileInfo(path);
-            return fileInfo.Exists && fileInfo.Length > 0;
+            return fileInfo is { Exists: true, Length: > 0 };
         }
         catch
         {

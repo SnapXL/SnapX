@@ -84,7 +84,7 @@ public partial class MainView : UserControl
             }
         }
 
-        ExecuteSelectedCaptureActionCommand.Execute(this);
+        ExecuteSelectedCaptureActionCommand.ExecuteAsync(this);
     }
 
     private void AboutItem_Pressed(object? Sender, PointerPressedEventArgs E)
