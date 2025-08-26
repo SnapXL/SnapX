@@ -29,14 +29,26 @@ public class BuildConfig
         set;
     }
 
-    public string Licensedir => Path.Join(Datadir, "licenses", "snapx");
-    public string Applicationsdir => Path.Join(Datadir, "applications");
+    public string Licensedir
+    {
+        get => field ?? Path.Join(Datadir, "licenses", "snapx");
+        set;
+    }
+    public string Applicationsdir
+    {
+        get => field ?? Path.Join(Datadir, "applications");
+        set;
+    }
     public string Icondir => Path.Join(Datadir, "icons", "hicolor");
     public string Runtime { get; set; } = RuntimeInformation.RuntimeIdentifier;
     public string Metainfodir => Path.Join(Datadir, "metainfo");
     public string RootDirectory { get; } = Path.GetRelativePath(Directory.GetCurrentDirectory(), DirectoryService.FindRoot());
     public string PackagingDirectory => Path.Combine(RootDirectory, "packaging");
-    public string Tarballdir => Path.Combine(PackagingDirectory, "tarball");
+    public string Tarballdir
+    {
+        get => field ?? Path.Combine(PackagingDirectory, "tarball");
+        set;
+    }
     public string Appdir => Path.Combine(PackagingDirectory, "AppDir");
     public string Rundir => Path.Combine(PackagingDirectory, "run");
 
@@ -81,7 +93,7 @@ public class BuildConfig
     public required Options BullseyeOptions { get; init; }
 
     public string[] Targets { get; init; } = [];
-    public string[] SkippedStepsRaw { get; init; } = [];
+    public string[] SkippedStepsRaw { get; set; } = [];
     public string OutputDir { get; init; } = "Output";
     public string Configuration { get; init; } = "Release";
     public bool EnableWrapperScriptFallback { get; init; }
