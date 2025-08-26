@@ -86,10 +86,22 @@ internal class Program
                 await tarballCreator.ProcessTarball();
             });
         Target("appimage",
-            dependsOn: ["tarball"],
             async () =>
         {
             if (config.ShouldSkip("appimage")) return;
+            if (!config.ShouldSkip("tarball"))
+            {
+                config.SkippedStepsRaw = config.SkippedStepsRaw.Append("archive").ToArray();
+                config.SetSkippedSteps(config.SkippedStepsRaw);
+                config.Tarballdir = config.Appdir;
+                config.DestDir = string.Empty;
+                config.Prefix = Path.Join(config.Appdir, "usr");
+                config.BinDir += Path.DirectorySeparatorChar;
+                config.LibDir = config.BinDir;
+                config.DisableWrapperScript = true;
+                var tarballCreator = new Tarball(logger, commandRunner, fileSystem, config);
+                await tarballCreator.ProcessTarball();
+            }
 
             var appImageCreator = new AppImage(logger, commandRunner, fileSystem, config);
             await appImageCreator.ProcessAppImage();
