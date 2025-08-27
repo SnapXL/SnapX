@@ -175,18 +175,113 @@ jobs:
       - name: Publish
         if: runner.os != 'Windows'
         run: ./build.sh --configuration ${{ matrix.configuration }}
-
+      - name: Import GPG key
+        id: import_gpg
+        if: github.event_name != 'pull_request' && matrix.configuration == 'Release' && runner.os == 'Linux'
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_tag_gpgsign: true
+          git_push_gpgsign: false
+      - name: Assemble SnapX UI Tarball
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        run: "./build.sh tarball --assembly snapx-ui"
+      - name: Assemble SnapX CLI Tarball
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        run: "./build.sh tarball --assembly snapx"
+      - name: Assemble the AppImage
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        run: |
+          wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "mkappimage-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
+          chmod +x mkappimage-*.AppImage
+          mv mkappimage-* mkappimage
+          sudo mv mkappimage /usr/local/bin
+          sudo dnf copr enable elxreno/zsync -y
+          sudo dnf in -y binutils desktop-file-utils python3 python3-pip fakeroot python3-setuptools squashfs-tools util-linux zsync appstream fuse fuse-libs upx
+          ./build.sh appimage --assembly snapx-ui
+      - name: Assemble Runfile
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        run: |
+          ./build.sh runfile --assembly snapx-ui
+      - name: Upload Built AppImage 📦
+        uses: actions/upload-artifact@v4
+        if: always() && runner.os === "Linux"
+        with:
+          name: SnapX-AppImage-${{ runner.arch }}
+          if-no-files-found: error
+          path: |
+            *.AppImage
+            *.AppImage.zsync
+      - name: Upload Built Runfile 📦
+        uses: actions/upload-artifact@v4
+        if: always() && runner.os === "Linux"
+        with:
+          name: SnapX-Runfile-${{ runner.arch }}
+          if-no-files-found: error
+          path: "*.run"
       - name: Upload Publish artifact (CLI)
         uses: actions/upload-artifact@v4
         with:
           name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
-          path: "Output/snapx"
+          path: "SnapX-CLI*"
           compression-level: 9
           if-no-files-found: error
       - name: Upload Publish artifact (Avalonia)
         uses: actions/upload-artifact@v4
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
-          path: "Output/snapx-ui"
+          path: "SnapX-UI*"
           compression-level: 9
           if-no-files-found: error
+  test-artifacts:
+    runs-on: ubuntu-24.04
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu:20.04
+          - mageia:latest
+          - redhat/ubi9
+          - opensuse/leap:latest
+          - debian:bookworm
+          - archlinux:latest
+          - fedora:39
+    container:
+      image: ${{ matrix.os }}
+      options: >-
+        --privileged
+        --cap-add=SYS_ADMIN
+        --cap-add=SYS_PTRACE
+
+    steps:
+      # See https://github.com/actions/download-artifact/issues/343 & https://github.com/actions/download-artifact/issues/339 to see why this is pinned. If you bump this version, you will be FIRED. >:(
+      - uses: actions/download-artifact@v4.1.8
+        continue-on-error: true
+        with:
+          merge-multiple: true
+
+      - name: Run binary tests
+        run: |
+          chmod +x *.run || true
+          chmod +x *.AppImage || true
+
+          # Check if there are any .run or .AppImage files
+          if ls ./*.run &>/dev/null; then
+            # Loop through all .run files
+            for BINARY in *.run; do
+              echo "Running binary: $BINARY"
+              ./$BINARY --version
+            done
+          fi
+
+          if ls ./*.AppImage &>/dev/null; then
+            # Loop through all .AppImage files
+            for BINARY in *.AppImage; do
+              echo "Running binary: $BINARY"
+              ./$BINARY --version
+            done
+          fi
