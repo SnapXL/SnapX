@@ -208,7 +208,7 @@ jobs:
           ./build.sh runfile --assembly snapx-ui
       - name: Upload Built AppImage 📦
         uses: actions/upload-artifact@v4
-        if: always() && runner.os === "Linux"
+        if: always() && matrix.configuration == 'Release' && runner.os == 'Linux'
         with:
           name: SnapX-AppImage-${{ runner.arch }}
           if-no-files-found: error
@@ -217,7 +217,7 @@ jobs:
             *.AppImage.zsync
       - name: Upload Built Runfile 📦
         uses: actions/upload-artifact@v4
-        if: always() && runner.os === "Linux"
+        if: always() && matrix.configuration == 'Release' && runner.os == 'Linux'
         with:
           name: SnapX-Runfile-${{ runner.arch }}
           if-no-files-found: error
