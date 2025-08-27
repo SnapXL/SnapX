@@ -199,8 +199,7 @@ jobs:
           chmod +x mkappimage-*.AppImage
           mv mkappimage-* mkappimage
           sudo mv mkappimage /usr/local/bin
-          sudo dnf copr enable elxreno/zsync -y
-          sudo dnf in -y binutils desktop-file-utils python3 python3-pip fakeroot python3-setuptools squashfs-tools util-linux zsync appstream fuse fuse-libs upx
+          sudo apt install -y desktop-file-utils squashfs-tools zsync appstream
           ./build.sh appimage --assembly snapx-ui
       - name: Assemble Runfile
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
