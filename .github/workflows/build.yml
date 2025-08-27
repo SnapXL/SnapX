@@ -192,10 +192,14 @@ jobs:
       - name: Assemble SnapX CLI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: "./build.sh tarball --assembly snapx"
+      - name: Get Arch
+        id: get-arch
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        run: echo "arch=$(arch)" >> "$GITHUB_OUTPUT"
       - name: Assemble the AppImage
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: |
-          wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "mkappimage-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
+          wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "mkappimage-.*-${{ steps.get-arch.outputs.arch }}.AppImage" | head -n 1 | cut -d '"' -f 2)
           chmod +x mkappimage-*.AppImage
           mv mkappimage-* mkappimage
           sudo mv mkappimage /usr/local/bin
