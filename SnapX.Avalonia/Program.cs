@@ -1,9 +1,17 @@
 ﻿// See https://aka.ms/new-console-template for more information
 #pragma warning disable CA1416 // I am aware
+using System.Reflection;
 using Avalonia;
 using Avalonia.Dialogs;
 using Avalonia.Media;
 using SnapX.Avalonia;
+
+if (args.Length != 0 && (args[0] == "--version" || args[0] == "-v"))
+{
+    var informationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
+    Console.WriteLine(informationalVersion);
+    return;
+}
 
 BuildAvaloniaApp()
     .StartWithClassicDesktopLifetime(args);
