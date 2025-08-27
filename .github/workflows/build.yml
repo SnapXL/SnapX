@@ -292,19 +292,31 @@ jobs:
           chmod +x *.run || true
           chmod +x *.AppImage || true
 
-          # Check if there are any .run or .AppImage files
+          check_arch() {
+            ARCH_OUTPUT=$(file "$1")
+            echo "$ARCH_OUTPUT" | grep -i 'x86[-_ ]*64' &>/dev/null
+          }
+
           if ls ./*.run &>/dev/null; then
-            # Loop through all .run files
             for BINARY in *.run; do
-              echo "Running binary: $BINARY"
-              ./$BINARY --version
+              echo "Checking architecture of $BINARY"
+              if check_arch "$BINARY"; then
+                echo "Running binary: $BINARY"
+                ./"$BINARY" --version
+              else
+                echo "Skipping $BINARY (not x86_64)"
+              fi
             done
           fi
 
           if ls ./*.AppImage &>/dev/null; then
-            # Loop through all .AppImage files
             for BINARY in *.AppImage; do
-              echo "Running binary: $BINARY"
-              ./$BINARY --version
+              echo "Checking architecture of $BINARY"
+              if check_arch "$BINARY"; then
+                echo "Running binary: $BINARY"
+                ./"$BINARY" --version
+              else
+                echo "Skipping $BINARY (not x86_64)"
+              fi
             done
           fi
