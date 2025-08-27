@@ -89,24 +89,18 @@ internal class Program
             async () =>
         {
             if (config.ShouldSkip("appimage")) return;
-            if (!config.ShouldSkip("tarball"))
-            {
-                config.SkippedStepsRaw = config.SkippedStepsRaw.Append("archive").ToArray();
-                config.SetSkippedSteps(config.SkippedStepsRaw);
-                config.Tarballdir = config.Appdir;
-                config.DestDir = string.Empty;
-                config.Prefix = Path.Join(config.Appdir, "usr");
-                config.BinDir += Path.DirectorySeparatorChar;
-                config.LibDir = config.BinDir;
-                config.DisableWrapperScript = true;
-                var tarballCreator = new Tarball(logger, commandRunner, fileSystem, config);
-                await tarballCreator.ProcessTarball();
-            }
 
             var appImageCreator = new AppImage(logger, commandRunner, fileSystem, config);
             await appImageCreator.ProcessAppImage();
         });
+        Target("runfile",
+            async () =>
+            {
+                if (config.ShouldSkip("runfile")) return;
 
+                var runfileCreator = new Runfile(logger, commandRunner, fileSystem, config);
+                await runfileCreator.ProcessRunfile();
+            });
         Target("default", dependsOn: ["build"]);
 
         await RunTargetsAndExitAsync(targetsToRun, config.BullseyeOptions);

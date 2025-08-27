@@ -13,12 +13,46 @@ public class BuildConfig
         set;
     }
 
-    public string Prefix { get; set; } = Path.Join(Path.DirectorySeparatorChar.ToString(), "usr", "local");
+    public string Prefix
+    {
+        get => field ?? Path.Join(Path.DirectorySeparatorChar.ToString(), "usr", "local");
+        set;
+    }
 
     public string BinDir
     {
         get => field ?? Path.Join(DestDir, Prefix, "bin");
         set;
+    }
+    public string Uname
+    {
+        get
+        {
+            if (OperatingSystem.IsWindows()) return "Windows";
+            if (OperatingSystem.IsLinux()) return "Linux";
+            if (OperatingSystem.IsMacOS()) return "macOS";
+            if (OperatingSystem.IsFreeBSD()) return "FreeBSD";
+
+            return Environment.OSVersion.Platform.ToString(); // Fallback
+        }
+    }
+
+    public string Edition
+    {
+        get
+        {
+            var edition = TargetInstallAssembly;
+            if (!string.IsNullOrEmpty(edition))
+            {
+                var dashIndex = edition.IndexOf('-');
+                if (dashIndex >= 0 && dashIndex < edition.Length - 1)
+                {
+                    edition = edition[(dashIndex + 1)..].ToUpperInvariant();
+                }
+            }
+            if (edition == "snapx") edition = "CLI";
+            return edition;
+        }
     }
 
     public string Datadir => Path.Join(DestDir, Prefix, "share");
@@ -39,18 +73,34 @@ public class BuildConfig
         get => field ?? Path.Join(Datadir, "applications");
         set;
     }
-    public string Icondir => Path.Join(Datadir, "icons", "hicolor");
+    public string Icondir
+    {
+        get => field ?? Path.Join(Datadir, "icons", "hicolor");
+        set;
+    }
     public string Runtime { get; set; } = RuntimeInformation.RuntimeIdentifier;
-    public string Metainfodir => Path.Join(Datadir, "metainfo");
+    public string Metainfodir
+    {
+        get => field ?? Path.Join(Datadir, "metainfo");
+        set;
+    }
     public string RootDirectory { get; } = Path.GetRelativePath(Directory.GetCurrentDirectory(), DirectoryService.FindRoot());
-    public string PackagingDirectory => Path.Combine(RootDirectory, "packaging");
+    public string PackagingDirectory
+    {
+        get => field ?? Path.Combine(RootDirectory, "packaging");
+        set;
+    }
     public string Tarballdir
     {
         get => field ?? Path.Combine(PackagingDirectory, "tarball");
         set;
     }
     public string Appdir => Path.Combine(PackagingDirectory, "AppDir");
-    public string Rundir => Path.Combine(PackagingDirectory, "run");
+    public string Rundir
+    {
+        get => field ?? Path.Combine(PackagingDirectory, "run");
+        set;
+    }
 
     public string PackagingUsrDir => Path.Combine(PackagingDirectory, "usr");
 
@@ -97,6 +147,7 @@ public class BuildConfig
     public string OutputDir { get; init; } = "Output";
     public string Configuration { get; init; } = "Release";
     public bool EnableWrapperScriptFallback { get; init; }
+    public string? CustomWrapperScript { get; set; }
     public bool DisableWrapperScript { get; set; } = OperatingSystem.IsWindows();
     public string ExtraArgs { get; init; } = "";
     private const string Namespace = "SnapX.";
