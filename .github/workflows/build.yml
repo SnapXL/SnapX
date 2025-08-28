@@ -192,32 +192,10 @@ jobs:
       - name: Assemble SnapX CLI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: "./build.sh tarball --assembly snapx"
-      - name: Get Arch
-        id: get-arch
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: echo "arch=$(arch)" >> "$GITHUB_OUTPUT"
-      - name: Assemble the AppImage
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: |
-          wget -c https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "mkappimage-.*-${{ steps.get-arch.outputs.arch }}.AppImage" | head -n 1 | cut -d '"' -f 2)
-          chmod +x mkappimage-*.AppImage
-          mv mkappimage-* mkappimage
-          sudo mv mkappimage /usr/local/bin
-          sudo apt install -y desktop-file-utils squashfs-tools zsync appstream
-          ./build.sh appimage --assembly snapx-ui
       - name: Assemble Runfile
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: |
           ./build.sh runfile --assembly snapx-ui
-      - name: Upload Built AppImage 📦
-        uses: actions/upload-artifact@v4
-        if: always() && matrix.configuration == 'Release' && runner.os == 'Linux'
-        with:
-          name: SnapX-AppImage-${{ runner.arch }}
-          if-no-files-found: error
-          path: |
-            *.AppImage
-            *.AppImage.zsync
       - name: Upload Built Runfile 📦
         uses: actions/upload-artifact@v4
         if: always() && matrix.configuration == 'Release' && runner.os == 'Linux'
@@ -282,7 +260,7 @@ jobs:
 
     steps:
       # See https://github.com/actions/download-artifact/issues/343 & https://github.com/actions/download-artifact/issues/339 to see why this is pinned. If you bump this version, you will be FIRED. >:(
-      - uses: actions/download-artifact@v4.1.8
+      - uses: actions/download-artifact@v5
         continue-on-error: true
         with:
           merge-multiple: true
