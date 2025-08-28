@@ -38,6 +38,10 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
 
             if (!installConfig.ShouldSkip("copy_deps"))
             {
+                var libDirWithoutDestDir = !string.IsNullOrWhiteSpace(config.DestDir) &&
+                                           config.LibDir.StartsWith(config.DestDir, StringComparison.Ordinal)
+                    ? config.LibDir[config.DestDir.Length..].TrimStart('/')
+                    : config.LibDir.TrimStart('/');
                 installConfig.CustomWrapperScript = $"""
                                                      #!/usr/bin/env sh
                                                      # SnapX version: {config.SnapXVersion}
@@ -58,9 +62,9 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
                                                      ld_path=$(echo lib/ld*.so* | head -n 1)
 
                                                      if [ -e "$ld_path" ]; then
-                                                         exec "$EXTRA_ARGS" "$ld_path" "lib/snapx-ui" "$@"
+                                                         exec "$EXTRA_ARGS" "$ld_path" "{Path.Join(libDirWithoutDestDir, TargetInstallAssembly ?? "snapx-ui")}" "$@"
                                                      else
-                                                         exec "lib/snapx-ui" "$@"
+                                                         exec "{Path.Join(libDirWithoutDestDir, TargetInstallAssembly ?? "snapx-ui")}" "$@"
                                                      fi
                                                      """;
             }
