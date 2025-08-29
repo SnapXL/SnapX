@@ -34,7 +34,7 @@ Version:        %{version}
 %if 0%{?fedora}
 Release:        %autorelease
 %else
-Release:        2%{?dist}
+Release:        3%{?dist}
 %endif
 Summary:        Screenshot tool that handles images, text, and video.
 
