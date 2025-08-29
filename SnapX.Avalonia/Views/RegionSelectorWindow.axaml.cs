@@ -47,26 +47,24 @@ public partial class RegionSelectorWindow : Window
         //     .Aggregate((acc, next) => acc.Union(next));
         var cursorPos = Methods.GetCursorPosition();
         var workingArea = Screens.ScreenFromPoint(new PixelPoint(cursorPos.X, cursorPos.Y))?.Bounds;
-        if (workingArea != null && workingArea.HasValue)
-        {
-            workingArea = workingArea.Value;
+        if (workingArea == null || !workingArea.HasValue) return;
+        workingArea = workingArea.Value;
 
-            var x = workingArea.Value.X;
-            var y = workingArea.Value.Y;
-            var width = workingArea.Value.Width;
-            var height = workingArea.Value.Height;
-            DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
-            Position = new PixelPoint(x, y);
-            // _dimmingOverlay.Width = width;
-            // _dimmingOverlay.Height = height;
-            // Width = width;
-            // height = width;
-            _canvas.Width = width;
-            _canvas.Height = height;
-            var viewBox = _canvas.Parent as Viewbox;
-            viewBox.Width = width;
-            viewBox.Height = height;
-        }
+        var x = workingArea.Value.X;
+        var y = workingArea.Value.Y;
+        var width = workingArea.Value.Width;
+        var height = workingArea.Value.Height;
+        DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
+        Position = new PixelPoint(x, y);
+        // _dimmingOverlay.Width = width;
+        // _dimmingOverlay.Height = height;
+        // Width = width;
+        // height = width;
+        _canvas.Width = width;
+        _canvas.Height = height;
+        var viewBox = _canvas.Parent as Viewbox;
+        viewBox.Width = width;
+        viewBox.Height = height;
 
     }
     public RegionSelectorWindow() : this(new RegionSelectorViewModel()) { }
@@ -262,7 +260,7 @@ public partial class RegionSelectorWindow : Window
         }
 
         // Screenshotting can sometimes take time and block the UI thread.
-        // It can also fail, so, we have to handle it gracefully.
+        // It can also fail, so we have to handle it gracefully.
         try
         {
             var captureTask = Task.Factory.StartNew(async () => await TaskHelpers.GetScreenshot().CaptureActiveMonitor(),
@@ -289,7 +287,7 @@ public partial class RegionSelectorWindow : Window
         }
 
         _imageStream = new MemoryStream();
-        _image.SaveAsPng(_imageStream);
+        await _image.SaveAsPngAsync(_imageStream);
         _imageStream.Position = 0;
         _imageBounds = new Rect(_image.Bounds.X, _image.Bounds.Y, _image.Bounds.Width, _image.Bounds.Height);
         DebugHelper.WriteLine($"_imageStream {_imageStream.Length} (Readable? {_imageStream.CanRead}) bytes raw image bounds {_image.Bounds}");
