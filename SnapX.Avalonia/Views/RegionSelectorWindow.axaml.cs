@@ -246,7 +246,7 @@ public partial class RegionSelectorWindow : Window
     }
     private readonly Dictionary<Window, WindowBase?> _ownershipMap = new();
 
-    private void OnOpened(object? Sender, EventArgs EventArgs)
+    private async void OnOpened(object? Sender, EventArgs EventArgs)
     {
         foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != this && w.IsVisible) ?? [])
         {
@@ -260,15 +260,21 @@ public partial class RegionSelectorWindow : Window
             App.MyMainWindow.Hide(); // Hide makes it lose relationship with child windows.
             windowsHiddenByUs.Add(App.MyMainWindow);
         }
+
         // Screenshotting can sometimes take time and block the UI thread.
         // It can also fail, so, we have to handle it gracefully.
         try
         {
-            _image = Task.Factory.StartNew(() =>
-                    TaskHelpers.GetScreenshot()
-                        .CaptureActiveMonitor().GetAwaiter().GetResult(),
-                TaskCreationOptions.LongRunning
-            ).ConfigureAwait(false).GetAwaiter().GetResult();
+            var captureTask = Task.Factory.StartNew(async () => await TaskHelpers.GetScreenshot().CaptureActiveMonitor(),
+                TaskCreationOptions.LongRunning).Unwrap();
+
+
+            if (!captureTask.Wait(TimeSpan.FromSeconds(10)))
+            {
+                throw new TimeoutException("Screenshot capture timed out after 10 seconds.");
+            }
+
+            _image = await captureTask;
         }
         catch (Exception ex)
         {
@@ -278,7 +284,10 @@ public partial class RegionSelectorWindow : Window
         if (_image == null)
         {
             DebugHelper.WriteLine("RegionSelectorWindow.OnOpened: _image is null");
+            Close();
+            return;
         }
+
         _imageStream = new MemoryStream();
         _image.SaveAsPng(_imageStream);
         _imageStream.Position = 0;
