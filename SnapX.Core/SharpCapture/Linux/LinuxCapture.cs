@@ -126,7 +126,6 @@ public class LinuxCapture : BaseCapture
     {
         var fullscreenImage = await CaptureFullscreen().ConfigureAwait(false);
         var croppedImage = CropFullscreenScreenshotToBounds(bounds, fullscreenImage);
-        Console.WriteLine($"Original: {fullscreenImage.Width}x{fullscreenImage.Height} After: {croppedImage.Width}x{croppedImage.Height}");
         return croppedImage;
         // }
 
@@ -138,7 +137,7 @@ public class LinuxCapture : BaseCapture
         return await CaptureScreen(await GetScreen(pos.Value));
     }
 
-    public override async Task<Rectangle> GetScreen(Point pos) => Methods.NativeAPI.GetScreen(pos).Bounds;
+    public override async Task<Rectangle> GetScreen(Point pos) => Methods.NativeAPI.GetScreen(pos)?.Bounds ?? Rectangle.Empty;
 
     public override async Task<Rectangle> GetWorkingArea() => ((LinuxAPI)Methods.NativeAPI).GetScreenBounds();
     public override async Task<Image?> CaptureRectangle(Rectangle rect)

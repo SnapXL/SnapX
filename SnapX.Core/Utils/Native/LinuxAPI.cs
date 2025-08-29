@@ -9,8 +9,8 @@ namespace SnapX.Core.Utils.Native;
 
 public partial class LinuxAPI : NativeAPI
 {
-    private const string LibX11 = "libX11.so.6";
-
+    private const string LibX11 = "libX11.so";
+    const string XRandR = "libXrandr.so";
     internal static bool IsWayland()
     {
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
@@ -34,7 +34,6 @@ public partial class LinuxAPI : NativeAPI
     {
         return GetWindowRectangleX11(windowHandle);
     }
-
     public override Screen? GetScreen(Point pos)
     {
         var display = XOpenDisplay(null);
@@ -44,36 +43,89 @@ public partial class LinuxAPI : NativeAPI
             return null;
         }
 
-        var screenCount = XScreenCount(display);
-        for (var i = 0; i < screenCount; i++)
+        try
         {
-            var rootWindow = XRootWindow(display, i);
-            XGetGeometry(
-                display,
-                rootWindow,
-                out _,
-                out var x,
-                out var y,
-                out var width,
-                out var height,
-                out _,
-                out _
-            );
+            var rootWindow = XDefaultRootWindow(display);
 
-            if (pos.X < x || pos.X > x + (int)width || pos.Y < y || pos.Y > y + (int)height)
-                continue;
-            DebugHelper.Logger?.Debug("Point {Pos} is within screen {I} bounds", pos, i);
-            return new Screen()
+            int monitorCount = 0;
+            IntPtr monitorsPtr = XRRGetMonitors(display, rootWindow, true, out monitorCount);
+            if (monitorsPtr == IntPtr.Zero || monitorCount == 0)
             {
-                Bounds = new Rectangle(x, y, (int)width, (int)height),
-                Name = "NotImplementedName",
-                Id = "NotImplementedID",
-            };
+                DebugHelper.WriteLine("Failed to get monitors via XRRGetMonitors or no monitors found.");
+                return null;
+            }
+
+            try
+            {
+                DebugHelper.WriteLine($"Number of X11 monitors (XRRGetMonitors): {monitorCount}");
+                var monitorStructSize = Marshal.SizeOf<XRRMonitorInfo>();
+
+                for (var i = 0; i < monitorCount; i++)
+                {
+                    var monitorPtr = IntPtr.Add(monitorsPtr, i * monitorStructSize);
+                    var monitorInfo = Marshal.PtrToStructure<XRRMonitorInfo>(monitorPtr);
+
+                    var bounds = new Rectangle(monitorInfo.x, monitorInfo.y, monitorInfo.width, monitorInfo.height);
+                    var monitorName = string.Empty;
+                    var atomNamePtr = XGetAtomName(display, monitorInfo.name);
+                    if (atomNamePtr != IntPtr.Zero)
+                    {
+                        monitorName = Marshal.PtrToStringAnsi(atomNamePtr) ?? "Unnamed";
+                    }
+
+                    var name = $"Monitor_{i} ({monitorName})";
+                    DebugHelper.WriteLine($"{name}: {bounds}");
+
+                    if (pos.X < bounds.X || pos.X >= bounds.X + bounds.Width ||
+                        pos.Y < bounds.Y || pos.Y >= bounds.Y + bounds.Height) continue;
+                    DebugHelper.Logger?.Debug("Point {Pos} is within monitor bounds", pos);
+                    var width = monitorInfo.width;
+                    var height = monitorInfo.height;
+                    var x = monitorInfo.x;
+                    var y = monitorInfo.y;
+                    var mwidth = monitorInfo.mwidth;
+                    var mheight = monitorInfo.mheight;
+
+                    double dpi = 0;
+                    double diagonalInches = 0;
+                    if (mwidth > 0 && mheight > 0)
+                    {
+                        diagonalInches = Math.Sqrt(mwidth * mwidth + mheight * mheight) / 25.4;
+                        var resolutionDiagonal = Math.Sqrt(width * width + height * height);
+                        dpi = resolutionDiagonal / diagonalInches;
+                    }
+
+                    var orientation = width >= height ? ScreenOrientation.Landscape : ScreenOrientation.Portrait;
+
+                    return new Screen
+                    {
+                        Id = $"X11_{i}",
+                        Index = i,
+                        Name = monitorName,
+                        Bounds = new Rectangle(x, y, width, height),
+                        DPI = dpi,
+                        DiagonalSizeInches = diagonalInches,
+                        Orientation = orientation,
+                        IsPrimary = monitorInfo.primary != 0,
+                        SessionType = SessionType.X11
+                    };
+                }
+            }
+            finally
+            {
+                XRRFreeMonitors(monitorsPtr);
+            }
+        }
+        finally
+        {
+            XCloseDisplay(display);
         }
 
-        XCloseDisplay(display);
         return null;
     }
+
+
+
 
     public override List<WindowInfo> GetWindowList()
     {
@@ -457,6 +509,27 @@ public partial class LinuxAPI : NativeAPI
 
     [LibraryImport(LibX11)]
     internal static partial void XCloseDisplay(IntPtr display);
+    [StructLayout(LayoutKind.Sequential)]
+    internal unsafe struct XRRMonitorInfo
+    {
+        public IntPtr name;
+        public int primary;
+        public int automatic;
+        public int nOutput;
+        public int x;
+        public int y;
+        public int width;
+        public int height;
+        public int mwidth;
+        public int mheight;
+        public IntPtr* Outputs;
+    }
+    [DllImport(XRandR)]
+    public static extern IntPtr XRRGetMonitors(IntPtr dpy, IntPtr window, bool get_active, out int nmonitors);
+
+    [DllImport(XRandR)]
+    public static extern void XRRFreeMonitors(IntPtr monitors);
+
 
     [LibraryImport(LibX11)]
     internal static partial IntPtr XCreateSimpleWindow(
@@ -560,8 +633,10 @@ public partial class LinuxAPI : NativeAPI
             if (ev.type != SelectionRequest)
                 continue;
             var req = ev.xselectionrequest;
-            var response = new XEvent();
-            response.type = SelectionNotify;
+            var response = new XEvent
+            {
+                type = SelectionNotify
+            };
             response.xselectionrequest.display = req.display;
             response.xselectionrequest.requestor = req.requestor;
             response.xselectionrequest.selection = req.selection;
