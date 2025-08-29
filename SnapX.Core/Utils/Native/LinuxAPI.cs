@@ -9,8 +9,8 @@ namespace SnapX.Core.Utils.Native;
 
 public partial class LinuxAPI : NativeAPI
 {
-    private const string LibX11 = "libX11.so";
-    const string XRandR = "libXrandr.so";
+    private const string LibX11 = "libX11.so.6";
+    const string XRandR = "libXrandr.so.2";
     internal static bool IsWayland()
     {
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
@@ -328,143 +328,158 @@ public partial class LinuxAPI : NativeAPI
         return state != IntPtr.Zero;
     }
 
-    private const long ALL_PLANES = -1;
+    private const uint ALL_PLANES = 0xFFFFFFFF;
     public const int ZPIXMAP = 2;
 
-    internal static Image TakeScreenshotWithX11(Screen screen)
+internal static Image TakeScreenshotWithX11(Screen screen)
+{
+    DebugHelper.WriteLine($"Screenshotting screen {screen.Name} with {screen.Resolution} ({screen.Id})");
+
+    var display = XOpenDisplay(null);
+    if (display == IntPtr.Zero)
+        throw new Exception("Unable to open X display.");
+
+    var screenPtr = XScreenOfDisplay(display, screen.Index);
+    if (screenPtr == IntPtr.Zero)
+        throw new Exception($"Unable to open XScreen {screen.Index}");
+
+    var rootWindow = XRootWindowOfScreen(screenPtr);
+    if (rootWindow == IntPtr.Zero)
+        throw new Exception("Unable to open root xwindow");
+
+    XGetWindowAttributes(display, rootWindow, out var attributes);
+
+    DebugHelper.Logger?.Debug("x: {AttributesX}", attributes.x);
+    DebugHelper.Logger?.Debug("y: {AttributesY}", attributes.y);
+    DebugHelper.Logger?.Debug("width: {AttributesWidth}", attributes.width);
+    DebugHelper.Logger?.Debug("height: {AttributesHeight}", attributes.height);
+    DebugHelper.Logger?.Debug("border_width: {AttributesBorderWidth}", attributes.border_width);
+    DebugHelper.Logger?.Debug("depth: {AttributesDepth}", attributes.depth);
+    DebugHelper.Logger?.Debug("visual: {AttributesVisual}", attributes.visual);
+    DebugHelper.Logger?.Debug("root: {AttributesRoot}", attributes.root);
+    DebugHelper.Logger?.Debug("colormap: {AttributesColormap}", attributes.colormap);
+
+    var screenBounds = screen.Bounds;
+    var imagePtr = XGetImage(
+        display,
+        rootWindow,
+        screenBounds.X,
+        screenBounds.Y,
+        (uint)screenBounds.Width,
+        (uint)screenBounds.Height,
+        ALL_PLANES,
+        ZPIXMAP
+    );
+
+    if (imagePtr == IntPtr.Zero)
+        throw new Exception("Unable to capture screen image using X11.");
+
+    var xImage = Marshal.PtrToStructure<XImage>(imagePtr);
+
+    var width = xImage.width;
+    var height = xImage.height;
+    var bpp = xImage.bits_per_pixel;  // Bits per pixel (important for interpreting format)
+    DebugHelper.Logger?.Debug($"XImage: width={width}, height={height}, bits_per_pixel={bpp}");
+    DebugHelper.Logger?.Debug($"XImage masks: red=0x{xImage.red_mask:X}, green=0x{xImage.green_mask:X}, blue=0x{xImage.blue_mask:X}");
+
+    var bytesPerPixel = bpp / 8;
+
+    var pixelData = new byte[width * height * 4];
+
+    var rawPixels = new byte[width * height * bytesPerPixel];
+    Marshal.Copy(xImage.data, rawPixels, 0, rawPixels.Length);
+
+    for (var y = 0; y < height; y++)
     {
-        unsafe
+        if (y % 100 == 0)
+            DebugHelper.Logger?.Debug($"Processing row {y}/{height}");
+
+        for (var x = 0; x < width; x++)
         {
-            DebugHelper.WriteLine(
-                $"Screenshotting screen {screen.Name} with {screen.Resolution} ({screen.Id})"
-            );
-            var display = XOpenDisplay(null);
-            if (display == IntPtr.Zero)
+            // Calculate the offset for the current pixel (byte-by-byte)
+            var pixelOffset = (y * width + x) * bytesPerPixel;
+
+            // Extract the raw pixel value from the data buffer
+            ulong pixel = 0;
+            for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
             {
-                throw new Exception("Unable to open X display.");
+                pixel |= (ulong)rawPixels[pixelOffset + byteIndex] << (8 * byteIndex); // assuming little-endian
+            }
+            var rawPixelBytes = new byte[bytesPerPixel];
+            for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
+            {
+                var currentByte = rawPixels[pixelOffset + byteIndex];
+                rawPixelBytes[byteIndex] = currentByte;
+                pixel |= (ulong)currentByte << (8 * byteIndex); // assuming little-endian
+            }
+            if ((x == 0 && y == 0) || (x == width / 2 && y == height / 2))
+            {
+                DebugHelper.Logger?.Debug(
+                    "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {BPP}",
+                    x, y,
+                    BitConverter.ToString(rawPixelBytes),
+                    pixel,
+                    bytesPerPixel
+                );
+
+                DebugHelper.Logger?.Debug(
+                    "Masks - Red: 0x{RedMask:X}, Green: 0x{GreenMask:X}, Blue: 0x{BlueMask:X}",
+                    xImage.red_mask, xImage.green_mask, xImage.blue_mask
+                );
             }
 
-            var screenPtr = XScreenOfDisplay(display, 0);
-            if (screenPtr == IntPtr.Zero)
-            {
-                throw new Exception("Unable to open XScreen 0");
-            }
+            var r = ExtractColorComponent(pixel, xImage.red_mask);
+            var g = ExtractColorComponent(pixel, xImage.green_mask);
+            var b = ExtractColorComponent(pixel, xImage.blue_mask);
 
-            var rootWindow = XRootWindowOfScreen(screenPtr);
-            if (rootWindow == IntPtr.Zero)
-            {
-                throw new Exception("Unable to open root xwindow");
-            }
-
-            XGetWindowAttributes(display, rootWindow, out var attributes);
-            DebugHelper.Logger?.Debug("x: {AttributesX}", attributes.x);
-            DebugHelper.Logger?.Debug("y: {AttributesY}", attributes.y);
-            DebugHelper.Logger?.Debug("width: {AttributesWidth}", attributes.width);
-            DebugHelper.Logger?.Debug("height: {AttributesHeight}", attributes.height);
-            DebugHelper.Logger?.Debug(
-                "border_width: {AttributesBorderWidth}",
-                attributes.border_width
-            );
-            DebugHelper.Logger?.Debug("depth: {AttributesDepth}", attributes.depth);
-            DebugHelper.Logger?.Debug("visual: {AttributesVisual}", attributes.visual);
-            DebugHelper.Logger?.Debug("root: {AttributesRoot}", attributes.root);
-            DebugHelper.Logger?.Debug("colormap: {AttributesColormap}", attributes.colormap);
-
-            var screenBounds = screen.Bounds;
-            var imagePtr = XGetImage(
-                display,
-                rootWindow,
-                screenBounds.X,
-                screenBounds.Y,
-                (uint)screenBounds.Width,
-                (uint)screenBounds.Height,
-                ALL_PLANES,
-                ZPIXMAP
-            );
-            if (imagePtr == IntPtr.Zero)
-            {
-                throw new Exception("Unable to capture screen image using X11.");
-            }
-
-            var xImage = Marshal.PtrToStructure<XImage>(imagePtr);
-
-            var pixelsPtr = (IntPtr)xImage.data;
-
-            // Calculate the size of the pixel data in bytes
-            // XImage's bytes_per_line is typically the width * bytes_per_pixel (depth / 8)
-            // However, it's safer to use the XImage's width and height fields directly for allocation,
-            // and then copy row by row if byte order or padding is an issue.
-            // For simplicity, assuming a direct byte copy is feasible for common ZPIXMAP depths (e.g., 24 or 32 bits).
-            var bytesPerPixel = xImage.depth / 8;
-            var pixelDataSize = xImage.width * xImage.height * bytesPerPixel;
-            DebugHelper.Logger?.Debug("bytesPerPixel: {bytesPerPixel}", bytesPerPixel);
-            DebugHelper.Logger?.Debug("pixelDataSize: {pixelDataSize}", pixelDataSize);
-
-            // Create a byte array to hold the pixel data
-            var pixelData = new byte[pixelDataSize];
-
-            Marshal.Copy(pixelsPtr, pixelData, 0, pixelDataSize);
-
-            // Depending on the depth and byte order, you might need to reorder the pixel data.
-            // XGetImage usually returns data in the display's native byte order and format.
-            // For Rgba32, you often need 4 bytes per pixel (Red, Green, Blue, Alpha).
-            // XGetImage with ZPIXMAP typically returns BGR or BGRA. If the target format is RGBA,
-            // you'll need to swap byte order (e.g., if it's BGRA, swap B and R for each pixel).
-            // This example assumes a direct conversion to Rgba32 is possible or handles it internally.
-            // If 'Rgba32' expects RGBA and XGetImage gives BGRA, a conversion loop would be needed here.
-            // For example:
-            if (bytesPerPixel == 4) // Assuming 32-bit depth (BGRA or ARGB)
-            {
-                for (var i = 0; i < pixelDataSize; i += 4)
-                {
-                    // Swap B and R (if it's BGRA to RGBA)
-                    (pixelData[i], pixelData[i + 2]) = (pixelData[i + 2], pixelData[i]);
-                    // pixelData[i+3] is A (alpha), remains in place
-                }
-            }
-            else if (bytesPerPixel == 3) // Assuming 24-bit depth (BGR)
-            {
-                // Convert BGR to RGB
-                for (var i = 0; i < pixelDataSize; i += 3)
-                {
-                    (pixelData[i], pixelData[i + 2]) = (pixelData[i + 2], pixelData[i]);
-                }
-
-                // If converting to Rgba32, you'd also need to add an Alpha channel.
-                // This would involve creating a new larger array and copying with alpha = 255.
-                // For simplicity, if Image.LoadPixelData<Rgba32> can handle 3-byte input by adding alpha, it's fine.
-                // Otherwise, a more complex conversion to a new RGBA byte array is required.
-                var rgbaPixelData = new byte[(pixelDataSize / 3) * 4];
-                var rgbaIndex = 0;
-                for (var i = 0; i < pixelDataSize; i += 3)
-                {
-                    rgbaPixelData[rgbaIndex++] = pixelData[i]; // R
-                    rgbaPixelData[rgbaIndex++] = pixelData[i + 1]; // G
-                    rgbaPixelData[rgbaIndex++] = pixelData[i + 2]; // B
-                    rgbaPixelData[rgbaIndex++] = 255; // A (fully opaque)
-                }
-
-                pixelData = rgbaPixelData; // Use the new RGBA data
-            }
-
-            // Create the Image<Rgba32> from the pixel data
-            // Ensure the pixelData format matches what Rgba32 expects (typically RGBA).
-            // The width and height of the screen object are used.
-            var image = Image.LoadPixelData<Rgba32>(
-                pixelData,
-                screen.Bounds.Width,
-                screen.Bounds.Height
-            );
-
-            // Free the XImage data when done
-            XDestroyImage(imagePtr); // This frees the data pointed to by xImage.data as well
-
-            XCloseDisplay(display);
-
-            return image;
+            var idx = (y * width + x) * 4;
+            pixelData[idx + 0] = r;
+            pixelData[idx + 1] = g;
+            pixelData[idx + 2] = b;
+            pixelData[idx + 3] = 255;
         }
     }
 
+    // Create ImageSharp image from the processed pixel data
+    var image = Image.LoadPixelData<Rgba32>(pixelData, width, height);
+
+    // Clean up
+    XDestroyImage(imagePtr);
+    XCloseDisplay(display);
+
+    return image;
+}
+    static byte ExtractColorComponent(ulong pixel, ulong mask)
+    {
+        if (mask == 0)
+            return 0;
+
+        var shift = GetShift(mask);
+        var component = (pixel & mask) >> shift;
+
+        // Normalize component to 8 bits if mask uses less than 8 bits
+        var maskBits = CountBits(mask);
+        if (maskBits == 0)
+            return 0;
+
+        if (maskBits == 8)
+            return (byte)component;
+        DebugHelper.Logger?.Debug(
+            "Extracting color component from pixel: {0:X}, mask: {1:X}, shift: {2}, component: {3}, scaled: {4}",
+            pixel, mask, shift, component, (byte)((component * 255) / (ulong)((1 << maskBits) - 1))
+        );
+        // Scale component up to 8 bits
+        return (byte)((component * 255) / (ulong)((1 << maskBits) - 1));    }
+    static int CountBits(ulong mask)
+    {
+        int count = 0;
+        while (mask != 0)
+        {
+            count += (int)(mask & 1);
+            mask >>= 1;
+        }
+        return count;
+    }
     private static string GetWindowTitle(IntPtr display, IntPtr window)
     {
         var windowTitlePtr = XFetchName(display, window);
@@ -703,8 +718,6 @@ public partial class LinuxAPI : NativeAPI
         // Using PngEncoder for internal consistency as the clipboard will provide PNG
         image.Save(ms, new PngEncoder());
         // This is important: reload the image from memory to ensure it's in a known state
-        // and to get a Rgba32 image, as that's often what ImageSharp works best with internally.
-        // If you always work with Rgba32 from TakeScreenshotWithX11, this might be redundant.
         var imageForClipboard = Image.Load<Rgba32>(ms.ToArray());
 
 
@@ -755,6 +768,8 @@ public partial class LinuxAPI : NativeAPI
         out int winY,
         out int mask
     );
+    [LibraryImport(LibX11)]
+    public static partial ulong XGetPixel(IntPtr ximage, int x, int y);
 
     public override Point GetCursorPosition()
     {
@@ -792,6 +807,21 @@ public partial class LinuxAPI : NativeAPI
         );
         return new Point(rootX, rootY);
     }
+    static int GetShift(ulong mask)
+    {
+        if (mask == 0)
+            return 0;
+
+        int shift = 0;
+        while ((mask & 1u) == 0 && shift < 32)
+        {
+            shift++;
+            mask >>= 1;
+        }
+
+        return shift;
+    }
+
 
     [DllImport(LibX11)]
     private static extern int XGetWindowAttributes(
@@ -821,28 +851,41 @@ public partial class LinuxAPI : NativeAPI
     }
 
     [StructLayout(LayoutKind.Sequential)]
+#pragma warning disable CA1815 // Override equals and operator equals on value types
     internal unsafe struct XImage
+#pragma warning restore CA1815 // Override equals and operator equals on value types
     {
-        // ReSharper disable MemberCanBePrivate.Global
-        public int width;
-        public int height;
-        public int xoffset;
-        public int format;
-        public byte* data;
-        public int byte_order;
-        public int bitmap_unit;
-        public int bitmap_bit_order;
-        public int bitmap_pad;
-        public int depth;
-        public int bytes_per_line;
-        public int bits_per_pixel;
-        public uint red_mask;
-        public uint green_mask;
-        public uint blue_mask;
-        public nint obdata;
-        // ReSharper restore MemberCanBePrivate.Global
+        public int width, height; /* size of image */
+        public int xoffset; /* number of pixels offset in X direction */
+        public int format; /* XYBitmap, XYPixmap, ZPixmap */
+        public IntPtr data; /* pointer to image data */
+        public int byte_order; /* data byte order, LSBFirst, MSBFirst */
+        public int bitmap_unit; /* quant. of scanline 8, 16, 32 */
+        public int bitmap_bit_order; /* LSBFirst, MSBFirst */
+        public int bitmap_pad; /* 8, 16, 32 either XY or ZPixmap */
+        public int depth; /* depth of image */
+        public int bytes_per_line; /* accelerator to next scanline */
+        public int bits_per_pixel; /* bits per pixel (ZPixmap) */
+        public ulong red_mask; /* bits in z arrangement */
+        public ulong green_mask;
+        public ulong blue_mask;
+        private fixed byte funcs[128];
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct XVisualInfo
+    {
+        internal IntPtr visual;
+        internal IntPtr visualid;
+        internal int screen;
+        internal uint depth;
+        internal int klass;
+        internal IntPtr red_mask;
+        internal IntPtr green_mask;
+        internal IntPtr blue_mask;
+        internal int colormap_size;
+        internal int bits_per_rgb;
+    }
     // Event Masks
     internal const long ExposureMask = (1L << 15);
     internal const long StructureNotifyMask = (1L << 17);

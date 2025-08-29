@@ -1,5 +1,6 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Media;
 using SnapX.Core.SharpCapture.Linux.DBus;
 using SnapX.Core.Utils.Native;
 using Tmds.DBus;
@@ -11,23 +12,19 @@ public class LinuxCapture : BaseCapture
 {
     public override async Task<Image?> CaptureFullscreen()
     {
-        if (LinuxAPI.IsWayland() && !IsCompositorKwin) return await TakeScreenshotWithPortal();
-        var screen = Methods.GetScreen(Methods.GetCursorPosition());
-        if (!IsCompositorKwin)
-        {
-            return LinuxAPI.TakeScreenshotWithX11(screen);
-        }
+        var isWayland = LinuxAPI.IsWayland();
 
-        // Todo: replace try catch with method that checks for valid kwin permissions.
+        if (!isWayland || !IsCompositorKwin)
+            return LinuxAPI.TakeScreenshotWithX11(Methods.GetScreen(Methods.GetCursorPosition()) ?? new Screen());
         try
         {
             return await TakeScreenshotWithKwin();
         }
-        catch (Exception e)
+        catch
         {
-            // Fallback to portal method.
+            // Fallback to portal if KWin fails
+            return await TakeScreenshotWithPortal();
         }
-        return await TakeScreenshotWithPortal();
     }
 
     private static async Task<Image> TakeScreenshotWithPortal()
