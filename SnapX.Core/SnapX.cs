@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Aptabase.Core;
 using Dapper;
 using Microsoft.Data.Sqlite;
@@ -473,11 +474,174 @@ public class SnapX
                         if (sentryEvent.Exception.Message.Contains(Environment.UserName)) return null;
                     }
 
-                    var jsonSentryEvent = JsonSerializer.Serialize(sentryEvent, new JsonSerializerOptions
+                    var json = new JsonObject
                     {
-                        TypeInfoResolver = SentryContext.Default,
-                    });
-                    telemetry.LogTelemetry("Sentry", sentryEvent.TransactionName ?? sentryEvent.Exception?.Message ?? "SentryEvent", jsonSentryEvent);
+                        ["event_id"] = sentryEvent.EventId.ToString(),
+                        ["timestamp"] = sentryEvent.Timestamp.ToString("o") // ISO 8601 format
+                    };
+
+                    if (sentryEvent.Message != null)
+                    {
+                        json["logentry"] = new JsonObject
+                        {
+                            ["message"] = sentryEvent.Message.Formatted
+                        };
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Logger))
+                    {
+                        json["logger"] = sentryEvent.Logger;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Platform))
+                    {
+                        json["platform"] = sentryEvent.Platform;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.ServerName))
+                    {
+                        json["server_name"] = sentryEvent.ServerName;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Release))
+                    {
+                        json["release"] = sentryEvent.Release;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Distribution))
+                    {
+                        json["dist"] = sentryEvent.Distribution;
+                    }
+
+                    if (sentryEvent.SentryExceptions != null)
+                    {
+                        var exceptionArray = new JsonArray();
+                        foreach (var sentryException in sentryEvent.SentryExceptions)
+                        {
+                            var exceptionJson = new JsonObject
+                            {
+                                ["type"] = sentryException.Type,
+                                ["value"] = sentryException.Value
+                            };
+                            exceptionArray.Add(exceptionJson);
+                        }
+                        json["exception"] = new JsonObject
+                        {
+                            ["values"] = exceptionArray
+                        };
+                    }
+
+                    if (sentryEvent.SentryThreads != null)
+                    {
+                        var threadArray = new JsonArray();
+                        foreach (var sentryThread in sentryEvent.SentryThreads)
+                        {
+                            var threadJson = new JsonObject
+                            {
+                                ["id"] = sentryThread.Id,
+                                ["name"] = sentryThread.Name
+                            };
+                            threadArray.Add(threadJson);
+                        }
+                        json["threads"] = new JsonObject
+                        {
+                            ["values"] = threadArray
+                        };
+                    }
+
+                    if (sentryEvent.Level.HasValue)
+                    {
+                        json["level"] = sentryEvent.Level.ToString().ToLowerInvariant();
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.TransactionName))
+                    {
+                        json["transaction"] = sentryEvent.TransactionName;
+                    }
+
+                    if (sentryEvent.Request != null)
+                    {
+                        var requestJson = new JsonObject
+                        {
+                            ["url"] = sentryEvent.Request.Url,
+                            ["method"] = sentryEvent.Request.Method
+                        };
+                        json["request"] = requestJson;
+                    }
+
+                    if (sentryEvent.Contexts != null)
+                    {
+                        var contextsJson = new JsonObject();
+                        foreach (var context in sentryEvent.Contexts)
+                        {
+                            // SentryContexts continues to get harder to serialize, so instead enjoy the STRING of what the object is called!
+                            contextsJson[context.Key] = context.Value.ToString();
+                        }
+                        json["contexts"] = contextsJson;
+                    }
+
+                    if (sentryEvent.User != null)
+                    {
+                        var userJson = new JsonObject
+                        {
+                            ["id"] = sentryEvent.User.Id,
+                            ["email"] = sentryEvent.User.Email,
+                            ["username"] = sentryEvent.User.Username
+                        };
+                        json["user"] = userJson;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Environment))
+                    {
+                        json["environment"] = sentryEvent.Environment;
+                    }
+
+                    if (sentryEvent.Sdk != null)
+                    {
+                        var sdkJson = new JsonObject
+                        {
+                            ["name"] = sentryEvent.Sdk.Name,
+                            ["version"] = sentryEvent.Sdk.Version
+                        };
+                        json["sdk"] = sdkJson;
+                    }
+
+                    if (sentryEvent.Breadcrumbs.Any())
+                    {
+                        var breadcrumbsJson = new JsonArray();
+                        foreach (var breadcrumb in sentryEvent.Breadcrumbs)
+                        {
+                            var breadcrumbJson = new JsonObject
+                            {
+                                ["message"] = breadcrumb.Message,
+                                ["timestamp"] = breadcrumb.Timestamp.ToString("o")
+                            };
+                            breadcrumbsJson.Add(breadcrumbJson);
+                        }
+                        json["breadcrumbs"] = breadcrumbsJson;
+                    }
+
+                    if (sentryEvent.Extra.Any())
+                    {
+                        var extraJson = new JsonObject();
+                        foreach (var kvp in sentryEvent.Extra)
+                        {
+                            extraJson[kvp.Key] = JsonSerializer.SerializeToNode(kvp.Value);
+                        }
+                        json["extra"] = extraJson;
+                    }
+
+                    if (sentryEvent.Tags.Any())
+                    {
+                        var tagsJson = new JsonObject();
+                        foreach (var tag in sentryEvent.Tags)
+                        {
+                            tagsJson[tag.Key] = tag.Value;
+                        }
+                        json["tags"] = tagsJson;
+                    }
+
+                    telemetry.LogTelemetry("Sentry", sentryEvent.TransactionName ?? sentryEvent.Exception?.Message ?? "SentryEvent", json.ToJsonString());
 
                     return sentryEvent;
                 });
