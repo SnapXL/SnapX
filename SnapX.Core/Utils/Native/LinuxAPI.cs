@@ -331,124 +331,124 @@ public partial class LinuxAPI : NativeAPI
     private const uint ALL_PLANES = 0xFFFFFFFF;
     public const int ZPIXMAP = 2;
 
-internal static Image TakeScreenshotWithX11(Screen screen)
-{
-    DebugHelper.WriteLine($"Screenshotting screen {screen.Name} with {screen.Resolution} ({screen.Id})");
-
-    var display = XOpenDisplay(null);
-    if (display == IntPtr.Zero)
-        throw new Exception("Unable to open X display.");
-
-    var screenPtr = XScreenOfDisplay(display, screen.Index);
-    if (screenPtr == IntPtr.Zero)
-        throw new Exception($"Unable to open XScreen {screen.Index}");
-
-    var rootWindow = XRootWindowOfScreen(screenPtr);
-    if (rootWindow == IntPtr.Zero)
-        throw new Exception("Unable to open root xwindow");
-
-    XGetWindowAttributes(display, rootWindow, out var attributes);
-
-    DebugHelper.Logger?.Debug("x: {AttributesX}", attributes.x);
-    DebugHelper.Logger?.Debug("y: {AttributesY}", attributes.y);
-    DebugHelper.Logger?.Debug("width: {AttributesWidth}", attributes.width);
-    DebugHelper.Logger?.Debug("height: {AttributesHeight}", attributes.height);
-    DebugHelper.Logger?.Debug("border_width: {AttributesBorderWidth}", attributes.border_width);
-    DebugHelper.Logger?.Debug("depth: {AttributesDepth}", attributes.depth);
-    DebugHelper.Logger?.Debug("visual: {AttributesVisual}", attributes.visual);
-    DebugHelper.Logger?.Debug("root: {AttributesRoot}", attributes.root);
-    DebugHelper.Logger?.Debug("colormap: {AttributesColormap}", attributes.colormap);
-
-    var screenBounds = screen.Bounds;
-    var imagePtr = XGetImage(
-        display,
-        rootWindow,
-        screenBounds.X,
-        screenBounds.Y,
-        (uint)screenBounds.Width,
-        (uint)screenBounds.Height,
-        ALL_PLANES,
-        ZPIXMAP
-    );
-
-    if (imagePtr == IntPtr.Zero)
-        throw new Exception("Unable to capture screen image using X11.");
-
-    var xImage = Marshal.PtrToStructure<XImage>(imagePtr);
-
-    var width = xImage.width;
-    var height = xImage.height;
-    var bpp = xImage.bits_per_pixel;  // Bits per pixel (important for interpreting format)
-    DebugHelper.Logger?.Debug($"XImage: width={width}, height={height}, bits_per_pixel={bpp}");
-    DebugHelper.Logger?.Debug($"XImage masks: red=0x{xImage.red_mask:X}, green=0x{xImage.green_mask:X}, blue=0x{xImage.blue_mask:X}");
-
-    var bytesPerPixel = bpp / 8;
-
-    var pixelData = new byte[width * height * 4];
-
-    var rawPixels = new byte[width * height * bytesPerPixel];
-    Marshal.Copy(xImage.data, rawPixels, 0, rawPixels.Length);
-
-    for (var y = 0; y < height; y++)
+    internal static Image TakeScreenshotWithX11(Screen screen)
     {
-        if (y % 100 == 0)
-            DebugHelper.Logger?.Debug($"Processing row {y}/{height}");
+        DebugHelper.WriteLine($"Screenshotting screen {screen.Name} with {screen.Resolution} ({screen.Id})");
 
-        for (var x = 0; x < width; x++)
+        var display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+            throw new Exception("Unable to open X display.");
+
+        var screenPtr = XScreenOfDisplay(display, screen.Index);
+        if (screenPtr == IntPtr.Zero)
+            throw new Exception($"Unable to open XScreen {screen.Index}");
+
+        var rootWindow = XRootWindowOfScreen(screenPtr);
+        if (rootWindow == IntPtr.Zero)
+            throw new Exception("Unable to open root xwindow");
+
+        XGetWindowAttributes(display, rootWindow, out var attributes);
+
+        DebugHelper.Logger?.Debug("x: {AttributesX}", attributes.x);
+        DebugHelper.Logger?.Debug("y: {AttributesY}", attributes.y);
+        DebugHelper.Logger?.Debug("width: {AttributesWidth}", attributes.width);
+        DebugHelper.Logger?.Debug("height: {AttributesHeight}", attributes.height);
+        DebugHelper.Logger?.Debug("border_width: {AttributesBorderWidth}", attributes.border_width);
+        DebugHelper.Logger?.Debug("depth: {AttributesDepth}", attributes.depth);
+        DebugHelper.Logger?.Debug("visual: {AttributesVisual}", attributes.visual);
+        DebugHelper.Logger?.Debug("root: {AttributesRoot}", attributes.root);
+        DebugHelper.Logger?.Debug("colormap: {AttributesColormap}", attributes.colormap);
+
+        var screenBounds = screen.Bounds;
+        var imagePtr = XGetImage(
+            display,
+            rootWindow,
+            screenBounds.X,
+            screenBounds.Y,
+            (uint)screenBounds.Width,
+            (uint)screenBounds.Height,
+            ALL_PLANES,
+            ZPIXMAP
+        );
+
+        if (imagePtr == IntPtr.Zero)
+            throw new Exception("Unable to capture screen image using X11.");
+
+        var xImage = Marshal.PtrToStructure<XImage>(imagePtr);
+
+        var width = xImage.width;
+        var height = xImage.height;
+        var bpp = xImage.bits_per_pixel;  // Bits per pixel (important for interpreting format)
+        DebugHelper.Logger?.Debug($"XImage: width={width}, height={height}, bits_per_pixel={bpp}");
+        DebugHelper.Logger?.Debug($"XImage masks: red=0x{xImage.red_mask:X}, green=0x{xImage.green_mask:X}, blue=0x{xImage.blue_mask:X}");
+
+        var bytesPerPixel = bpp / 8;
+
+        var pixelData = new byte[width * height * 4];
+
+        var rawPixels = new byte[width * height * bytesPerPixel];
+        Marshal.Copy(xImage.data, rawPixels, 0, rawPixels.Length);
+
+        for (var y = 0; y < height; y++)
         {
-            // Calculate the offset for the current pixel (byte-by-byte)
-            var pixelOffset = (y * width + x) * bytesPerPixel;
+            if (y % 100 == 0)
+                DebugHelper.Logger?.Debug($"Processing row {y}/{height}");
 
-            // Extract the raw pixel value from the data buffer
-            ulong pixel = 0;
-            for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
+            for (var x = 0; x < width; x++)
             {
-                pixel |= (ulong)rawPixels[pixelOffset + byteIndex] << (8 * byteIndex); // assuming little-endian
-            }
-            var rawPixelBytes = new byte[bytesPerPixel];
-            for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
-            {
-                var currentByte = rawPixels[pixelOffset + byteIndex];
-                rawPixelBytes[byteIndex] = currentByte;
-                pixel |= (ulong)currentByte << (8 * byteIndex); // assuming little-endian
-            }
-            if ((x == 0 && y == 0) || (x == width / 2 && y == height / 2))
-            {
-                DebugHelper.Logger?.Debug(
-                    "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {BPP}",
-                    x, y,
-                    BitConverter.ToString(rawPixelBytes),
-                    pixel,
-                    bytesPerPixel
-                );
+                // Calculate the offset for the current pixel (byte-by-byte)
+                var pixelOffset = (y * width + x) * bytesPerPixel;
 
-                DebugHelper.Logger?.Debug(
-                    "Masks - Red: 0x{RedMask:X}, Green: 0x{GreenMask:X}, Blue: 0x{BlueMask:X}",
-                    xImage.red_mask, xImage.green_mask, xImage.blue_mask
-                );
+                // Extract the raw pixel value from the data buffer
+                ulong pixel = 0;
+                for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
+                {
+                    pixel |= (ulong)rawPixels[pixelOffset + byteIndex] << (8 * byteIndex); // assuming little-endian
+                }
+                var rawPixelBytes = new byte[bytesPerPixel];
+                for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
+                {
+                    var currentByte = rawPixels[pixelOffset + byteIndex];
+                    rawPixelBytes[byteIndex] = currentByte;
+                    pixel |= (ulong)currentByte << (8 * byteIndex); // assuming little-endian
+                }
+                if ((x == 0 && y == 0) || (x == width / 2 && y == height / 2))
+                {
+                    DebugHelper.Logger?.Debug(
+                        "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {BPP}",
+                        x, y,
+                        BitConverter.ToString(rawPixelBytes),
+                        pixel,
+                        bytesPerPixel
+                    );
+
+                    DebugHelper.Logger?.Debug(
+                        "Masks - Red: 0x{RedMask:X}, Green: 0x{GreenMask:X}, Blue: 0x{BlueMask:X}",
+                        xImage.red_mask, xImage.green_mask, xImage.blue_mask
+                    );
+                }
+
+                var r = ExtractColorComponent(pixel, xImage.red_mask);
+                var g = ExtractColorComponent(pixel, xImage.green_mask);
+                var b = ExtractColorComponent(pixel, xImage.blue_mask);
+
+                var idx = (y * width + x) * 4;
+                pixelData[idx + 0] = r;
+                pixelData[idx + 1] = g;
+                pixelData[idx + 2] = b;
+                pixelData[idx + 3] = 255;
             }
-
-            var r = ExtractColorComponent(pixel, xImage.red_mask);
-            var g = ExtractColorComponent(pixel, xImage.green_mask);
-            var b = ExtractColorComponent(pixel, xImage.blue_mask);
-
-            var idx = (y * width + x) * 4;
-            pixelData[idx + 0] = r;
-            pixelData[idx + 1] = g;
-            pixelData[idx + 2] = b;
-            pixelData[idx + 3] = 255;
         }
+
+        // Create ImageSharp image from the processed pixel data
+        var image = Image.LoadPixelData<Rgba32>(pixelData, width, height);
+
+        // Clean up
+        XDestroyImage(imagePtr);
+        XCloseDisplay(display);
+
+        return image;
     }
-
-    // Create ImageSharp image from the processed pixel data
-    var image = Image.LoadPixelData<Rgba32>(pixelData, width, height);
-
-    // Clean up
-    XDestroyImage(imagePtr);
-    XCloseDisplay(display);
-
-    return image;
-}
     static byte ExtractColorComponent(ulong pixel, ulong mask)
     {
         if (mask == 0)
@@ -469,7 +469,8 @@ internal static Image TakeScreenshotWithX11(Screen screen)
             pixel, mask, shift, component, (byte)((component * 255) / (ulong)((1 << maskBits) - 1))
         );
         // Scale component up to 8 bits
-        return (byte)((component * 255) / (ulong)((1 << maskBits) - 1));    }
+        return (byte)((component * 255) / (ulong)((1 << maskBits) - 1));
+    }
     static int CountBits(ulong mask)
     {
         int count = 0;
