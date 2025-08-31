@@ -14,18 +14,39 @@ public class LinuxCapture : BaseCapture
     {
         var isWayland = LinuxAPI.IsWayland();
 
-        if (!isWayland || !IsCompositorKwin)
-            return LinuxAPI.TakeScreenshotWithX11(Methods.GetScreen(Methods.GetCursorPosition()) ?? new Screen());
+        if (IsCompositorKwin)
+        {
+            try
+            {
+                return await TakeScreenshotWithKwin();
+            }
+            catch { }
+        }
+
+        if (isWayland)
+        {
+            try
+            {
+                return await TakeScreenshotWithPortal();
+            }
+            catch (Exception ex)
+            {
+                DebugHelper.WriteException(ex);
+            }
+        }
+
         try
         {
-            return await TakeScreenshotWithKwin();
+            return LinuxAPI.TakeScreenshotWithX11(Methods.GetScreen(Methods.GetCursorPosition()) ?? new Screen());
         }
-        catch
+        catch (Exception ex)
         {
-            // Fallback to portal if KWin fails
-            return await TakeScreenshotWithPortal();
+            DebugHelper.WriteException(ex);
         }
+
+        return null;
     }
+
 
     private static async Task<Image> TakeScreenshotWithPortal()
     {
@@ -124,9 +145,6 @@ public class LinuxCapture : BaseCapture
         var fullscreenImage = await CaptureFullscreen().ConfigureAwait(false);
         var croppedImage = CropFullscreenScreenshotToBounds(bounds, fullscreenImage);
         return croppedImage;
-        // }
-
-        // return LinuxAPI.TakeScreenshotWithX11(screen);
     }
     public override async Task<Image?> CaptureScreen(Point? pos)
     {
@@ -140,6 +158,16 @@ public class LinuxCapture : BaseCapture
     public override async Task<Image?> CaptureRectangle(Rectangle rect)
     {
         return CropFullscreenScreenshotToBounds(rect, await CaptureFullscreen().ConfigureAwait(false));
+    }
+    public Task<Image?> CaptureWindow(WindowInfo window)
+    {
+        return Task.Run(() => ((LinuxAPI)Methods.NativeAPI).TakeScreenshotOfX11Window(window));
+    }
+    public override Task<Image?> CaptureWindow(Point pos)
+    {
+        var windows = Methods.NativeAPI.GetWindowList();
+
+        return (from window in windows.AsEnumerable().Reverse() let rect = window.Rectangle where rect.Contains(pos) select CaptureWindow(window)).FirstOrDefault() ?? Task.FromResult<Image?>(null);
     }
 
     private static bool IsCompositorKwin => Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland" && Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") == "KDE";

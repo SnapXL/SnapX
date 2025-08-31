@@ -124,81 +124,94 @@ public partial class LinuxAPI : NativeAPI
         return null;
     }
 
-
+    private static readonly Lock X11Sync = new();
 
 
     public override List<WindowInfo> GetWindowList()
     {
+        DebugHelper.WriteLine($"GetWindowList called");
         var windows = new List<WindowInfo>();
-        if (IsWayland())
+        lock (X11Sync)
         {
-            if (IsPlasma())
+            // if (IsWayland())
+            // {
+            //     if (IsPlasma())
+            //     {
+            //         // Interact with Plasmashell over DBus
+            //         return windows;
+            //     }
+            //
+            //     if (IsGNOME())
+            //     {
+            //         // Interact with GNOME Shell
+            //         return windows;
+            //     }
+            //
+            //     return windows;
+            // }
+
+            var display = XOpenDisplay(null);
+            if (display == IntPtr.Zero)
             {
-                // Interact with Plasmashell over DBus
+                DebugHelper.Logger?.Debug("Unable to open X display");
                 return windows;
             }
 
-            if (IsGNOME())
-            {
-                // Interact with GNOME Shell
-                return windows;
-            }
+            var root = XDefaultRootWindow(display); // Get the root window of the X display
 
-            return windows;
-        }
-
-        var display = XOpenDisplay(null);
-        if (display == IntPtr.Zero)
-        {
-            DebugHelper.Logger?.Debug("Unable to open X display");
-            return windows;
-        }
-
-        var root = XDefaultRootWindow(display); // Get the root window of the X display
-
-        // Get all the child windows of the root window
-        var status = XQueryTree(
-            display,
-            root,
-            out root,
-            out _,
-            out var windowsPtr,
-            out var nchildren
-        );
-        if (status == 0)
-        {
-            DebugHelper.Logger?.Debug("XQueryTree failed");
-            XCloseDisplay(display);
-            return windows;
-        }
-
-        for (uint i = 0; i < nchildren; i++)
-        {
-            var window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
-            var title = GetWindowTitle(display, window);
-            XGetGeometry(display, window, out root, out _, out _, out _, out _, out _, out _);
-
-            XGetWindowAttributes(display, window, out var attributes);
-            var isVisible = attributes.is_colormap_installed;
-
-            // Active window
-            XGetInputFocus(display, out var focusWindow, out _);
-            var isActive = focusWindow == window;
-            var rect = GetWindowRectangle(window);
-            windows.Add(
-                new WindowInfo
-                {
-                    Handle = window,
-                    Title = title,
-                    IsVisible = isVisible,
-                    Rectangle = rect,
-                    IsMinimized = IsWindowMinimized(display, window),
-                    IsActive = isActive,
-                }
+            // Get all the child windows of the root window
+            var status = XQueryTree(
+                display,
+                root,
+                out root,
+                out _,
+                out var windowsPtr,
+                out var nchildren
             );
+            if (status == 0 || windowsPtr == IntPtr.Zero)
+            {
+                DebugHelper.Logger?.Debug("XQueryTree failed");
+                XCloseDisplay(display);
+                return windows;
+            }
+            DebugHelper.Logger?.Debug("XQueryTree returned: " + status);
+            DebugHelper.Logger?.Debug("nchildren: " + nchildren);
+
+            for (uint i = 0; i < nchildren; i++)
+            {
+                var window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
+                DebugHelper.Logger?.Debug("Window ptr: {Window:X0}", window);
+
+                var title = GetWindowTitle(display, window);
+                DebugHelper.Logger?.Debug("Window title: {Title}", title);
+                if (title == string.Empty || title == "Untitled")
+                {
+                    DebugHelper.Logger?.Debug("Window is untitled, skipping");
+                    continue;
+                }
+
+                XGetWindowAttributes(display, window, out var attributes);
+                var isVisible = attributes.is_colormap_installed;
+                // Active window
+                XGetInputFocus(display, out var focusWindow, out _);
+                var isActive = focusWindow == window;
+                var rect = GetWindowRectangle(window);
+                windows.Add(
+                    new WindowInfo
+                    {
+                        Handle = window,
+                        Title = title,
+                        IsVisible = isVisible,
+                        Rectangle = rect,
+                        // IsMinimized = IsWindowMinimized(display, window),
+                        IsActive = isActive,
+                    }
+                );
+            }
+
+            XCloseDisplay(display);
         }
 
-        XCloseDisplay(display);
         return windows;
     }
 
@@ -449,6 +462,103 @@ public partial class LinuxAPI : NativeAPI
 
         return image;
     }
+    internal Image? TakeScreenshotOfX11Window(WindowInfo window)
+    {
+        DebugHelper.WriteLine($"Screenshotting window '{window.Title}' with bounds {window.Rectangle}");
+
+        var display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+            throw new Exception("Unable to open X display.");
+
+        // Get window attributes
+        XGetWindowAttributes(display, window.Handle, out var attributes);
+
+        int width = attributes.width;
+        int height = attributes.height;
+
+        DebugHelper.Logger?.Debug("Window Attributes: width={Width}, height={Height}, depth={Depth}", width, height, attributes.depth);
+        DebugHelper.Logger?.Debug("visual: {Visual}, colormap: {Colormap}", attributes.visual, attributes.colormap);
+
+        // Capture the image from the window using XGetImage
+        var imagePtr = XGetImage(
+            display,
+            window.Handle,
+            0, 0,
+            (uint)width,
+            (uint)height,
+            ALL_PLANES,
+            ZPIXMAP
+        );
+
+        if (imagePtr == IntPtr.Zero)
+            throw new Exception("Unable to capture window image using XGetImage.");
+
+        var xImage = Marshal.PtrToStructure<XImage>(imagePtr);
+        var bpp = xImage.bits_per_pixel;
+        var bytesPerPixel = bpp / 8;
+
+        DebugHelper.Logger?.Debug($"XImage: width={xImage.width}, height={xImage.height}, bits_per_pixel={bpp}");
+        DebugHelper.Logger?.Debug($"XImage masks: red=0x{xImage.red_mask:X}, green=0x{xImage.green_mask:X}, blue=0x{xImage.blue_mask:X}");
+
+        var rawPixels = new byte[width * height * bytesPerPixel];
+        Marshal.Copy(xImage.data, rawPixels, 0, rawPixels.Length);
+
+        var pixelData = new byte[width * height * 4];
+
+        for (var y = 0; y < height; y++)
+        {
+            if (y % 100 == 0)
+                DebugHelper.Logger?.Debug($"Processing row {y}/{height}");
+
+            for (var x = 0; x < width; x++)
+            {
+                var pixelOffset = (y * width + x) * bytesPerPixel;
+
+                ulong pixel = 0;
+                var rawPixelBytes = new byte[bytesPerPixel];
+
+                for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
+                {
+                    var currentByte = rawPixels[pixelOffset + byteIndex];
+                    rawPixelBytes[byteIndex] = currentByte;
+                    pixel |= (ulong)currentByte << (8 * byteIndex); // assuming little-endian
+                }
+
+                if ((x == 0 && y == 0) || (x == width / 2 && y == height / 2))
+                {
+                    DebugHelper.Logger?.Debug(
+                        "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {BPP}",
+                        x, y,
+                        BitConverter.ToString(rawPixelBytes),
+                        pixel,
+                        bytesPerPixel
+                    );
+                    DebugHelper.Logger?.Debug(
+                        "Masks - Red: 0x{RedMask:X}, Green: 0x{GreenMask:X}, Blue: 0x{BlueMask:X}",
+                        xImage.red_mask, xImage.green_mask, xImage.blue_mask
+                    );
+                }
+
+                var r = ExtractColorComponent(pixel, xImage.red_mask);
+                var g = ExtractColorComponent(pixel, xImage.green_mask);
+                var b = ExtractColorComponent(pixel, xImage.blue_mask);
+
+                var idx = (y * width + x) * 4;
+                pixelData[idx + 0] = r;
+                pixelData[idx + 1] = g;
+                pixelData[idx + 2] = b;
+                pixelData[idx + 3] = 255;
+            }
+        }
+
+        var image = Image.LoadPixelData<Rgba32>(pixelData, width, height);
+
+        XDestroyImage(imagePtr);
+        XCloseDisplay(display);
+
+        return image;
+    }
+
     static byte ExtractColorComponent(ulong pixel, ulong mask)
     {
         if (mask == 0)
@@ -481,13 +591,43 @@ public partial class LinuxAPI : NativeAPI
         }
         return count;
     }
+    private static readonly IntPtr XA_WM_NAME = new IntPtr(39); // Usually 39, but can be obtained via XInternAtom
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XTextProperty
+    {
+        public IntPtr value;
+        public IntPtr encoding;
+        public int format;
+        public ulong nitems;
+    }
+
+    [LibraryImport(LibX11)]
+    internal static partial int XGetTextProperty(IntPtr display, IntPtr window, out XTextProperty textProp, IntPtr property);
+
     private static string GetWindowTitle(IntPtr display, IntPtr window)
     {
-        var windowTitlePtr = XFetchName(display, window);
-        return windowTitlePtr != IntPtr.Zero
-            ? Marshal.PtrToStringAnsi(windowTitlePtr) ?? "Untitled"
-            : "Untitled";
+        var netWmNameAtom = XInternAtom(display, "_NET_WM_NAME", false);
+        XTextProperty textProp;
+
+        if (XGetTextProperty(display, window, out textProp, netWmNameAtom) != 0 && textProp.value != IntPtr.Zero)
+        {
+            var title = Marshal.PtrToStringAnsi(textProp.value);
+            XFree(textProp.value);
+            return title ?? "Untitled";
+        }
+
+        // Fallback to XA_WM_NAME
+        if (XGetTextProperty(display, window, out textProp, XA_WM_NAME) != 0 && textProp.value != IntPtr.Zero)
+        {
+            var title = Marshal.PtrToStringAnsi(textProp.value);
+            XFree(textProp.value);
+            return title ?? "Untitled";
+        }
+
+        return "Untitled";
+
     }
+
 
     [LibraryImport(LibX11)]
     internal static partial IntPtr XGetSelectionOwner(IntPtr display, IntPtr selection);
@@ -517,8 +657,8 @@ public partial class LinuxAPI : NativeAPI
         out uint nchildren
     );
 
-    [LibraryImport(LibX11)]
-    internal static partial IntPtr XFetchName(IntPtr display, IntPtr window);
+    [LibraryImport(LibX11, EntryPoint = "XFetchName", StringMarshalling = StringMarshalling.Utf8)]
+    internal static partial int XFetchName(IntPtr display, IntPtr window, out IntPtr windowName);
 
     [LibraryImport(LibX11)]
     internal static partial int XDestroyImage(IntPtr ximage);
