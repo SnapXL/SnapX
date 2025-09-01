@@ -48,7 +48,6 @@ apps:
   snapx:
     extensions: [gnome]
     command: usr/lib/snapx/snapx
-
     plugs:
       - network
       - browser-native-messaging
@@ -60,6 +59,9 @@ apps:
     desktop: usr/share/applications/io.github.SnapXL.SnapX.desktop
     plugs:
       - network
+      - alsa
+      - pipewire
+      - pulseaudio
       - audio-playback
       - audio-record # FFmpeg Screen Capture is coming soon
       - desktop
