@@ -18,28 +18,17 @@ BuildAvaloniaApp()
 
 static AppBuilder BuildAvaloniaApp()
 {
-    var builder = AppBuilder.Configure<App>()
-        .WithInterFont();
+    var builder = AppBuilder.Configure<App>();
 
     if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
     {
-        builder = builder.WithSystemFontSource(new Uri("fonts:Inter", UriKind.Absolute));
         builder = builder.With(new FontManagerOptions
         {
-            DefaultFamilyName = "fonts:Inter#Inter",
             FontFallbacks = new List<FontFallback>
             {
                 new()
                 {
-                    FontFamily = "Inter"
-                },
-                new()
-                {
                     FontFamily = "Noto Sans"
-                },
-                new()
-                {
-                    FontFamily = "Segoe UI"
                 },
                 new()
                 {
@@ -48,7 +37,24 @@ static AppBuilder BuildAvaloniaApp()
                 new()
                 {
                     FontFamily = "Adwaita Sans"
-                }
+                },
+                new()
+                {
+                    FontFamily = "Helvetica Neue"
+                },
+                new()
+                {
+                    FontFamily = "Open Sans"
+                },
+                new()
+                {
+                    FontFamily = "Segoe UI"
+                },
+                new()
+                {
+                    // The Inter font is still used as a fallback for compatability.
+                    FontFamily = "Inter"
+                },
             }
         });
     }
@@ -63,7 +69,7 @@ static AppBuilder BuildAvaloniaApp()
         OverlayPopups = true
     };
 
-    if (OperatingSystem.IsFreeBSD())
+    if (OperatingSystem.IsFreeBSD() || Environment.GetEnvironmentVariable("SNAPX_PRETEND_FREEBSD") is not null)
     {
         builder = builder
             .UseSkia()

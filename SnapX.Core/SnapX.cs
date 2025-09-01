@@ -359,14 +359,18 @@ public class SnapX
         RegisterIntegrations();
         CheckPuushMode();
         DebugWriteFlags();
-        if (OperatingSystem.IsFreeBSD() || Environment.GetEnvironmentVariable("SNAPX_USE_SYSTEM_SQLITE3") != null)
+        if (OperatingSystem.IsFreeBSD() || Environment.GetEnvironmentVariable("SNAPX_USE_SYSTEM_SQLITE3") != null || Environment.GetEnvironmentVariable("SNAPX_PRETEND_FREEBSD") is not null)
         {
             // There are no provided bundles for FreeBSD, must use system SQLite for now.
             // If it fails to load libsqlite3.so, ensure that you have the sqlite package installed. If that doesn't work, try
             // LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib snapx-ui
-            SQLitePCL.raw.SetProvider(new SQLite3Provider_sqlite3());
+            raw.SetProvider(new SQLite3Provider_sqlite3());
         }
-        SQLitePCL.Batteries_V2.Init();
+        else
+        {
+            raw.SetProvider(new SQLite3Provider_e_sqlite3());
+        }
+
         var dataSource = SnapX.Sandbox ? ":memory:" : DBPath;
 
         var connectionString = new SqliteConnectionStringBuilder { DataSource = dataSource, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true, }.ToString();
