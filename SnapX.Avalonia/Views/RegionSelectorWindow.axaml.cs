@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using FluentAvalonia.UI.Controls;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Avalonia.ViewModels;
@@ -84,18 +85,17 @@ public partial class RegionSelectorWindow : Window
         DebugHelper.WriteException(ex);
         TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Error);
 
-        var dialog = new Window
+        var dialog = new ContentDialog
         {
             Title = Lang.Error,
             Width = 800,
             Height = 450,
-            CanResize = false,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner
+            CloseButtonText = Lang.Ok
         };
 
         var autoCloseCts = new CancellationTokenSource();
 
-        var messageText = new SelectableTextBlock()
+        var messageText = new SelectableTextBlock
         {
             Text = userMessage ?? Lang.FailedToScreenshot,
             FontWeight = FontWeight.Bold,
@@ -105,23 +105,15 @@ public partial class RegionSelectorWindow : Window
         var errorDetails = new ScrollViewer
         {
             Margin = new Thickness(2, 0, 0, 10),
-            Content = new TextBlock
+            Content = new SelectableTextBlock
             {
                 Text = ex.ToString(),
                 TextWrapping = TextWrapping.Wrap
             }
         };
-
-        var okButton = new Button
-        {
-            Content = Lang.Ok,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Margin = new Thickness(5, 10, 0, 0)
-        };
-        okButton.Click += (_, _) =>
+        dialog.CloseButtonClick += (_, _) =>
         {
             autoCloseCts.Cancel();
-            dialog.Close();
         };
 
         void CancelAutoCloseOnInteraction(object? s, EventArgs e) => autoCloseCts.Cancel();
@@ -138,13 +130,6 @@ public partial class RegionSelectorWindow : Window
             {
                 messageText,
                 errorDetails,
-                new StackPanel
-                {
-                    Orientation = Orientation.Horizontal,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    Children = { okButton },
-                    Spacing = 10
-                }
             }
         };
 
@@ -153,7 +138,7 @@ public partial class RegionSelectorWindow : Window
             try
             {
                 await Task.Delay(TimeSpan.FromSeconds(20), autoCloseCts.Token);
-                await Dispatcher.UIThread.InvokeAsync(() => dialog.Close());
+                await Dispatcher.UIThread.InvokeAsync(() => dialog.Hide());
             }
             catch (TaskCanceledException)
             {
@@ -164,11 +149,11 @@ public partial class RegionSelectorWindow : Window
         if (App.MyMainWindow != null)
         {
             App.MyMainWindow.Show(); // in case it was hidden
-            dialog.ShowDialog(App.MyMainWindow);
+            dialog.ShowAsync(App.MyMainWindow);
         }
         else
         {
-            dialog.Show();
+            dialog.ShowAsync();
         }
     }
     private void OnPointerReleased(object? Sender, PointerReleasedEventArgs E)
