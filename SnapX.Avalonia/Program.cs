@@ -54,7 +54,7 @@ static AppBuilder BuildAvaloniaApp()
                 {
                     // The Inter font is still used as a fallback for compatability.
                     FontFamily = "Inter"
-                },
+                }
             }
         });
     }
