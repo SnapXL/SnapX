@@ -95,7 +95,7 @@ public partial class RegionSelectorWindow : Window
 
         var autoCloseCts = new CancellationTokenSource();
 
-        var messageText = new TextBlock
+        var messageText = new SelectableTextBlock()
         {
             Text = userMessage ?? Lang.FailedToScreenshot,
             FontWeight = FontWeight.Bold,
