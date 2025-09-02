@@ -242,8 +242,8 @@ public class WindowsCapture : BaseCapture
 
         var width = size.Width;
         var height = size.Height;
-        var currentFrame = Texture2DFromSurface(result.Surface);
-        var tempTexture = currentFrame.QueryInterface<ID3D11Texture2D>();
+        using var currentFrame = Texture2DFromSurface(result.Surface);
+        using var tempTexture = currentFrame.QueryInterface<ID3D11Texture2D>();
 
         d3d11Device.ImmediateContext.CopyResource(currentFrame, tempTexture);
         var dataBox = d3d11Device.ImmediateContext.Map(currentFrame, 0);
@@ -315,9 +315,16 @@ public class WindowsCapture : BaseCapture
         if (adapter == null) throw new ArgumentNullException(nameof(adapter));
         if (bounds.Width <= 0 || bounds.Height <= 0) throw new ArgumentException("Invalid bounds", nameof(bounds));
         var hr = D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, DeviceCreationFlags.BgraSupport,
-            [FeatureLevel.Level_11_1], out var device);
-        if (hr.Failure) throw new InvalidOperationException($"D3D11CreateDevice failed: {hr}");
-        output.GetParent<IDXGIAdapter>(out var outputAdapter);
+            [FeatureLevel.Level_11_1], out var d3dDevice );
+        using var device = d3dDevice;
+        if (hr.Failure)     throw new InvalidOperationException(
+            $"D3D11CreateDevice failed: {hr} ({hr.Description}) " +
+            $"Module: {hr.Module}, API: {hr.ApiCode}, Native: {hr.NativeApiCode}"
+        );
+        if (device == null)  throw new InvalidOperationException("D3D11CreateDevice failed, out device is NULL");
+        output.GetParent<IDXGIAdapter>(out var outAdapter);
+        using var outputAdapter = outAdapter;
+        if (outputAdapter == null) throw new ArgumentNullException(nameof(outputAdapter));
         if (!outputAdapter?.NativePointer.Equals(adapter.NativePointer) ?? false)
         {
             throw new InvalidOperationException("The IDXGIAdapter used does not match the one used to create this IDXGIOutput1.");
@@ -343,9 +350,16 @@ public class WindowsCapture : BaseCapture
         DebugHelper.WriteLine($"DedicatedVideoMemory  : {desc.DedicatedVideoMemory / 1024 / 1024} MB");
         DebugHelper.WriteLine($"DedicatedSystemMemory : {desc.DedicatedSystemMemory / 1024 / 1024} MB");
         DebugHelper.WriteLine($"SharedSystemMemory    : {desc.SharedSystemMemory / 1024 / 1024} MB");
+        DebugHelper.WriteLine("=== Device Info ===");
+        DebugHelper.WriteLine($"DebugName           : {device.DebugName ?? "N/A"}");
+        DebugHelper.WriteLine(
+            $"DeviceRemovedReason       : {(device.DeviceRemovedReason.Success ? $"{device.DeviceRemovedReason.Description} ({device.DeviceRemovedReason.ApiCode}, {device.DeviceRemovedReason.Module}) " : "")}"
+        );
+        DebugHelper.WriteLine($"CreationFlags       : {device.CreationFlags}");
+
         DebugHelper.WriteLine("======================");
 
-        var duplication = output.DuplicateOutput(device);
+        using var duplication = output.DuplicateOutput(device);
 
         var textureDesc = new Texture2DDescription
         {
@@ -360,12 +374,13 @@ public class WindowsCapture : BaseCapture
             SampleDescription = { Count = 1, Quality = 0 },
             Usage = ResourceUsage.Staging
         };
-        var currentFrame = device.CreateTexture2D(textureDesc);
+        using var currentFrame = device.CreateTexture2D(textureDesc);
 
-        await Task.Delay(100);
+        await Task.Delay(150);
 
-        duplication.AcquireNextFrame(500, out var frameInfo, out var desktopResource);
-        var tempTexture = desktopResource.QueryInterface<ID3D11Texture2D>();
+        duplication.AcquireNextFrame(500, out var frameInfo, out var dskTopResource);
+        using var desktopResource = dskTopResource;
+        using var tempTexture = desktopResource.QueryInterface<ID3D11Texture2D>();
 
         device.ImmediateContext.CopyResource(currentFrame, tempTexture);
         var dataBox = device.ImmediateContext.Map(currentFrame, 0);
