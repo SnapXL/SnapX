@@ -341,13 +341,13 @@ public class WindowsCapture : BaseCapture
         if (adapter == null) throw new ArgumentNullException(nameof(adapter));
         if (bounds.Width <= 0 || bounds.Height <= 0) throw new ArgumentException("Invalid bounds", nameof(bounds));
         var hr = D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, DeviceCreationFlags.BgraSupport,
-            [FeatureLevel.Level_11_1], out var d3dDevice );
+            [FeatureLevel.Level_11_1], out var d3dDevice);
         using var device = d3dDevice;
-        if (hr.Failure)     throw new InvalidOperationException(
+        if (hr.Failure) throw new InvalidOperationException(
             $"D3D11CreateDevice failed: {hr} ({hr.Description}) " +
             $"Module: {hr.Module}, API: {hr.ApiCode}, Native: {hr.NativeApiCode}"
         );
-        if (device == null)  throw new InvalidOperationException("D3D11CreateDevice failed, out device is NULL");
+        if (device == null) throw new InvalidOperationException("D3D11CreateDevice failed, out device is NULL");
         output.GetParent<IDXGIAdapter>(out var outAdapter);
         using var outputAdapter = outAdapter;
         if (outputAdapter == null) throw new ArgumentNullException(nameof(outputAdapter));
