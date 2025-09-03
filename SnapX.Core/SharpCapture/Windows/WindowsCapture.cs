@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -169,27 +171,42 @@ public class WindowsCapture : BaseCapture
         // Wrap the native device using a WinRT interop object.
         var hr = CreateDirect3D11DeviceFromDXGIDevice(dxgiDevice.NativePointer, out var pUnknown);
 
-        if (hr != 0) return device;
+        if (hr != 0) return device!;
         ComWrappers cw = new DefaultComWrappers();
 
-        device = cw.GetOrCreateObjectForComInstance(pUnknown, CreateObjectFlags.UniqueInstance) as IDirect3DDevice;
+        device = (cw.GetOrCreateObjectForComInstance(pUnknown, CreateObjectFlags.UniqueInstance) as IDirect3DDevice)!;
         Marshal.Release(pUnknown);
 
         return device;
     }
-
-    private static ID3D11Texture2D Texture2DFromSurface(IDirect3DSurface surface)
+    private static ID3D11Texture2D Texture2DFromSurface(IDirect3DSurface surface, ID3D11Device device, IntPtr captureHwnd)
     {
-        var access = surface.As<IDirect3DDxgiInterfaceAccess>();
-        var texture = access.QueryInterface<ID3D11Texture2D>();
+        DebugHelper.WriteLine("=== IDirect3DSurface ===");
+        DebugHelper.WriteLine($"Format: {surface.Description.Format}");
+        DebugHelper.WriteLine($"MultisampleDescription: {surface.Description.MultisampleDescription}");
+        DebugHelper.WriteLine($"Width: {surface.Description.Width}");
+        DebugHelper.WriteLine($"Height: {surface.Description.Height}");
+        // Workaround to get around:
+        // hez2010 — 8:32 PM
+        // CsWinRT currently relies on some source generators that only applies to source code you authored,
+        // so it won't work well if you referenced an external library and used the interfaces it provides,
+        // because no code (mainly, vtbl) was generated for them.
+        // I think you will have to wait for CsWinRT 3.0, which replaces the source generators with assembly weavers.
+
+        var ptr = ((IWinRTObject)surface).NativeObject.GetRef();
+        DebugHelper.WriteLine($"Surface PTR: {ptr:X}");
+        var access = SharpGen.Runtime.ComObject.As<IDirect3DDxgiInterfaceAccess>(ptr);
+        Marshal.Release(ptr);
+
+        access.GetInterface<ID3D11Texture2D>(out var texture);
+
         return texture;
     }
     public override async Task<Image?> CaptureWindow(Point pos)
     {
         if (!GraphicsCaptureSession.IsSupported())
         {
-            DebugHelper.WriteLine("WindowsCapture: GraphicsCaptureSession is not supported on this device. Perhaps update your Windows?");
-            return null;
+            throw new ExternalException("WindowsCapture: GraphicsCaptureSession is not supported on this device. Perhaps update your Windows?");
         }
         var hwnd = PInvoke.WindowFromPoint(new System.Drawing.Point(pos.X, pos.Y));
         if (hwnd == IntPtr.Zero)
@@ -221,8 +238,8 @@ public class WindowsCapture : BaseCapture
         var asyncFrame = new TaskCompletionSource<Direct3D11CaptureFrame>();
         framePool.FrameArrived += (Sender, Args) =>
         {
-            asyncFrame.SetResult(Sender.TryGetNextFrame());
             DebugHelper.WriteLine("Frame arrived");
+            asyncFrame.TrySetResult(Sender.TryGetNextFrame());
         };
         using var session = framePool.CreateCaptureSession(captureItem);
         if (session == null)
@@ -232,29 +249,40 @@ public class WindowsCapture : BaseCapture
         }
         session.IsBorderRequired = false;
         session.IncludeSecondaryWindows = true;
+        session.IsCursorCaptureEnabled = true;
         session.StartCapture();
+        DebugHelper.WriteLine("Waiting for frame...");
         using var result = await asyncFrame.Task.WaitAsync(TimeSpan.FromSeconds(1));
         if (result == null)
         {
             DebugHelper.WriteLine($"The frame from framePool ({framePool}) was null for {captureItem} :(");
             return null;
         }
-
+        DebugHelper.WriteLine("Moving to Texture2DFromSurface");
         var width = size.Width;
         var height = size.Height;
-        using var currentFrame = Texture2DFromSurface(result.Surface);
-        using var tempTexture = currentFrame.QueryInterface<ID3D11Texture2D>();
+        using var frameTexture = Texture2DFromSurface(result.Surface, d3d11Device, hwnd);
+        DebugHelper.WriteLine($"{frameTexture.Dimension} {width} {height}");
+        var desc = frameTexture.Description;
+        desc.BindFlags = BindFlags.None;
+        desc.Usage = ResourceUsage.Staging;
+        desc.CPUAccessFlags = CpuAccessFlags.Read;
+        desc.MiscFlags = ResourceOptionFlags.None;
+        DebugHelper.WriteLine("=== Desc Info ===");
+        DebugHelper.WriteLine($"Width: {width}, Height: {height}");
+        DebugHelper.WriteLine($"CPUAccessFlags: {desc.CPUAccessFlags}");
+        DebugHelper.WriteLine($"MiscFlags: {desc.MiscFlags}");
+        DebugHelper.WriteLine($"Usage: {desc.Usage}");
+        DebugHelper.WriteLine("=== END OF DESC ===");
+        using var staging = d3d11Device.CreateTexture2D(desc);
+        d3d11Device.ImmediateContext.CopyResource(staging, frameTexture);
 
-        d3d11Device.ImmediateContext.CopyResource(currentFrame, tempTexture);
-        var dataBox = d3d11Device.ImmediateContext.Map(currentFrame, 0);
+        var dataBox = d3d11Device.ImmediateContext.Map(staging, 0);
 
         var screenshotBytes = GetDataAsByteArray(dataBox.DataPointer, (int)dataBox.RowPitch, width,
             height);
-        d3d11Device.ImmediateContext.Unmap(currentFrame, 0);
+        d3d11Device.ImmediateContext.Unmap(staging, 0);
         return Image.LoadPixelData<Rgba32>(screenshotBytes, width, height);
-
-        // var sample = MediaStreamSample.CreateFromDirect3D11Surface(result.Surface, result.SystemRelativeTime);
-        // var currentFrame = texture ?? throw new ArgumentNullException(nameof(texture));
     }
 
     private List<IDXGIAdapter1> EnumerateAdapters(IDXGIFactory1 factory)

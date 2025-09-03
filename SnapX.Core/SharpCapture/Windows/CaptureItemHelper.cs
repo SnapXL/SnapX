@@ -44,7 +44,7 @@ public static class CaptureItemHelper
 
     internal static GraphicsCaptureItem CreateItemForWindow(IntPtr hwnd)
     {
-        DebugHelper.WriteLine($"CreateItemForWindow: {hwnd}");
+        DebugHelper.WriteLine($"CreateItemForWindow: {hwnd:X}");
         var factory = ActivationFactory.Get(typeof(GraphicsCaptureItem).FullName!);
         var interop = factory.AsInterface<IGraphicsCaptureItemInterop>();
         var itemPointer = interop.CreateForWindow(hwnd, ref GraphicsCaptureItemGuid);
