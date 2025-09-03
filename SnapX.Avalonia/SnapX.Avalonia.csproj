@@ -19,7 +19,7 @@
     <TrimMode>full</TrimMode>
     <PublishTrimmed>true</PublishTrimmed>
     <Optimize>true</Optimize>
-    <AvaloniaVersion>11.3.4</AvaloniaVersion>
+    <AvaloniaVersion>11.3.5</AvaloniaVersion>
     <SkiaSharpVersion>3.119.0</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
 
