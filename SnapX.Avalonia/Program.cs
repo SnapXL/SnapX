@@ -2,9 +2,13 @@
 #pragma warning disable CA1416 // I am aware
 using System.Reflection;
 using Avalonia;
+using SnapX.Avalonia;
+#if BROWSER
+using Avalonia.Browser;
+#else
 using Avalonia.Dialogs;
 using Avalonia.Media;
-using SnapX.Avalonia;
+#endif
 
 internal static class Program
 {
@@ -22,14 +26,20 @@ internal static class Program
         }
 
         BuildAvaloniaApp()
+            #if !BROWSER
             .StartWithClassicDesktopLifetime(args);
+            #else
+            .StartBrowserAppAsync("out");
+            #endif
     }
 
     // ReSharper disable once MemberCanBePrivate.Global
     public static AppBuilder BuildAvaloniaApp()
     {
         var builder = AppBuilder.Configure<App>();
-
+        #if BROWSER
+        return builder;
+        #else
         if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
         {
             builder = builder.With(new FontManagerOptions
@@ -74,5 +84,6 @@ internal static class Program
         }
 
         return builder;
+        #endif
     }
 }
