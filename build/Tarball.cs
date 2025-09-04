@@ -83,7 +83,7 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
 
             foreach (var libFile in installedLibFiles)
             {
-                var fileName = Path.GetFileName(libFile);
+                var fileName = Path.GetFileNameWithoutExtension(libFile);
 
                 if (config.knownAssemblyNames.Contains(fileName))
                 {
