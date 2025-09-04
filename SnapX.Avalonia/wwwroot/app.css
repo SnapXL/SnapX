@@ -1,0 +1,116 @@
+/* HTML styles for the splash screen */
+
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: sans-serif;
+    background: #1b2a4e;
+    color: whitesmoke;
+}
+
+/* Splash container */
+#avalonia-splash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    position: relative;
+}
+
+.center h2 {
+    margin-bottom: 1.5rem;
+}
+
+.highlight {
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: bold;
+    display: block;
+}
+
+.purple {
+    color: #8b44ac;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+#avalonia-splash a {
+    color: #f5f5f5;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+#avalonia-splash a:hover {
+    color: #ffda79;
+}
+
+/* Progress container */
+#progress-container {
+    width: 300px;
+    margin: 1rem auto;
+    text-align: left;
+}
+
+#progress-container label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+}
+
+progress {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #2d3d65;
+}
+
+progress::-webkit-progress-bar {
+    background: #2d3d65;
+}
+
+progress::-webkit-progress-value {
+    background: linear-gradient(90deg, #8b44ac, #e67af3);
+}
+
+progress::-moz-progress-bar {
+    background: linear-gradient(90deg, #8b44ac, #e67af3);
+}
+
+#progress-text {
+    text-align: right;
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Logo styling */
+.icon {
+    opacity: 0.05;
+    position: absolute;
+    right: 3%;
+    bottom: 5%;
+    width: 35%;
+    height: auto;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Fade animation */
+.splash-close {
+    animation: fadeout 0.25s linear forwards;
+}
+
+@keyframes fadeout {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        visibility: collapse;
+    }
+}

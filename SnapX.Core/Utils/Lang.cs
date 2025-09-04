@@ -31,6 +31,8 @@ public static class Lang
     public static string UI_Dropdown_RegionTransparent => Get("UI_Dropdown_RegionTransparent");
     public static string UI_Dropdown_Window => Get("UI_Dropdown_Window");
     public static string UI_Dropdown_Monitor => Get("UI_Dropdown_Monitor");
+    public static string UI_Dropdown_ScreenRecording => Get("UI_Dropdown_ScreenRecording");
+    public static string UI_Dropdown_ScreenRecordingGIF => Get("UI_Dropdown_ScreenRecordingGIF");
     public static string UI_Monitor_DisplayName(string name, int index, string resolution)
         => string.Format(Get("UI_Monitor_DisplayName"), name, index, resolution);
     public static string UI_Capture_Fullscreen => Get("UI_Capture_Fullscreen");

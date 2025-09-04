@@ -46,23 +46,43 @@ public partial class MainView : UserControl
         var action = selectedAction ?? _captureRegionLabel.Content as string;
         DebugHelper.WriteLine($"Executing: {action}");
         Image? img = null;
-        switch (action)
+        var actionMap = new Dictionary<string, Func<Task>>
         {
-            case "Region":
+            [Lang.UI_Dropdown_Region] = async () =>
+            {
+                await Task.Delay(5000);
                 new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
-                break;
-            case "Region (Light)":
+            },
+            [Lang.UI_Dropdown_RegionLight] = async () =>
+            {
                 new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
-                break;
-            case "Region (Transparent)":
+            },
+            [Lang.UI_Dropdown_RegionTransparent] = async () =>
+            {
                 new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
-                break;
-            case "Window":
-                img = await Task.Run(() => TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow());
-                break;
-            case "Monitor":
-                img = await Task.Run(() => TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor());
-                break;
+            },
+            [Lang.UI_Dropdown_Window] = async () =>
+            {
+                await Task.Delay(5000);
+                img = await Task.Run(() =>
+                    TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow()
+                );
+            },
+            [Lang.UI_Dropdown_Monitor] = async () =>
+            {
+                await Task.Delay(5000);
+                img = await Task.Run(() =>
+                    TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor()
+                );
+            }
+        };
+        if (action != null && actionMap.TryGetValue(action, out var func))
+        {
+            await func();
+        }
+        else
+        {
+            DebugHelper.WriteLine("No matching action found.");
         }
 
         if (img != null) UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());

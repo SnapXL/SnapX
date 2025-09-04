@@ -8,7 +8,7 @@
     <PaddleOCRVersion>3.0.1</PaddleOCRVersion>
     <PaddleInferenceVersion>3.1.0.54</PaddleInferenceVersion>
     <OpenCvSharp4Version>4.11.0.34</OpenCvSharp4Version>
-    <SQLitePCLRawVersion>3.0.1</SQLitePCLRawVersion>
+    <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
     <MSExtensionsVersion>9.0.8</MSExtensionsVersion>
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
@@ -23,9 +23,13 @@
   <PropertyGroup Condition="'$(DisableUploads)' == '1'">
     <DefineConstants>$(DefineConstants);DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="$(RuntimeIdentifier.Contains('browser'))">
+    <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
+  </PropertyGroup>
   <!-- Windows 11 ARM64, Musl based distributions, and FreeBSD are not supported for OCR -->
   <PropertyGroup Condition="'$(DisableOCR)' == '1'
-  OR $([MSBuild]::IsOsPlatform('FreeBSD'))
+  OR $(RuntimeIdentifier.Contains('freebsd'))
+  OR $(RuntimeIdentifier.Contains('browser'))
   OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')
   OR $([System.String]::Copy('$(RuntimeIdentifier)').Contains('musl'))">
     <DefineConstants>$(DefineConstants);DISABLE_OCR</DefineConstants>
@@ -122,13 +126,18 @@
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+  <ItemGroup Condition=" '$(TargetFramework)' != '' and !$(TargetFramework.Contains('windows')) ">
+    <Compile Remove="SharpCapture/Windows/*.cs" />
     <Compile Remove=".\Utils\Native\WindowsAPI.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Compile Remove="SharpCapture/Windows/*.cs" />
-  </ItemGroup>
-  <Import Project="./Linux.props" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
-  <Import Project="./OSX.props" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />
-  <Import Project="./Windows.props" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
+  <Import Project="./Linux.props"
+          Condition=" '$(RuntimeIdentifier)' != '' and (
+                      $(RuntimeIdentifier.Contains('linux'))
+                   or $(RuntimeIdentifier.Contains('ubuntu'))
+                   or $(RuntimeIdentifier.Contains('fedora'))
+                   or $(RuntimeIdentifier.Contains('freebsd')) )" />
+  <Import Project="./OSX.props"
+          Condition=" '$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('osx')) " />
+  <Import Project="./Windows.props"
+          Condition=" '$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('win')) " />
 </Project>

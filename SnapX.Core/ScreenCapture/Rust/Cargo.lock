@@ -2866,9 +2866,9 @@ checksum = "ea2f10b9bb0928dfb1b42b65e1f9e36f7f54dbdf08457afefb38afcdec4fa2bb"
 
 [[package]]
 name = "xcap"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7921260094351cd497514d5fccba8066316cacbdb15b3b3bda6e7345447c67a7"
+checksum = "0c21b3d9940632db33b28e4d50e8de4bdde67cde0f6e51e38a47a918a43134fb"
 dependencies = [
  "dispatch2",
  "image",

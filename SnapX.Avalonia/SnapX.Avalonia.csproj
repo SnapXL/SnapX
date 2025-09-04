@@ -3,10 +3,10 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>true</SelfContained>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <EnableMsixTooling>true</EnableMsixTooling>
+    <PublishSingleFile Condition="!$(RuntimeIdentifier.Contains('browser'))">true</PublishSingleFile>
+    <SelfContained Condition="!$(RuntimeIdentifier.Contains('browser'))">true</SelfContained>
+    <PublishReadyToRun Condition="!$(RuntimeIdentifier.Contains('browser'))">true</PublishReadyToRun>
+    <EnableMsixTooling Condition="!$(RuntimeIdentifier.Contains('browser'))">true</EnableMsixTooling>
     <PublishAot>true</PublishAot>
     <AssemblyName>snapx-ui</AssemblyName>
     <AssemblyTitle>SnapX UI</AssemblyTitle>
@@ -16,14 +16,16 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TrimMode>full</TrimMode>
-    <PublishTrimmed>true</PublishTrimmed>
-    <Optimize>true</Optimize>
+    <TrimMode Condition="!$(RuntimeIdentifier.Contains('browser'))">full</TrimMode>
+    <PublishTrimmed Condition="!$(RuntimeIdentifier.Contains('browser'))">true</PublishTrimmed>
+    <Optimize Condition="!$(RuntimeIdentifier.Contains('browser'))">true</Optimize>
     <AvaloniaVersion>11.3.4</AvaloniaVersion>
     <SkiaSharpVersion>3.119.0</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
-
     <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called snapx-ui. Instead create a executable shell script that calls snapx-ui -->
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('browser'))">
+    <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugSymbols>false</DebugSymbols>
@@ -39,11 +41,14 @@
     <AvaloniaResource Include="..\SnapX.Core\Resources\SnapX_Logo.png">
       <Link>SnapX_Logo.png</Link>
     </AvaloniaResource>
+    <None Update="AppxManifest.xml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+    <PackageReference Condition="'$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('browser'))" Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
+
+    <PackageReference Condition="!$(RuntimeIdentifier.Contains('browser'))" Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
     <PackageReference Include="FluentAvaloniaUI" Version="2.4.0" />
     <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="1.1.308" />
@@ -53,11 +58,13 @@
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="$(HarfBuzzSharpVersion)" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" Version="$(HarfBuzzSharpVersion)" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" Version="$(HarfBuzzSharpVersion)" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" Version="$(HarfBuzzSharpVersion)" />
     <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
     <PackageReference Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="$(SkiaSharpVersion)" />
     <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="$(SkiaSharpVersion)" />
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
+    <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
     <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
   </ItemGroup>
   <ItemGroup>

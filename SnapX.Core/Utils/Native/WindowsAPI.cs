@@ -71,12 +71,11 @@ public class WindowsAPI : NativeAPI
         if (!PInvoke.IsWindowVisible(hwnd))
             return true;
 
-        var windowTitle = new StringBuilder(256);
-        var GcHandle = GCHandle.Alloc(windowTitle, GCHandleType.Pinned);
-        var ptr = GcHandle.AddrOfPinnedObject();
+        var capacity = PInvoke.GetWindowTextLength(hwnd);
+        var buffer = new char[capacity + 1];
+        var length = PInvoke.GetWindowText(hwnd, buffer);
 
-
-        PInvoke.GetWindowText(hwnd, new PWSTR(ptr), 256);
+        var windowTitle = new string(buffer, 0, length);
 
         // If the window has a non-empty title, add it to the list
         if (windowTitle.Length <= 0) return true;

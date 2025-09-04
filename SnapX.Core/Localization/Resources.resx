@@ -85,6 +85,12 @@
   <data name="UI_Dropdown_Monitor">
     <value>Monitor</value>
   </data>
+  <data name="UI_Dropdown_ScreenRecording">
+    <value>Screen recording</value>
+  </data>
+  <data name="UI_Dropdown_ScreenRecordingGIF">
+    <value>Screen recording GIF</value>
+  </data>
   <data name="UI_Monitor_DisplayName">
   <value>{0}: {1} ({2})</value>
   </data>

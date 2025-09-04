@@ -50,6 +50,8 @@ public class SnapX
             BuildType.Homebrew;
 #elif PORTABLE
             BuildType.Portable;
+#elif BROWSER
+            BuildType.Web;
 #elif RELEASE
             BuildType.Release;
 #else

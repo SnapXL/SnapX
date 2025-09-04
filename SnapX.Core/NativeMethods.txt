@@ -13,6 +13,7 @@ GetDeviceCaps
 GetDC
 GlobalMemoryStatusEx
 GetWindowText
+GetWindowTextLength
 GetWindowRgn
 GetCursorPos
 SetCursorPos
