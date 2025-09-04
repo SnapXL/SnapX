@@ -33,11 +33,6 @@
 
         <Canvas x:Name="Canvas">
             <Rectangle
-                Fill="Black"
-                IsVisible="False"
-                Stretch="UniformToFill"
-                x:Name="DimmingOverlay" />
-            <Rectangle
                 IsHitTestVisible="False"
                 Stroke="{DynamicResource SystemAccentColorDark1}"
                 StrokeThickness="2"

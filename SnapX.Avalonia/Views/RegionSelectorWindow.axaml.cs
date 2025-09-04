@@ -26,7 +26,6 @@ public partial class RegionSelectorWindow : Window
     private bool _isSelecting;
 
     private readonly Rectangle _selectionRect;
-    private readonly Rectangle _dimmingOverlay;
     private readonly TextBox _infoBox;
     private readonly Canvas _canvas;
     private Image? _image;
@@ -38,7 +37,6 @@ public partial class RegionSelectorWindow : Window
         DataContext = vm;
         InitializeComponent();
         _selectionRect = this.FindControl<Rectangle>("SelectionRect");
-        _dimmingOverlay = this.FindControl<Rectangle>("DimmingOverlay");
         _infoBox = this.FindControl<TextBox>("InfoBox");
         _canvas = this.FindControl<Canvas>("Canvas");
 
@@ -56,8 +54,6 @@ public partial class RegionSelectorWindow : Window
         var height = workingArea.Value.Height;
         DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
         Position = new PixelPoint(x, y);
-        // _dimmingOverlay.Width = width;
-        // _dimmingOverlay.Height = height;
         // Width = width;
         // height = width;
         _canvas.Width = width;
@@ -155,27 +151,33 @@ public partial class RegionSelectorWindow : Window
             dialog.ShowAsync();
         }
     }
-    private void OnPointerReleased(object? Sender, PointerReleasedEventArgs E)
+    private async void OnPointerReleased(object? Sender, PointerReleasedEventArgs E)
     {
         _isSelecting = false;
         _selectionRect.IsVisible = false;
-        _dimmingOverlay.IsVisible = false;
         _infoBox.IsVisible = false;
         var selectedRegion = _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
         DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {selectedRegion}");
         try
         {
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 if (_imageStream == null)
                 {
                     DebugHelper.WriteLine("RegionSelectorWindow.OnPointerReleased: _imageStream is null");
                     return;
                 }
-                _image?.Mutate(Context => Context.Crop(new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X, (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height)));
-                DebugHelper.WriteLine("Runing image task");
+
+                if (_image is null)
+                {
+                    DebugHelper.WriteLine("RegionSelectorWindow.OnPointerReleased: _image is null");
+                    return;
+                }
+                _image.Mutate(Context => Context.Crop(new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X,
+                    (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height)));
+                DebugHelper.WriteLine("Running image task");
                 UploadManager.RunImageTask(_image, TaskSettings.GetDefaultTaskSettings());
-            }).GetAwaiter().GetResult();
+            });
         }
         catch (Exception ex)
         {
@@ -185,7 +187,7 @@ public partial class RegionSelectorWindow : Window
         Close();
     }
 
-    private void OnPointerMoved(object? Sender, PointerEventArgs E)
+    private async void OnPointerMoved(object? Sender, PointerEventArgs E)
     {
         if (!_isSelecting) return;
         var endPoint = E.GetPosition(this);
@@ -196,22 +198,10 @@ public partial class RegionSelectorWindow : Window
         _selectionRect.Width = width;
         _selectionRect.Height = height;
         _selectionRect.Margin = new Thickness(x, y, 0, 0);
-        // UpdateDimmingOverlay(x, y, width, height);
-
-        _infoBox.Text = $"X: {x}, Y: {y}, Width: {width}, Height: {height}";
+        var infoText = $"X: {x}, Y: {y}, Width: {width}, Height: {height}";
+        if (_infoBox.Text != infoText)
+            _infoBox.Text = infoText;
         _infoBox.Margin = new Thickness(x, y - 30, 0, 0);
-    }
-    private void UpdateDimmingOverlay(double x, double y, double width, double height)
-    {
-        var overlay = new DrawingGroup();
-        using (var context = overlay.Open())
-        {
-            var perimeter = _canvas.Bounds;
-            context.FillRectangle(Brushes.Black, perimeter);
-            context.FillRectangle(Brushes.Transparent, _selectionRect.Bounds.Intersect(perimeter));
-        }
-
-        _dimmingOverlay.Fill = new DrawingBrush(overlay);
     }
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
