@@ -10,6 +10,8 @@ using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 using WinRT;
 
 
@@ -212,6 +214,29 @@ public class WindowsCapture : BaseCapture
             DebugHelper.WriteLine("WindowsCapture was provided a invalid window handle");
             return null;
         }
+
+        var capacity = PInvoke.GetWindowTextLength(hwnd);
+        var buffer = new char[capacity + 1];
+        var length = PInvoke.GetWindowText(hwnd, buffer);
+
+        var windowTitle = new string(buffer, 0, length);
+        var windowInfo = new WINDOWINFO();
+        var successRect = PInvoke.GetWindowRect(hwnd, out var RECT);
+        var IRect = new Rectangle(RECT.X, RECT.Y, RECT.Width, RECT.Height);
+        var successWindowInfo = PInvoke.GetWindowInfo(hwnd, ref windowInfo);
+        DebugHelper.WriteLine("==== Window Info ====");
+        DebugHelper.WriteLine($"Title: {windowTitle}");
+        DebugHelper.WriteLine($"Rect: {IRect}");
+        DebugHelper.WriteLine($"dwStyle: {windowInfo.dwStyle}");
+        DebugHelper.WriteLine($"dwExStyle: {windowInfo.dwExStyle}");
+        DebugHelper.WriteLine($"dwWindowStatus: {windowInfo.dwWindowStatus}");
+        DebugHelper.WriteLine($"cxWindowBorders: {windowInfo.cxWindowBorders}");
+        DebugHelper.WriteLine($"cyWindowBorders: {windowInfo.cyWindowBorders}");
+        DebugHelper.WriteLine($"atomWindowType: {windowInfo.atomWindowType}");
+        DebugHelper.WriteLine($"wCreatorVersion: {windowInfo.wCreatorVersion}");
+        DebugHelper.WriteLine($"Active: {windowInfo.dwWindowStatus == 0x0001}");
+        DebugHelper.WriteLine("=====================");
+
 
         var captureItem = CaptureItemHelper.CreateItemForWindow(hwnd);
         if (captureItem == null)
