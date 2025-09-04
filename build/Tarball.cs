@@ -31,9 +31,25 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             {
                 installConfig.BinDir = destDir;
             }
-            if (installConfig.LibDir == Path.Join(config.DestDir, config.Prefix, "lib", "snapx"))
+
+            if (!OperatingSystem.IsWindows())
             {
-                installConfig.LibDir = Path.Join(destDir, installConfig.Prefix, "lib");
+                if (installConfig.LibDir == Path.Join(config.DestDir, config.Prefix, "lib", "snapx"))
+                {
+                    installConfig.LibDir = Path.Join(destDir, installConfig.Prefix, "lib");
+                }
+            }
+            else
+            {
+                if (installConfig.LibDir == Path.Join(config.DestDir, config.Prefix, "lib", "snapx"))
+                {
+                    installConfig.LibDir = destDir;
+                }
+                var junkDirectoryInfo = Directory.CreateTempSubdirectory("BUILD_SNAPX");
+                var junkDir = junkDirectoryInfo.FullName;
+                installConfig.Applicationsdir = junkDir;
+                installConfig.Icondir = junkDir;
+                installConfig.Metainfodir = junkDir;
             }
 
             if (!installConfig.ShouldSkip("copy_deps"))
