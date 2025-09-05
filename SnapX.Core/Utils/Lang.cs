@@ -21,6 +21,10 @@ public static class Lang
     public static string CreateGitHubIssue => Get("CreateGitHubIssue");
     public static string CopyErrorToClipboard => Get("CopyErrorToClipboard");
     public static string EditWithSnapX => Get("EditWithSnapX");
+    public static string KeepSnapXOpenAndFree => Get("KeepSnapXOpenAndFree");
+    public static string CountMeIn => Get("CountMeIn");
+    public static string MaybeLater => Get("MaybeLater");
+    public static string YouCanTypeHere => Get("YouCanTypeHere");
     public static string UploadWithSnapX => Get("UploadWithSnapX");
     public static string UploadManagerUploadFile => Get("UploadManagerUploadFile");
     #region UI strings

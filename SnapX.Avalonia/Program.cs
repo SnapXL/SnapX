@@ -26,20 +26,20 @@ internal static class Program
         }
 
         BuildAvaloniaApp()
-            #if !BROWSER
+#if !BROWSER
             .StartWithClassicDesktopLifetime(args);
-            #else
+#else
             .StartBrowserAppAsync("out");
-            #endif
+#endif
     }
 
     // ReSharper disable once MemberCanBePrivate.Global
     public static AppBuilder BuildAvaloniaApp()
     {
         var builder = AppBuilder.Configure<App>();
-        #if BROWSER
+#if BROWSER
         return builder;
-        #else
+#else
         if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
         {
             builder = builder.With(new FontManagerOptions
@@ -84,6 +84,6 @@ internal static class Program
         }
 
         return builder;
-        #endif
+#endif
     }
 }
