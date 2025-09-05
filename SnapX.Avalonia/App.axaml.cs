@@ -21,6 +21,7 @@ using SnapX.Avalonia.Views.Settings.Views;
 using SnapX.Core;
 using SnapX.Core.Capture;
 using SnapX.Core.Job;
+using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
 
@@ -513,19 +514,46 @@ public partial class App : Application
         NativeMenuAboutSnapXClick(Sender, E);
     }
 
-    private void NativeMenuItem_Capture_Fullscreen_OnClick(object? Sender, EventArgs E)
+    private async void NativeMenuItem_Capture_Fullscreen_OnClick(object? Sender, EventArgs E)
     {
-        TaskHelpers.GetScreenshot().CaptureFullscreen();
+        await Task.Factory.StartNew(
+            () =>
+            {
+                UploadManager.RunImageTask(
+                    TaskHelpers.GetScreenshot().CaptureFullscreen(),
+                    TaskSettings.GetDefaultTaskSettings()
+                );
+            },
+            CancellationToken.None,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default
+        );
     }
 
-    private void NativeMenuItem_Workflows_CaptureActiveScreen_OnClick(object? Sender, EventArgs E)
+    private async void NativeMenuItem_Workflows_CaptureActiveScreen_OnClick(object? Sender, EventArgs E)
     {
-        new CaptureActiveMonitor().Capture(TaskSettings.GetDefaultTaskSettings());
+        await Task.Factory.StartNew(
+            () =>
+            {
+                new CaptureActiveMonitor().Capture(TaskSettings.GetDefaultTaskSettings());
+            },
+            CancellationToken.None,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default
+        );
     }
 
-    private void NativeMenuItem_Workflows_CaptureActiveWindow_OnClick(object? Sender, EventArgs E)
+    private async void NativeMenuItem_Workflows_CaptureActiveWindow_OnClick(object? Sender, EventArgs E)
     {
-        new CaptureActiveWindow().Capture(TaskSettings.GetDefaultTaskSettings());
+        await Task.Factory.StartNew(
+            () =>
+            {
+                new CaptureActiveWindow().Capture(TaskSettings.GetDefaultTaskSettings());
+            },
+            CancellationToken.None,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default
+        );
     }
 
     private void NativeMenuItem_Open_OnClick(object? Sender, EventArgs E)
