@@ -19,7 +19,7 @@
     <TargetFramework Condition="(
                              ('$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('win')))
                              or
-                             ('$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('WINDOWS')))
+                             ('$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('Windows')))
                            )">
       $(TargetFramework)-windows10.0.26100.0
     </TargetFramework>
