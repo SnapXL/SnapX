@@ -131,13 +131,45 @@
     <Compile Remove=".\Utils\Native\WindowsAPI.cs" />
   </ItemGroup>
   <Import Project="./Linux.props"
-          Condition=" '$(RuntimeIdentifier)' != '' and (
-                      $(RuntimeIdentifier.Contains('linux'))
-                   or $(RuntimeIdentifier.Contains('ubuntu'))
-                   or $(RuntimeIdentifier.Contains('fedora'))
-                   or $(RuntimeIdentifier.Contains('freebsd')) )" />
+          Condition="
+            (
+                '$(RuntimeIdentifier)' != '' and (
+                    $(RuntimeIdentifier.Contains('linux'))
+                    or $(RuntimeIdentifier.Contains('ubuntu'))
+                    or $(RuntimeIdentifier.Contains('fedora'))
+                    or $(RuntimeIdentifier.Contains('freebsd'))
+                )
+            )
+            or
+            (
+                '$(RuntimeIdentifier)' == '' and (
+                    $([MSBuild]::IsOSPlatform('Linux'))
+                    or $([MSBuild]::IsOSPlatform('FreeBSD'))
+                )
+            )
+        " />
   <Import Project="./OSX.props"
-          Condition=" '$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('osx')) " />
+          Condition="
+            (
+                '$(RuntimeIdentifier)' != '' and
+                $(RuntimeIdentifier.Contains('osx'))
+            )
+            or
+            (
+                '$(RuntimeIdentifier)' == '' and
+                $([MSBuild]::IsOSPlatform('OSX'))
+            )
+        " />
   <Import Project="./Windows.props"
-          Condition=" '$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('win')) " />
+          Condition="
+            (
+                '$(RuntimeIdentifier)' != '' and
+                $(RuntimeIdentifier.Contains('win'))
+            )
+            or
+            (
+                '$(RuntimeIdentifier)' == '' and
+                $([MSBuild]::IsOSPlatform('WINDOWS'))
+            )
+        " />
 </Project>

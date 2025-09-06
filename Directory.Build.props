@@ -16,7 +16,13 @@
     <TargetFramework>net9.0</TargetFramework>
     <GitVersionTargetFramework>$(TargetFramework)</GitVersionTargetFramework>
     <WriteVersionInfoToBuildLog>true</WriteVersionInfoToBuildLog>
-    <TargetFramework Condition=" '$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('win')) ">$(TargetFramework)-windows10.0.26100.0</TargetFramework>
+    <TargetFramework Condition="(
+                             ('$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('win')))
+                             or
+                             ('$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('WINDOWS')))
+                           )">
+      $(TargetFramework)-windows10.0.26100.0
+    </TargetFramework>
     <RollForward>LatestMajor</RollForward>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Version>0.4.0</Version>
@@ -25,8 +31,13 @@
     <UpdateAssemblyInfo>false</UpdateAssemblyInfo>
     <DisableGitVersionTask>true</DisableGitVersionTask>
   </PropertyGroup>
-  <PropertyGroup Condition="$(RuntimeIdentifier.Contains('win')) and
-                         ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+  <PropertyGroup Condition="(
+                          ('$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('win')))
+                          or
+                          ('$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('Windows')))
+                        )
+                        and
+                        ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
     <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
     <UseRIDGraph>true</UseRIDGraph>
     <EnableMsixTooling>true</EnableMsixTooling>
