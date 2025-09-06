@@ -40,11 +40,33 @@
                     <SplitButton.Flyout>
                         <controls:FAMenuFlyout>
                             <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Region}" />
-                            <controls:ToggleMenuFlyoutItem Text="{x:Static utils:Lang.UI_Dropdown_RegionLight}" />
-                            <controls:ToggleMenuFlyoutItem Text="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" />
-                            <controls:ToggleMenuFlyoutItem Text="{x:Static utils:Lang.UI_Dropdown_Window}" />
-                            <controls:ToggleMenuFlyoutItem Text="{x:Static utils:Lang.UI_Dropdown_Monitor}" />
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_RegionLight}" />
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" />
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Window}" />
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Monitor}" />
+                            <controls:MenuFlyoutSubItem IconSource="Clock" Text="Delay">
+                                <controls:RadioMenuFlyoutItem
+                                    Click="DelayOption_Checked"
+                                    GroupName="DelayGroup"
+                                    Tag="1"
+                                    Text="1 second" />
+                                <controls:RadioMenuFlyoutItem
+                                    Click="DelayOption_Checked"
+                                    GroupName="DelayGroup"
+                                    Tag="5"
+                                    Text="5 seconds" />
+                                <controls:RadioMenuFlyoutItem
+                                    Click="DelayOption_Checked"
+                                    GroupName="DelayGroup"
+                                    Tag="10"
+                                    Text="10 seconds" />
+                                <controls:RadioMenuFlyoutItem
+                                    Click="DelayOption_Checked"
+                                    GroupName="DelayGroup"
+                                    Tag="30"
+                                    Text="30 seconds" />
 
+                            </controls:MenuFlyoutSubItem>
 
                         </controls:FAMenuFlyout>
                     </SplitButton.Flyout>
@@ -71,10 +93,7 @@
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>
-            <controls:NavigationViewItem
-                Content="Donate"
-                PointerPressed="DynamicURL_OnPointerPressed"
-                ToolTip.Tip="{x:Static miscellaneous:Links.Donate}">
+            <controls:NavigationViewItem Content="Donate" PointerPressed="DonateButtonPressed">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="PersonHeart"

@@ -105,7 +105,7 @@
                                             Click="DynamicOpenURL"
                                             HotKey="CTRL+Enter"
                                             IconSource="OpenFile"
-                                            IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}"
+                                            IsEnabled="{Binding task.BestImageSource, Converter={StaticResource IsLocalFilePathConverter}}"
                                             Tag="{Binding task.FilePath}"
                                             Text="{x:Static core:Lang.UI_File}"
                                             ToolTip.Tip="{x:Static core:Lang.UI_File_ToolTip}" />
@@ -114,7 +114,7 @@
                                             Click="OpenFolder_Click"
                                             HotKey="Shift+Enter"
                                             IconSource="OpenFolder"
-                                            IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}"
+                                            IsEnabled="{Binding task.BestImageSource, Converter={StaticResource IsLocalFilePathConverter}}"
                                             Tag="{Binding task.FilePath}"
                                             Text="{x:Static core:Lang.UI_FolderName}"
                                             ToolTip.Tip="{x:Static core:Lang.UI_Folder_ToolTip}" />
@@ -276,7 +276,7 @@
                                         CommandParameter="{Binding}"
                                         HotKey="Shift+Delete"
                                         IconSource="Delete"
-                                        IsEnabled="{Binding task.FilePath, Converter={StaticResource FilePathValidConverter}}"
+                                        IsEnabled="{Binding task.BestImageSource, Converter={StaticResource IsLocalFilePathConverter}}"
                                         Text="{x:Static core:Lang.UI_DeleteFileLocally}"
                                         ToolTip.Tip="{x:Static core:Lang.UI_DeleteFileLocally_ToolTip}" />
                                 </controls:FAMenuFlyout>

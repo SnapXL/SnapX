@@ -1,0 +1,68 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.Views.Donation"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:core="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel
+        HorizontalAlignment="Center"
+        Margin="5"
+        Spacing="10"
+        VerticalAlignment="Center">
+        <Image
+            Height="150"
+            Name="BurritoImage"
+            Source="../Assets/SnapX_Icon.ico"
+            Stretch="Uniform"
+            Width="150" />
+        <SelectableTextBlock
+            FontStyle="Italic"
+            FontWeight="SemiLight"
+            HorizontalAlignment="Center"
+            TextWrapping="Wrap"
+            VerticalAlignment="Center">
+            SnapX is free to use, but the work that goes into it isn't.
+            Your support propels SnapX forward, whether it's for new features or a pack of breakfast burritos!
+        </SelectableTextBlock>
+        <controls:FAComboBox
+            Height="40"
+            HorizontalAlignment="Center"
+            Name="DonationMethodComboBox"
+            SelectedIndex="0"
+            SelectionChanged="DonationServiceComboBox"
+            Width="200">
+
+            <controls:FAComboBoxItem Content="GitHub Sponsors" Tag="GitHub" />
+            <controls:FAComboBoxItem Content="Liberapay" Tag="Liberapay" />
+            <controls:FAComboBoxItem Content="Ko-fi" Tag="Ko-fi" />
+        </controls:FAComboBox>
+
+        <controls:FAComboBox
+            Height="40"
+            HorizontalAlignment="Center"
+            IsEditable="True"
+            KeyUp="DonationComboBox_OnKeyUp"
+            Name="DonationComboBox"
+            PlaceholderText="15 USD"
+            PointerExited="DonationComboBox_OnPointerExited"
+            SelectedIndex="1"
+            SelectionChanged="DonationComboBox_SelectionChanged"
+            Width="200">
+            <ToolTip.Tip>
+                <Label Content="{x:Static core:Lang.YouCanTypeHere}" />
+            </ToolTip.Tip>
+            <controls:FAComboBoxItem Content="Select an amount" IsEnabled="False" />
+
+            <controls:FAComboBoxItem Content="15 USD" Tag="15" />
+            <controls:FAComboBoxItem Content="20 USD" Tag="20" />
+            <controls:FAComboBoxItem Content="25 USD" Tag="25" />
+            <controls:FAComboBoxItem Content="10 USD" Tag="10" />
+        </controls:FAComboBox>
+    </StackPanel>
+</UserControl>
+

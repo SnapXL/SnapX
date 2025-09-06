@@ -6,7 +6,6 @@ using SnapX.Core.Utils;
 
 namespace SnapX.Core.ImageEffects;
 
-
 public static class ImageProcessingExtensions
 {
     public static void ApplyColorize(this IImageProcessingContext ctx, Rgba32 color, float intensity)

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
@@ -87,6 +88,11 @@ public partial class MainView : UserControl
 
         if (img != null) UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
     }
+
+    private void DelayOption_Checked(object? sender, RoutedEventArgs e)
+    {
+        DebugHelper.WriteLine("DelayOption_Checked");
+    }
     [RelayCommand]
     private void SelectCaptureAction(string action)
     {
@@ -162,4 +168,24 @@ public partial class MainView : UserControl
     private void MainView_OnInit(object? Sender, EventArgs E)
     {
     }
+
+    private void DonateButtonPressed(object? sender, PointerPressedEventArgs e)
+    {
+        var donationMenu = new Donation();
+        var dialog = new ContentDialog
+        {
+            Title = Lang.KeepSnapXOpenAndFree,
+            Content = donationMenu,
+            IsPrimaryButtonEnabled = true,
+            PrimaryButtonText = Lang.CountMeIn,
+            IsSecondaryButtonEnabled = true,
+            SecondaryButtonText = Lang.MaybeLater,
+            DefaultButton = ContentDialogButton.Primary,
+            PrimaryButtonCommand = donationMenu.PrimaryClickCommand,
+            FullSizeDesired = true
+        };
+        if (App.MyMainWindow != null) dialog.ShowAsync(App.MyMainWindow);
+        else dialog.ShowAsync();
+    }
+
 }

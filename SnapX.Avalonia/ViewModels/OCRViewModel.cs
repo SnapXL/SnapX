@@ -41,21 +41,24 @@ public partial class OCRViewModel : ViewModelBase
             {
                 Image? img = null;
 
-                if (Item?.FilePath is null && Item?.BestImageSource is not null)
+                if (img is null && Item?.BestImageSource is not null)
                 {
-                    img = await WebHelpers.DownloadImageAsync(Item.BestImageSource);
+                    if (!Uri.IsWellFormedUriString(Item.BestImageSource, UriKind.Absolute))
+                    {
+                        // It's likely a file path, so no need to download
+                    }
+                    else
+                    {
+                        img = await WebHelpers.DownloadImageAsync(Item.BestImageSource);
+                    }
                 }
 
-                if (img is null && Item?.FilePath is not null)
-                {
-                    return await TaskHelpers.OCRImage(null, Item.FilePath, TaskSettings.GetDefaultTaskSettings(), languageCode);
-                }
 
-                return await TaskHelpers.OCRImage(img, null, TaskSettings.GetDefaultTaskSettings(), languageCode);
+                return await TaskHelpers.OCRImage(img, Item?.BestImageSource, TaskSettings.GetDefaultTaskSettings(), languageCode);
             },
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
-            TaskScheduler.Default).GetAwaiter().GetResult();
+            TaskScheduler.Default).Unwrap();
     }
 
 }

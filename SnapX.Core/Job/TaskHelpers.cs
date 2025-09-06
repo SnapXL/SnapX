@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -723,14 +722,13 @@ public static class TaskHelpers
         using var ms = new MemoryStream();
         try
         {
-            if (filePath is not null)
+            if (filePath is not null && image is null)
                 image = await Image.LoadAsync(filePath);
         }
         catch (Exception ex)
         {
-            DebugHelper.WriteLine("Failed to load image for OCR");
+            DebugHelper.Logger.Warning("Failed to load image for OCR");
             DebugHelper.WriteException(ex);
-            image = null;
         }
         if (image is null) return string.Empty;
         await image.SaveAsPngAsync(ms);

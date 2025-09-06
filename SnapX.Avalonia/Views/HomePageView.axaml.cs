@@ -41,7 +41,7 @@ public partial class HomePageView : UserControl
         ViewModel.DeleteHistoryItemLocallyCommand.Execute(menuFlyoutItem.DataContext);
         ViewModel.InvalidateCache();
         ViewModel.StopTimer();
-        ViewModel.RefreshTasks();
+        _ = ViewModel.RefreshTasks();
         ViewModel.StartTimer();
     }
 

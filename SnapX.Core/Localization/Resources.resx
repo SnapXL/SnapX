@@ -66,6 +66,18 @@
   <data name="UploadManagerUploadFile">
     <value>SnapX - File Upload</value>
   </data>
+  <data name="KeepSnapXOpenAndFree">
+    <value>Keep SnapX Free and Open</value>
+  </data>
+  <data name="CountMeIn">
+    <value>Count me in</value>
+  </data>
+  <data name="MaybeLater">
+    <value>Maybe later</value>
+  </data>
+  <data name="YouCanTypeHere">
+    <value>You can type here</value>
+  </data>
   <!-- UI -->
   <data name="UI_Capture_Fullscreen">
     <value>Fullscreen</value>
