@@ -69,7 +69,7 @@ public partial class Screenshot
         return null;
     }
 
-    public Image CaptureWindow(Point pos) => Methods.CaptureWindow(pos).GetAwaiter().GetResult();
+    public Image CaptureWindow(Point pos) => Methods.CaptureWindow(pos).ConfigureAwait(false).GetAwaiter().GetResult();
     public Image CaptureActiveWindow() => CaptureWindow(Methods.GetCursorPosition());
     public async Task<Image> CaptureActiveMonitor() => await Methods.CaptureScreen(Methods.GetCursorPosition());
     public async Task<Image> CaptureMonitor(Point pos) => await Methods.CaptureScreen(Methods.GetCursorPosition());
