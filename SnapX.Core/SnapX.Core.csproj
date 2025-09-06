@@ -30,8 +30,9 @@
   <PropertyGroup Condition="'$(DisableOCR)' == '1'
   OR $(RuntimeIdentifier.Contains('freebsd'))
   OR $(RuntimeIdentifier.Contains('browser'))
-  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')
-  OR $([System.String]::Copy('$(RuntimeIdentifier)').Contains('musl'))">
+  OR $(RuntimeIdentifier.Contains('alpine'))
+  OR $(RuntimeIdentifier.Contains('musl'))
+  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')">
     <DefineConstants>$(DefineConstants);DISABLE_OCR</DefineConstants>
   </PropertyGroup>
 
@@ -135,6 +136,9 @@
                       $(RuntimeIdentifier.Contains('linux'))
                    or $(RuntimeIdentifier.Contains('ubuntu'))
                    or $(RuntimeIdentifier.Contains('fedora'))
+                   or $(RuntimeIdentifier.Contains('nix'))
+                   or $(RuntimeIdentifier.Contains('alpine'))
+                   or $(RuntimeIdentifier.Contains('void'))
                    or $(RuntimeIdentifier.Contains('freebsd')) )" />
   <Import Project="./OSX.props"
           Condition=" '$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('osx')) " />
