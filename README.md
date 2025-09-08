@@ -44,9 +44,9 @@
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
-- Uses [Direct3D 11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
+- Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
-- Supports 95% of ShareX uploaders (we're a fork!!)
+- Supports 95% of ShareX uploaders (we're a fork!)
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* use TLS 1.3 out of the box.
@@ -56,7 +56,7 @@
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
 
 You will *not* receive any support from the ShareX project for this software. \
-If you have any issues with this project, please **open an issue** in this repository.
+If you have any issues with this project or would like us to add any new feature, please **open an issue** in this repository or use the `#development` channel in our [Discord](https://discord.gg/ys3ZCzttVQ).
 
 ## Supported Linux Distributions
 
@@ -195,13 +195,10 @@ cd SnapX
 ./build.sh # Linux/macOS
 .\build.ps1 # Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
+# Nothing is stopping you from using regular .NET building tools.
+# dotnet publish -c Release ./SnapX.sln
+# SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
 ```
-> [!NOTE]
-> **Nothing is stopping you from using regular .NET building tools.**
-> ```bash
-> dotnet publish -c Release ./SnapX.sln
-> SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
-> ```
 
 ## Contributions
 
@@ -212,7 +209,7 @@ Contributions are welcome. The documentation for contributing is a work in progr
 - [Skorlok](https://github.com/Skorlok)
 - [Abdullah16M](https://github.com/Abdullah16M)
 
-#### Thank you so much!
+**Thank you so much!**
 
 ## Roadmap
 
