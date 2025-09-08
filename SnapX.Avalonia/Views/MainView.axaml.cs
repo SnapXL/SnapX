@@ -216,7 +216,7 @@ public partial class MainView : UserControl
                 {
                     UploadManager.ShortenURL(Links.Website);
                 },
-                [Lang.UI_Debug_TestURLShortener] = async () =>
+                [Lang.UI_Debug_TestURLSharing] = async () =>
                 {
                     UploadManager.ShareURL(Links.Website);
                 },
