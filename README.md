@@ -44,9 +44,9 @@
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
-- Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
+- Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
-- Supports 95% of ShareX uploaders (we're a fork!!)
+- Supports 95% of ShareX uploaders (we're a fork!)
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* use TLS 1.3 out of the box.
@@ -56,7 +56,7 @@
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
 
 You will *not* receive any support from the ShareX project for this software. \
-If you have any issues with this project, please **open an issue** in this repository.
+If you have any issues with this project or would like us to add any new feature, please **open an issue** in this repository or use the `#development` channel in our [Discord](https://discord.gg/ys3ZCzttVQ).
 
 ## Supported Linux Distributions
 
@@ -109,7 +109,7 @@ JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. I
   <img
     src="https://github.com/user-attachments/assets/96b8e44e-47b3-4850-b4f3-c4e7ed8dd385"
     alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
-    alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
+    title="JetBrains Rider - The world's most loved .NET and game dev IDE"
     style="width: 400px; height: auto;"
   />
 </a>
@@ -151,7 +151,7 @@ winget install -e --id JetBrains.Rider
 
 End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
-#### Using the script to install the .NET SDK from the .NET team makes sure you don't run into Homebrew .NET weirdness with Rider not detecting it.
+> Using the script to install the .NET SDK from the .NET team ensures you don't run into issues of Rider not detecting it.
 
 ```zsh
 xcode-select --install
@@ -186,8 +186,8 @@ exec $SHELL -l
 
 To successfully compile SnapX from source, ensure your system meets the following requirements:
 
-* **Memory (RAM):** A minimum of 8 GiB free memory is required during the compilation process.
-* **Disk Space:** At least 15 GiB of free disk space is recommended, preferably on a Solid State Drive (SSD) for optimal compilation speed.
+* **Memory (RAM):** A minimum of **8 GiB** free memory is required during the compilation process.
+* **Disk Space:** At least **15 GiB** of free disk space is recommended, preferably on a Solid State Drive (SSD) for optimal compilation speed.
 
 ```bash
 git clone https://github.com/SnapXL/SnapX
@@ -195,7 +195,7 @@ cd SnapX
 ./build.sh # Linux/macOS
 .\build.ps1 # Windows
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
-# Nothing is stopping you from using regular .NET building tools
+# Nothing is stopping you from using regular .NET building tools.
 # dotnet publish -c Release ./SnapX.sln
 # SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
 ```
@@ -209,8 +209,8 @@ Contributions are welcome. The documentation for contributing is a work in progr
 - [Skorlok](https://github.com/Skorlok)
 - [Abdullah16M](https://github.com/Abdullah16M)
 
-Thank you so much!
+**Thank you so much!**
 
 ## Roadmap
 
-See [Progress.md](./.github/Progress.md).
+See [`Progress.md`](./.github/Progress.md).
