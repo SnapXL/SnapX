@@ -903,6 +903,18 @@ public class WorkerTask : IDisposable
 
     public UploadResult UploadImage(Stream stream, string? fileName)
     {
+        DebugHelper.WriteLine("GenericUploaderServices:");
+
+        foreach (var kvp in UploaderFactory.AllGenericUploaderServices)
+        {
+            DebugHelper.WriteLine($"  {kvp.ServiceName}: {kvp.GetType().FullName}");
+        }
+        DebugHelper.WriteLine("ImageUploaderServices:");
+
+        foreach (var kvp in UploaderFactory.ImageUploaderServices)
+        {
+            DebugHelper.WriteLine($"  {kvp.Key}: {kvp.Value.GetType().FullName}");
+        }
         ImageUploaderService service = UploaderFactory.ImageUploaderServices[Info.TaskSettings.ImageDestination];
 
         return UploadData(service, stream, fileName);

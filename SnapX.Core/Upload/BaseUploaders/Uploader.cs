@@ -483,20 +483,20 @@ public class Uploader
 
         return RequestHelpers.CreateHttpRequest(method, url, headers, cookies, contentType, contentLength).GetAwaiter().GetResult();
     }
-    private Dictionary<string, List<string>> ConvertHeadersToDictionary(HttpResponseMessage response)
+    private Dictionary<string, string> ConvertHeadersToDictionary(HttpResponseMessage response)
     {
-        var headersDictionary = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        var headersDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var header in response.Headers)
         {
-            headersDictionary[header.Key] = header.Value.ToList();
+            headersDictionary[header.Key] = string.Join(", ", header.Value);
         }
 
         if (response.Content != null)
         {
             foreach (var header in response.Content.Headers)
             {
-                headersDictionary[header.Key] = header.Value.ToList();
+                headersDictionary[header.Key] = string.Join(", ", header.Value);
             }
         }
 

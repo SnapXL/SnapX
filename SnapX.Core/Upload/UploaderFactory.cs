@@ -8,7 +8,7 @@ using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload;
 
-public static class UploaderFactory
+public static partial class UploaderFactory
 {
     public static List<IUploaderService> AllServices { get; } = [];
     public static List<IGenericUploaderService> AllGenericUploaderServices { get; } = [];
@@ -18,8 +18,16 @@ public static class UploaderFactory
     public static Dictionary<UrlShortenerType, URLShortenerService> URLShortenerServices { get; } = CacheServices<UrlShortenerType, URLShortenerService>();
     public static Dictionary<URLSharingServices, URLSharingService> URLSharingServices { get; } = CacheServices<URLSharingServices, URLSharingService>();
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    private static Dictionary<T, T2> CacheServices<T, T2>() where T2 : UploaderService<T>
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
+        Justification = "Helpers.GetInstances<T2>() uses reflection; required members preserved via attribute"
+    )]
+    [RequiresUnreferencedCode("Uses reflection to instantiate and analyze T2 types.")]
+    private static Dictionary<T, T2> CacheServices<T,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+    T2>()
+        where T2 : UploaderService<T> where T : notnull
     {
         var instances = Helpers.GetInstances<T2>();
 

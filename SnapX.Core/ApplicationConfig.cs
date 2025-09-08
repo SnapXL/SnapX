@@ -1,115 +1,23 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using SixLabors.ImageSharp;
 using SnapX.Core.History;
+using SnapX.Core.ImageEffects;
 using SnapX.Core.Job;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core;
 
-public class GradientColor
+public class WindowState
 {
-    public string Color { get; set; }
-    public double Location { get; set; }
+    [JsonConverter(typeof(JsonPointConverter))]
+    public Point Location { get; set; }
+    [JsonConverter(typeof(JsonSizeConverter))]
+    public Size Size { get; set; }
+    public bool IsMaximized { get; set; }
 }
-
-public class PinToScreenOptions
-{
-    public int InitialScale { get; set; }
-    public int ScaleStep { get; set; }
-    public bool HighQualityScale { get; set; }
-    public int InitialOpacity { get; set; }
-    public int OpacityStep { get; set; }
-    public string Placement { get; set; }
-    public int PlacementOffset { get; set; }
-    public bool TopMost { get; set; }
-    public bool KeepCenterLocation { get; set; }
-    public string BackgroundColor { get; set; }
-    public bool Shadow { get; set; }
-    public bool Border { get; set; }
-    public int BorderSize { get; set; }
-    public string BorderColor { get; set; }
-    public string MinimizeSize { get; set; }
-}
-
-public class ImageBeautifierOptions
-{
-    public int Margin { get; set; }
-    public int Padding { get; set; }
-    public bool SmartPadding { get; set; }
-    public int RoundedCorner { get; set; }
-    public int ShadowRadius { get; set; }
-    public int ShadowOpacity { get; set; }
-    public int ShadowDistance { get; set; }
-    public int ShadowAngle { get; set; }
-    public string ShadowColor { get; set; }
-    public string BackgroundType { get; set; }
-    public BackgroundGradient BackgroundGradient { get; set; }
-    public string BackgroundColor { get; set; }
-    public string BackgroundImageFilePath { get; set; }
-}
-
-public class BackgroundGradient
-{
-    public string Type { get; set; }
-    public List<GradientColor> Colors { get; set; }
-}
-
-public class ImageCombinerOptions
-{
-    public string Orientation { get; set; }
-    public string Alignment { get; set; }
-    public int Space { get; set; }
-    public int WrapAfter { get; set; }
-    public bool AutoFillBackground { get; set; }
-}
-
-public class VideoConverterOptions
-{
-    public string InputFilePath { get; set; }
-    public string OutputFolderPath { get; set; }
-    public string OutputFileName { get; set; }
-    public string VideoCodec { get; set; }
-    public int VideoQuality { get; set; }
-    public bool VideoQualityUseBitrate { get; set; }
-    public int VideoQualityBitrate { get; set; }
-    public bool UseCustomArguments { get; set; }
-    public string CustomArguments { get; set; }
-    public bool AutoOpenFolder { get; set; }
-}
-
-public class VideoThumbnailOptions
-{
-    public string DefaultOutputDirectory { get; set; }
-    public string LastVideoPath { get; set; }
-    public string OutputLocation { get; set; }
-    public string CustomOutputDirectory { get; set; }
-    public string ImageFormat { get; set; }
-    public int ThumbnailCount { get; set; }
-    public string FilenameSuffix { get; set; }
-    public bool RandomFrame { get; set; }
-    public bool UploadThumbnails { get; set; }
-    public bool KeepScreenshots { get; set; }
-    public bool OpenDirectory { get; set; }
-    public int MaxThumbnailWidth { get; set; }
-    public bool CombineScreenshots { get; set; }
-    public int Padding { get; set; }
-    public int Spacing { get; set; }
-    public int ColumnCount { get; set; }
-    public bool AddVideoInfo { get; set; }
-    public bool AddTimestamp { get; set; }
-    public bool DrawShadow { get; set; }
-    public bool DrawBorder { get; set; }
-}
-
-public class BorderlessWindowSettings
-{
-    public bool RememberWindowTitle { get; set; }
-    public string WindowTitle { get; set; }
-    public bool AutoCloseWindow { get; set; }
-    public bool ExcludeTaskbarArea { get; set; }
-}
-
 public class QuickTaskPreset
 {
     public string Name { get; set; }
@@ -117,137 +25,87 @@ public class QuickTaskPreset
     public List<QuickTaskInfo> AfterUploadTasks { get; set; }
 }
 
-public class Theme
+public class ApplicationConfig : SettingsBase<ApplicationConfig>
 {
-    public string Name { get; set; }
-    public string BackgroundColor { get; set; }
-    public string LightBackgroundColor { get; set; }
-    public string DarkBackgroundColor { get; set; }
-    public string TextColor { get; set; }
-    public string BorderColor { get; set; }
-    public string CheckerColor { get; set; }
-    public string CheckerColor2 { get; set; }
-    public int CheckerSize { get; set; }
-    public string LinkColor { get; set; }
-    public string MenuHighlightColor { get; set; }
-    public string MenuHighlightBorderColor { get; set; }
-    public string MenuBorderColor { get; set; }
-    public string MenuCheckBackgroundColor { get; set; }
-    public string MenuFont { get; set; }
-    public string ContextMenuFont { get; set; }
-    public int ContextMenuOpacity { get; set; }
-    public string SeparatorLightColor { get; set; }
-    public string SeparatorDarkColor { get; set; }
-}
-
-public class ProxySettings
-{
-    public string ProxyMethod { get; set; }
-    public string Host { get; set; }
-    public int Port { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
-}
-
-public class WindowState
-{
-    public string Location { get; set; }
-    public string Size { get; set; }
-    public bool IsMaximized { get; set; }
-}
-
-public class ImageHistorySettings
-{
-    public bool RememberWindowState { get; set; }
-    public WindowState WindowState { get; set; }
-    public string ThumbnailSize { get; set; }
-    public int MaxItemCount { get; set; }
-    public bool FilterMissingFiles { get; set; }
-    public bool RememberSearchText { get; set; }
-    public string SearchText { get; set; }
-}
-
-public class RootConfiguration
-{
-    public TaskSettings DefaultTaskSettings = TaskSettings.GetDefaultTaskSettings();
-    public DateTime FirstTimeRunDate = DateTime.Now;
-    public string FileUploadDefaultDirectory = "";
-    public int NameParserAutoIncrementNumber = 0;
-    public List<QuickTaskPreset> QuickTaskPresets = [];
+    public TaskSettings DefaultTaskSettings { get; set; } = new();
+    public DateTime FirstTimeRunDate { get; set; } = DateTime.Now;
+    public string FileUploadDefaultDirectory { get; set; } = "";
+    public int NameParserAutoIncrementNumber { get; set; } = 0;
+    public List<QuickTaskInfo> QuickTaskPresets { get; set; } = QuickTaskInfo.DefaultPresets;
     // Main window
-    public bool FirstTimeMinimizeToTray = true;
-    public List<int> TaskListViewColumnWidths = [];
-    public int PreviewSplitterDistance = 335;
-    public SupportedLanguage Language = SupportedLanguage.Automatic;
-    public bool ShowTray = true;
-    public bool SilentRun = false;
-    public bool TrayIconProgressEnabled = true;
-    public bool TaskbarProgressEnabled = true;
-    public bool UseWhiteShareXIcon = false;
-    public bool RememberMainFormSize = false;
-    public bool RememberMainFormPosition = true;
-    public Point MainFormPosition = Point.Empty;
-    public Size MainFormSize = Size.Empty;
-    public HotkeyType TrayLeftClickAction = HotkeyType.RectangleRegion;
-    public HotkeyType TrayLeftDoubleClickAction = HotkeyType.OpenMainWindow;
-    public HotkeyType TrayMiddleClickAction = HotkeyType.ClipboardUploadWithContentViewer;
-    public bool AutoCheckUpdate = true;
-    public UpdateChannel UpdateChannel = UpdateChannel.Release;
+    public bool FirstTimeMinimizeToTray { get; set; } = true;
+    public List<int> TaskListViewColumnWidths { get; set; } = [];
+    public int PreviewSplitterDistance { get; set; } = 335;
+    public SupportedLanguage Language { get; set; } = SupportedLanguage.Automatic;
+    public bool ShowTray { get; set; } = true;
+    public bool SilentRun { get; set; } = false;
+    public bool TrayIconProgressEnabled { get; set; } = true;
+    public bool TaskbarProgressEnabled { get; set; } = true;
+    public bool UseWhiteShareXIcon { get; set; } = false;
+    public bool RememberMainFormSize { get; set; } = false;
+    public bool RememberMainFormPosition { get; set; } = true;
+    [JsonConverter(typeof(JsonPointConverter))]
+    public Point MainFormPosition { get; set; } = Point.Empty;
+    [JsonConverter(typeof(JsonSizeConverter))]
+    public Size MainFormSize { get; set; } = Size.Empty;
+    public HotkeyType TrayLeftClickAction { get; set; } = HotkeyType.RectangleRegion;
+    public HotkeyType TrayLeftDoubleClickAction { get; set; } = HotkeyType.OpenMainWindow;
+    public HotkeyType TrayMiddleClickAction { get; set; } = HotkeyType.ClipboardUploadWithContentViewer;
+    public bool AutoCheckUpdate { get; set; } = true;
+    public UpdateChannel UpdateChannel { get; set; } = UpdateChannel.Release;
     // TEMP: For backward compatibility
-    public bool CheckPreReleaseUpdates = false;
+    public bool CheckPreReleaseUpdates { get; set; } = false;
     public bool UseCustomTheme { get; set; }
-    public List<Theme> Themes { get; set; }
+    public List<Theme> Themes { get; set; } = Theme.GetDefaultThemes();
     public int SelectedTheme { get; set; }
-    public bool UseCustomScreenshotsPath = false;
-    public string? CustomScreenshotsPath = "";
-    public string? SaveImageSubFolderPattern = "%y-%mo";
-    public string? SaveImageSubFolderPatternWindow = "";
-    public bool ShowMenu = true;
-    public TaskViewMode TaskViewMode = TaskViewMode.ThumbnailView;
-    public bool ShowThumbnailTitle = true;
-    public Size ThumbnailSize = new(200, 150);
-    public ThumbnailViewClickAction ThumbnailClickAction = ThumbnailViewClickAction.Default;
-    public bool ShowColumns = true;
-    public ImagePreviewVisibility ImagePreview = ImagePreviewVisibility.Automatic;
-    public ImagePreviewLocation ImagePreviewLocation = ImagePreviewLocation.Side;
-    public bool AutoCleanupBackupFiles = false;
-    public bool AutoCleanupLogFiles = false;
-    public int CleanupKeepFileCount = 10;
-    public ProxyInfo ProxySettings = new();
-    public int UploadLimit = 5;
-    public int BufferSizePower = 5;
+    public bool UseCustomScreenshotsPath { get; set; } = false;
+    public string? CustomScreenshotsPath { get; set; } = "";
+    public string? SaveImageSubFolderPattern { get; set; } = "%y-%mo";
+    public string? SaveImageSubFolderPatternWindow { get; set; } = "";
+    public bool ShowMenu { get; set; } = true;
+    public TaskViewMode TaskViewMode { get; set; } = TaskViewMode.ThumbnailView;
+    public bool ShowThumbnailTitle { get; set; } = true;
+    [JsonConverter(typeof(JsonSizeConverter))]
+    public Size ThumbnailSize { get; set; } = new(200, 150);
+    public ThumbnailViewClickAction ThumbnailClickAction { get; set; } = ThumbnailViewClickAction.Default;
+    public bool ShowColumns { get; set; } = true;
+    public ImagePreviewVisibility ImagePreview { get; set; } = ImagePreviewVisibility.Automatic;
+    public ImagePreviewLocation ImagePreviewLocation { get; set; } = ImagePreviewLocation.Side;
+    public bool AutoCleanupBackupFiles { get; set; } = false;
+    public bool AutoCleanupLogFiles { get; set; } = false;
+    public int CleanupKeepFileCount { get; set; } = 10;
+    public ProxyInfo ProxySettings { get; set; } = new();
+    public int UploadLimit { get; set; } = 5;
+    public int BufferSizePower { get; set; } = 5;
     public List<string> ClipboardContentFormats { get; set; } = [];
-    public int MaxUploadFailRetry = 1;
-    public bool UseSecondaryUploaders = false;
-    public List<Upload.ImageDestination> SecondaryImageUploaders = [];
-    public List<Upload.TextDestination> SecondaryTextUploaders = [];
-    public List<Upload.FileDestination> SecondaryFileUploaders = [];
-    public bool HistorySaveTasks = true;
-    public bool HistoryCheckURL = false;
-    public List<HistoryItem> RecentTasks { get; set; }
-    public bool RecentTasksSave = false;
-    public int RecentTasksMaxCount = 10;
-    public bool RecentTasksShowInMainWindow = true;
-    public bool RecentTasksShowInTrayMenu = true;
-    public bool RecentTasksTrayMenuMostRecentFirst = false;
-    public HistorySettings HistorySettings = new();
-    public ImageHistorySettings ImageHistorySettings = new();
+    public int MaxUploadFailRetry { get; set; } = 1;
+    public bool UseSecondaryUploaders { get; set; } = false;
+    public List<Upload.ImageDestination> SecondaryImageUploaders { get; set; } = [];
+    public List<Upload.TextDestination> SecondaryTextUploaders { get; set; } = [];
+    public List<Upload.FileDestination> SecondaryFileUploaders { get; set; } = [];
+    public bool HistorySaveTasks { get; set; } = true;
+    public bool HistoryCheckURL { get; set; } = false;
+    public HistorySettings HistorySettings { get; set; } = new();
+    public ImageHistorySettings ImageHistorySettings { get; set; } = new();
     public bool DontShowPrintSettingsDialog { get; set; }
     // public PrintSettings PrintSettings { get; set; }
-    public Rectangle AutoCaptureRegion = Rectangle.Empty;
-    public decimal AutoCaptureRepeatTime = 60;
-    public bool AutoCaptureMinimizeToTray = true;
-    public bool AutoCaptureWaitUpload = true;
-    public Rectangle ScreenRecordRegion = Rectangle.Empty;
-    public List<HotkeyType> ActionsToolbarList = [ HotkeyType.RectangleRegion, HotkeyType.PrintScreen, HotkeyType.ScreenRecorder,
+    [JsonConverter(typeof(JsonRectangleConverter))]
+    public Rectangle AutoCaptureRegion { get; set; } = Rectangle.Empty;
+    public decimal AutoCaptureRepeatTime { get; set; } = 60;
+    public bool AutoCaptureMinimizeToTray { get; set; } = true;
+    public bool AutoCaptureWaitUpload { get; set; } = true;
+    [JsonConverter(typeof(JsonRectangleConverter))]
+    public Rectangle ScreenRecordRegion { get; set; } = Rectangle.Empty;
+    public List<HotkeyType> ActionsToolbarList { get; set; } = [ HotkeyType.RectangleRegion, HotkeyType.PrintScreen, HotkeyType.ScreenRecorder,
         HotkeyType.None, HotkeyType.FileUpload, HotkeyType.ClipboardUploadWithContentViewer ];
-    public bool ActionsToolbarRunAtStartup = false;
-    public Point ActionsToolbarPosition = Point.Empty;
-    public bool ActionsToolbarLockPosition = false;
-    public bool ActionsToolbarStayTopMost = true;
+    public bool ActionsToolbarRunAtStartup { get; set; } = false;
+    [JsonConverter(typeof(JsonPointConverter))]
+    public Point ActionsToolbarPosition { get; set; } = Point.Empty;
+    public bool ActionsToolbarLockPosition { get; set; } = false;
+    public bool ActionsToolbarStayTopMost { get; set; } = true;
     [Category("Application"), DefaultValue(true), Description("Uses your GPU to render the UI, slightly increases memory usage")]
     public bool HardwareAccelerated { get; set; } = true;
-    public List<Color> RecentColors = [];
+    public List<Color> RecentColors { get; set; } = [];
     [Category("Application"), DefaultValue(false), Description("Calculate and show file sizes in binary units (KiB, MiB etc.)")]
     public bool BinaryUnits { get; set; }
     //
@@ -345,12 +203,12 @@ public class RootConfiguration
     [Category("Paths"),
      Description(
          "Custom uploaders configuration path. If you have already configured this setting in another device and you are attempting to use the same location, then backup the file before configuring this setting and restore after exiting SnapX.")]
-    public string? CustomUploadersConfigPath = "";
+    public string? CustomUploadersConfigPath { get; set; } = "";
     //
     [Category("Paths"), Description("Custom hotkeys configuration path. If you have already configured this setting in another device and you are attempting to use the same location, then backup the file before configuring this setting and restore after exiting SnapX.")]
-    public string? CustomHotkeysConfigPath = "";
+    public string? CustomHotkeysConfigPath { get; set; } = "";
     [Category("Paths"), Description("Custom screenshot path (secondary location). If custom screenshot path is temporarily unavailable (e.g. network share), SnapX will use this location (recommended to be a local path).")]
-    public string? CustomScreenshotsPath2 = "";
+    public string? CustomScreenshotsPath2 { get; set; } = "";
     //
     [Category("Drag and drop window"), DefaultValue(150), Description("Size of drop window.")]
     public int DropSize { get; set; }
@@ -362,8 +220,8 @@ public class RootConfiguration
 
     [Category("Drag and drop window"), DefaultValue(255), Description("When you drag file to drop window then opacity will change to this.")]
     public int DropHoverOpacity { get; set; }
-    // [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
-    // public ContentAlignment DropAlignment { get; set; }
+    [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
+    public ContentAlignment DropAlignment { get; set; }
     public string ApplicationVersion { get; set; } = Helpers.GetApplicationVersion();
 
     public string? SQLitePath { get; set; }

@@ -1,7 +1,7 @@
 # SnapX's Privacy Policy
 
 > Authored on 2/8/2025 \
-> Last updated on 5/27/2025 2:35 PM EST
+> Last updated on 8/22/2025 7:51 AM EST
 
 By default, SnapX collects telemetry data about how the application is performing in two ways:
 
@@ -16,17 +16,17 @@ By default, SnapX collects telemetry data about how the application is performin
 - Application crash data with stack traces that have had any PII removed & anonymized
 - General Region, ie, `United States`
 
-All this data helps to improve SnapX as it is [Free software](https://www.fsf.org/about/what-is-free-software).
+All this data helps to improve SnapX as it is [free software](https://www.fsf.org/about/what-is-free-software).
 
 ### Definitions
 
-telemetry - Modern, dynamic distributed systems require comprehensive monitoring to understand software behavior in various situations. Developers face challenges tracking the software’s performance in the field and responding to various modifications. To keep up with continuously changing requirements, it’s essential to have a simple way to collect data from systems the application is running.
+`telemetry` - Modern, dynamic distributed systems require comprehensive monitoring to understand software behavior in various situations. Developers face challenges tracking the software’s performance in the field and responding to various modifications. To keep up with continuously changing requirements, it’s essential to have a simple way to collect data from systems the application is running.
 
-stack trace - A stack trace is like a list showing the steps a computer took before something went wrong. It helps us figure out which part of the program caused the problem by showing the path it followed. Just like a treasure map, it guides us to the exact place where the mistake happened.
+`stack trace` - A stack trace is like a list showing the steps a computer took before something went wrong. It helps us figure out which part of the program caused the problem by showing the path it followed. Just like a treasure map, it guides us to the exact place where the mistake happened.
 
-fingerprinting - Information that can be used to single you out in the data samples, making your data unique.
+`fingerprinting` - Information that can be used to single you out in the data samples, making your data unique.
 
-anonymous - Not identified by name; of unknown name.
+`anonymous` - Not identified by name; of unknown name.
 
 ## What I will not do
 
@@ -77,7 +77,7 @@ Ensure there are no extra commas at the end of the last item. Do not add the beg
 
 You can additionally disable it with an environment variable. With `SNAPX_DISABLETELEMETRY=true` or the [failed standard](https://consoledonottrack.com/) `DO_NOT_TRACK=1`
 
-You can also set a registry key for those using SnapX in Windows organizations. `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\BrycensRanch\SnapX\DisableTelemetry` with the value of `1`
+You can also set a registry key for those using SnapX in Windows organizations. `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\SnapXL\SnapX\DisableTelemetry` with the value of `1`
 
 
 Settings are pulled in via the first match from:

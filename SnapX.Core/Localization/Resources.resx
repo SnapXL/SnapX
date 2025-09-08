@@ -66,6 +66,18 @@
   <data name="UploadManagerUploadFile">
     <value>SnapX - File Upload</value>
   </data>
+  <data name="KeepSnapXOpenAndFree">
+    <value>Keep SnapX Free and Open</value>
+  </data>
+  <data name="CountMeIn">
+    <value>Count me in</value>
+  </data>
+  <data name="MaybeLater">
+    <value>Maybe later</value>
+  </data>
+  <data name="YouCanTypeHere">
+    <value>You can type here</value>
+  </data>
   <!-- UI -->
   <data name="UI_Capture_Fullscreen">
     <value>Fullscreen</value>
@@ -84,6 +96,27 @@
   </data>
   <data name="UI_Dropdown_Monitor">
     <value>Monitor</value>
+  </data>
+  <data name="UI_Dropdown_ScreenRecording">
+    <value>Screen recording</value>
+  </data>
+  <data name="UI_Dropdown_ScreenRecordingGIF">
+    <value>Screen recording GIF</value>
+  </data>
+  <data name="UI_Debug_TestImageUpload">
+    <value>Test image upload</value>
+  </data>
+  <data name="UI_Debug_TestTextUpload">
+    <value>Test text upload</value>
+  </data>
+  <data name="UI_Debug_TestFileUpload">
+    <value>Test file upload</value>
+  </data>
+  <data name="UI_Debug_TestURLShortener">
+    <value>Test URL shortener</value>
+  </data>
+  <data name="UI_Debug_TestURLSharing">
+    <value>Test URL sharing</value>
   </data>
   <data name="UI_Monitor_DisplayName">
   <value>{0}: {1} ({2})</value>
@@ -133,8 +166,8 @@
  <data name="UI_File_ToolTip">
   <value>Opens the file with the default associated program.</value>
  </data>
- <data name="UI_Folder">
-  <value>Folder</value>
+ <data name="UI_FolderName">
+  <value>Folder name</value>
  </data>
  <data name="UI_Folder_ToolTip">
   <value>Opens the folder with the default associated program</value>

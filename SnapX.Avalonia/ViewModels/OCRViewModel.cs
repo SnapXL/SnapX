@@ -37,28 +37,28 @@ public partial class OCRViewModel : ViewModelBase
 
     public async Task<string> RunOCRAsync(HistoryItem? Item = null, string? languageCode = null)
     {
-        return await Task.Factory.StartNew(() =>
+        return await Task.Factory.StartNew(async () =>
             {
                 Image? img = null;
 
-                if (Item?.FilePath is null && Item?.BestImageSource is not null)
+                if (img is null && Item?.BestImageSource is not null)
                 {
-                    img = WebHelpers.DownloadImageAsync(Item.BestImageSource).GetAwaiter().GetResult();
+                    if (!Uri.IsWellFormedUriString(Item.BestImageSource, UriKind.Absolute))
+                    {
+                        // It's likely a file path, so no need to download
+                    }
+                    else
+                    {
+                        img = await WebHelpers.DownloadImageAsync(Item.BestImageSource);
+                    }
                 }
 
-                if (img is null && Item?.FilePath is not null)
-                {
-                    img = Image.Load(Item.FilePath);
-                }
 
-                if (img is null) return string.Empty;
-
-                return TaskHelpers.OCRImage(img, null, TaskSettings.GetDefaultTaskSettings(), languageCode)
-                    .GetAwaiter().GetResult();
+                return await TaskHelpers.OCRImage(img, Item?.BestImageSource, TaskSettings.GetDefaultTaskSettings(), languageCode);
             },
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
-            TaskScheduler.Default);
+            TaskScheduler.Default).Unwrap();
     }
 
 }

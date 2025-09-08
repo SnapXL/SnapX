@@ -6,10 +6,15 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SnapX.Core.ImageEffects;
 using SnapX.Core.Indexer;
+using SnapX.Core.Media;
 using SnapX.Core.ScreenCapture;
+using SnapX.Core.ScreenCapture.ScreenRecording;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Watch;
@@ -23,39 +28,39 @@ public class TaskSettings
     [JsonIgnore]
     public bool IsSafeTaskSettings => TaskSettingsReference != null;
 
-    public string Description = "";
+    public string Description { get; set; } = "";
 
-    public HotkeyType Job = HotkeyType.None;
+    public HotkeyType Job { get; set; } = HotkeyType.None;
 
-    public bool UseDefaultAfterCaptureJob = true;
-    public AfterCaptureTasks AfterCaptureJob = AfterCaptureTasks.CopyImageToClipboard | AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.UploadImageToHost;
+    public bool UseDefaultAfterCaptureJob { get; set; } = true;
+    public AfterCaptureTasks AfterCaptureJob { get; set; } = AfterCaptureTasks.CopyImageToClipboard | AfterCaptureTasks.SaveImageToFile | AfterCaptureTasks.UploadImageToHost;
 
-    public bool UseDefaultAfterUploadJob = true;
-    public AfterUploadTasks AfterUploadJob = AfterUploadTasks.CopyURLToClipboard;
+    public bool UseDefaultAfterUploadJob { get; set; } = true;
+    public AfterUploadTasks AfterUploadJob { get; set; } = AfterUploadTasks.CopyURLToClipboard;
 
-    public bool UseDefaultDestinations = true;
-    public ImageDestination ImageDestination = ImageDestination.Imgur;
-    public FileDestination ImageFileDestination = FileDestination.Dropbox;
-    public TextDestination TextDestination = TextDestination.Pastebin;
-    public FileDestination TextFileDestination = FileDestination.Dropbox;
-    public FileDestination FileDestination = FileDestination.Dropbox;
-    public UrlShortenerType URLShortenerDestination = UrlShortenerType.BITLY;
-    public URLSharingServices URLSharingServiceDestination = URLSharingServices.Twitter;
+    public bool UseDefaultDestinations { get; set; } = true;
+    public ImageDestination ImageDestination { get; set; } = ImageDestination.CustomImageUploader;
+    public FileDestination ImageFileDestination { get; set; } = FileDestination.Dropbox;
+    public TextDestination TextDestination { get; set; } = TextDestination.Pastebin;
+    public FileDestination TextFileDestination { get; set; } = FileDestination.Dropbox;
+    public FileDestination FileDestination { get; set; } = FileDestination.Dropbox;
+    public UrlShortenerType URLShortenerDestination { get; set; } = UrlShortenerType.BITLY;
+    public URLSharingServices URLSharingServiceDestination { get; set; } = URLSharingServices.Twitter;
 
-    public bool OverrideFTP = false;
-    public int FTPIndex = 0;
+    public bool OverrideFTP { get; set; } = false;
+    public int FTPIndex { get; set; } = 0;
 
-    public bool OverrideCustomUploader = false;
-    public int CustomUploaderIndex = 0;
+    public bool OverrideCustomUploader { get; set; } = false;
+    public int CustomUploaderIndex { get; set; } = 0;
 
-    public bool OverrideScreenshotsFolder = false;
-    public string? ScreenshotsFolder = "";
+    public bool OverrideScreenshotsFolder { get; set; } = false;
+    public string? ScreenshotsFolder { get; set; } = "";
 
-    public bool UseDefaultGeneralSettings = true;
-    public TaskSettingsGeneral GeneralSettings = new();
+    public bool UseDefaultGeneralSettings { get; set; } = true;
+    public TaskSettingsGeneral GeneralSettings { get; set; } = new();
 
-    public bool UseDefaultImageSettings = true;
-    public TaskSettingsImage ImageSettings = new();
+    public bool UseDefaultImageSettings { get; set; } = true;
+    public TaskSettingsImage ImageSettings { get; set; } = new();
 
     [JsonIgnore]
     public TaskSettingsImage ImageSettingsReference
@@ -71,8 +76,8 @@ public class TaskSettings
         }
     }
 
-    public bool UseDefaultCaptureSettings = true;
-    public TaskSettingsCapture CaptureSettings = new TaskSettingsCapture();
+    public bool UseDefaultCaptureSettings { get; set; } = true;
+    public TaskSettingsCapture CaptureSettings { get; set; } = new();
 
     [JsonIgnore]
     public TaskSettingsCapture CaptureSettingsReference
@@ -88,14 +93,14 @@ public class TaskSettings
         }
     }
 
-    public bool UseDefaultUploadSettings = true;
-    public TaskSettingsUpload UploadSettings = new TaskSettingsUpload();
+    public bool UseDefaultUploadSettings { get; set; } = true;
+    public TaskSettingsUpload UploadSettings { get; set; } = new();
 
-    public bool UseDefaultActions = true;
-    public List<ExternalProgram> ExternalPrograms = [];
+    public bool UseDefaultActions { get; set; } = true;
+    public List<ExternalProgram> ExternalPrograms { get; set; } = [];
 
-    public bool UseDefaultToolsSettings = true;
-    public TaskSettingsTools ToolsSettings = new TaskSettingsTools();
+    public bool UseDefaultToolsSettings { get; set; } = true;
+    public TaskSettingsTools ToolsSettings { get; set; } = new();
 
     [JsonIgnore]
     public TaskSettingsTools ToolsSettingsReference
@@ -281,63 +286,120 @@ public class TaskSettingsGeneral
 {
     #region General / Notifications
 
-    public bool PlaySoundAfterCapture = true;
-    public bool PlaySoundAfterUpload = true;
-    public bool PlaySoundAfterAction = true;
+    public bool PlaySoundAfterCapture { get; set; } = true;
+    public bool PlaySoundAfterUpload { get; set; } = true;
+    public bool PlaySoundAfterAction { get; set; } = true;
     // Should be named ShowNotificationAfterTaskCompleted
     // but I don't want to break COMPAT
-    public bool ShowToastNotificationAfterTaskCompleted = true;
+    public bool ShowToastNotificationAfterTaskCompleted { get; set; } = true;
     // Native operating system prompt will definitely support left click action
-    public ToastClickAction ToastWindowLeftClickAction = ToastClickAction.OpenUrl;
+    public ToastClickAction ToastWindowLeftClickAction { get; set; } = ToastClickAction.OpenUrl;
     // Not so sure about this one, chief.
     // public ToastClickAction ToastWindowRightClickAction = ToastClickAction.CloseNotification;
     // Get out
     // public ToastClickAction ToastWindowMiddleClickAction = ToastClickAction.AnnotateImage;
-    public bool DisableNotificationsOnFullscreen = false;
-    public bool UseCustomCaptureSound = false;
-    public string CustomCaptureSoundPath = "";
-    public bool UseCustomTaskCompletedSound = false;
-    public string CustomTaskCompletedSoundPath = "";
-    public bool UseCustomActionCompletedSound = false;
-    public string CustomActionCompletedSoundPath = "";
-    public bool UseCustomErrorSound = false;
-    public string CustomErrorSoundPath = "";
+    public bool DisableNotificationsOnFullscreen { get; set; } = false;
+    public bool UseCustomCaptureSound { get; set; } = false;
+    public string CustomCaptureSoundPath { get; set; } = "";
+    public bool UseCustomTaskCompletedSound { get; set; } = false;
+    public string CustomTaskCompletedSoundPath { get; set; } = "";
+    public bool UseCustomActionCompletedSound { get; set; } = false;
+    public string CustomActionCompletedSoundPath { get; set; } = "";
+    public bool UseCustomErrorSound { get; set; } = false;
+    public string CustomErrorSoundPath { get; set; } = "";
 
     #endregion
 }
+public class ServiceLink
+{
+    public string Name { get; set; }
+    public string URL { get; set; }
 
+    public ServiceLink(string name, string url)
+    {
+        Name = name;
+        URL = url;
+    }
+
+    public string GenerateLink(string input)
+    {
+        if (!string.IsNullOrEmpty(input))
+        {
+            string encodedInput = URLHelpers.URLEncode(input);
+            return string.Format(URL, encodedInput);
+        }
+
+        return null;
+    }
+
+    public void OpenLink(string input)
+    {
+        string link = GenerateLink(input);
+
+        if (!string.IsNullOrEmpty(link))
+        {
+            URLHelpers.OpenURL(link);
+        }
+    }
+
+    public override string ToString()
+    {
+        return Name;
+    }
+}
+public class OCROptions
+{
+    public string Language { get; set; } = "en";
+    public float ScaleFactor { get; set; } = 2f;
+    public bool SingleLine { get; set; } = false;
+    public bool Silent { get; set; } = false;
+    public bool AutoCopy { get; set; } = false;
+    public List<ServiceLink> ServiceLinks { get; set; } = DefaultServiceLinks;
+    public bool CloseWindowAfterOpeningServiceLink { get; set; } = false;
+    public int SelectedServiceLink { get; set; } = 0;
+
+    public static List<ServiceLink> DefaultServiceLinks => new List<ServiceLink>()
+    {
+        new ServiceLink("Google Translate", "https://translate.google.com/?sl=auto&tl=en&text={0}&op=translate"),
+        new ServiceLink("Google Search", "https://www.google.com/search?q={0}"),
+        new ServiceLink("Google Images", "https://www.google.com/search?q={0}&tbm=isch"),
+        new ServiceLink("Bing", "https://www.bing.com/search?q={0}"),
+        new ServiceLink("DuckDuckGo", "https://duckduckgo.com/?q={0}"),
+        new ServiceLink("DeepL", "https://www.deepl.com/translator#auto/en/{0}")
+    };
+}
 public class TaskSettingsImage
 {
     #region Image / General
 
-    public EImageFormat ImageFormat = EImageFormat.PNG;
-    public PNGBitDepth ImagePNGBitDepth = PNGBitDepth.Default;
-    public int ImageJPEGQuality = 90;
-    public GIFQuality ImageGIFQuality = GIFQuality.Default;
-    public bool ImageAutoUseJPEG = true;
-    public int ImageAutoUseJPEGSize = 2048;
-    public bool ImageAutoJPEGQuality = false;
-    public FileExistAction FileExistAction = FileExistAction.Ask;
+    public EImageFormat ImageFormat { get; set; } = EImageFormat.PNG;
+    public PNGBitDepth ImagePNGBitDepth { get; set; } = PNGBitDepth.Default;
+    public int ImageJPEGQuality { get; set; } = 90;
+    public GIFQuality ImageGIFQuality { get; set; } = GIFQuality.Default;
+    public bool ImageAutoUseJPEG { get; set; } = true;
+    public int ImageAutoUseJPEGSize { get; set; } = 2048;
+    public bool ImageAutoJPEGQuality { get; set; } = false;
+    public FileExistAction FileExistAction { get; set; } = FileExistAction.Ask;
 
     #endregion Image / General
 
     #region Image / Effects
 
-    // public List<ImageEffectPreset> ImageEffectPresets = new List<ImageEffectPreset>() { ImageEffectPreset.GetDefaultPreset() };
-    public int SelectedImageEffectPreset = 0;
+    // public List<ImageEffectPreset> ImageEffectPresets { get; set; } = [ImageEffectPreset.GetDefaultPreset()];
+    public int SelectedImageEffectPreset { get; set; } = 0;
 
-    public bool ShowImageEffectsWindowAfterCapture = false;
-    public bool ImageEffectOnlyRegionCapture = false;
-    public bool UseRandomImageEffect = false;
+    public bool ShowImageEffectsWindowAfterCapture { get; set; } = false;
+    public bool ImageEffectOnlyRegionCapture { get; set; } = false;
+    public bool UseRandomImageEffect { get; set; } = false;
 
     #endregion Image / Effects
 
     #region Image / Thumbnail
 
-    public int ThumbnailWidth = 200;
-    public int ThumbnailHeight = 0;
-    public string ThumbnailName = "-thumbnail";
-    public bool ThumbnailCheckSize = false;
+    public int ThumbnailWidth { get; set; } = 200;
+    public int ThumbnailHeight { get; set; } = 0;
+    public string ThumbnailName { get; set; } = "-thumbnail";
+    public bool ThumbnailCheckSize { get; set; } = false;
 
     #endregion Image / Thumbnail
 }
@@ -346,50 +408,50 @@ public class TaskSettingsCapture
 {
     #region Capture / General
 
-    public bool ShowCursor = true;
-    public decimal ScreenshotDelay = 0;
-    public bool CaptureTransparent = false;
-    public bool CaptureShadow = true;
-    public int CaptureShadowOffset = 100;
-    public bool CaptureClientArea = false;
-    public bool CaptureAutoHideTaskbar = false;
-    public Rectangle CaptureCustomRegion = new Rectangle(0, 0, 0, 0);
-    public string CaptureCustomWindow = "";
+    public bool ShowCursor { get; set; } = true;
+    public decimal ScreenshotDelay { get; set; } = 0;
+    public bool CaptureTransparent { get; set; } = false;
+    public bool CaptureShadow { get; set; } = true;
+    public int CaptureShadowOffset { get; set; } = 100;
+    public bool CaptureClientArea { get; set; } = false;
+    public bool CaptureAutoHideTaskbar { get; set; } = false;
+    [JsonConverter(typeof(JsonRectangleConverter))]
+    public Rectangle CaptureCustomRegion { get; set; } = Rectangle.Empty;
+    public string CaptureCustomWindow { get; set; } = "";
 
     #endregion Capture / General
 
     #region Capture / Region capture
 
-    // public RegionCaptureOptions SurfaceOptions = new RegionCaptureOptions();
 
     #endregion Capture / Region capture
 
     #region Capture / Screen recorder
 
-    // public FFmpegOptions FFmpegOptions = new FFmpegOptions();
-    public int ScreenRecordFPS = 30;
-    public int GIFFPS = 15;
-    public RegionCaptureOptions SurfaceOptions = new RegionCaptureOptions();
-    public bool ScreenRecordShowCursor = true;
-    public bool ScreenRecordAutoStart = true;
-    public float ScreenRecordStartDelay = 0f;
-    public bool ScreenRecordFixedDuration = false;
-    public float ScreenRecordDuration = 3f;
-    public bool ScreenRecordTwoPassEncoding = false;
-    public bool ScreenRecordAskConfirmationOnAbort = false;
-    public bool ScreenRecordTransparentRegion = false;
+    public FFmpegOptions FFmpegOptions { get; set; } = new();
+    public int ScreenRecordFPS { get; set; } = 30;
+    public int GIFFPS { get; set; } = 15;
+    public RegionCaptureOptions SurfaceOptions { get; set; } = new();
+    public bool ScreenRecordShowCursor { get; set; } = true;
+    public bool ScreenRecordAutoStart { get; set; } = true;
+    public float ScreenRecordStartDelay { get; set; } = 0f;
+    public bool ScreenRecordFixedDuration { get; set; } = false;
+    public float ScreenRecordDuration { get; set; } = 3f;
+    public bool ScreenRecordTwoPassEncoding { get; set; } = false;
+    public bool ScreenRecordAskConfirmationOnAbort { get; set; } = false;
+    public bool ScreenRecordTransparentRegion { get; set; } = false;
 
     #endregion Capture / Screen recorder
 
     #region Capture / Scrolling capture
 
-    // public ScrollingCaptureOptions ScrollingCaptureOptions = new ScrollingCaptureOptions();
+    // public ScrollingCaptureOptions ScrollingCaptureOptions { get; set; } = new ScrollingCaptureOptions();
 
     #endregion Capture / Scrolling capture
 
     #region Capture / OCR
 
-    // public OCROptions OCROptions = new OCROptions();
+    public OCROptions OCROptions { get; set; } = new OCROptions();
 
     #endregion Capture / OCR
 }
@@ -398,46 +460,184 @@ public class TaskSettingsUpload
 {
     #region Upload / File naming
 
-    public bool UseCustomTimeZone = false;
-    public TimeZoneInfo CustomTimeZone = TimeZoneInfo.Utc;
-    public string? NameFormatPattern = "%ra{10}";
-    public string? NameFormatPatternActiveWindow = "%pn_%ra{10}";
-    public bool FileUploadUseNamePattern = false;
-    public bool FileUploadReplaceProblematicCharacters = false;
-    public bool URLRegexReplace = false;
-    public string URLRegexReplacePattern = "^https?://(.+)$";
-    public string URLRegexReplaceReplacement = "https://$1";
+    public bool UseCustomTimeZone { get; set; } = false;
+    public TimeZoneInfo CustomTimeZone { get; set; } = TimeZoneInfo.Utc;
+    public string? NameFormatPattern { get; set; } = "%ra{10}";
+    public string? NameFormatPatternActiveWindow { get; set; } = "%pn_%ra{10}";
+    public bool FileUploadUseNamePattern { get; set; } = false;
+    public bool FileUploadReplaceProblematicCharacters { get; set; } = false;
+    public bool URLRegexReplace { get; set; } = false;
+    public string URLRegexReplacePattern { get; set; } = "^https?://(.+)$";
+    public string URLRegexReplaceReplacement { get; set; } = "https://$1";
 
     #endregion Upload / File naming
 
     #region Upload / Clipboard upload
 
-    public bool ClipboardUploadURLContents = false;
-    public bool ClipboardUploadShortenURL = false;
-    public bool ClipboardUploadShareURL = false;
-    public bool ClipboardUploadAutoIndexFolder = false;
+    public bool ClipboardUploadURLContents { get; set; } = false;
+    public bool ClipboardUploadShortenURL { get; set; } = false;
+    public bool ClipboardUploadShareURL { get; set; } = false;
+    public bool ClipboardUploadAutoIndexFolder { get; set; } = false;
 
     #endregion Upload / Clipboard upload
 
     #region Upload / Uploader filters
 
-    public List<UploaderFilter> UploaderFilters = [];
+    public List<UploaderFilter> UploaderFilters { get; set; } = [];
 
     #endregion Upload / Uploader filters
 }
 
+public class ImageBeautifierOptions
+{
+    public int Margin { get; set; }
+    public int Padding { get; set; }
+    public bool SmartPadding { get; set; }
+    public int RoundedCorner { get; set; }
+    public int ShadowRadius { get; set; }
+    public int ShadowOpacity { get; set; }
+    public int ShadowDistance { get; set; }
+    public int ShadowAngle { get; set; }
+    [JsonConverter(typeof(JsonColorConverter))]
+    public Color ShadowColor { get; set; }
+    public ImageBeautifierBackgroundType BackgroundType { get; set; }
+    public BackgroundGradient BackgroundGradient { get; set; }
+    [JsonConverter(typeof(JsonColorConverter))]
+    public Color BackgroundColor { get; set; }
+    public string BackgroundImageFilePath { get; set; }
+    public ImageBeautifierOptions()
+    {
+        ResetOptions();
+    }
+
+    public void ResetOptions()
+    {
+        Margin = 80;
+        Padding = 40;
+        SmartPadding = true;
+        RoundedCorner = 20;
+        ShadowRadius = 30;
+        ShadowOpacity = 80;
+        ShadowDistance = 10;
+        ShadowAngle = 180;
+        ShadowColor = Color.Black;
+        BackgroundType = ImageBeautifierBackgroundType.Gradient;
+        // BackgroundGradient = new GradientInfo(LinearGradientMode.ForwardDiagonal, Color.FromArgb(255, 81, 47), Color.FromArgb(221, 36, 118));
+        // BackgroundColor = Color.FromArgb(34, 34, 34);
+        BackgroundImageFilePath = "";
+    }
+}
+public class BackgroundGradient
+{
+    public string Type { get; set; }
+    public List<GradientStop> Colors { get; set; }
+    [JsonIgnore]
+    public bool IsValid => Colors != null && Colors.Count > 0;
+
+    [JsonIgnore]
+    public bool IsVisible => IsValid && Colors.Any(x => x.Color.ToPixel<Rgba32>().A > 0);
+
+    [JsonIgnore]
+    public bool IsTransparent => IsValid && Colors.Any(x => x.Color.IsTransparent());
+    public BackgroundGradient(string type)
+    {
+        Type = type;
+        Colors = new();
+    }
+    public BackgroundGradient()
+    {
+        Type = "Vertical";
+        Colors = new();
+    }
+    public BackgroundGradient(string type, params GradientStop[] colors) : this(type)
+    {
+        Colors = colors.ToList();
+    }
+    public BackgroundGradient(string type, params Color[] colors) : this(type)
+    {
+        for (int i = 0; i < colors.Length; i++)
+        {
+            Colors.Add(new GradientStop(colors[i], (int)Math.Round(100f / (colors.Length - 1) * i)));
+        }
+    }
+    public void Clear()
+    {
+        Colors.Clear();
+    }
+
+    public void Sort()
+    {
+        Colors.Sort((x, y) => x.Location.CompareTo(y.Location));
+    }
+
+    public void Reverse()
+    {
+        Colors.Reverse();
+
+        foreach (var color in Colors)
+        {
+            color.Location = 100 - color.Location;
+        }
+    }
+}
+public class GradientStop
+{
+    [JsonConverter(typeof(JsonColorConverter))]
+    public Color Color { get; set; }
+    public double Location { get; set; }
+    public GradientStop()
+    {
+        Color = default; // or Color.Transparent if you prefer
+        Location = 0;
+    }
+
+    public GradientStop(Color stopColor, double location)
+    {
+        Color = stopColor;
+        Location = location;
+    }
+}
+public class PinToScreenOptions
+{
+    public int InitialScale { get; set; } = 100;
+    public int ScaleStep { get; set; } = 10;
+    public bool HighQualityScale { get; set; } = true;
+    public int InitialOpacity { get; set; } = 100;
+    public int OpacityStep { get; set; } = 10;
+    public ContentAlignment Placement { get; set; } = ContentAlignment.BottomRight;
+    public int PlacementOffset { get; set; } = 10;
+    public bool TopMost { get; set; } = true;
+    public bool KeepCenterLocation { get; set; } = true;
+    [JsonConverter(typeof(JsonColorConverter))]
+    public Color BackgroundColor { get; set; } = Color.White;
+    public bool Shadow { get; set; } = true;
+    public bool Border { get; set; } = true;
+    public int BorderSize { get; set; } = 2;
+    [JsonConverter(typeof(JsonColorConverter))]
+    public Color BorderColor { get; set; } = Color.CornflowerBlue;
+    [JsonConverter(typeof(JsonSizeConverter))]
+    public Size MinimizeSize { get; set; } = new Size(100, 100);
+}
+public class BorderlessWindowSettings
+{
+    public bool RememberWindowTitle { get; set; }
+    public string WindowTitle { get; set; }
+    public bool AutoCloseWindow { get; set; }
+    public bool ExcludeTaskbarArea { get; set; }
+}
+
 public class TaskSettingsTools
 {
-    public string ScreenColorPickerFormat = "$hex";
-    public string ScreenColorPickerFormatCtrl = "$r255, $g255, $b255";
-    public string ScreenColorPickerInfoText = "RGB: $r255, $g255, $b255$nHex: $hex$nX: $x Y: $y";
-    public PinToScreenOptions PinToScreenOptions = new();
-    public IndexerSettings IndexerSettings = new();
-    public ImageBeautifierOptions ImageBeautifierOptions = new();
-    public ImageCombinerOptions ImageCombinerOptions = new();
-    public VideoConverterOptions VideoConverterOptions = new();
-    public VideoThumbnailOptions VideoThumbnailOptions = new();
-    public BorderlessWindowSettings BorderlessWindowSettings = new();
+    public string ScreenColorPickerFormat { get; set; } = "$hex";
+    public string ScreenColorPickerFormatCtrl { get; set; } = "$r255, $g255, $b255";
+    public string ScreenColorPickerInfoText { get; set; } = "RGB: $r255, $g255, $b255$nHex: $hex$nX: $x Y: $y";
+    public PinToScreenOptions PinToScreenOptions { get; set; } = new();
+    public IndexerSettings IndexerSettings { get; set; } = new();
+    public ImageBeautifierOptions ImageBeautifierOptions { get; set; } = new();
+    public ImageCombinerOptions ImageCombinerOptions { get; set; } = new();
+    public VideoConverterOptions VideoConverterOptions { get; set; } = new();
+    public VideoThumbnailOptions VideoThumbnailOptions { get; set; } = new();
+    public BorderlessWindowSettings BorderlessWindowSettings { get; set; } = new();
 }
 
 public class TaskSettingsAdvanced

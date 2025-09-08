@@ -9,16 +9,13 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
     xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-    xmlns:controls1="clr-namespace:SnapX.Avalonia.Views.Controls"
     xmlns:core="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
     xmlns:core1="clr-namespace:SnapX.Core;assembly=SnapX.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:extensions="clr-namespace:SnapX.Avalonia.Extensions"
-    xmlns:fluent="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia"
     xmlns:fluent1="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:SnapX.Avalonia.Models"
-    xmlns:snapx="clr-namespace:SnapX.Core;assembly=SnapX.Core"
     xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.DataContext>
@@ -45,10 +42,13 @@
                             Width="205">
                             <ToolTip.Tip>
                                 <WrapPanel>
-                                    <TextBlock Margin="5" Text="{Binding task.FilePath, TargetNullValue='{x:Static core:Lang.UI_NoFilePath}'}" />
+                                    <TextBlock
+                                        IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FilePathValidConverter}}"
+                                        Margin="5"
+                                        Text="{Binding task.FilePath, TargetNullValue='{x:Static core:Lang.UI_NoFilePath}'}" />
 
                                     <TextBlock
-                                        IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FileSizeConverter}}"
+                                        IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FilePathValidConverter}}"
                                         Margin="0,0,0,5"
                                         Text="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, StringFormat='File size: {0:N0} bytes'}" />
                                     <Image
@@ -105,7 +105,7 @@
                                             Click="DynamicOpenURL"
                                             HotKey="CTRL+Enter"
                                             IconSource="OpenFile"
-                                            IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}"
+                                            IsEnabled="{Binding task.BestImageSource, Converter={StaticResource IsLocalFilePathConverter}}"
                                             Tag="{Binding task.FilePath}"
                                             Text="{x:Static core:Lang.UI_File}"
                                             ToolTip.Tip="{x:Static core:Lang.UI_File_ToolTip}" />
@@ -114,9 +114,9 @@
                                             Click="OpenFolder_Click"
                                             HotKey="Shift+Enter"
                                             IconSource="OpenFolder"
-                                            IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}"
+                                            IsEnabled="{Binding task.BestImageSource, Converter={StaticResource IsLocalFilePathConverter}}"
                                             Tag="{Binding task.FilePath}"
-                                            Text="{x:Static core:Lang.UI_Folder}"
+                                            Text="{x:Static core:Lang.UI_FolderName}"
                                             ToolTip.Tip="{x:Static core:Lang.UI_Folder_ToolTip}" />
                                         <controls:MenuFlyoutItem IsVisible="False" Text="{x:Static core:Lang.UI_ThumbnailFile}" />
 
@@ -200,7 +200,7 @@
                                         <controls:MenuFlyoutItem
                                             IconSource="Copy"
                                             IsEnabled="{Binding task.FilePath, Converter={StaticResource StringValid}}"
-                                            Text="{x:Static core:Lang.UI_Folder}" />
+                                            Text="{x:Static core:Lang.UI_FolderName}" />
 
                                     </controls:MenuFlyoutSubItem>
                                     <controls:MenuFlyoutItem
@@ -222,6 +222,7 @@
                                         Click="OCRImageClick"
                                         Command="{Binding OCRImageCommand, DataType=viewModels1:HomePageViewModel}"
                                         IconSource="ImageAltText"
+                                        IsEnabled="{Binding task.Type, Converter={StaticResource EqualsToParameterConverter}, ConverterParameter=image}"
                                         IsVisible="{Binding Source={x:Static core1:FeatureFlags.DisableOCR}, Converter={StaticResource NegateBool}}"
                                         Text="{x:Static core:Lang.UI_OCRImage}"
                                         ToolTip.Tip="{x:Static core:Lang.UI_OCRImage_ToolTip}" />
@@ -275,7 +276,7 @@
                                         CommandParameter="{Binding}"
                                         HotKey="Shift+Delete"
                                         IconSource="Delete"
-                                        IsEnabled="{Binding task.FilePath, Converter={StaticResource FilePathValidConverter}}"
+                                        IsEnabled="{Binding task.BestImageSource, Converter={StaticResource IsLocalFilePathConverter}}"
                                         Text="{x:Static core:Lang.UI_DeleteFileLocally}"
                                         ToolTip.Tip="{x:Static core:Lang.UI_DeleteFileLocally_ToolTip}" />
                                 </controls:FAMenuFlyout>

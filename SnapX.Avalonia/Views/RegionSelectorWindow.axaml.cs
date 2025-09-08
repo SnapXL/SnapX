@@ -2,10 +2,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using FluentAvalonia.UI.Controls;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Avalonia.ViewModels;
@@ -26,7 +26,6 @@ public partial class RegionSelectorWindow : Window
     private bool _isSelecting;
 
     private readonly Rectangle _selectionRect;
-    private readonly Rectangle _dimmingOverlay;
     private readonly TextBox _infoBox;
     private readonly Canvas _canvas;
     private Image? _image;
@@ -38,7 +37,6 @@ public partial class RegionSelectorWindow : Window
         DataContext = vm;
         InitializeComponent();
         _selectionRect = this.FindControl<Rectangle>("SelectionRect");
-        _dimmingOverlay = this.FindControl<Rectangle>("DimmingOverlay");
         _infoBox = this.FindControl<TextBox>("InfoBox");
         _canvas = this.FindControl<Canvas>("Canvas");
 
@@ -47,26 +45,22 @@ public partial class RegionSelectorWindow : Window
         //     .Aggregate((acc, next) => acc.Union(next));
         var cursorPos = Methods.GetCursorPosition();
         var workingArea = Screens.ScreenFromPoint(new PixelPoint(cursorPos.X, cursorPos.Y))?.Bounds;
-        if (workingArea != null && workingArea.HasValue)
-        {
-            workingArea = workingArea.Value;
+        if (workingArea == null || !workingArea.HasValue) return;
+        workingArea = workingArea.Value;
 
-            var x = workingArea.Value.X;
-            var y = workingArea.Value.Y;
-            var width = workingArea.Value.Width;
-            var height = workingArea.Value.Height;
-            DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
-            Position = new PixelPoint(x, y);
-            // _dimmingOverlay.Width = width;
-            // _dimmingOverlay.Height = height;
-            // Width = width;
-            // height = width;
-            _canvas.Width = width;
-            _canvas.Height = height;
-            var viewBox = _canvas.Parent as Viewbox;
-            viewBox.Width = width;
-            viewBox.Height = height;
-        }
+        var x = workingArea.Value.X;
+        var y = workingArea.Value.Y;
+        var width = workingArea.Value.Width;
+        var height = workingArea.Value.Height;
+        DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
+        Position = new PixelPoint(x, y);
+        // Width = width;
+        // height = width;
+        _canvas.Width = width;
+        _canvas.Height = height;
+        var viewBox = _canvas.Parent as Viewbox;
+        viewBox.Width = width;
+        viewBox.Height = height;
 
     }
     public RegionSelectorWindow() : this(new RegionSelectorViewModel()) { }
@@ -84,19 +78,19 @@ public partial class RegionSelectorWindow : Window
     private static void ShowErrorDialog(Exception ex, string? userMessage = null)
     {
         DebugHelper.WriteException(ex);
+        TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Error);
 
-        var dialog = new Window
+        var dialog = new ContentDialog
         {
             Title = Lang.Error,
             Width = 800,
             Height = 450,
-            CanResize = false,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner
+            CloseButtonText = Lang.Ok
         };
 
         var autoCloseCts = new CancellationTokenSource();
 
-        var messageText = new TextBlock
+        var messageText = new SelectableTextBlock
         {
             Text = userMessage ?? Lang.FailedToScreenshot,
             FontWeight = FontWeight.Bold,
@@ -106,23 +100,15 @@ public partial class RegionSelectorWindow : Window
         var errorDetails = new ScrollViewer
         {
             Margin = new Thickness(2, 0, 0, 10),
-            Content = new TextBlock
+            Content = new SelectableTextBlock
             {
                 Text = ex.ToString(),
                 TextWrapping = TextWrapping.Wrap
             }
         };
-
-        var okButton = new Button
-        {
-            Content = Lang.Ok,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Margin = new Thickness(5, 10, 0, 0)
-        };
-        okButton.Click += (_, _) =>
+        dialog.CloseButtonClick += (_, _) =>
         {
             autoCloseCts.Cancel();
-            dialog.Close();
         };
 
         void CancelAutoCloseOnInteraction(object? s, EventArgs e) => autoCloseCts.Cancel();
@@ -139,13 +125,6 @@ public partial class RegionSelectorWindow : Window
             {
                 messageText,
                 errorDetails,
-                new StackPanel
-                {
-                    Orientation = Orientation.Horizontal,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    Children = { okButton },
-                    Spacing = 10
-                }
             }
         };
 
@@ -154,7 +133,7 @@ public partial class RegionSelectorWindow : Window
             try
             {
                 await Task.Delay(TimeSpan.FromSeconds(20), autoCloseCts.Token);
-                await Dispatcher.UIThread.InvokeAsync(() => dialog.Close());
+                await Dispatcher.UIThread.InvokeAsync(() => dialog.Hide());
             }
             catch (TaskCanceledException)
             {
@@ -165,32 +144,38 @@ public partial class RegionSelectorWindow : Window
         if (App.MyMainWindow != null)
         {
             App.MyMainWindow.Show(); // in case it was hidden
-            dialog.ShowDialog(App.MyMainWindow);
+            dialog.ShowAsync(App.MyMainWindow);
         }
         else
         {
-            dialog.Show();
+            dialog.ShowAsync();
         }
     }
-    private void OnPointerReleased(object? Sender, PointerReleasedEventArgs E)
+    private async void OnPointerReleased(object? Sender, PointerReleasedEventArgs E)
     {
         _isSelecting = false;
         _selectionRect.IsVisible = false;
-        _dimmingOverlay.IsVisible = false;
         _infoBox.IsVisible = false;
         var selectedRegion = _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
         DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {selectedRegion}");
         try
         {
-            _ = Task.Run(() =>
+            await Task.Run(() =>
             {
                 if (_imageStream == null)
                 {
                     DebugHelper.WriteLine("RegionSelectorWindow.OnPointerReleased: _imageStream is null");
                     return;
                 }
-                _image.Mutate(Context => Context.Crop(new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X, (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height)));
 
+                if (_image is null)
+                {
+                    DebugHelper.WriteLine("RegionSelectorWindow.OnPointerReleased: _image is null");
+                    return;
+                }
+                _image.Mutate(Context => Context.Crop(new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X,
+                    (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height)));
+                DebugHelper.WriteLine("Running image task");
                 UploadManager.RunImageTask(_image, TaskSettings.GetDefaultTaskSettings());
             });
         }
@@ -202,7 +187,7 @@ public partial class RegionSelectorWindow : Window
         Close();
     }
 
-    private void OnPointerMoved(object? Sender, PointerEventArgs E)
+    private async void OnPointerMoved(object? Sender, PointerEventArgs E)
     {
         if (!_isSelecting) return;
         var endPoint = E.GetPosition(this);
@@ -213,22 +198,10 @@ public partial class RegionSelectorWindow : Window
         _selectionRect.Width = width;
         _selectionRect.Height = height;
         _selectionRect.Margin = new Thickness(x, y, 0, 0);
-        // UpdateDimmingOverlay(x, y, width, height);
-
-        _infoBox.Text = $"X: {x}, Y: {y}, Width: {width}, Height: {height}";
+        var infoText = $"X: {x}, Y: {y}, Width: {width}, Height: {height}";
+        if (_infoBox.Text != infoText)
+            _infoBox.Text = infoText;
         _infoBox.Margin = new Thickness(x, y - 30, 0, 0);
-    }
-    private void UpdateDimmingOverlay(double x, double y, double width, double height)
-    {
-        var overlay = new DrawingGroup();
-        using (var context = overlay.Open())
-        {
-            var perimeter = _canvas.Bounds;
-            context.FillRectangle(Brushes.Black, perimeter);
-            context.FillRectangle(Brushes.Transparent, _selectionRect.Bounds.Intersect(perimeter));
-        }
-
-        _dimmingOverlay.Fill = new DrawingBrush(overlay);
     }
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
@@ -245,7 +218,7 @@ public partial class RegionSelectorWindow : Window
     }
     private readonly Dictionary<Window, WindowBase?> _ownershipMap = new();
 
-    private void OnOpened(object? Sender, EventArgs EventArgs)
+    private async void OnOpened(object? Sender, EventArgs EventArgs)
     {
         foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != this && w.IsVisible) ?? [])
         {
@@ -259,24 +232,36 @@ public partial class RegionSelectorWindow : Window
             App.MyMainWindow.Hide(); // Hide makes it lose relationship with child windows.
             windowsHiddenByUs.Add(App.MyMainWindow);
         }
+
         // Screenshotting can sometimes take time and block the UI thread.
-        // It can also fail, so, we have to handle it gracefully.
+        // It can also fail, so we have to handle it gracefully.
         try
         {
-            _image = Task.Factory.StartNew(() =>
-                    TaskHelpers.GetScreenshot()
-                        .CaptureActiveMonitor().GetAwaiter().GetResult(),
-                TaskCreationOptions.LongRunning
-            ).ConfigureAwait(false).GetAwaiter().GetResult();
+            var captureTask = Task.Factory.StartNew(async () => await TaskHelpers.GetScreenshot().CaptureActiveMonitor(),
+                TaskCreationOptions.LongRunning).Unwrap();
+
+
+            if (!captureTask.Wait(TimeSpan.FromSeconds(10)))
+            {
+                throw new TimeoutException("Screenshot capture timed out after 10 seconds.");
+            }
+
+            _image = await captureTask;
         }
         catch (Exception ex)
         {
             ShowErrorDialog(ex);
         }
 
-        if (_image == null) return;
+        if (_image == null)
+        {
+            DebugHelper.WriteLine("RegionSelectorWindow.OnOpened: _image is null");
+            Close();
+            return;
+        }
+
         _imageStream = new MemoryStream();
-        _image.SaveAsPng(_imageStream);
+        await _image.SaveAsPngAsync(_imageStream);
         _imageStream.Position = 0;
         _imageBounds = new Rect(_image.Bounds.X, _image.Bounds.Y, _image.Bounds.Width, _image.Bounds.Height);
         DebugHelper.WriteLine($"_imageStream {_imageStream.Length} (Readable? {_imageStream.CanRead}) bytes raw image bounds {_image.Bounds}");
@@ -292,7 +277,6 @@ public partial class RegionSelectorWindow : Window
         {
             ShowErrorDialog(ex);
         }
-        _image.Dispose();
     }
     List<Window> TopoSortWindows(IEnumerable<Window> windows)
     {

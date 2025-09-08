@@ -12,6 +12,7 @@ namespace SnapX.Core.ImageEffects.Manipulations;
 
 internal class Crop : ImageEffect
 {
+    [DefaultValue(typeof(Padding), "0, 0, 0, 0")]
     private Padding margin;
 
     [DefaultValue(typeof(Padding), "0, 0, 0, 0")]

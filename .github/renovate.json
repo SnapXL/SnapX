@@ -1,6 +1,6 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": ["config:recommended", "group:nugetMonorepo", ":semanticCommitTypeAll(build)"],
+	"extends": ["config:recommended", ":semanticCommitTypeAll(build)"],
 	"prCreation": "not-pending",
 	"semanticCommits": "enabled",
 	"automerge": true,
@@ -9,7 +9,8 @@
     "rebaseWhen": "conflicted",
     "prConcurrentLimit": 5,
 	"prHourlyLimit": 2,
-	"branchConcurrentLimit": 4,
+    "prNotPendingHours": 1,
+	"branchConcurrentLimit": 5,
 	"branchPrefix": "dep/",
 	"branchPrefixOld": "renovate/",
     "minimumReleaseAge": "8 hours",

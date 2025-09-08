@@ -95,7 +95,7 @@ public static class WebHelpers
     }
 
 
-    public static async Task<Image> DownloadImageAsync(string? url)
+    public static async Task<Image?> DownloadImageAsync(string? url)
     {
         if (string.IsNullOrEmpty(url)) return null;
 
@@ -109,7 +109,7 @@ public static class WebHelpers
             return null;
         }
 
-        var mediaType = responseMessage.Content.Headers.ContentType.MediaType;
+        var mediaType = responseMessage.Content.Headers.ContentType?.MediaType;
         if (mediaType == null)
         {
             DebugHelper.Logger.Error("{url}: mediaType is null.", url);

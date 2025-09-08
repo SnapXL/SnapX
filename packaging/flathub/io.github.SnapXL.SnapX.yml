@@ -1,0 +1,58 @@
+id: io.github.SnapXL.SnapX
+runtime: org.freedesktop.Platform
+runtime-version: "24.08"
+sdk: org.freedesktop.Sdk
+command: snapx-ui
+
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.dotnet9
+  - org.freedesktop.Sdk.Extension.llvm20
+build-options:
+
+  build-args:
+
+    - --share=network
+finish-args:
+#  - --socket=wayland # Avalonia Wayland support is coming within few months
+  - --socket=x11 # should turn into fallback-x11 when Avalonia wayland comes
+  - --socket=pulseaudio # SnapX plays sounds on upload
+  - --socket=session-bus # TODO: Despite giving Avalonia it's needed access to create a tray item, it crashes on launch without this.
+  - --device=dri # GPU support
+  - --share=ipc
+  - --share=network
+  - --talk-name=com.canonical.AppMenu
+  - --talk-name=com.canonical.dbusmenu
+  - --talk-name=org.freedesktop.Notifications # Native notfications support
+  - --talk-name=org.freedesktop.secrets
+  - --talk-name=org.kde.kwalletd5 # OS Secret support
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=org.kde.StatusNotifierItem
+  - --filesystem=xdg-run/keyring # OS Secret support
+
+modules:
+  - name: snapx-ui
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/dotnet9/bin:/usr/lib/sdk/llvm20/bin
+      append-ld-library-path: /usr/lib/sdk/dotnet9/lib
+      prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
+      prepend-pkg-config-path: /usr/lib/sdk/dotnet9/lib/pkgconfig
+      arch:
+        aarch64:
+          env:
+            RUNTIME: linux-arm64
+        x86_64:
+          env:
+            RUNTIME: linux-x64
+      env:
+        PKGTYPE: FLATPAK
+    build-commands:
+      - ./build.sh install --no-color --no-extended-chars --prefix /app
+    sources:
+#      - type: archive
+#        url: https://nightly.link/SnapXL/SnapX/actions/runs/16850790271/SnapX-Vendored-Source-X64.zip
+#        sha256: 6b17ec11350bb09e609485a537fa71e8de08f2643f9c3757f9aef18f41845e0a
+#        strip-components: 0
+      - type: git
+        url: https://github.com/SnapXL/SnapX.git
+        branch: develop

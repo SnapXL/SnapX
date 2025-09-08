@@ -8,8 +8,8 @@
     <PaddleOCRVersion>3.0.1</PaddleOCRVersion>
     <PaddleInferenceVersion>3.1.0.54</PaddleInferenceVersion>
     <OpenCvSharp4Version>4.11.0.34</OpenCvSharp4Version>
-    <SQLitePCLRawVersion>3.0.1</SQLitePCLRawVersion>
-    <MSExtensionsVersion>9.0.7</MSExtensionsVersion>
+    <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
+    <MSExtensionsVersion>9.0.8</MSExtensionsVersion>
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
 
@@ -23,11 +23,16 @@
   <PropertyGroup Condition="'$(DisableUploads)' == '1'">
     <DefineConstants>$(DefineConstants);DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="$(RuntimeIdentifier.Contains('browser'))">
+    <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
+  </PropertyGroup>
   <!-- Windows 11 ARM64, Musl based distributions, and FreeBSD are not supported for OCR -->
   <PropertyGroup Condition="'$(DisableOCR)' == '1'
-  OR $([MSBuild]::IsOsPlatform('FreeBSD'))
-  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')
-  OR $([System.String]::Copy('$(RuntimeIdentifier)').Contains('musl'))">
+  OR $(RuntimeIdentifier.Contains('freebsd'))
+  OR $(RuntimeIdentifier.Contains('browser'))
+  OR $(RuntimeIdentifier.Contains('alpine'))
+  OR $(RuntimeIdentifier.Contains('musl'))
+  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')">
     <DefineConstants>$(DefineConstants);DISABLE_OCR</DefineConstants>
   </PropertyGroup>
 
@@ -64,14 +69,14 @@
     <PackageReference Include="Sdcb.PaddleOCR" Version="$(PaddleOCRVersion)" />
     <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="$(PaddleOCRVersion)" />
     <!-- Crash forensics & performance analytics -->
-    <PackageReference Include="Sentry.Profiling" Version="5.13.0" />
+    <PackageReference Include="Sentry.Profiling" Version="5.14.1" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-    <PackageReference Include="Serilog.Sinks.InMemory" Version="0.16.0" />
+    <PackageReference Include="Serilog.Sinks.InMemory" Version="2.0.0" />
     <!-- Cross platform image library -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <!-- Helpers for drawing -->
@@ -113,6 +118,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <ProjectReference Include="..\SourceGen\SourceGen.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
   <ItemGroup>
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="WaylandProtocol" />
@@ -122,13 +130,51 @@
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+  <ItemGroup Condition=" '$(TargetFramework)' != '' and !$(TargetFramework.Contains('windows')) ">
+    <Compile Remove="SharpCapture/Windows/*.cs" />
     <Compile Remove=".\Utils\Native\WindowsAPI.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Compile Remove="SharpCapture/Windows/*.cs" />
-  </ItemGroup>
-  <Import Project="./Linux.props" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
-  <Import Project="./OSX.props" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />
-  <Import Project="./Windows.props" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
+  <Import Project="./Linux.props"
+          Condition="
+            (
+                '$(RuntimeIdentifier)' != '' and (
+                    $(RuntimeIdentifier.Contains('linux'))
+                    or $(RuntimeIdentifier.Contains('ubuntu'))
+                    or $(RuntimeIdentifier.Contains('fedora'))
+                    or $(RuntimeIdentifier.Contains('alpine'))
+                    or $(RuntimeIdentifier.Contains('freebsd'))
+                )
+            )
+            or
+            (
+                '$(RuntimeIdentifier)' == '' and (
+                    $([MSBuild]::IsOSPlatform('Linux'))
+                    or $([MSBuild]::IsOSPlatform('FreeBSD'))
+                )
+            )
+        " />
+  <Import Project="./OSX.props"
+          Condition="
+            (
+                '$(RuntimeIdentifier)' != '' and
+                $(RuntimeIdentifier.Contains('osx'))
+            )
+            or
+            (
+                '$(RuntimeIdentifier)' == '' and
+                $([MSBuild]::IsOSPlatform('OSX'))
+            )
+        " />
+  <Import Project="./Windows.props"
+          Condition="
+            (
+                '$(RuntimeIdentifier)' != '' and
+                $(RuntimeIdentifier.Contains('win'))
+            )
+            or
+            (
+                '$(RuntimeIdentifier)' == '' and
+                $([MSBuild]::IsOSPlatform('WINDOWS'))
+            )
+        " />
 </Project>

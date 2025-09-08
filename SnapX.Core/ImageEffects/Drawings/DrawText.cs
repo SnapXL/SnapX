@@ -30,7 +30,7 @@ public class DrawText : ImageEffect
     public bool AutoHide { get; set; }
 
     [DefaultValue(typeof(Font), "Arial, 11.25pt")]
-    public Font TextFont => new(new FontFamily(), 11.25f, FontStyle.Regular);
+    public Font TextFont { get; set; }
 
 
     [DefaultValue(typeof(Color), "235, 235, 235")]

@@ -11,7 +11,6 @@ namespace SnapX.Core.ImageEffects;
 public class ImageEffectPreset
 {
     public string Name { get; set; } = "";
-
     public List<ImageEffect> Effects { get; set; } = [];
 
     public Image ApplyEffects(Image img)

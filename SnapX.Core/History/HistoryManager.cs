@@ -139,10 +139,10 @@ public abstract class HistoryManager
             DateTime = DateTime.Now,
             Type = "Image",
             Host = "Imgur",
-            URL = "https://example.com/Example.png",
-            ThumbnailURL = "https://example.com/Example.png",
-            DeletionURL = "https://example.com/Example.png",
-            ShortenedURL = "https://example.com/Example.png"
+            URL = "https://brycen.app/Example.png",
+            ThumbnailURL = "https://brycen.app/Example.png",
+            DeletionURL = "https://brycen.app/Example.png",
+            ShortenedURL = "https://brycen.app/Example.png"
         };
 
         HistoryItem[] historyItems = new HistoryItem[itemCount];

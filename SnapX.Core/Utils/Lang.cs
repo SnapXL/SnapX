@@ -21,6 +21,10 @@ public static class Lang
     public static string CreateGitHubIssue => Get("CreateGitHubIssue");
     public static string CopyErrorToClipboard => Get("CopyErrorToClipboard");
     public static string EditWithSnapX => Get("EditWithSnapX");
+    public static string KeepSnapXOpenAndFree => Get("KeepSnapXOpenAndFree");
+    public static string CountMeIn => Get("CountMeIn");
+    public static string MaybeLater => Get("MaybeLater");
+    public static string YouCanTypeHere => Get("YouCanTypeHere");
     public static string UploadWithSnapX => Get("UploadWithSnapX");
     public static string UploadManagerUploadFile => Get("UploadManagerUploadFile");
     #region UI strings
@@ -31,6 +35,13 @@ public static class Lang
     public static string UI_Dropdown_RegionTransparent => Get("UI_Dropdown_RegionTransparent");
     public static string UI_Dropdown_Window => Get("UI_Dropdown_Window");
     public static string UI_Dropdown_Monitor => Get("UI_Dropdown_Monitor");
+    public static string UI_Dropdown_ScreenRecording => Get("UI_Dropdown_ScreenRecording");
+    public static string UI_Dropdown_ScreenRecordingGIF => Get("UI_Dropdown_ScreenRecordingGIF");
+    public static string UI_Debug_TestImageUpload => Get("UI_Debug_TestImageUpload");
+    public static string UI_Debug_TestTextUpload => Get("UI_Debug_TestTextUpload");
+    public static string UI_Debug_TestFileUpload => Get("UI_Debug_TestFileUpload");
+    public static string UI_Debug_TestURLShortener => Get("UI_Debug_TestURLShortener");
+    public static string UI_Debug_TestURLSharing => Get("UI_Debug_TestURLSharing");
     public static string UI_Monitor_DisplayName(string name, int index, string resolution)
         => string.Format(Get("UI_Monitor_DisplayName"), name, index, resolution);
     public static string UI_Capture_Fullscreen => Get("UI_Capture_Fullscreen");
@@ -49,7 +60,7 @@ public static class Lang
     public static string UI_DeletionURL_ToolTip => Get("UI_DeletionURL_ToolTip");
     public static string UI_File => Get("UI_File");
     public static string UI_File_ToolTip => Get("UI_File_ToolTip");
-    public static string UI_Folder => Get("UI_Folder");
+    public static string UI_FolderName => Get("UI_FolderName");
     public static string UI_Folder_ToolTip => Get("UI_Folder_ToolTip");
     public static string UI_ThumbnailFile => Get("UI_ThumbnailFile");
     public static string UI_Copy => Get("UI_Copy");

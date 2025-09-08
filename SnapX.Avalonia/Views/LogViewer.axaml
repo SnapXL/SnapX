@@ -6,6 +6,7 @@
     Width="900"
     x:Class="SnapX.Avalonia.Views.LogViewer"
     xmlns="https://github.com/avaloniaui"
+    xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
     xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
     xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -22,6 +23,13 @@
             <Button Click="OpenLogFolderButton_OnClick" Content="Open Log Folder" />
             <Button Click="ClearButton_OnClick" Content="Clear" />
             <Button Click="Close_Click" Content="{x:Static utils:Lang.Close}" />
+        </StackPanel>
+        <StackPanel
+            DockPanel.Dock="Bottom"
+            HorizontalAlignment="Right"
+            Margin="10"
+            Spacing="8">
+            <mdxaml:MarkdownScrollViewer Name="StartupPathText">Startup path: [$shortpath]($path)</mdxaml:MarkdownScrollViewer>
         </StackPanel>
         <ScrollViewer VerticalScrollBarVisibility="Auto" x:Name="ScrollViewer">
             <StackPanel Margin="10" Spacing="10">

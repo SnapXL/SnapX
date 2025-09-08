@@ -8,10 +8,11 @@ using SnapX.Core.Upload.Img;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Text;
 using SnapX.Core.Upload.URL;
+using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload;
 
-public class UploadersConfig
+public class UploadersConfig : SettingsBase<UploadersConfig>
 {
     #region Image uploaders
 

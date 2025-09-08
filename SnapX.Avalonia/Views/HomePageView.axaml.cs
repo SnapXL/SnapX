@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.Models;
-using SnapX.Avalonia.Services;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Utils;
@@ -42,7 +41,7 @@ public partial class HomePageView : UserControl
         ViewModel.DeleteHistoryItemLocallyCommand.Execute(menuFlyoutItem.DataContext);
         ViewModel.InvalidateCache();
         ViewModel.StopTimer();
-        ViewModel.RefreshTasks();
+        _ = ViewModel.RefreshTasks();
         ViewModel.StartTimer();
     }
 
@@ -115,7 +114,13 @@ public partial class HomePageView : UserControl
     private void DynamicCopy(object? sender, RoutedEventArgs e)
     {
         if (sender is not MenuFlyoutItem menuItem) return;
-        var text = menuItem.Tag as string;
-        ClipboardService.Owner.Clipboard?.SetTextAsync(text);
+        if (menuItem.Tag is not string text) return;
+        var topLevel = TopLevel.GetTopLevel(menuItem);
+        if (topLevel is null)
+        {
+            DebugHelper.WriteLine("TopLevel is null");
+            return;
+        }
+        topLevel.Clipboard?.SetTextAsync(text);
     }
 }

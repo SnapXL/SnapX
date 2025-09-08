@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Security.Principal;
+using System.Text;
 
 namespace DefaultNamespace;
 
@@ -114,6 +115,47 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
         await RunAsync(execCommand, executionArguments);
     }
 
+    public async Task<string> CaptureAsync(string command, string args)
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = command,
+            Arguments = args,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+
+        var process = new Process { StartInfo = psi };
+        var outputBuilder = new StringBuilder();
+
+        process.OutputDataReceived += (_, e) =>
+        {
+            if (e.Data != null)
+                outputBuilder.AppendLine(e.Data);
+        };
+        process.ErrorDataReceived += (_, e) =>
+        {
+            if (e.Data != null)
+                outputBuilder.AppendLine(e.Data);
+        };
+
+        process.EnableRaisingEvents = true;
+        process.Start();
+        Logger.Debug($"{command} {args}");
+
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        await process.WaitForExitAsync();
+
+        var result = outputBuilder.ToString().TrimEnd();
+
+        process.Dispose();
+
+        return result;
+    }
     private bool RequiresElevationLikely(string installArguments)
     {
         if (Environment.GetEnvironmentVariable("ELEVATION_NOT_NEEDED") == "1")

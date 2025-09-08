@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Free Disk Space (Ubuntu)
@@ -175,18 +175,125 @@ jobs:
       - name: Publish
         if: runner.os != 'Windows'
         run: ./build.sh --configuration ${{ matrix.configuration }}
+      - name: Import GPG key
+        id: import_gpg
+        if: github.event_name != 'pull_request' && matrix.configuration == 'Release' && runner.os == 'Linux'
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_tag_gpgsign: true
+          git_push_gpgsign: false
+      - name: Assemble SnapX UI Tarball
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        run: "./build.sh tarball --assembly snapx-ui"
+      - name: Assemble SnapX CLI Tarball
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        run: "./build.sh tarball --assembly snapx"
+      - name: Assemble Runfile
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        run: |
+          ./build.sh runfile --assembly snapx-ui
+      - name: Upload Built Runfile 📦
+        uses: actions/upload-artifact@v4
+        if: always() && matrix.configuration == 'Release' && runner.os == 'Linux'
+        with:
+          name: SnapX-Runfile-${{ runner.arch }}
+          if-no-files-found: error
+          path: "*.run"
+      - name: Upload artifact (CLI - Release on Linux)
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
+          path: "SnapX-CLI*"
+          compression-level: 9
+          if-no-files-found: error
 
-      - name: Upload Publish artifact (CLI)
+      - name: Upload artifact (CLI - Non-Release or non-Linux)
+        if: matrix.configuration != 'Release' || runner.os != 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "Output/snapx"
           compression-level: 9
           if-no-files-found: error
-      - name: Upload Publish artifact (Avalonia)
+      - name: Upload artifact (Avalonia - Release on Linux)
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
+          path: "SnapX-UI*"
+          compression-level: 9
+          if-no-files-found: error
+
+      - name: Upload artifact (Avalonia - Non-Release or non-Linux)
+        if: matrix.configuration != 'Release' || runner.os != 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "Output/snapx-ui"
           compression-level: 9
           if-no-files-found: error
+  test-artifacts:
+    runs-on: ubuntu-24.04
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu:20.04
+          - mageia:latest
+          - redhat/ubi9
+          - opensuse/leap:latest
+          - debian:bookworm
+          - archlinux:latest
+          - fedora:39
+    container:
+      image: ${{ matrix.os }}
+      options: >-
+        --privileged
+        --cap-add=SYS_ADMIN
+        --cap-add=SYS_PTRACE
+
+    steps:
+      # See https://github.com/actions/download-artifact/issues/343 & https://github.com/actions/download-artifact/issues/339 to see why this is pinned. If you bump this version, you will be FIRED. >:(
+      - uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          merge-multiple: true
+
+      - name: Run binary tests (filename-based arch detection)
+        run: |
+          chmod +x *.run || true
+          chmod +x *.AppImage || true
+
+          is_x86_64_filename() {
+            echo "$1" | grep -iE 'x86[-_]?64|amd64|x64' &>/dev/null
+          }
+
+          if ls ./*.run &>/dev/null; then
+            for BINARY in *.run; do
+              echo "Checking architecture (by filename) of $BINARY"
+              if is_x86_64_filename "$BINARY"; then
+                echo "Running binary: $BINARY"
+                ./"$BINARY" --version || echo "$BINARY failed to run"
+              else
+                echo "Skipping $BINARY (not x86_64 by filename)"
+              fi
+            done
+          fi
+
+          if ls ./*.AppImage &>/dev/null; then
+            for BINARY in *.AppImage; do
+              echo "Checking architecture (by filename) of $BINARY"
+              if is_x86_64_filename "$BINARY"; then
+                echo "Running binary: $BINARY"
+                ./"$BINARY" --version || echo "$BINARY failed to run"
+              else
+                echo "Skipping $BINARY (not x86_64 by filename)"
+              fi
+            done
+          fi

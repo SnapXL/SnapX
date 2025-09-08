@@ -18,6 +18,7 @@ public partial class OCR : AppWindow
     {
         DataContext = viewModel;
         _ocrViewModel = viewModel;
+        DataContext = viewModel;
         _item = item;
         InitializeComponent();
         // LanguageSelector = this.FindControl<ComboBox>("LanguageSelector");

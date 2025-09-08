@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
@@ -8,6 +9,8 @@ using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Miscellaneous;
 using Image = SixLabors.ImageSharp.Image;
 
 namespace SnapX.Avalonia.Views;
@@ -41,31 +44,56 @@ public partial class MainView : UserControl
     }
 
     [RelayCommand]
-    private void ExecuteSelectedCaptureAction()
+    private async Task ExecuteSelectedCaptureAction()
     {
         var action = selectedAction ?? _captureRegionLabel.Content as string;
         DebugHelper.WriteLine($"Executing: {action}");
         Image? img = null;
-        switch (action)
+        var actionMap = new Dictionary<string, Func<Task>>
         {
-            case "Region":
+            [Lang.UI_Dropdown_Region] = async () =>
+            {
+                await Task.Delay(5000);
                 new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
-                break;
-            case "Region (Light)":
+            },
+            [Lang.UI_Dropdown_RegionLight] = async () =>
+            {
                 new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
-                break;
-            case "Region (Transparent)":
+            },
+            [Lang.UI_Dropdown_RegionTransparent] = async () =>
+            {
                 new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
-                break;
-            case "Window":
-                img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow();
-                break;
-            case "Monitor":
-                img = TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor().ConfigureAwait(false).GetAwaiter().GetResult();
-                break;
+            },
+            [Lang.UI_Dropdown_Window] = async () =>
+            {
+                await Task.Delay(5000);
+                img = await Task.Run(() =>
+                    TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow()
+                );
+            },
+            [Lang.UI_Dropdown_Monitor] = async () =>
+            {
+                await Task.Delay(5000);
+                img = await Task.Run(() =>
+                    TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor()
+                );
+            }
+        };
+        if (action != null && actionMap.TryGetValue(action, out var func))
+        {
+            await func();
+        }
+        else
+        {
+            DebugHelper.WriteLine("No matching action found.");
         }
 
         if (img != null) UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
+    }
+
+    private void DelayOption_Checked(object? sender, RoutedEventArgs e)
+    {
+        DebugHelper.WriteLine("DelayOption_Checked");
     }
     [RelayCommand]
     private void SelectCaptureAction(string action)
@@ -84,7 +112,7 @@ public partial class MainView : UserControl
             }
         }
 
-        ExecuteSelectedCaptureActionCommand.Execute(this);
+        ExecuteSelectedCaptureActionCommand.ExecuteAsync(this);
     }
 
     private void AboutItem_Pressed(object? Sender, PointerPressedEventArgs E)
@@ -141,5 +169,70 @@ public partial class MainView : UserControl
 
     private void MainView_OnInit(object? Sender, EventArgs E)
     {
+    }
+
+    private void DonateButtonPressed(object? sender, PointerPressedEventArgs e)
+    {
+        var donationMenu = new Donation();
+        var dialog = new ContentDialog
+        {
+            Title = Lang.KeepSnapXOpenAndFree,
+            Content = donationMenu,
+            IsPrimaryButtonEnabled = true,
+            PrimaryButtonText = Lang.CountMeIn,
+            IsSecondaryButtonEnabled = true,
+            SecondaryButtonText = Lang.MaybeLater,
+            DefaultButton = ContentDialogButton.Primary,
+            PrimaryButtonCommand = donationMenu.PrimaryClickCommand,
+            FullSizeDesired = true
+        };
+        if (App.MyMainWindow != null) dialog.ShowAsync(App.MyMainWindow);
+        else dialog.ShowAsync();
+    }
+
+    private async void DynamicDebugPressed(object? Sender, PointerPressedEventArgs E)
+    {
+        try
+        {
+            if (Sender is not NavigationViewItem navigationViewItem) return;
+            var target = navigationViewItem.Content as string;
+            if (string.IsNullOrEmpty(target)) return;
+            DebugHelper.WriteLine($"{nameof(DynamicDebugPressed)}: {target}");
+            var actionMap = new Dictionary<string, Func<Task>>
+            {
+                [Lang.UI_Debug_TestImageUpload] = async () =>
+                {
+                    UploadManager.UploadImage(await WebHelpers.DownloadImageAsync("https://github.com/SnapXL/SnapX/blob/v0.3.0/.github/Linux.png?raw=true"));
+                },
+                [Lang.UI_Debug_TestTextUpload] = async () =>
+                {
+                    UploadManager.UploadText("This is a test text upload from SnapX, a fork of ShareX");
+                },
+                [Lang.UI_Debug_TestFileUpload] = async () =>
+                {
+                    UploadManager.DownloadAndUploadFile("https://raw.githubusercontent.com/SnapXL/SnapX/830fc50125e7af3e760b2ff908635d97e2464695/.github/Progress.md");
+                },
+                [Lang.UI_Debug_TestURLShortener] = async () =>
+                {
+                    UploadManager.ShortenURL(Links.Website);
+                },
+                [Lang.UI_Debug_TestURLShortener] = async () =>
+                {
+                    UploadManager.ShareURL(Links.Website);
+                },
+            };
+            if (actionMap.TryGetValue(target, out var func))
+            {
+                await func();
+            }
+            else
+            {
+                DebugHelper.WriteLine("No matching action found.");
+            }
+        }
+        catch (Exception e)
+        {
+            e.ShowError();
+        }
     }
 }

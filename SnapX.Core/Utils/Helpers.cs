@@ -435,24 +435,18 @@ public static class Helpers
 
         return true;
     }
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     [RequiresUnreferencedCode("Uploader")]
-    public static IEnumerable<T> GetInstances<T>() where T : class
+    public static IEnumerable<T?> GetInstances<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : class
     {
-        var baseType = typeof(T);
-        var assembly = baseType.Assembly;
-        if (assembly == null) throw new InvalidOperationException();
-        var types = assembly.GetTypes();
-        if (types == null) throw new InvalidOperationException();
-
-        return types
-            .Where(t => t.IsClass && t.IsSubclassOf(baseType) && t.GetConstructor(Type.EmptyTypes) != null)
+        return FindSubclassesOf<T>()
+            .Where(t => t.GetConstructor(Type.EmptyTypes) != null)
             .Select(t => Activator.CreateInstance(t) as T)
-            .Where(instance => instance != null);
+            .Where(x => x != null);
     }
 
     [RequiresUnreferencedCode("Uploader")]
-    public static IEnumerable<Type> FindSubclassesOf<T>()
+    public static IEnumerable<Type> FindSubclassesOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>()
     {
         var baseType = typeof(T);
         var assembly = baseType.Assembly;

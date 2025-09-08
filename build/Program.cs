@@ -86,7 +86,6 @@ internal class Program
                 await tarballCreator.ProcessTarball();
             });
         Target("appimage",
-            dependsOn: ["tarball"],
             async () =>
         {
             if (config.ShouldSkip("appimage")) return;
@@ -94,7 +93,14 @@ internal class Program
             var appImageCreator = new AppImage(logger, commandRunner, fileSystem, config);
             await appImageCreator.ProcessAppImage();
         });
+        Target("runfile",
+            async () =>
+            {
+                if (config.ShouldSkip("runfile")) return;
 
+                var runfileCreator = new Runfile(logger, commandRunner, fileSystem, config);
+                await runfileCreator.ProcessRunfile();
+            });
         Target("default", dependsOn: ["build"]);
 
         await RunTargetsAndExitAsync(targetsToRun, config.BullseyeOptions);

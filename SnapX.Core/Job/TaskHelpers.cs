@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -721,14 +720,20 @@ public static class TaskHelpers
 #endif
         var model = GetModelForLanguage(languageCode ?? "eng");
         using var ms = new MemoryStream();
-        if (filePath is not null) image = await Image.LoadAsync(filePath);
+        try
+        {
+            if (filePath is not null && image is null)
+                image = await Image.LoadAsync(filePath);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.Logger.Warning("Failed to load image for OCR");
+            DebugHelper.WriteException(ex);
+        }
+        if (image is null) return string.Empty;
         await image.SaveAsPngAsync(ms);
         DebugHelper.WriteLine(filePath);
-        if (OperatingSystem.IsFreeBSD())
-        {
-            DebugHelper.WriteException(new ConstraintException("PaddleOCR is not supported on FreeBSD."));
-            return string.Empty;
-        }
+
         // macOS ARM64 does not support ONNX yet.
         var config = model.DetectionModel.Version == ModelVersion.V4 &&
                      !(OperatingSystem.IsMacOS() && RuntimeInformation.OSArchitecture == Architecture.Arm64)
@@ -838,6 +843,7 @@ public static class TaskHelpers
                             cui.DestinationType.HasFlag(CustomUploaderDestinationType.URLSharingService)) destinations.Add("urls");
 
                         string destinationsText = string.Join("/", destinations);
+                        DebugHelper.WriteLine($"Set \"{cui}\" as the active custom uploader for {destinationsText}");
                         activate = true;
                     }
 
@@ -878,6 +884,7 @@ public static class TaskHelpers
                             SnapX.DefaultTaskSettings.URLSharingServiceDestination = URLSharingServices.CustomURLSharingService;
                         }
                     }
+                    SettingManager.SaveUploadersConfigAsync();
                 }
             }
             catch (Exception e)

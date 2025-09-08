@@ -8,7 +8,7 @@ namespace SnapX.Core.Media;
 
 public class VideoConverterOptions
 {
-    public string InputFilePath { get; set; }
+    public string? InputFilePath { get; set; }
     public string OutputFolderPath { get; set; }
     public string OutputFileName { get; set; }
 
@@ -39,7 +39,7 @@ public class VideoConverterOptions
     {
         get
         {
-            return AnimationOnlyFiles.Any(x => InputFilePath.EndsWith("." + x, StringComparison.OrdinalIgnoreCase));
+            return AnimationOnlyFiles.Any(x => InputFilePath?.EndsWith("." + x, StringComparison.OrdinalIgnoreCase) ?? false);
         }
     }
 

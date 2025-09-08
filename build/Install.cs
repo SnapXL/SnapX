@@ -72,8 +72,11 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             !string.Equals(config.TargetInstallAssembly, "snapx", StringComparison.OrdinalIgnoreCase)) return;
         await CommandRunner.InstallFile(Path.Combine(config.RootDirectory, "LICENSE.md"), Path.Combine(config.Licensedir, "LICENSE.md"), "0644");
         var documentation = Directory.GetFiles(config.RootDirectory, "*.md", SearchOption.TopDirectoryOnly);
+        var packagingDoc = Directory.GetFiles(config.PackagingDirectory, "*.md", SearchOption.TopDirectoryOnly);
 
-        foreach (var docFile in documentation)
+        var allDocs = documentation.Concat(packagingDoc).ToArray();
+
+        foreach (var docFile in allDocs)
         {
             if (Path.GetFileName(docFile).Equals("LICENSE.md", StringComparison.OrdinalIgnoreCase)) continue;
             await CommandRunner.InstallFile(docFile, Path.Combine(config.Docdir, Path.GetFileName(docFile)), "0644");
@@ -190,45 +193,33 @@ public class Install(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
         var finalInstallPath = Path.Combine(libDirWithoutDestDir, relativePath, fileName);
         var enableFallback = !string.IsNullOrWhiteSpace(config.DestDir) && config.EnableWrapperScriptFallback;
 
-        var script =
-            // Generates the wrapper shell script for SnapX execution.
-            //
-            // The script either:
-            // 1) Executes the primary installed binary path directly (when fallback is disabled), or
-            // 2) Checks the primary path and falls back to the staging (DESTDIR) path if enabled (for packaging/dev).
-            //
-            // The fallback logic is controlled by the 'enableFallback' boolean,
-            // which should only be true during packaging or development.
-            //
-            // Maintainers: Avoid embedding hardcoded DESTDIR paths in production scripts.
-            // Use '--enable-wrapper-fallback' to toggle fallback support cleanly.
-            enableFallback ? $"""
-                              #!/usr/bin/env sh
-                              # SnapX version: {config.SnapXVersion}
+        var script = config.CustomWrapperScript ?? (enableFallback ? $"""
+                                                                      #!/usr/bin/env sh
+                                                                      # SnapX version: {config.SnapXVersion}
 
-                              dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
-                              cd "$dir"
+                                                                      dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
+                                                                      cd "$dir"
 
-                              PRIMARY_PATH="{finalInstallPath}"
-                              FALLBACK_PATH="{destDirPath}"
+                                                                      PRIMARY_PATH="{finalInstallPath}"
+                                                                      FALLBACK_PATH="{destDirPath}"
 
-                              if [ -x "$PRIMARY_PATH" ]; then
-                                  exec env "$PRIMARY_PATH" "$@"
-                              elif [ -x "$FALLBACK_PATH" ]; then
-                                  exec env "$FALLBACK_PATH" "$@"
-                              else
-                                  echo "Error: SnapX binary not found in expected location(s). Primary path: $PRIMARY_PATH Fallback path: $FALLBACK_PATH" >&2
-                                  exit 1
-                              fi
-                              """ : $"""
-                                     #!/usr/bin/env sh
-                                     # SnapX version: {config.SnapXVersion}
+                                                                      if [ -x "$PRIMARY_PATH" ]; then
+                                                                          exec env "$PRIMARY_PATH" "$@"
+                                                                      elif [ -x "$FALLBACK_PATH" ]; then
+                                                                          exec env "$FALLBACK_PATH" "$@"
+                                                                      else
+                                                                          echo "Error: SnapX binary not found in expected location(s). Primary path: $PRIMARY_PATH Fallback path: $FALLBACK_PATH" >&2
+                                                                          exit 1
+                                                                      fi
+                                                                      """ : $"""
+                                                                             #!/usr/bin/env sh
+                                                                             # SnapX version: {config.SnapXVersion}
 
-                                     dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
-                                     cd "$dir"
+                                                                             dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
+                                                                             cd "$dir"
 
-                                     exec env "{finalInstallPath}" "$@"
-                                     """;
+                                                                             exec env "{finalInstallPath}" "$@"
+                                                                             """);
         Logger.Information($"Attempting to write wrapper script\n{script}");
         if (OperatingSystem.IsWindows() && Environment.GetEnvironmentVariable("USE_INSTALL_FOR_WRAPPER_SCRIPT") == null)
         {

@@ -22,6 +22,7 @@ public enum BuildType
     APK, // Not to be confused with Android. For Alpine Linux
     Homebrew,
     Portable,
+    Web,
     Unknown
 }
 

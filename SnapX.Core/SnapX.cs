@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Aptabase.Core;
 using Dapper;
 using Microsoft.Data.Sqlite;
@@ -49,6 +50,8 @@ public class SnapX
             BuildType.Homebrew;
 #elif PORTABLE
             BuildType.Portable;
+#elif BROWSER
+            BuildType.Web;
 #elif RELEASE
             BuildType.Release;
 #else
@@ -63,7 +66,7 @@ public class SnapX
             var versionString = $"{version.Major}.{version.Minor}.{version.Build}";
             if (version.Revision > 0)
                 versionString += $".{version.Revision}";
-            if (Settings.DevMode)
+            if (Settings?.DevMode ?? false)
                 versionString += " Dev";
             if (Environment.GetEnvironmentVariable("CONTAINER")?.ToLower() == "flatpak")
             {
@@ -119,11 +122,11 @@ public class SnapX
     public static bool IgnoreHotkeyWarning { get; private set; }
     public static bool PuushMode { get; private set; }
 
-    public static RootConfiguration Settings { get; set; } = new();
+    public static ApplicationConfig? Settings { get; set; }
     public static List<string> Flags { get; set; } = new();
 
     internal static IConfiguration Configuration { get; set; }
-    internal static TaskSettings DefaultTaskSettings { get; set; } = TaskSettings.GetDefaultTaskSettings();
+    internal static TaskSettings DefaultTaskSettings { get; set; }
     internal static UploadersConfig UploadersConfig { get; set; }
     internal static HotkeysConfig HotkeysConfig { get; set; }
 
@@ -167,7 +170,7 @@ public class SnapX
 
     private static string CustomConfigPath { get; set; }
     public static SqliteConnection DbConnection { get; set; }
-    public static string ShortenPath(string? path) =>
+    public static string ShortenPath(string path) =>
         OperatingSystem.IsWindows() ? path : path.Replace(Environment.GetEnvironmentVariable("HOME") ?? "", "~");
 
     public static string PersonalFolder =>
@@ -193,7 +196,7 @@ public class SnapX
     {
         get
         {
-            if (Settings.DisableLogging)
+            if (Settings?.DisableLogging ?? false)
             {
                 return string.Empty;
             }
@@ -227,7 +230,7 @@ public class SnapX
         }
     }
 
-    public static readonly string? DBPath = Path.Combine(PersonalFolder, "SnapX.db");
+    public static string DBPath => Settings?.SQLitePath ?? Path.Combine(PersonalFolder, "SnapX.db");
 
     public static string? ImageEffectsFolder => Path.Combine(PersonalFolder, "ImageEffects");
 
@@ -334,7 +337,7 @@ public class SnapX
         DebugHelper.WriteLine($"Platform: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
         if (OperatingSystem.IsLinux() && OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
         DebugHelper.WriteLine(".NET: " + SnapXResources.Dotnet);
-        Settings.ApplicationVersion = Helpers.GetApplicationVersion();
+        if (Settings is not null) Settings.ApplicationVersion = Helpers.GetApplicationVersion();
         long totalMemory = 0;
         long usedMemory = 0;
         _ = Task.Run(() =>
@@ -358,17 +361,21 @@ public class SnapX
         RegisterIntegrations();
         CheckPuushMode();
         DebugWriteFlags();
-        if (OperatingSystem.IsFreeBSD() || Environment.GetEnvironmentVariable("SNAPX_USE_SYSTEM_SQLITE3") != null)
+        if (OperatingSystem.IsFreeBSD() || Environment.GetEnvironmentVariable("SNAPX_USE_SYSTEM_SQLITE3") != null || Environment.GetEnvironmentVariable("SNAPX_PRETEND_FREEBSD") is not null)
         {
             // There are no provided bundles for FreeBSD, must use system SQLite for now.
             // If it fails to load libsqlite3.so, ensure that you have the sqlite package installed. If that doesn't work, try
             // LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib snapx-ui
-            SQLitePCL.raw.SetProvider(new SQLite3Provider_sqlite3());
+            raw.SetProvider(new SQLite3Provider_sqlite3());
         }
-        SQLitePCL.Batteries_V2.Init();
+        else
+        {
+            raw.SetProvider(new SQLite3Provider_e_sqlite3());
+        }
+
         var dataSource = SnapX.Sandbox ? ":memory:" : DBPath;
 
-        var connectionString = new SqliteConnectionStringBuilder { DataSource = dataSource, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true, }.ToString();
+        var connectionString = new SqliteConnectionStringBuilder { DataSource = dataSource, Mode = SqliteOpenMode.ReadWriteCreate, ForeignKeys = true }.ToString();
         DbConnection = new SqliteConnection(connectionString);
         RunWithTimeout(() => DbConnection.OpenAsync(), $"Opening the database connection at {DBPath}");
         RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA journal_mode=WAL;"), "Setting journal mode");
@@ -404,7 +411,7 @@ public class SnapX
         {
             DebugHelper.WriteLine($"DB: {Args.CurrentState}");
         };
-        SettingManager.LoadSettings();
+        SettingManager.LoadInitialSettings();
         if (TelemetryEnabled())
         {
             var loggerFactory = LoggerFactory.Create(builder =>
@@ -473,11 +480,174 @@ public class SnapX
                         if (sentryEvent.Exception.Message.Contains(Environment.UserName)) return null;
                     }
 
-                    var jsonSentryEvent = JsonSerializer.Serialize(sentryEvent, new JsonSerializerOptions
+                    var json = new JsonObject
                     {
-                        TypeInfoResolver = SentryContext.Default,
-                    });
-                    telemetry.LogTelemetry("Sentry", sentryEvent.TransactionName ?? sentryEvent.Exception?.Message ?? "SentryEvent", jsonSentryEvent);
+                        ["event_id"] = sentryEvent.EventId.ToString(),
+                        ["timestamp"] = sentryEvent.Timestamp.ToString("o") // ISO 8601 format
+                    };
+
+                    if (sentryEvent.Message != null)
+                    {
+                        json["logentry"] = new JsonObject
+                        {
+                            ["message"] = sentryEvent.Message.Formatted
+                        };
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Logger))
+                    {
+                        json["logger"] = sentryEvent.Logger;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Platform))
+                    {
+                        json["platform"] = sentryEvent.Platform;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.ServerName))
+                    {
+                        json["server_name"] = sentryEvent.ServerName;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Release))
+                    {
+                        json["release"] = sentryEvent.Release;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Distribution))
+                    {
+                        json["dist"] = sentryEvent.Distribution;
+                    }
+
+                    if (sentryEvent.SentryExceptions != null)
+                    {
+                        var exceptionArray = new JsonArray();
+                        foreach (var sentryException in sentryEvent.SentryExceptions)
+                        {
+                            var exceptionJson = new JsonObject
+                            {
+                                ["type"] = sentryException.Type,
+                                ["value"] = sentryException.Value
+                            };
+                            exceptionArray.Add(exceptionJson);
+                        }
+                        json["exception"] = new JsonObject
+                        {
+                            ["values"] = exceptionArray
+                        };
+                    }
+
+                    if (sentryEvent.SentryThreads != null)
+                    {
+                        var threadArray = new JsonArray();
+                        foreach (var sentryThread in sentryEvent.SentryThreads)
+                        {
+                            var threadJson = new JsonObject
+                            {
+                                ["id"] = sentryThread.Id,
+                                ["name"] = sentryThread.Name
+                            };
+                            threadArray.Add(threadJson);
+                        }
+                        json["threads"] = new JsonObject
+                        {
+                            ["values"] = threadArray
+                        };
+                    }
+
+                    if (sentryEvent.Level.HasValue)
+                    {
+                        json["level"] = sentryEvent.Level.ToString().ToLowerInvariant();
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.TransactionName))
+                    {
+                        json["transaction"] = sentryEvent.TransactionName;
+                    }
+
+                    if (sentryEvent.Request != null)
+                    {
+                        var requestJson = new JsonObject
+                        {
+                            ["url"] = sentryEvent.Request.Url,
+                            ["method"] = sentryEvent.Request.Method
+                        };
+                        json["request"] = requestJson;
+                    }
+
+                    if (sentryEvent.Contexts != null)
+                    {
+                        var contextsJson = new JsonObject();
+                        foreach (var context in sentryEvent.Contexts)
+                        {
+                            // SentryContexts continues to get harder to serialize, so instead enjoy the STRING of what the object is called!
+                            contextsJson[context.Key] = context.Value.ToString();
+                        }
+                        json["contexts"] = contextsJson;
+                    }
+
+                    if (sentryEvent.User != null)
+                    {
+                        var userJson = new JsonObject
+                        {
+                            ["id"] = sentryEvent.User.Id,
+                            ["email"] = sentryEvent.User.Email,
+                            ["username"] = sentryEvent.User.Username
+                        };
+                        json["user"] = userJson;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(sentryEvent.Environment))
+                    {
+                        json["environment"] = sentryEvent.Environment;
+                    }
+
+                    if (sentryEvent.Sdk != null)
+                    {
+                        var sdkJson = new JsonObject
+                        {
+                            ["name"] = sentryEvent.Sdk.Name,
+                            ["version"] = sentryEvent.Sdk.Version
+                        };
+                        json["sdk"] = sdkJson;
+                    }
+
+                    if (sentryEvent.Breadcrumbs.Any())
+                    {
+                        var breadcrumbsJson = new JsonArray();
+                        foreach (var breadcrumb in sentryEvent.Breadcrumbs)
+                        {
+                            var breadcrumbJson = new JsonObject
+                            {
+                                ["message"] = breadcrumb.Message,
+                                ["timestamp"] = breadcrumb.Timestamp.ToString("o")
+                            };
+                            breadcrumbsJson.Add(breadcrumbJson);
+                        }
+                        json["breadcrumbs"] = breadcrumbsJson;
+                    }
+
+                    if (sentryEvent.Extra.Any())
+                    {
+                        var extraJson = new JsonObject();
+                        foreach (var kvp in sentryEvent.Extra)
+                        {
+                            extraJson[kvp.Key] = JsonSerializer.SerializeToNode(kvp.Value);
+                        }
+                        json["extra"] = extraJson;
+                    }
+
+                    if (sentryEvent.Tags.Any())
+                    {
+                        var tagsJson = new JsonObject();
+                        foreach (var tag in sentryEvent.Tags)
+                        {
+                            tagsJson[tag.Key] = tag.Value;
+                        }
+                        json["tags"] = tagsJson;
+                    }
+
+                    telemetry.LogTelemetry("Sentry", sentryEvent.TransactionName ?? sentryEvent.Exception?.Message ?? "SentryEvent", json.ToJsonString());
 
                     return sentryEvent;
                 });
@@ -518,7 +688,7 @@ public class SnapX
         task.GetAwaiter().GetResult(); // propagate exceptions
     }
     public SnapXCLIManager GetCLIManager() => CLIManager;
-    public RootConfiguration GetConfiguration() => Settings;
+    public ApplicationConfig GetConfiguration() => Settings;
 
     public static void CloseSequence()
     {
@@ -532,14 +702,13 @@ public class SnapX
         SettingManager.Dispose();
         if (DbConnection != null)
         {
-            DbConnection.CloseAsync().GetAwaiter().GetResult();
+            DbConnection.Close();
             DbConnection.Dispose();
         }
 
         if (TelemetryEnabled())
         {
-            var client = aptabaseClient;
-            client!.DisposeAsync();
+            aptabaseClient?.DisposeAsync().GetAwaiter().GetResult();
         }
 
         DebugHelper.WriteLine("SnapX closed.");
@@ -747,7 +916,7 @@ public class SnapX
             }
         }
 
-        AddFlagIfTrue(Settings.DevMode, nameof(Settings.DevMode));
+        AddFlagIfTrue(Settings?.DevMode ?? false, nameof(Settings.DevMode));
         AddFlagIfTrue(MultiInstance, nameof(MultiInstance));
         AddFlagIfTrue(Portable, nameof(Portable));
         AddFlagIfTrue(SilentRun, nameof(SilentRun));

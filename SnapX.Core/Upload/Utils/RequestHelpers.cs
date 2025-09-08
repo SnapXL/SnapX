@@ -4,8 +4,11 @@
 
 using System.Collections.Specialized;
 using System.Net;
+using System.Net.Cache;
+using System.Net.Http.Headers;
 using System.Text;
 using SnapX.Core.Utils.Cryptographic;
+using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Upload.Utils;
 
@@ -19,12 +22,12 @@ internal static class RequestHelpers
 
     public static async Task<HttpRequestMessage> CreateHttpRequest(
           HttpMethod method,
-          string? url,
-          NameValueCollection headers = null,
-          CookieCollection cookies = null,
-          string contentType = null,
+          string url,
+          NameValueCollection? headers = null,
+          CookieCollection? cookies = null,
+          string? contentType = null,
           long contentLength = 0,
-          HttpContent content = null)
+          HttpContent? content = null)
     {
         var requestMessage = new HttpRequestMessage(method, url);
 
@@ -85,18 +88,118 @@ internal static class RequestHelpers
         if (!string.IsNullOrEmpty(contentType))
         {
             if (content == null) content = new StringContent(string.Empty, Encoding.UTF8, contentType);
-            else content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+            else content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
         }
 
-        if (content != null)
+        if (content == null) return requestMessage;
+        requestMessage.Content = content;
+        if (contentLength > 0)
         {
-            requestMessage.Content = content;
-            if (contentLength > 0)
-            {
-                requestMessage.Content.Headers.ContentLength = contentLength;
-            }
+            requestMessage.Content.Headers.ContentLength = contentLength;
         }
         return requestMessage;
+    }
+    public static HttpWebRequest CreateWebRequest(HttpMethod method, string url, NameValueCollection headers = null, CookieCollection cookies = null,
+               string contentType = null, long contentLength = 0)
+    {
+#pragma warning disable SYSLIB0014
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+#pragma warning restore SYSLIB0014
+
+        string accept = null;
+        string referer = null;
+        string userAgent = SnapXResources.UserAgent;
+
+        if (headers != null)
+        {
+            if (headers["Accept"] != null)
+            {
+                accept = headers["Accept"];
+                headers.Remove("Accept");
+            }
+
+            if (headers["Content-Length"] != null)
+            {
+                if (long.TryParse(headers["Content-Length"], out contentLength))
+                {
+                    request.ContentLength = contentLength;
+                }
+
+                headers.Remove("Content-Length");
+            }
+
+            if (headers["Content-Type"] != null)
+            {
+                contentType = headers["Content-Type"];
+                headers.Remove("Content-Type");
+            }
+
+            if (headers["Cookie"] != null)
+            {
+                string cookieHeader = headers["Cookie"];
+
+                if (cookies == null)
+                {
+                    cookies = new CookieCollection();
+                }
+
+                foreach (string cookie in cookieHeader.Split(new string[] { "; " }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    string[] cookieValues = cookie.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (cookieValues.Length == 2)
+                    {
+                        cookies.Add(new Cookie(cookieValues[0], cookieValues[1], "/", request.Host.Split(':')[0]));
+                    }
+                }
+
+                headers.Remove("Cookie");
+            }
+
+            if (headers["Referer"] != null)
+            {
+                referer = headers["Referer"];
+                headers.Remove("Referer");
+            }
+
+            if (headers["User-Agent"] != null)
+            {
+                userAgent = headers["User-Agent"];
+                headers.Remove("User-Agent");
+            }
+
+            request.Headers.Add(headers);
+        }
+
+        request.Accept = accept;
+        request.ContentType = contentType;
+        request.CookieContainer = new CookieContainer();
+        if (cookies != null) request.CookieContainer.Add(cookies);
+        request.Method = method.ToString();
+        IWebProxy proxy = HelpersOptions.CurrentProxy.GetWebProxy();
+        if (proxy != null) request.Proxy = proxy;
+        request.Referer = referer;
+        request.UserAgent = userAgent;
+
+        if (contentLength > 0)
+        {
+            request.AllowWriteStreamBuffering = HelpersOptions.CurrentProxy.IsValidProxy();
+
+            if (method == HttpMethod.Get)
+            {
+                request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
+            }
+
+            request.ContentLength = contentLength;
+            request.Pipelined = false;
+            request.Timeout = -1;
+        }
+        else
+        {
+            request.KeepAlive = false;
+        }
+
+        return request;
     }
 
 
@@ -112,13 +215,13 @@ internal static class RequestHelpers
         return Encoding.UTF8.GetBytes(content);
     }
 
-    public static byte[] MakeInputContent(string boundary, Dictionary<string, string?> contents, bool isFinal = true)
+    public static byte[] MakeInputContent(string boundary, Dictionary<string, string?>? contents, bool isFinal = true)
     {
         if (string.IsNullOrEmpty(boundary))
             boundary = CreateBoundary();
 
         if (contents == null || contents.Count == 0)
-            return Array.Empty<byte>();
+            return [];
 
         using var stream = new MemoryStream();
         foreach (var content in contents.Where(c => !string.IsNullOrEmpty(c.Key)))

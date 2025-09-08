@@ -10,6 +10,7 @@ public abstract class TextUploader : GenericUploader
 {
     public override UploadResult Upload(Stream stream, string? fileName)
     {
+        DebugHelper.WriteLine($"Stream: size ={stream.Length} writable {stream.CanWrite}");
         using (StreamReader sr = new StreamReader(stream, Encoding.UTF8))
         {
             return UploadText(sr.ReadToEnd(), fileName);
