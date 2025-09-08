@@ -151,7 +151,7 @@ winget install -e --id JetBrains.Rider
 
 End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
 
-#### Using the script to install the .NET SDK from the .NET team makes sure you don't run into Homebrew .NET weirdness with Rider not detecting it.
+> Using the script to install the .NET SDK from the .NET team ensures you don't run into issues of Rider not detecting it.
 
 ```zsh
 xcode-select --install
