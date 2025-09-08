@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Text.Json.Serialization;
 using SixLabors.ImageSharp;
-using SnapX.Core.ImageEffects;
 using SnapX.Core.ScreenCapture.Helpers;
+using SnapX.Core.Utils.Converters;
 
 namespace SnapX.Core.ScreenCapture;
 
@@ -49,6 +50,7 @@ public class RegionCaptureOptions
     public bool UseLightResizeNodes = false;
     public bool EnableAnimations = true;
     public bool IsFixedSize = false;
+    [JsonConverter(typeof(JsonSizeConverter))]
     public Size FixedSize = new Size(250, 250);
     public bool ShowFPS = false;
     public int FPSLimit = 100;
@@ -56,6 +58,7 @@ public class RegionCaptureOptions
     public bool MenuLocked = false;
     public bool RememberMenuState = false;
     public bool MenuCollapsed = false;
+    [JsonConverter(typeof(JsonPointConverter))]
     public Point MenuPosition = Point.Empty;
     public int InputDelay = 500;
     public bool SwitchToDrawingToolAfterSelection = false;
@@ -76,11 +79,14 @@ public class RegionCaptureOptions
     public bool AutoCloseEditorOnTask = false;
     public bool ShowEditorPanTip = true;
     public ImageInterpolationMode ImageEditorResizeInterpolationMode = ImageInterpolationMode.Bicubic;
-    public Size EditorNewImageSize = new Size(800, 600);
+    [JsonConverter(typeof(JsonSizeConverter))]
+    public Size EditorNewImageSize = new(800, 600);
     public bool EditorNewImageTransparent = false;
+    [JsonConverter(typeof(JsonColorConverter))]
     public Color EditorNewImageBackgroundColor = Color.White;
+    [JsonConverter(typeof(JsonColorConverter))]
     public Color EditorCanvasColor = Color.Transparent;
-    public List<ImageEffectPreset> ImageEffectPresets = [];
+    // public List<ImageEffectPreset> ImageEffectPresets = [];
     public int SelectedImageEffectPreset = 0;
 
     // Screen color picker

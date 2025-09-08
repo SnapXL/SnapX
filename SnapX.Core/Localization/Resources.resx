@@ -103,6 +103,21 @@
   <data name="UI_Dropdown_ScreenRecordingGIF">
     <value>Screen recording GIF</value>
   </data>
+  <data name="UI_Debug_TestImageUpload">
+    <value>Test image upload</value>
+  </data>
+  <data name="UI_Debug_TestTextUpload">
+    <value>Test text upload</value>
+  </data>
+  <data name="UI_Debug_TestFileUpload">
+    <value>Test file upload</value>
+  </data>
+  <data name="UI_Debug_TestURLShortener">
+    <value>Test URL shortener</value>
+  </data>
+  <data name="UI_Debug_TestURLSharing">
+    <value>Test URL sharing</value>
+  </data>
   <data name="UI_Monitor_DisplayName">
   <value>{0}: {1} ({2})</value>
   </data>

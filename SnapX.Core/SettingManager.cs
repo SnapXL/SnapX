@@ -18,15 +18,23 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Zip;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SnapX.Core;
+[JsonSourceGenerationOptions(WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.Never)]
 
-[JsonSerializable(typeof(RootConfiguration))]
-[JsonSerializable(typeof(IConfiguration))]
+[JsonSerializable(typeof(ApplicationConfig))]
 [JsonSerializable(typeof(UploadersConfig))]
 [JsonSerializable(typeof(HotkeysConfig))]
-
+[JsonSerializable(typeof(SettingsBase<ApplicationConfig>))]
+[JsonSerializable(typeof(SettingsBase<HotkeysConfig>))]
+[JsonSerializable(typeof(SettingsBase<UploadersConfig>))]
+[JsonSerializable(typeof(object[]))]
+[JsonSerializable(typeof(Array))]
+[JsonSerializable(typeof(int))]
+[JsonSerializable(typeof(uint))]
+[JsonSerializable(typeof(bool))]
 internal partial class SettingsContext : JsonSerializerContext;
 internal static class SettingManager
 {
@@ -90,7 +98,7 @@ internal static class SettingManager
 
     public static string? SnapshotFolder => Path.Combine(SnapX.PersonalFolder, "Snapshots");
 
-    private static RootConfiguration Settings { get => SnapX.Settings; set => SnapX.Settings = value; }
+    private static ApplicationConfig Settings { get => SnapX.Settings; set => SnapX.Settings = value; }
     private static TaskSettings DefaultTaskSettings { get => SnapX.DefaultTaskSettings; set => SnapX.DefaultTaskSettings = value; }
     private static UploadersConfig UploadersConfig { get => SnapX.UploadersConfig; set => SnapX.UploadersConfig = value; }
     private static HotkeysConfig HotkeysConfig { get => SnapX.HotkeysConfig; set => SnapX.HotkeysConfig = value; }
@@ -100,14 +108,22 @@ internal static class SettingManager
     private static ManualResetEvent hotkeysConfigResetEvent = new(false);
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    public static void LoadSettings()
+    public static void LoadInitialSettings()
     {
         theLaw = new VersionEnforcer(SnapX.LockDirectory);
         theLaw.Enforce();
         LoadApplicationConfig();
-        LoadUploadersConfig();
-        LoadHotkeysConfig();
+
+        Task.Run(() =>
+        {
+            LoadUploadersConfig();
+            uploadersConfigResetEvent.Set();
+
+            LoadHotkeysConfig();
+            hotkeysConfigResetEvent.Set();
+        });
     }
+
     public static void WaitUploadersConfig()
     {
         if (UploadersConfig == null)
@@ -123,17 +139,12 @@ internal static class SettingManager
             hotkeysConfigResetEvent.WaitOne();
         }
     }
-
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
     [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
     [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
     public static void LoadApplicationConfig(bool fallbackSupport = true)
     {
-        ApplicationConfigBackwardCompatibilityTasks();
         var configurationBuilder = new ConfigurationBuilder();
-        if (!SnapX.Sandbox)
-        {
-            configurationBuilder.AddJsonFile(ApplicationConfigFilePath, optional: true, reloadOnChange: true);
-        }
 
         configurationBuilder
 #if WINDOWS
@@ -146,16 +157,31 @@ internal static class SettingManager
         // This call does nothing on non-Windows Operating Systems
         .AddEnvironmentVariables(prefix: "SNAPX_");
         SnapX.Configuration = configurationBuilder.Build();
-        foreach (var kv in SnapX.Configuration.AsEnumerable())
-        {
-            // DebugHelper.WriteLine($"{kv.Key} = {kv.Value}");
-        }
-        var settings = new RootConfiguration();
-        SnapX.Configuration.Bind(settings);
-        Settings = settings;
+        Settings = ApplicationConfig.Load(ApplicationConfigFilePath, SnapshotFolder, fallbackSupport);
+        Settings.CreateBackup = true;
+        Settings.CreateWeeklyBackup = true;
+        Settings.SettingsSaveFailed += Settings_SettingsSaveFailed;
+        ApplicationConfigBackwardCompatibilityTasks();
+        SnapX.Configuration.Bind(Settings, Options => Options.BindNonPublicProperties = true);
+        DefaultTaskSettings = Settings.DefaultTaskSettings;
+
         if (string.IsNullOrWhiteSpace(Settings.SQLitePath))
             Settings.SQLitePath = Path.Combine(SnapX.DefaultPersonalFolder, "SnapX.db");
         MigrateHistoryFile();
+    }
+    private static void Settings_SettingsSaveFailed(Exception e)
+    {
+        string message;
+
+        if (e is UnauthorizedAccessException || e is FileNotFoundException)
+        {
+            message = "YourAntiVirusSoftwareOrTheControlledFolderAccessFeatureInWindowsCouldBeBlockingShareX";
+        }
+        else
+        {
+            message = e.Message;
+        }
+        DebugHelper.WriteLine($"ShareX - {message} failed to save settings");
     }
 
     [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
@@ -171,13 +197,12 @@ internal static class SettingManager
 #endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
-        if (!SnapX.Sandbox)
-        {
-            configurationBuilder.AddJsonFile(UploadersConfigFilePath, optional: true, reloadOnChange: true);
-        }
         var BuiltConfig = configurationBuilder.Build();
-        UploadersConfig = new UploadersConfig();
-        BuiltConfig.Bind(UploadersConfig);
+        UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, SnapshotFolder, fallbackSupport);
+        UploadersConfig.CreateBackup = true;
+        UploadersConfig.CreateWeeklyBackup = true;
+        UploadersConfig.SupportDPAPIEncryption = true;
+        BuiltConfig.Bind(UploadersConfig, Options => Options.BindNonPublicProperties = true);
         UploadersConfigBackwardCompatibilityTasks();
     }
 
@@ -193,138 +218,18 @@ internal static class SettingManager
 #endif
             .AddEnvironmentVariables(prefix: "SNAPX_")
             .AddCommandLine(Environment.GetCommandLineArgs());
-        if (!SnapX.Sandbox)
-        {
-            configurationBuilder.AddJsonFile(HotkeysConfigFilePath, optional: true, reloadOnChange: true);
-        }
         var BuiltConfig = configurationBuilder.Build();
-        HotkeysConfig = new HotkeysConfig();
-        BuiltConfig.Bind(HotkeysConfig);
+        HotkeysConfig = HotkeysConfig.Load(HotkeysConfigFilePath, SnapshotFolder, fallbackSupport);
+        HotkeysConfig.CreateBackup = true;
+        HotkeysConfig.CreateWeeklyBackup = true;
+        BuiltConfig.Bind(HotkeysConfig, Options => Options.BindNonPublicProperties = true);
         HotkeysConfigBackwardCompatibilityTasks();
     }
 
-    // private static void MigrateApplicationConfigJSONToSQLite()
-    // {
-    //     try
-    //     {
-    //             DebugHelper.WriteLine($"JSON -> SQLite Migration: Migrating {ApplicationConfigFileName} at {ApplicationConfigFilePath}");
-    //             var json = File.ReadAllText(ApplicationConfigFilePath);
-    //             var node = JsonNode.Parse(json)!.AsObject();
-    //             node.Remove("RecentTasks");
-    //
-    //             var nodeJSON = node.ToJsonString();
-    //
-    //             var root = JsonDocument.Parse(nodeJSON).RootElement;
-    //             foreach (var property in root.EnumerateObject())
-    //             {
-    //                 var key = property.Name;
-    //                 var value = property.Value;
-    //
-    //                 switch (value.ValueKind)
-    //                 {
-    //                     case JsonValueKind.Object:
-    //                         FlattenAndInsert(value, key);
-    //                         break;
-    //
-    //                     case JsonValueKind.Array:
-    //                         var index = 0;
-    //                         foreach (var item in value.EnumerateArray())
-    //                         {
-    //                             // Compose a "key:index" prefix for each item and recurse
-    //                             FlattenAndInsert(item, $"{key}:{index++}");
-    //                         }
-    //
-    //                         break;
-    //
-    //                     case JsonValueKind.String:
-    //                     case JsonValueKind.Number:
-    //                     case JsonValueKind.True:
-    //                     case JsonValueKind.False:
-    //                     case JsonValueKind.Null:
-    //                     case JsonValueKind.Undefined:
-    //                     default:
-    //                         FlattenAndInsert(value, key);
-    //                         break;
-    //                 }
-    //             }
-    //             var migratedPath = ApplicationConfigFilePath + ".migrated";
-    //             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-    //             migratedPath = ApplicationConfigFilePath + $"{timestamp}.migrated";
-    //             File.Move(ApplicationConfigFilePath, migratedPath);
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         DebugHelper.WriteException(ex);
-    //     }
-    // }
-    public static void SaveApplicationConfig()
-    {
-        if (SnapX.Sandbox)
-            return;
-        if (Settings is null) return;
-        var configFilePath = ApplicationConfigFilePath;
-
-        try
-        {
-            var json = JsonSerializer.Serialize(Settings, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                TypeInfoResolver = SettingsContext.Default,
-                DefaultIgnoreCondition = JsonIgnoreCondition.Never
-            });
-            File.WriteAllText(configFilePath, json);
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.WriteLine($"Failed to save config file: {ex}");
-        }
-    }
-    public static void SaveUploadConfig()
-    {
-        if (SnapX.Sandbox)
-            return;
-
-        var configFilePath = UploadersConfigFilePath;
-
-        try
-        {
-            var json = JsonSerializer.Serialize(UploadersConfig, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                TypeInfoResolver = SettingsContext.Default
-            });
-            File.WriteAllText(configFilePath, json);
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.WriteLine($"Failed to save config file: {ex}");
-        }
-    }
-    public static void SaveHotkeysConfig()
-    {
-        if (SnapX.Sandbox)
-            return;
-
-        var configFilePath = HotkeysConfigFilePath;
-
-        try
-        {
-            var json = JsonSerializer.Serialize(HotkeysConfig, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                TypeInfoResolver = SettingsContext.Default
-            });
-            File.WriteAllText(configFilePath, json);
-        }
-        catch (Exception ex)
-        {
-            DebugHelper.WriteLine($"Failed to save config file: {ex}");
-        }
-    }
     [DapperAot]
     private static void ApplicationConfigBackwardCompatibilityTasks()
     {
-        // if (File.Exists(ApplicationConfigFilePath)) MigrateApplicationConfigJSONToSQLite();
+        if (File.Exists(ApplicationConfigFilePath)) MigrateApplicationConfig();
 
         var assembly = Assembly.GetExecutingAssembly();
 
@@ -449,6 +354,14 @@ internal static class SettingManager
         SnapX.DbConnection.Execute("PRAGMA optimize;");
     }
 
+    private static void MigrateApplicationConfig()
+    {
+        if (Settings.DisableUpload)
+        {
+            DefaultTaskSettings.AfterCaptureJob = DefaultTaskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.UploadImageToHost);
+        }
+    }
+
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static async Task MigrateHistoryFile()
     {
@@ -549,28 +462,44 @@ internal static class SettingManager
 
     public static void SaveAllSettings()
     {
-        SaveApplicationConfig();
-        SaveUploadConfig();
-        SaveHotkeysConfig();
+        if (Settings != null)
+        {
+            Settings.Save(ApplicationConfigFilePath);
+        }
+
+        if (UploadersConfig != null)
+        {
+            UploadersConfig.Save(UploadersConfigFilePath);
+        }
+
+        if (HotkeysConfig != null)
+        {
+            CleanupHotkeysConfig();
+            HotkeysConfig.Save(HotkeysConfigFilePath);
+        }
     }
 
     public static void SaveApplicationConfigAsync()
     {
         if (Settings != null)
         {
-            // Settings.SaveAsync(ApplicationConfigFilePath);
+            Settings.SaveAsync(ApplicationConfigFilePath);
         }
     }
 
     public static void SaveUploadersConfigAsync()
     {
-        // UploadersConfig.SaveAsync(UploadersConfigFilePath);
+        if (UploadersConfig != null)
+        {
+            UploadersConfig.SaveAsync(UploadersConfigFilePath);
+        }
     }
+
 
     public static void SaveHotkeysConfigAsync()
     {
         CleanupHotkeysConfig();
-        // HotkeysConfig.SaveAsync(HotkeysConfigFilePath);
+        HotkeysConfig.SaveAsync(HotkeysConfigFilePath);
     }
 
     public static void SaveAllSettingsAsync()

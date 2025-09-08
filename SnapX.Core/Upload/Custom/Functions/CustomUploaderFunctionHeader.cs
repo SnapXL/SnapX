@@ -15,10 +15,9 @@ internal class CustomUploaderFunctionHeader : CustomUploaderFunction
     {
         string? header = parameters[0];
 
-        if (parser.ResponseInfo.Headers != null && parser.ResponseInfo.Headers.ContainsKey(header))
+        if (parser.ResponseInfo.Headers != null && parser.ResponseInfo.Headers.TryGetValue(header, out var HeaderValues))
         {
-            var headerValues = parser.ResponseInfo.Headers[header];
-            return headerValues.FirstOrDefault(); // Returns the first value or null if the list is empty
+            return HeaderValues;
         }
         return null;
     }

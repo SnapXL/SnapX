@@ -66,7 +66,7 @@ public class SnapX
             var versionString = $"{version.Major}.{version.Minor}.{version.Build}";
             if (version.Revision > 0)
                 versionString += $".{version.Revision}";
-            if (Settings.DevMode)
+            if (Settings?.DevMode ?? false)
                 versionString += " Dev";
             if (Environment.GetEnvironmentVariable("CONTAINER")?.ToLower() == "flatpak")
             {
@@ -122,11 +122,11 @@ public class SnapX
     public static bool IgnoreHotkeyWarning { get; private set; }
     public static bool PuushMode { get; private set; }
 
-    public static RootConfiguration Settings { get; set; } = new();
+    public static ApplicationConfig? Settings { get; set; }
     public static List<string> Flags { get; set; } = new();
 
     internal static IConfiguration Configuration { get; set; }
-    internal static TaskSettings DefaultTaskSettings { get; set; } = TaskSettings.GetDefaultTaskSettings();
+    internal static TaskSettings DefaultTaskSettings { get; set; }
     internal static UploadersConfig UploadersConfig { get; set; }
     internal static HotkeysConfig HotkeysConfig { get; set; }
 
@@ -170,7 +170,7 @@ public class SnapX
 
     private static string CustomConfigPath { get; set; }
     public static SqliteConnection DbConnection { get; set; }
-    public static string ShortenPath(string? path) =>
+    public static string ShortenPath(string path) =>
         OperatingSystem.IsWindows() ? path : path.Replace(Environment.GetEnvironmentVariable("HOME") ?? "", "~");
 
     public static string PersonalFolder =>
@@ -196,7 +196,7 @@ public class SnapX
     {
         get
         {
-            if (Settings.DisableLogging)
+            if (Settings?.DisableLogging ?? false)
             {
                 return string.Empty;
             }
@@ -337,7 +337,7 @@ public class SnapX
         DebugHelper.WriteLine($"Platform: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
         if (OperatingSystem.IsLinux() && OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
         DebugHelper.WriteLine(".NET: " + SnapXResources.Dotnet);
-        Settings.ApplicationVersion = Helpers.GetApplicationVersion();
+        if (Settings is not null) Settings.ApplicationVersion = Helpers.GetApplicationVersion();
         long totalMemory = 0;
         long usedMemory = 0;
         _ = Task.Run(() =>
@@ -375,7 +375,7 @@ public class SnapX
 
         var dataSource = SnapX.Sandbox ? ":memory:" : DBPath;
 
-        var connectionString = new SqliteConnectionStringBuilder { DataSource = dataSource, Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared, ForeignKeys = true, Pooling = true, }.ToString();
+        var connectionString = new SqliteConnectionStringBuilder { DataSource = dataSource, Mode = SqliteOpenMode.ReadWriteCreate, ForeignKeys = true }.ToString();
         DbConnection = new SqliteConnection(connectionString);
         RunWithTimeout(() => DbConnection.OpenAsync(), $"Opening the database connection at {DBPath}");
         RunWithTimeout(() => DbConnection.ExecuteAsync("PRAGMA journal_mode=WAL;"), "Setting journal mode");
@@ -411,7 +411,7 @@ public class SnapX
         {
             DebugHelper.WriteLine($"DB: {Args.CurrentState}");
         };
-        SettingManager.LoadSettings();
+        SettingManager.LoadInitialSettings();
         if (TelemetryEnabled())
         {
             var loggerFactory = LoggerFactory.Create(builder =>
@@ -688,7 +688,7 @@ public class SnapX
         task.GetAwaiter().GetResult(); // propagate exceptions
     }
     public SnapXCLIManager GetCLIManager() => CLIManager;
-    public RootConfiguration GetConfiguration() => Settings;
+    public ApplicationConfig GetConfiguration() => Settings;
 
     public static void CloseSequence()
     {
@@ -702,14 +702,13 @@ public class SnapX
         SettingManager.Dispose();
         if (DbConnection != null)
         {
-            DbConnection.CloseAsync().GetAwaiter().GetResult();
+            DbConnection.Close();
             DbConnection.Dispose();
         }
 
         if (TelemetryEnabled())
         {
-            var client = aptabaseClient;
-            client!.DisposeAsync();
+            aptabaseClient?.DisposeAsync().GetAwaiter().GetResult();
         }
 
         DebugHelper.WriteLine("SnapX closed.");
@@ -917,7 +916,7 @@ public class SnapX
             }
         }
 
-        AddFlagIfTrue(Settings.DevMode, nameof(Settings.DevMode));
+        AddFlagIfTrue(Settings?.DevMode ?? false, nameof(Settings.DevMode));
         AddFlagIfTrue(MultiInstance, nameof(MultiInstance));
         AddFlagIfTrue(Portable, nameof(Portable));
         AddFlagIfTrue(SilentRun, nameof(SilentRun));

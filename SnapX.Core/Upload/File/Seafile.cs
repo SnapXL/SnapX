@@ -514,7 +514,7 @@ public sealed class Seafile : FileUploader
             }
 
             SendRequestURLEncoded(HttpMethod.Put, url, args, headers);
-            return LastResponseInfo.Headers["Location"].FirstOrDefault()!;
+            return LastResponseInfo.Headers["Location"];
         }
         finally
         {

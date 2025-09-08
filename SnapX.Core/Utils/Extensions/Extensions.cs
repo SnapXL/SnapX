@@ -5,7 +5,9 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reflection;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace SnapX.Core.Utils.Extensions;
 
@@ -122,19 +124,35 @@ public static class Extensions
 
     public static int WeekOfYear(this DateTime dateTime) =>
         CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+    [RequiresDynamicCode("Uses reflection to set default values on fields and properties.")]
+    [RequiresUnreferencedCode("Uses reflection which may break with trimming.")]
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+    public static void ApplyDefaultPropertyValues(this object self)
+    {
+        var type = self.GetType();
 
-    [RequiresUnreferencedCode("Uploader")]
-    public static void ApplyDefaultPropertyValues(this object self) =>
-        TypeDescriptor.GetProperties(self)
-            .Cast<PropertyDescriptor>()
-            .ToList()
-            .ForEach(prop =>
+        // Apply to properties
+        foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        {
+            if (!prop.CanWrite)
+                continue;
+
+            if (prop.GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true).FirstOrDefault() is DefaultValueAttribute attr)
             {
-                if (prop.Attributes[typeof(DefaultValueAttribute)] is DefaultValueAttribute attr)
-                {
-                    prop.SetValue(self, attr.Value);
-                }
-            });
+                prop.SetValue(self, attr.Value);
+            }
+        }
+
+        // Apply to fields
+        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+        {
+            if (field.GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true).FirstOrDefault() is DefaultValueAttribute attr)
+            {
+                field.SetValue(self, attr.Value);
+            }
+        }
+    }
+
 
 
 
@@ -229,7 +247,10 @@ public static class Extensions
         return Range(source, startIndex, endIndex);
     }
 
-    public static bool IsTransparent(this Color color) => color.IsTransparent();
+    public static bool IsTransparent(this Color color)
+    {
+        return color.ToPixel<Rgba32>().A < 255;
+    }
     public static string ToStringProper(this Rectangle rect) =>
         $"X: {rect.X}, Y: {rect.Y}, Width: {rect.Width}, Height: {rect.Height}";
 }
