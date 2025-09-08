@@ -9,6 +9,8 @@ using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Miscellaneous;
 using Image = SixLabors.ImageSharp.Image;
 
 namespace SnapX.Avalonia.Views;
@@ -188,4 +190,49 @@ public partial class MainView : UserControl
         else dialog.ShowAsync();
     }
 
+    private async void DynamicDebugPressed(object? Sender, PointerPressedEventArgs E)
+    {
+        try
+        {
+            if (Sender is not NavigationViewItem navigationViewItem) return;
+            var target = navigationViewItem.Content as string;
+            if (string.IsNullOrEmpty(target)) return;
+            DebugHelper.WriteLine($"{nameof(DynamicDebugPressed)}: {target}");
+            var actionMap = new Dictionary<string, Func<Task>>
+            {
+                [Lang.UI_Debug_TestImageUpload] = async () =>
+                {
+                    UploadManager.UploadImage(await WebHelpers.DownloadImageAsync("https://github.com/SnapXL/SnapX/blob/v0.3.0/.github/Linux.png?raw=true"));
+                },
+                [Lang.UI_Debug_TestTextUpload] = async () =>
+                {
+                    UploadManager.UploadText("This is a test text upload from SnapX, a fork of ShareX");
+                },
+                [Lang.UI_Debug_TestFileUpload] = async () =>
+                {
+                    UploadManager.DownloadAndUploadFile("https://raw.githubusercontent.com/SnapXL/SnapX/830fc50125e7af3e760b2ff908635d97e2464695/.github/Progress.md");
+                },
+                [Lang.UI_Debug_TestURLShortener] = async () =>
+                {
+                    UploadManager.ShortenURL(Links.Website);
+                },
+                [Lang.UI_Debug_TestURLShortener] = async () =>
+                {
+                    UploadManager.ShareURL(Links.Website);
+                },
+            };
+            if (actionMap.TryGetValue(target, out var func))
+            {
+                await func();
+            }
+            else
+            {
+                DebugHelper.WriteLine("No matching action found.");
+            }
+        }
+        catch (Exception e)
+        {
+            e.ShowError();
+        }
+    }
 }

@@ -37,6 +37,11 @@ public static class Lang
     public static string UI_Dropdown_Monitor => Get("UI_Dropdown_Monitor");
     public static string UI_Dropdown_ScreenRecording => Get("UI_Dropdown_ScreenRecording");
     public static string UI_Dropdown_ScreenRecordingGIF => Get("UI_Dropdown_ScreenRecordingGIF");
+    public static string UI_Debug_TestImageUpload => Get("UI_Debug_TestImageUpload");
+    public static string UI_Debug_TestTextUpload => Get("UI_Debug_TestTextUpload");
+    public static string UI_Debug_TestFileUpload => Get("UI_Debug_TestFileUpload");
+    public static string UI_Debug_TestURLShortener => Get("UI_Debug_TestURLShortener");
+    public static string UI_Debug_TestURLSharing => Get("UI_Debug_TestURLSharing");
     public static string UI_Monitor_DisplayName(string name, int index, string resolution)
         => string.Format(Get("UI_Monitor_DisplayName"), name, index, resolution);
     public static string UI_Capture_Fullscreen => Get("UI_Capture_Fullscreen");

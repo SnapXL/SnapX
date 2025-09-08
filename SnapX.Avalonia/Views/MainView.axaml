@@ -113,15 +113,50 @@
                         Content="Log"
                         IconSource="Repair"
                         PointerPressed="OpenDebugLog" />
-                    <!-- <controls:NavigationViewItem Content="Test image upload"> -->
-                    <!--     <controls:NavigationViewItem.IconSource> -->
-                    <!--  <fluent:FluentIconSource  -->
-                    <!--  Icon="ImageGlobe"  -->
-                    <!--  IconSize="Size32"  -->
-                    <!--  IconVariant="Regular" />  -->
-                    <!--     </controls:NavigationViewItem.IconSource> -->
-                    <!--    -->
-                    <!-- </controls:NavigationViewItem> -->
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Debug_TestImageUpload}" PointerPressed="DynamicDebugPressed">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="ImageGlobe"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Debug_TestTextUpload}" PointerPressed="DynamicDebugPressed">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="ScanText"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Debug_TestFileUpload}" PointerPressed="DynamicDebugPressed">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="Document"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Debug_TestURLShortener}" PointerPressed="DynamicDebugPressed">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="WebAsset"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Debug_TestURLSharing}" PointerPressed="DynamicDebugPressed">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="Share"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+
+                    </controls:NavigationViewItem>
                 </controls:NavigationView.MenuItems>
             </controls:NavigationViewItem>
             <controls:NavigationViewItem Content="Settings" PointerPressed="SettingsItem_Pressed">

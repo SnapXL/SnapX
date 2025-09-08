@@ -16,6 +16,7 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using Color = Avalonia.Media.Color;
+using Size = SixLabors.ImageSharp.Size;
 
 namespace SnapX.Avalonia.Views;
 
@@ -41,8 +42,7 @@ public partial class MainWindow : AppWindow
             Height = screenHeight / 2.2;
             if (config.RememberMainFormSize)
             {
-                config.MainFormSize.Width = (int)Width;
-                config.MainFormSize.Height = (int)Height;
+                config.MainFormSize = new Size((int)Width, (int)Height);
             }
         }
 
