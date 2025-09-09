@@ -51,13 +51,14 @@ public partial class HomePageView : UserControl
         ViewModel.RemoveHistoryItemCommand.Execute(menuFlyoutItem.DataContext);
         ViewModel.InvalidateCache();
         ViewModel.StopTimer();
-        ViewModel.RefreshTasks();
+        _ = ViewModel.RefreshTasks();
         ViewModel.StartTimer();
     }
 
     private void Control_OnUnloaded(object? Sender, RoutedEventArgs E)
     {
         ViewModel.StopTimer();
+        _ = ViewModel.HaltActiveTasks();
     }
 
     private void Button_OnClick(object? Sender, RoutedEventArgs E)

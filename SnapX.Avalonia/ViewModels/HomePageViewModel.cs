@@ -201,21 +201,30 @@ public partial class HomePageViewModel : ViewModelBase
         }
         UploadManager.UploadFile(ltt.task.FilePath);
     }
-
-    public async Task RefreshTasks()
+    private CancellationTokenSource? _refreshCts;
+    public async Task RefreshTasks(CancellationToken cancellationToken = default)
     {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken,
+            _refreshCts?.Token ?? CancellationToken.None);
+
+        var ct = linkedCts.Token;
+
         var typeofVM = typeof(HomePageViewModel);
 
         List<ListTaskTemplate> newDesiredTasks;
 
-        // Check cache first
         if (DateTime.Now - _lastCacheTime < _cacheDuration && _cachedTasks != null)
         {
             newDesiredTasks = _cachedTasks;
         }
         else
         {
-            var historyItems = await TaskManager.History.GetHistoryItemsAsync(30_000).ConfigureAwait(false);
+            var historyItems = await TaskManager.History.GetHistoryItemsAsync(30_000)
+                .WaitAsync(ct)
+                .ConfigureAwait(false);
+
+            ct.ThrowIfCancellationRequested();
 
             var tasks = historyItems.Select(task => new ListTaskTemplate(typeofVM, task));
 
@@ -227,8 +236,12 @@ public partial class HomePageViewModel : ViewModelBase
             _lastCacheTime = DateTime.Now;
         }
 
+        ct.ThrowIfCancellationRequested();
+
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
+            ct.ThrowIfCancellationRequested();
+
             if (newDesiredTasks.Count > 50_000)
             {
                 recentTasks.ResetBehavior = ResetBehavior.Remove;
@@ -236,12 +249,14 @@ public partial class HomePageViewModel : ViewModelBase
                 recentTasks.AddRange(newDesiredTasks);
                 return;
             }
-            var currentTasksById = recentTasks.ToDictionary(template => template.task.Id);
 
+            var currentTasksById = recentTasks.ToDictionary(template => template.task.Id);
             var newDesiredTaskIds = newDesiredTasks.Select(template => template.task.Id).ToHashSet();
 
             for (var i = recentTasks.Count - 1; i >= 0; i--)
             {
+                ct.ThrowIfCancellationRequested();
+
                 if (!newDesiredTaskIds.Contains(recentTasks[i].task.Id))
                 {
                     recentTasks.RemoveAt(i);
@@ -250,12 +265,11 @@ public partial class HomePageViewModel : ViewModelBase
 
             foreach (var newItem in newDesiredTasks)
             {
+                ct.ThrowIfCancellationRequested();
+
                 if (currentTasksById.TryGetValue(newItem.task.Id, out var existingItem))
                 {
-                    if (existingItem.Equals(newItem))
-                    {
-                        continue;
-                    }
+                    if (existingItem.Equals(newItem)) continue;
                     var index = recentTasks.IndexOf(existingItem);
                     if (index == -1) continue;
                     recentTasks.RemoveAt(index);
@@ -267,5 +281,16 @@ public partial class HomePageViewModel : ViewModelBase
                 }
             }
         });
+    }
+
+    public async Task HaltActiveTasks()
+    {
+        if (_refreshCts != null)
+        {
+            await _refreshCts.CancelAsync();
+            _refreshCts.Dispose();
+            _refreshCts = null;
+        }
+        await Task.CompletedTask;
     }
 }
