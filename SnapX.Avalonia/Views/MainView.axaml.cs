@@ -72,14 +72,12 @@ public partial class MainView : UserControl
             },
             [Lang.UI_Dropdown_Window] = async () =>
             {
-                await Task.Delay(5000);
                 img = await Task.Run(() =>
                     TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow()
                 );
             },
             [Lang.UI_Dropdown_Monitor] = async () =>
             {
-                await Task.Delay(5000);
                 img = await Task.Run(() =>
                     TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor()
                 );
@@ -128,7 +126,7 @@ public partial class MainView : UserControl
 
     private void SettingsItem_Pressed(object? Sender, PointerPressedEventArgs E)
     {
-        App.CreateSettingsWindowStatic();
+        App.CreateOrOpenSettingsWindowStatic();
     }
     private void FindURLOnDescendant(ILogical control)
     {
