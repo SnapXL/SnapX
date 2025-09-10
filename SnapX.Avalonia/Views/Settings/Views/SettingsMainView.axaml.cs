@@ -1,10 +1,12 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
+using Avalonia.Threading;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Avalonia.Views.Settings.Views;
 
@@ -57,21 +59,28 @@ public partial class SettingsMainView : UserControl
 
     private void NavigationView_OnSelectionChanged(object? Sender, NavigationViewSelectionChangedEventArgs E)
     {
-        if (Sender is not NavigationView navigationView) return;
-        navigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
-        if (navigationView.SelectedItem is not NavigationViewItem item)
+        try
         {
-            DebugHelper.WriteLine("NavigationView_OnSelectionChanged.Sender.SelectedItem is null");
-            return;
+            if (Sender is not NavigationView navigationView) return;
+            navigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
+            if (E.SelectedItem is not NavigationViewItem item)
+            {
+                DebugHelper.WriteLine("NavigationView_OnSelectionChanged.Sender.SelectedItem is null");
+                return;
+            }
+            DebugHelper.WriteLine($"{nameof(NavigationView_OnSelectionChanged)}: {item}");
+            if (item.Tag is not string ItemTag)
+            {
+                DebugHelper.WriteLine("NavigationView_OnSelectionChanged.Tag is null");
+                return;
+            }
+            _vm?.Navigate(ItemTag);
+            navigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
         }
-        DebugHelper.WriteLine($"{nameof(NavigationView_OnSelectionChanged)}: {item}");
-        if (item.Tag is not string ItemTag)
+        catch (Exception e)
         {
-            DebugHelper.WriteLine("NavigationView_OnSelectionChanged.Tag is null");
-            return;
+            e.ShowError();
         }
-        _vm?.Navigate(ItemTag);
-        navigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
     }
 
     private void NavigationView_OnBackRequested(object? Sender, NavigationViewBackRequestedEventArgs E)

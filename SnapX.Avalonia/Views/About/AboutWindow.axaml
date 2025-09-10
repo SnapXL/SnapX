@@ -189,6 +189,7 @@
                                     <mdxaml:MarkdownScrollViewer>[McoreD](https://github.com/Mcored)</mdxaml:MarkdownScrollViewer>
                                     <mdxaml:MarkdownScrollViewer>[Bloxstrap](https://github.com/bloxstraplabs/bloxstrap)</mdxaml:MarkdownScrollViewer>
                                     <mdxaml:MarkdownScrollViewer>[benbryant0 for .NET 8 PR](https://github.com/benbryant0)</mdxaml:MarkdownScrollViewer>
+                                    <mdxaml:MarkdownScrollViewer>[Insomnia Client](https://github.com/Kong/insomnia)</mdxaml:MarkdownScrollViewer>
                                 </StackPanel>
                             </Expander>
                             <Expander

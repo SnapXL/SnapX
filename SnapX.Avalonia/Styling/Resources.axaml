@@ -18,6 +18,8 @@
     <converters:InvertedCountToBooleanConverter x:Key="InvertedCountToBoolean" />
     <converters:StringNotNullOrWhitespaceConverter x:Key="StringValid" />
     <converters:FilePathToSizeConverter x:Key="FileSizeConverter" />
+    <converters:HttpMethodTypeConverter x:Key="HttpMethodConverter" />
+    <converters:CustomUploaderBodyConverter x:Key="BodyConverter" />
 
     <ui:SymbolIconSource Symbol="Home" x:Key="HomeIcon" />
     <ui:SymbolIconSource Symbol="HomeFilled" x:Key="HomeIconFilled" />

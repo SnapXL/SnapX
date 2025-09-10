@@ -6,6 +6,7 @@ using Avalonia.Media.Immutable;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using FluentAvalonia.Styling;
+using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp;
@@ -122,12 +123,6 @@ public partial class MainWindow : AppWindow
 
             TryEnableMicaEffect();
         }
-        // TaskManager.RecentManager.InitItems();
-        // TaskManager.RecentManager.MaxCount = SnapX.Core.SnapX.Settings.RecentTasksMaxCount;
-        // if (SnapX.Core.SnapX.Settings.RecentTasksSave && SnapX.Core.SnapX.Settings.RecentTasksShowInMainWindow && SnapX.Core.SnapX.Settings.RecentTasks.Count > 0)
-        // {
-        //     TaskManager.AddRecentTasksToMainWindow();
-        // }
         TaskManager.InitHistoryManager();
     }
 
@@ -163,14 +158,14 @@ public partial class MainWindow : AppWindow
         DebugHelper.WriteLine("MainWindow Opened");
         if (Core.SnapX.Settings.FirstTimeRunDate != DateTime.MinValue &&
             Core.SnapX.Settings.FirstTimeRunDate != null) return;
-        var changelogWindow = new AppWindow();
-        changelogWindow.Width = Width - 135;
-        changelogWindow.Height = Height - 20;
-        changelogWindow.Title = Title;
-        changelogWindow.Content = new ChangelogControl();
-        changelogWindow.Show(this);
-        changelogWindow.LostFocus += (_, _) => changelogWindow.Close();
-        PointerEntered += (_, _) => changelogWindow.Close();
-        GotFocus += (_, _) => changelogWindow.Close();
+        var changelogDialog = new ContentDialog
+        {
+            Title = Title,
+            Content = new ChangelogControl()
+        };
+        changelogDialog.ShowAsync(this);
+        // changelogWindow.LostFocus += (_, _) => changelogWindow.CloseButtonCommand.Execute(null);
+        // PointerEntered += (_, _) => changelogWindow.CloseButtonCommand.Execute(null);
+        // GotFocus += (_, _) => changelogWindow.CloseButtonCommand.Execute(null);
     }
 }

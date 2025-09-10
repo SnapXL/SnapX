@@ -127,8 +127,8 @@ public class SnapX
 
     internal static IConfiguration Configuration { get; set; }
     internal static TaskSettings DefaultTaskSettings { get; set; }
-    internal static UploadersConfig UploadersConfig { get; set; }
-    internal static HotkeysConfig HotkeysConfig { get; set; }
+    public static UploadersConfig UploadersConfig { get; set; }
+    public static HotkeysConfig HotkeysConfig { get; set; }
 
     internal static Stopwatch StartTimer { get; private set; }
     internal static HotkeyManager HotkeyManager { get; set; }
@@ -689,6 +689,9 @@ public class SnapX
     }
     public SnapXCLIManager GetCLIManager() => CLIManager;
     public ApplicationConfig GetConfiguration() => Settings;
+    public UploadersConfig GetUploadersConfig() => UploadersConfig;
+    public HotkeysConfig GetHotkeysConfig() => HotkeysConfig;
+
 
     public static void CloseSequence()
     {

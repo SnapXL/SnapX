@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
@@ -29,6 +30,7 @@ public record CustomUploaderItem
     [DefaultValue(CustomUploaderDestinationType.None)]
     public CustomUploaderDestinationType DestinationType { get; set; }
     [JsonConverter(typeof(HttpMethodConverter))]
+    [TypeConverter(typeof(HttpMethodTypeConverter))]
     [JsonInclude]
     // System.Text.Json does not automatically apply custom converters to built-in reference types like HttpMethod,
     // even if the converter is registered globally.
@@ -52,7 +54,7 @@ public record CustomUploaderItem
     public bool ShouldSerializeHeaders() => Headers is { Count: > 0 };
     [JsonConverter(typeof(JsonStringEnumConverter))]
     [DefaultValue(CustomUploaderBody.None)]
-    public CustomUploaderBody Body { get; set; }
+    public CustomUploaderBody Body { get; set; } = CustomUploaderBody.None;
 
     [DefaultValue(null)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -89,7 +91,7 @@ public record CustomUploaderItem
     public CustomUploaderItem()
     {
         Version = Helpers.GetApplicationVersion();
-        Body = CustomUploaderBody.None;
+        if (string.IsNullOrWhiteSpace(Name)) Name = URLHelpers.GetHostName(RequestURL);
     }
 
     // public static CustomUploaderItem Init()

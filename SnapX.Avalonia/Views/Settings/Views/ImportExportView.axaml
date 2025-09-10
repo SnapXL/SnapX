@@ -1,0 +1,89 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.Views.Settings.Views.ImportExportView"
+    x:DataType="viewModels:ImportExportVM"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:avalonia="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.DataContext>
+        <viewModels:ImportExportVM />
+    </Design.DataContext>
+    <StackPanel>
+        <controls:InfoBar
+            FontWeight="Black"
+            IsClosable="False"
+            IsOpen="True"
+            Margin="16"
+            Message="This configuration contains passwords, account details, and upload history. Do not share it with someone you do not trust."
+            Severity="Warning"
+            Title="Warning">
+            <controls:InfoBar.IconSource>
+                <fluent:FluentIconSource
+                    Icon="ShieldPerson"
+                    IconSize="Size48"
+                    IconVariant="Regular" />
+            </controls:InfoBar.IconSource>
+        </controls:InfoBar>
+        <StackPanel
+            HorizontalAlignment="Center"
+            Margin="16"
+            Spacing="16"
+            VerticalAlignment="Center">
+            <TextBlock
+                FontSize="20"
+                FontWeight="Bold"
+                HorizontalAlignment="Center"
+                Text="Configuration" />
+
+            <StackPanel
+                HorizontalAlignment="Center"
+                Orientation="Vertical"
+                Spacing="12">
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    Orientation="Vertical"
+                    Spacing="12">
+                    <Button Width="200">
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            VerticalAlignment="Center">
+                            <avalonia:FluentIcon Icon="ArrowImport" />
+                            <TextBlock Text="Import" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Width="200">
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            VerticalAlignment="Center">
+                            <avalonia:FluentIcon Icon="DocumentDatabase" />
+                            <TextBlock Text="Export" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Width="200">
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            VerticalAlignment="Center">
+                            <avalonia:FluentIcon Icon="DatabaseWarning" />
+                            <TextBlock Text="Reset" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+            </StackPanel>
+        </StackPanel>
+    </StackPanel>
+
+</UserControl>
+

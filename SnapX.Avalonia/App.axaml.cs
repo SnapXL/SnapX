@@ -409,6 +409,10 @@ public partial class App : Application
 
                     MyMainWindow = Window;
                     desktop.MainWindow = Window;
+                    MyMainWindow.Closed += (_, _) =>
+                    {
+                        MyMainWindow = null;
+                    };
                     break;
                 }
             case ISingleViewApplicationLifetime singleView when SnapX.isSilent():
@@ -492,12 +496,17 @@ public partial class App : Application
 
 
         services.AddTransient<MainViewModel>();
-        services.AddSingleton<MainWindow>();
+        services.AddTransient<MainWindow>();
         services.AddTransient<SettingsWindow>();
         services.AddTransient<SettingsMainView>();
         services.AddTransient<SettingsMainViewVM>();
+        services.AddTransient<CustomUploaderView>();
+        services.AddSingleton<CustomUploaderVM>();
+        services.AddSingleton<ImportExportVM>();
+        services.AddTransient<ImportExportView>();
+
         services.AddTransient<SettingsHomePageView>();
-        services.AddTransient<SettingsHomePageViewVM>();
+        services.AddSingleton<SettingsHomePageViewVM>();
 
         services.AddTransient<AboutWindow>();
         services.AddSingleton<AboutWindowViewModel>();
@@ -562,16 +571,27 @@ public partial class App : Application
 
     private void NativeMenuItem_Open_OnClick(object? Sender, EventArgs E)
     {
-        if (!MyMainWindow?.IsLoaded ?? false)
+        if (MyMainWindow is null || !MyMainWindow.IsLoaded)
         {
-            var vm = Ioc.Default.GetRequiredService<MainViewModel>();
-            MyMainWindow = new MainWindow(vm);
+            var mainWindow = Design.IsDesignMode
+                ? Activator.CreateInstance<MainWindow>()
+                : Ioc.Default.GetService<MainWindow>();
+            if (mainWindow is null)
+            {
+                DebugHelper.WriteLine("Failed to create main window, got null back from IoC");
+                return;
+            }
+            MyMainWindow = mainWindow;
             MyMainWindow.Show();
         }
 
         if (!MyMainWindow?.IsVisible ?? true) MyMainWindow?.Show();
         MyMainWindow?.Focus();
         MyMainWindow?.Activate();
+        if (MyMainWindow != null)
+        {
+            MyMainWindow.Closed += (_, _) => MyMainWindow = null;
+        }
     }
 
     [RelayCommand]
