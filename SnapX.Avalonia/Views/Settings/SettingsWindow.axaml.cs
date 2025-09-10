@@ -1,18 +1,12 @@
 using FluentAvalonia.UI.Windowing;
-using SnapX.Avalonia.ViewModels;
 
 namespace SnapX.Avalonia.Views.Settings;
 
 public partial class SettingsWindow : AppWindow
 {
-    public SettingsWindow(SettingsMainViewVM vm)
+    public SettingsWindow()
     {
-        DataContext = vm;
         InitializeComponent();
-    }
-
-    public SettingsWindow() : this(new SettingsMainViewVM())
-    {
     }
 
     private void SettingsWindowInit(object? Sender, EventArgs E)

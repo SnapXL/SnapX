@@ -1,8 +1,8 @@
 <windowing:AppWindow
     Icon="avares://snapx-ui/SnapX_Logo.png"
     Initialized="SettingsWindowInit"
-    MinHeight="500"
-    MinWidth="560"
+    MinHeight="700"
+    MinWidth="900"
     Title="Settings for SnapX"
     d:DesignHeight="450"
     d:DesignWidth="800"

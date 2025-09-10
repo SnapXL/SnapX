@@ -1,6 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
+using FluentAvalonia.UI.Controls;
+using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Utils;
 
@@ -8,8 +10,12 @@ namespace SnapX.Avalonia.Views.Settings.Views;
 
 public partial class SettingsMainView : UserControl
 {
-    public SettingsMainView()
+    private readonly SettingsMainViewVM? _vm;
+    public SettingsMainView() : this(new SettingsMainViewVM()) { }
+    public SettingsMainView(SettingsMainViewVM viewModel)
     {
+        DataContext = viewModel;
+        _vm = viewModel;
         InitializeComponent();
     }
 
@@ -47,6 +53,47 @@ public partial class SettingsMainView : UserControl
             DebugHelper.WriteLine(
                 $"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!");
         }
+    }
+
+    private void NavigationView_OnSelectionChanged(object? Sender, NavigationViewSelectionChangedEventArgs E)
+    {
+        if (Sender is not NavigationView navigationView) return;
+        navigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
+        if (navigationView.SelectedItem is not NavigationViewItem item)
+        {
+            DebugHelper.WriteLine("NavigationView_OnSelectionChanged.Sender.SelectedItem is null");
+            return;
+        }
+        DebugHelper.WriteLine($"{nameof(NavigationView_OnSelectionChanged)}: {item}");
+        if (item.Tag is not string ItemTag)
+        {
+            DebugHelper.WriteLine("NavigationView_OnSelectionChanged.Tag is null");
+            return;
+        }
+        _vm?.Navigate(ItemTag);
+        navigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
+    }
+
+    private void NavigationView_OnBackRequested(object? Sender, NavigationViewBackRequestedEventArgs E)
+    {
+        _vm?.Back();
+        if (Sender is not NavigationView MyNavigationView) return;
+
+        if (_vm?.CurrentPage is not null &&
+            _vm.TryGetPage(_vm.CurrentPage.GetType().Name, out var targetType))
+        {
+            var item = MyNavigationView.MenuItems
+                .OfType<NavigationViewItem>()
+                .FirstOrDefault(x =>
+                    x.Tag is string tag &&
+                    _vm.TryGetPage(tag, out var type) &&
+                    type == targetType);
+
+            if (item is not null)
+                MyNavigationView.SelectedItem = item;
+            else MyNavigationView.SelectedItem = null;
+        }
+        MyNavigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
     }
 }
 

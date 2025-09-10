@@ -18,63 +18,54 @@
     </Design.DataContext>
     <controls:NavigationView
         AlwaysShowHeader="False"
+        BackRequested="NavigationView_OnBackRequested"
         Background="{DynamicResource SolidBackgroundFillColorBase}"
+        IsBackButtonVisible="True"
+        IsBackEnabled="False"
         IsPaneOpen="True"
         IsSettingsVisible="False"
-        OpenPaneLength="200"
         PaneDisplayMode="Left"
+        SelectionChanged="NavigationView_OnSelectionChanged"
         UseLayoutRounding="True">
         <controls:NavigationView.MenuItems>
-            <controls:NavigationViewItem Content="General" IsExpanded="True">
-                <controls:NavigationViewItem.IconSource>
-                    <fluent:FluentIconSource
-                        Icon="AppGeneric"
-                        IconSize="Size32"
-                        IconVariant="Regular" />
-                </controls:NavigationViewItem.IconSource>
-                <controls:NavigationView.MenuItems>
-                    <controls:NavigationViewItem Content="Theme">
-                        <controls:NavigationViewItem.IconSource>
-                            <fluent:FluentIconSource
-                                Icon="StyleGuide"
-                                IconSize="Size32"
-                                IconVariant="Regular" />
-                        </controls:NavigationViewItem.IconSource>
-
-                    </controls:NavigationViewItem>
-                </controls:NavigationView.MenuItems>
-            </controls:NavigationViewItem>
-            <controls:NavigationViewItem Content="Destinations">
-                <controls:NavigationViewItem.IconSource>
-                    <fluent:FluentIconSource
-                        Icon="GlobeLocation"
-                        IconSize="Size32"
-                        IconVariant="Regular" />
-                </controls:NavigationViewItem.IconSource>
-                <controls:NavigationView.MenuItems>
-                    <controls:NavigationViewItem Content="Image uploader: Unknown">
-                        <controls:NavigationViewItem.IconSource>
-                            <fluent:FluentIconSource
-                                Icon="Image"
-                                IconSize="Size32"
-                                IconVariant="Regular" />
-                        </controls:NavigationViewItem.IconSource>
-                        <controls:NavigationViewItem.MenuItems>
-                            <controls:NavigationViewItem Content="Imgur" />
-                        </controls:NavigationViewItem.MenuItems>
-
-                    </controls:NavigationViewItem>
-                    <controls:NavigationViewItem Content="Custom uploader">
-                        <controls:NavigationViewItem.IconSource>
-                            <fluent:FluentIconSource
-                                Icon="GlobeLocation"
-                                IconSize="Size32"
-                                IconVariant="Regular" />
-                        </controls:NavigationViewItem.IconSource>
-
-                    </controls:NavigationViewItem>
-                </controls:NavigationView.MenuItems>
-            </controls:NavigationViewItem>
+            <!-- <controls:MenuFlyoutSubItem Text="Destinations"> -->
+            <!--     <controls:MenuFlyoutSubItem.IconSource> -->
+            <!--  <fluent:FluentIconSource  -->
+            <!--  Icon="GlobeLocation"  -->
+            <!--  IconSize="Size32"  -->
+            <!--  IconVariant="Regular" />  -->
+            <!--     </controls:MenuFlyoutSubItem.IconSource> -->
+            <!-- <controls:MenuFlyoutSubItem Text="Image uploader: Unknown"> -->
+            <!--     <controls:MenuFlyoutSubItem.IconSource> -->
+            <!--  <fluent:FluentIconSource  -->
+            <!--  Icon="Image"  -->
+            <!--  IconSize="Size32"  -->
+            <!--  IconVariant="Regular" />  -->
+            <!--     </controls:MenuFlyoutSubItem.IconSource> -->
+            <!--     <controls:RadioMenuFlyoutItem Text="Imgur" /> -->
+            <!--     <controls:RadioMenuFlyoutItem Text="ImgBB" /> -->
+            <!--    -->
+            <!-- </controls:MenuFlyoutSubItem> -->
+            <!-- <controls:NavigationViewItem Content="Custom uploader"> -->
+            <!--     <controls:NavigationViewItem.IconSource> -->
+            <!--  <fluent:FluentIconSource  -->
+            <!--  Icon="GlobeLocation"  -->
+            <!--  IconSize="Size32"  -->
+            <!--  IconVariant="Regular" />  -->
+            <!--     </controls:NavigationViewItem.IconSource> -->
+            <!--    -->
+            <!-- </controls:NavigationViewItem> -->
+            <!-- </controls:MenuFlyoutSubItem> -->
+            <!-- <controls:NavigationViewItemBase> -->
+            <!--     <MenuBar> -->
+            <!--         <MenuBarItem Title="Destinations"> -->
+            <!--  ~1~  Image uploader horizontal submenu  @1@  -->
+            <!--             <controls:MenuFlyoutItem Text="Imgur" /> -->
+            <!--             <controls:MenuFlyoutItem Text="ImgBB" /> -->
+            <!--             <controls:MenuFlyoutItem Text="Custom uploader" /> -->
+            <!--         </MenuBarItem> -->
+            <!--     </MenuBar> -->
+            <!-- </controls:NavigationViewItemBase> -->
             <controls:NavigationViewItem Content="Application">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
@@ -82,7 +73,98 @@
                         IconSize="Size32"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
-
+                <controls:NavigationView.MenuItems>
+                    <controls:NavigationViewItem Content="General">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="AppGeneric"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Theme">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="DarkTheme"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Integration">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="CalligraphyPen"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Paths">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="Folder"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem>
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="BroomSparkle"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <ToolTip.Tip>Previously, Main window</ToolTip.Tip>
+                        Housekeeping
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="View">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="DarkTheme"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Upload">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="ArrowUpload"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="History">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="History"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Print">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="Print"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Proxy">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="ShieldPerson"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Advanced">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="WrenchScrewdriver"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                </controls:NavigationView.MenuItems>
             </controls:NavigationViewItem>
             <controls:NavigationViewItem Content="Tasks">
                 <controls:NavigationViewItem.IconSource>
@@ -91,11 +173,245 @@
                         IconSize="Size32"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
+                <controls:NavigationView.MenuItems>
+                    <controls:NavigationViewItem Content="Image">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="Image"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <controls:NavigationViewItem.MenuItems>
+                            <controls:NavigationViewItem Content="Effects">
+                                <controls:NavigationViewItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ImageSparkle"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:NavigationViewItem.IconSource>
+                            </controls:NavigationViewItem>
+                            <controls:NavigationViewItem Content="Thumbnail">
+                                <controls:NavigationViewItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="TabDesktopImage"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:NavigationViewItem.IconSource>
+                            </controls:NavigationViewItem>
+                        </controls:NavigationViewItem.MenuItems>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Capture">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="Camera"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <controls:NavigationViewItem.MenuItems>
+                            <controls:NavigationViewItem Content="Region">
+                                <controls:NavigationViewItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ImageBorder"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:NavigationViewItem.IconSource>
+                            </controls:NavigationViewItem>
+                            <controls:NavigationViewItem Content="Screen recorder">
+                                <controls:NavigationViewItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="VideoRecording"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:NavigationViewItem.IconSource>
+                            </controls:NavigationViewItem>
+                            <controls:NavigationViewItem Content="OCR">
+                                <controls:NavigationViewItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ImageAltText"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:NavigationViewItem.IconSource>
+                            </controls:NavigationViewItem>
+                        </controls:NavigationViewItem.MenuItems>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Upload">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="ArrowUpload"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <controls:NavigationViewItem.MenuItems>
+                            <controls:NavigationViewItem Content="File naming">
+                                <controls:NavigationViewItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="Rename"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:NavigationViewItem.IconSource>
+                            </controls:NavigationViewItem>
+                            <controls:NavigationViewItem Content="Clipboard">
+                                <controls:NavigationViewItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ClipboardSettings"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:NavigationViewItem.IconSource>
+                            </controls:NavigationViewItem>
+                            <controls:NavigationViewItem Content="Filters">
+                                <controls:NavigationViewItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="Filter"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:NavigationViewItem.IconSource>
+                            </controls:NavigationViewItem>
+                        </controls:NavigationViewItem.MenuItems>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Actions">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="TaskList"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Watch folders">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="FolderSearch"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Tools">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="Toolbox"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Advanced">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="WrenchScrewdriver"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                </controls:NavigationView.MenuItems>
             </controls:NavigationViewItem>
             <controls:NavigationViewItem Content="Hotkeys">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="KeyboardShiftUppercase"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+            </controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Destinations">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="GlobeLocation"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+                <controls:NavigationViewItem.MenuItems>
+                    <controls:NavigationViewItem Content="Image uploaders">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="VideoRecording"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <controls:NavigationViewItem.MenuItems>
+                            <controls:NavigationViewItem Content="Imgur" />
+                            <controls:NavigationViewItem Content="ImageShack" />
+                            <controls:NavigationViewItem Content="Photobucket" />
+                            <controls:NavigationViewItem Content="Chevereto" />
+                            <controls:NavigationViewItem Content="vgy.me" />
+                        </controls:NavigationViewItem.MenuItems>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Text uploaders">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="DocumentText"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <controls:NavigationViewItem.MenuItems>
+                            <controls:NavigationViewItem Content="Pastebin" />
+                            <controls:NavigationViewItem Content="Paste.ee" />
+                            <controls:NavigationViewItem Content="GitHUb Gist" />
+                            <controls:NavigationViewItem Content="uPaste" />
+                            <controls:NavigationViewItem Content="Hastebin" />
+                            <controls:NavigationViewItem Content="OneTimeSecret" />
+                            <controls:NavigationViewItem Content="Pastie" />
+
+                        </controls:NavigationViewItem.MenuItems>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="File uploaders">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="DataFunnel"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <controls:NavigationViewItem.MenuItems>
+                            <controls:NavigationViewItem Content="FTP / FTPS / SFTP" />
+                            <controls:NavigationViewItem Content="Dropbox" />
+                            <controls:NavigationViewItem Content="OneDrive" />
+                            <controls:NavigationViewItem Content="Google Drive" />
+                            <controls:NavigationViewItem Content="puush" />
+                            <controls:NavigationViewItem Content="Box" />
+                            <controls:NavigationViewItem Content="Amazon S3" />
+                            <controls:NavigationViewItem Content="Google Cloud Storage" />
+                            <controls:NavigationViewItem Content="Azure Storage" />
+                            <controls:NavigationViewItem Content="Backblaze B2" />
+                            <controls:NavigationViewItem Content="Mega" />
+                            <controls:NavigationViewItem Content="ownCloud / Nextcloud" />
+                            <controls:NavigationViewItem Content="MediaFire" />
+                            <controls:NavigationViewItem Content="Pushbullet" />
+                            <controls:NavigationViewItem Content="SendSpace" />
+                            <controls:NavigationViewItem Content="Hostr" />
+                            <controls:NavigationViewItem Content="Lambda" />
+                            <controls:NavigationViewItem Content="Pomf" />
+                            <controls:NavigationViewItem Content="Seafile" />
+                            <controls:NavigationViewItem Content="Streamable" />
+                            <controls:NavigationViewItem Content="s-ul" />
+                            <controls:NavigationViewItem Content="LobFile" />
+                            <controls:NavigationViewItem Content="Plik" />
+                            <controls:NavigationViewItem Content="YouTube" />
+                            <controls:NavigationViewItem Content="Shared folder" />
+                            <controls:NavigationViewItem Content="Email" />
+
+
+
+                        </controls:NavigationViewItem.MenuItems>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="URL shorteners">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="LinkEdit"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <controls:NavigationViewItem.MenuItems>
+                            <controls:NavigationViewItem Content="YOURLS" />
+                            <controls:NavigationViewItem Content="Polr" />
+                            <controls:NavigationViewItem Content="Firebase Dynamic Links" />
+                            <controls:NavigationViewItem Content="Kutt" />
+                            <controls:NavigationViewItem Content="Zero Width Shortener" />
+
+                        </controls:NavigationViewItem.MenuItems>
+                    </controls:NavigationViewItem>
+                </controls:NavigationViewItem.MenuItems>
+            </controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Custom uploader" Tag="CustomUploader">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="AppGeneric"
                         IconSize="Size32"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
@@ -122,7 +438,7 @@
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>
-            <controls:NavigationViewItem Content="Import/Export">
+            <controls:NavigationViewItem Content="Import/Export" Tag="ImportExport">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="ArchiveSettings"
@@ -139,8 +455,7 @@
             <AutoCompleteBox x:Name="NavViewSearchBox" />
         </controls:NavigationView.AutoCompleteBox>
         <Border>
-            <!-- <TransitioningContentControl Content="{Binding CurrentPage}" /> -->
-            <views:SettingsHomePageView />
+            <TransitioningContentControl Content="{Binding CurrentPage}" />
         </Border>
     </controls:NavigationView>
 </UserControl>

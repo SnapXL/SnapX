@@ -36,6 +36,9 @@ public partial class App : Application
 
     public static SnapXAvalonia SnapX { get; private set; } = null!;
     public static MainWindow? MyMainWindow { get; private set; }
+    // There is no limit of what chaos could occur if two settings windows exist.
+    // We must keep track of it.
+    private static SettingsWindow? MySettingsWindow { get; set; }
     public static string TrayTitle => $"SnapX v{SimpleVersion()}";
 
     private static string SimpleVersion()
@@ -423,19 +426,31 @@ public partial class App : Application
 
     public static void CreateOrOpenSettingsWindowStatic()
     {
-        var settingsWindow = Design.IsDesignMode
-            ? Activator.CreateInstance<SettingsWindow>()
-            : Ioc.Default.GetService<SettingsWindow>();
-        if (settingsWindow is null)
+        if (MySettingsWindow is null)
         {
-            DebugHelper.WriteLine("Failed to create about window, got null back from IoC");
-            return;
+            var settingsWindow = Design.IsDesignMode
+                ? Activator.CreateInstance<SettingsWindow>()
+                : Ioc.Default.GetService<SettingsWindow>();
+            if (settingsWindow is null)
+            {
+                DebugHelper.WriteLine("Failed to create about window, got null back from IoC");
+                return;
+            }
+            MySettingsWindow = settingsWindow;
+            settingsWindow.Closed += (_, _) => MySettingsWindow = null;
         }
-        if (MyMainWindow is not null && MyMainWindow.IsVisible) settingsWindow.Show(MyMainWindow);
+        if (MyMainWindow is not null && MyMainWindow.IsVisible)
+        {
+            MySettingsWindow.Show(MyMainWindow);
+            MySettingsWindow.Focus();
+            MySettingsWindow.Activate();
+        }
         else
         {
-            settingsWindow.ShowAsDialog = false;
-            settingsWindow.Show();
+            MySettingsWindow.ShowAsDialog = false;
+            MySettingsWindow.Show();
+            MySettingsWindow.Focus();
+            MySettingsWindow.Activate();
         }
     }
     public static void CreateAboutWindowStatic()
@@ -449,29 +464,18 @@ public partial class App : Application
             return;
         }
 
-        if (MyMainWindow is not null && MyMainWindow.IsVisible) aboutWindow.Show(MyMainWindow);
+        if (MyMainWindow is not null && MyMainWindow.IsVisible)
+        {
+            aboutWindow.Show(MyMainWindow);
+            aboutWindow.Focus();
+            aboutWindow.Activate();
+        }
         else
         {
             aboutWindow.ShowAsDialog = false;
             aboutWindow.Show();
-        }
-    }
-    public static void CreateSettingsWindowStatic()
-    {
-        var settingsWindow = Design.IsDesignMode
-            ? Activator.CreateInstance<SettingsWindow>()
-            : Ioc.Default.GetService<SettingsWindow>();
-        if (settingsWindow is null)
-        {
-            DebugHelper.WriteLine("Failed to create about window, got null back from IoC");
-            return;
-        }
-
-        if (MyMainWindow is not null && MyMainWindow.IsVisible) settingsWindow.Show(MyMainWindow);
-        else
-        {
-            settingsWindow.ShowAsDialog = false;
-            settingsWindow.Show();
+            aboutWindow.Focus();
+            aboutWindow.Activate();
         }
     }
 
