@@ -51,6 +51,12 @@ public partial class MainView : UserControl
         Image? img = null;
         var actionMap = new Dictionary<string, Func<Task>>
         {
+            [Lang.UI_Capture_Fullscreen] = async () =>
+            {
+                img = await Task.Run(() =>
+                    TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureFullscreen()
+                );
+            },
             [Lang.UI_Dropdown_Region] = async () =>
             {
                 await Task.Delay(5000);
