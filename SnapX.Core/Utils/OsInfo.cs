@@ -613,16 +613,16 @@ public static partial class OsInfo
                                                       $lastTwoDigitsOfRevision = $revisionNumberPart.Substring($revisionNumberPart.Length - 2, 2)
 
                                                       $formattedDriverVersion = $lastDigitOfBuild + $firstTwoDigitsOfRevision + '.' + $lastTwoDigitsOfRevision
-                                                      Write-Host "GPU: $($description), Driver Version: $($formattedDriverVersion)"
+                                                      Write-Output "GPU: $($description), Driver Version: $($formattedDriverVersion)"
                                                   } else {
-                                                      Write-Host "GPU: $($description), Driver Version: $($driverVersion)"
+                                                      Write-Output "GPU: $($description), Driver Version: $($driverVersion)"
                                                   }
                                               } else {
-                                                  Write-Host "GPU: $($description), Driver Version: $($driverVersion)"
+                                                  Write-Output "GPU: $($description), Driver Version: $($driverVersion)"
                                               }
                                           }
                                           else {
-                                              Write-Host "GPU: $($description), Driver Version: $($driverVersion)"
+                                              Write-Output "GPU: $($description), Driver Version: $($driverVersion)"
                                           }
                                       }
                                       """;
@@ -637,7 +637,7 @@ public static partial class OsInfo
                                               $bounds = $_.Bounds
                                               $position = "X: $($bounds.X), Y: $($bounds.Y)"
                                               $resolution = "$($bounds.Width) x $($bounds.Height)"
-                                              Write-Host "Monitor: $name, Position: $position, Resolution: $resolution"
+                                              Write-Output "Monitor: $name, Position: $position, Resolution: $resolution"
                                           }
 
                                           """;
@@ -659,10 +659,7 @@ public static partial class OsInfo
     private static List<WindowsGpuInfo> ParseWindowsGpuInfo(string rawOutput)
     {
         var lines = rawOutput.Trim().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-        DebugHelper.WriteLine("GPU Info for this computer:");
-        DebugHelper.WriteLine(string.Join("\n", lines));
         var regex = WindowsGPUInfoRegex();
-
         return (from line in lines select line.Trim() into trimmedLine select regex.Match(trimmedLine) into match where match.Success let name = match.Groups[1].Value.Trim() let driver = match.Groups[2].Value.Trim() select new WindowsGpuInfo(name, driver)).ToList();
     }
 
