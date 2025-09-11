@@ -60,9 +60,10 @@ public partial class CustomUploaderVM : ViewModelBase
                     UploadersConfig.CustomUploadersList.Add(item);
             }
         };
-        if (UploadersConfig.CustomImageUploaderSelected > -1)
+        if (UploadersConfig.CustomImageUploaderSelected >= 0 &&
+            UploadersConfig.CustomImageUploaderSelected < Uploaders.Count)
         {
-            SelectedUploader = Uploaders[UploadersConfig.CustomImageUploaderSelected] ?? null;
+            SelectedUploader = Uploaders[UploadersConfig.CustomImageUploaderSelected];
         }
         else
         {
