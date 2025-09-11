@@ -11,5 +11,4 @@
   <Project Path="SnapX.CommonUI\SnapX.CommonUI.csproj" Type="C#" />
   <Project Path="SnapX.Core\SnapX.Core.csproj" Type="C#" />
   <Project Path="SnapX.NativeMessagingHost\SnapX.NativeMessagingHost.csproj" Type="C#" />
-  <Project Path="SourceGen/SourceGen.csproj" />
 </Solution>

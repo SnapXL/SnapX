@@ -21,8 +21,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnapX.NativeMessagingHost",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "build", "build\build.csproj", "{96432C2D-0F1D-4B69-97CB-9F54C1873C1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceGen", "SourceGen\SourceGen.csproj", "{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,18 +97,6 @@ Global
 		{96432C2D-0F1D-4B69-97CB-9F54C1873C1E}.Release|x64.Build.0 = Release|Any CPU
 		{96432C2D-0F1D-4B69-97CB-9F54C1873C1E}.Release|x86.ActiveCfg = Release|Any CPU
 		{96432C2D-0F1D-4B69-97CB-9F54C1873C1E}.Release|x86.Build.0 = Release|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Debug|x64.Build.0 = Debug|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Debug|x86.Build.0 = Debug|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Release|x64.ActiveCfg = Release|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Release|x64.Build.0 = Release|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Release|x86.ActiveCfg = Release|Any CPU
-		{642F126F-E818-49EE-AB2C-C82D7DAB4AA0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
