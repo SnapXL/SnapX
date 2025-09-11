@@ -87,39 +87,39 @@ public partial class CustomUploaderVM : ViewModelBase
     [RelayCommand]
     private void RemoveUploaderItem()
     {
-        if (selectedUploader is not null)
-            Uploaders.Remove(selectedUploader);
+        if (SelectedUploader is not null)
+            Uploaders.Remove(SelectedUploader);
     }
 
     [RelayCommand]
     private void DuplicateUploader()
     {
-        if (selectedUploader is not null)
+        if (SelectedUploader is not null)
             Uploaders.Add(new CustomUploaderItem
             {
-                Name = selectedUploader.Name + " Copy",
-                RequestURL = selectedUploader.RequestURL,
-                Headers = selectedUploader.Headers != null ? new Dictionary<string, string?>(selectedUploader.Headers) : new Dictionary<string, string?>(),
-                Parameters = selectedUploader.Parameters != null ? new Dictionary<string, string?>(selectedUploader.Parameters) : new Dictionary<string, string?>(),
-                Arguments = selectedUploader.Arguments != null ? new Dictionary<string, string?>(selectedUploader.Arguments) : new Dictionary<string, string?>(),
-                Body = selectedUploader.Body,
-                RequestMethod = selectedUploader.RequestMethod
+                Name = SelectedUploader.Name + " Copy",
+                RequestURL = SelectedUploader.RequestURL,
+                Headers = SelectedUploader.Headers != null ? new Dictionary<string, string?>(SelectedUploader.Headers) : new Dictionary<string, string?>(),
+                Parameters = SelectedUploader.Parameters != null ? new Dictionary<string, string?>(SelectedUploader.Parameters) : new Dictionary<string, string?>(),
+                Arguments = SelectedUploader.Arguments != null ? new Dictionary<string, string?>(SelectedUploader.Arguments) : new Dictionary<string, string?>(),
+                Body = SelectedUploader.Body,
+                RequestMethod = SelectedUploader.RequestMethod
             });
     }
     [RelayCommand]
     private void AddHeader()
     {
-        if (selectedUploader == null) return;
-        selectedUploader.Headers ??= new();
-        selectedUploader.Headers["New-Header"] = "";
+        if (SelectedUploader == null) return;
+        SelectedUploader.Headers ??= new();
+        SelectedUploader.Headers["New-Header"] = "";
     }
 
     [RelayCommand]
     private void AddParameter()
     {
-        if (selectedUploader == null) return;
-        selectedUploader.Parameters ??= new();
-        selectedUploader.Parameters["newParam"] = "";
+        if (SelectedUploader == null) return;
+        SelectedUploader.Parameters ??= new();
+        SelectedUploader.Parameters["newParam"] = "";
     }
 
 

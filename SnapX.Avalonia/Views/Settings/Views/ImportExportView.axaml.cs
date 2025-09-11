@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using SnapX.Avalonia.ViewModels;
 
 namespace SnapX.Avalonia.Views.Settings.Views;

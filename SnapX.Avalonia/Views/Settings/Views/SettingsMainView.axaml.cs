@@ -1,7 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
-using Avalonia.Threading;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;

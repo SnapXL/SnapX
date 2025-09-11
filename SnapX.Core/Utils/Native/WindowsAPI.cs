@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using System.Text;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
