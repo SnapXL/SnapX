@@ -14,12 +14,21 @@ namespace SnapX.Core;
 
 public static class SnapXResources
 {
-    public static string CPU => OsInfo.GetProcessorName();
+    private static readonly Lazy<string> _cpu = new(OsInfo.GetProcessorName);
+
+    public static string CPU => _cpu.Value;
     public static int CPUCount => Environment.ProcessorCount;
-    public static OsInfo.GenericGraphicsInfo graphicsInfo => OsInfo.GetGenericGraphicsInfo();
+    private static readonly Lazy<OsInfo.GenericGraphicsInfo> _graphicsInfo = new(OsInfo.GetGenericGraphicsInfo);
+
+    public static OsInfo.GenericGraphicsInfo graphicsInfo => _graphicsInfo.Value;
     public static string Dotnet => RuntimeInformation.FrameworkDescription;
-    public static string fancyOsName => Helpers.GetOperatingSystemProductName();
-    public static string? UserAgent => $"{SnapX.AppName}/{Helpers.GetApplicationVersion()} (+{Links.GitHub})";
+    private static readonly Lazy<string> _fancyOsName = new(() => Helpers.GetOperatingSystemProductName());
+
+    public static string fancyOsName => _fancyOsName.Value;
+    private static readonly Lazy<string> _userAgent =
+        new(() => $"{SnapX.AppName}/{Helpers.GetApplicationVersion()} (+{Links.GitHub})");
+
+    public static string UserAgent => _userAgent.Value;
 }
 
 

@@ -267,6 +267,17 @@ public class SnapX
     {
         CloseSequence();
     }
+    private static readonly Timer _optimizeTimer = new(_ =>
+    {
+        try
+        {
+            DbConnection?.Execute("PRAGMA optimize;");
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteException(ex);
+        }
+    }, null, TimeSpan.Zero, TimeSpan.FromDays(1));
     public Assembly[] GetAssemblies() => AppDomain.CurrentDomain.GetAssemblies();
     public void start(string?[] args)
     {
@@ -347,7 +358,7 @@ public class SnapX
             (totalMemory, usedMemory) = OsInfo.GetMemoryInfo();
             DebugHelper.WriteLine($"Total Memory: {totalMemory} MiB");
             DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
-            OsInfo.PrintGraphicsInfo();
+            PrintGraphicsInfo();
             // Linux is not supported for HDR detection.
             if (!OperatingSystem.IsLinux()) DebugHelper.WriteLine($"HDR Capable: {OsInfo.IsHdrSupported()}");
         });
@@ -394,17 +405,6 @@ public class SnapX
             }
         });
         // Handle SnapX running for a long time. To be good SQLite user, you must tidy up database once in a while.
-        var timer = new Timer(async void (_) =>
-        {
-            try
-            {
-                await DbConnection.ExecuteAsync("PRAGMA optimize;");
-            }
-            catch (Exception ex)
-            {
-                DebugHelper.WriteException(ex);
-            }
-        }, null, TimeSpan.Zero, TimeSpan.FromDays(1));
         DebugHelper.WriteLine($"DB: SQLite {DbConnection.ServerVersion}");
         DebugHelper.WriteLine($"DB Path: {ShortenPath(DbConnection.ConnectionString)}");
 
@@ -531,6 +531,47 @@ public class SnapX
             throw new TimeoutException($"{description} timed out after {timeoutSeconds} seconds.");
 
         task.GetAwaiter().GetResult(); // propagate exceptions
+    }
+    public static void PrintGraphicsInfo()
+    {
+        var genericInfo = SnapXResources.graphicsInfo;
+
+        if (genericInfo != null)
+        {
+            DebugHelper.WriteLine($"Graphics Information for {genericInfo.OperatingSystemName}:");
+            if (genericInfo.Gpus != null && genericInfo.Gpus.Count != 0)
+            {
+                foreach (var gpu in genericInfo.Gpus)
+                {
+                    DebugHelper.WriteLine($"GPU: {gpu.Description}, Driver Version: {gpu.DriverVersion}{(gpu.Vendor != null ? $", Vendor: {gpu.Vendor}" : "")}");
+                }
+            }
+            else
+            {
+                DebugHelper.WriteLine("No GPU information found.");
+            }
+
+            if (genericInfo.Monitors != null && genericInfo.Monitors.Any())
+            {
+                foreach (var monitor in genericInfo.Monitors)
+                {
+                    DebugHelper.WriteLine($"Monitor: {monitor.Name}, Resolution: {monitor.Resolution}{(monitor.Position != null ? $", Position: {monitor.Position}" : "")}");
+                }
+            }
+            else
+            {
+                DebugHelper.WriteLine("No Monitor information found.");
+            }
+
+            if (!string.IsNullOrEmpty(genericInfo.ErrorMessage))
+            {
+                DebugHelper.WriteLine($"Error: {genericInfo.ErrorMessage}");
+            }
+        }
+        else
+        {
+            DebugHelper.WriteLine("Failed to retrieve generic graphics information.");
+        }
     }
     public SnapXCLIManager GetCLIManager() => CLIManager;
     public ApplicationConfig GetConfiguration() => Settings;

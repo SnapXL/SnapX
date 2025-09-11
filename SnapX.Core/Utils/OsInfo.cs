@@ -491,48 +491,6 @@ public static partial class OsInfo
 
         return 0;
     }
-    public static void PrintGraphicsInfo()
-    {
-        // Now using the generic function for printing
-        var genericInfo = GetGenericGraphicsInfo();
-
-        if (genericInfo != null)
-        {
-            DebugHelper.WriteLine($"Graphics Information for {genericInfo.OperatingSystemName}:");
-            if (genericInfo.Gpus != null && genericInfo.Gpus.Count != 0)
-            {
-                foreach (var gpu in genericInfo.Gpus)
-                {
-                    DebugHelper.WriteLine($"GPU: {gpu.Description}, Driver Version: {gpu.DriverVersion}{(gpu.Vendor != null ? $", Vendor: {gpu.Vendor}" : "")}");
-                }
-            }
-            else
-            {
-                DebugHelper.WriteLine("No GPU information found.");
-            }
-
-            if (genericInfo.Monitors != null && genericInfo.Monitors.Any())
-            {
-                foreach (var monitor in genericInfo.Monitors)
-                {
-                    DebugHelper.WriteLine($"Monitor: {monitor.Name}, Resolution: {monitor.Resolution}{(monitor.Position != null ? $", Position: {monitor.Position}" : "")}");
-                }
-            }
-            else
-            {
-                DebugHelper.WriteLine("No Monitor information found.");
-            }
-
-            if (!string.IsNullOrEmpty(genericInfo.ErrorMessage))
-            {
-                DebugHelper.WriteLine($"Error: {genericInfo.ErrorMessage}");
-            }
-        }
-        else
-        {
-            DebugHelper.WriteLine("Failed to retrieve generic graphics information.");
-        }
-    }
     /// <summary>
     /// Retrieves graphics information in a generic, platform-agnostic format.
     /// This function is suitable for telemetry as it provides a unified data structure.
