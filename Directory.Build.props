@@ -16,7 +16,6 @@
     <TargetFramework>net9.0</TargetFramework>
     <GitVersionTargetFramework>$(TargetFramework)</GitVersionTargetFramework>
     <WriteVersionInfoToBuildLog>true</WriteVersionInfoToBuildLog>
-    <TargetFramework Condition="'$(TargetWindows)' == 'true'">net9.0-windows10.0.26100.0</TargetFramework>
     <RollForward>LatestMajor</RollForward>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Version>0.4.0</Version>
@@ -40,23 +39,56 @@
     <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$([System.String]::IsNullOrEmpty('$(RuntimeIdentifier)')) == 'false'
-                       and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('linux'))">
+  <PropertyGroup Condition="
+    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'false' and
+        (
+            $([System.String]::Copy($(RuntimeIdentifier)).StartsWith('linux'))
+            or $(RuntimeIdentifier.Contains('ubuntu'))
+            or $(RuntimeIdentifier.Contains('debian'))
+            or $(RuntimeIdentifier.Contains('fedora'))
+            or $(RuntimeIdentifier.Contains('alpine'))
+            or $(RuntimeIdentifier.Contains('rhel'))
+            or $(RuntimeIdentifier.Contains('centos'))
+            or $(RuntimeIdentifier.Contains('opensuse'))
+        )
+    )
+    or
+    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'true' and
+        $([MSBuild]::IsOSPlatform('Linux'))
+    )
+">
     <TargetLinux>true</TargetLinux>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$([System.String]::IsNullOrEmpty('$(RuntimeIdentifier)')) == 'false'
-                       and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win'))">
+
+  <PropertyGroup Condition="
+    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'false' and
+        $([System.String]::Copy($(RuntimeIdentifier)).StartsWith('win')))
+    or
+    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'true' and
+        $([MSBuild]::IsOSPlatform('Windows')))
+">
     <TargetWindows>true</TargetWindows>
+    <TargetFramework>$(TargetFramework)-windows10.0.26100.0</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$([System.String]::IsNullOrEmpty('$(RuntimeIdentifier)')) == 'false'
-                       and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('osx'))">
+  <PropertyGroup Condition="
+    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'false' and
+        $([System.String]::Copy($(RuntimeIdentifier)).StartsWith('osx')))
+    or
+    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'true' and
+        $([MSBuild]::IsOSPlatform('OSX')))
+">
     <TargetMacOS>true</TargetMacOS>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$([System.String]::IsNullOrEmpty('$(RuntimeIdentifier)')) == 'false'
-                       and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('freebsd'))">
+  <PropertyGroup Condition="
+    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'false' and
+        $([System.String]::Copy($(RuntimeIdentifier)).StartsWith('freebsd')))
+    or
+    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'true' and
+        $([MSBuild]::IsOSPlatform('FreeBSD')))
+">
     <TargetFreeBSD>true</TargetFreeBSD>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetWindows)' == 'true' and ( '$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe' )">

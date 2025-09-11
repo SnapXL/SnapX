@@ -2,7 +2,7 @@
   <Target Name="CargoBuild" BeforeTargets="BeforeBuild" Condition="'$(nocargobuild)' == ''">
     <Message Text="Compiling Rust intermediary library..." Importance="High" />
     <PropertyGroup>
-      <RustLibName Condition="$([MSBuild]::IsOsPlatform('OSX'))">libsnapxrust.dylib</RustLibName>
+      <RustLibName>libsnapxrust.dylib</RustLibName>
     </PropertyGroup>
     <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
   </Target>
