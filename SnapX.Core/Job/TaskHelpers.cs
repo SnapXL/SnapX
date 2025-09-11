@@ -715,7 +715,7 @@ public static class TaskHelpers
     public static async Task<string> OCRImage(Image? image = null, string? filePath = null, TaskSettings? taskSettings = null, string? languageCode = null)
     {
 #if DISABLE_OCR
-        DebugHelper.WriteException(new ConstraintException("This build of SnapX was built with DISABLE_OCR build time constant."));
+        DebugHelper.WriteException(new Exception("This build of SnapX was built with DISABLE_OCR build time constant."));
         return string.Empty;
 #endif
         var model = GetModelForLanguage(languageCode ?? "eng");
