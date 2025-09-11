@@ -9,8 +9,10 @@ using System.Security.Authentication;
 namespace SnapX.Core.Utils.Miscellaneous;
 public static class HttpClientFactory
 {
-    // Using Lazy<T> to handle thread-safe initialization of the HttpClient
-    private static Lazy<HttpClient> _lazyClient = new(() =>
+    private static readonly Lazy<SocketsHttpHandler> _lazyHandler = new(CreateHandler);
+
+    public static SocketsHttpHandler Handler => _lazyHandler.Value;
+    private static SocketsHttpHandler CreateHandler()
     {
         var clientHandler = new SocketsHttpHandler
         {
@@ -23,15 +25,22 @@ public static class HttpClientFactory
             },
             Proxy = HelpersOptions.CurrentProxy.GetWebProxy(),
         };
+
         if (SnapX.Settings.AcceptInvalidSSLCertificates)
         {
             clientHandler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => true;
         }
-        HttpMessageHandler handler = clientHandler;
+
+        return clientHandler;
+    }
+    // Using Lazy<T> to handle thread-safe initialization of the HttpClient
+    private static Lazy<HttpClient> _lazyClient = new(() =>
+    {
+        HttpMessageHandler handler = Handler;
 
 #if DEBUG
         // Only for DEBUG. Do not enable in production. Or you'll be fired.
-        var loggingHandler = new LoggingHttpMessageHandler(clientHandler, DebugHelper.Logger);
+        var loggingHandler = new LoggingHttpMessageHandler(Handler, DebugHelper.Logger);
         handler = loggingHandler;
 #endif
         var httpClient = new HttpClient(handler);
