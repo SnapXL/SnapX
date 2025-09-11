@@ -30,6 +30,7 @@
     <TargetWindows>false</TargetWindows>
     <TargetMacOS>false</TargetMacOS>
     <TargetFreeBSD>false</TargetFreeBSD>
+    <TargetDesktop>false</TargetDesktop>
     <TargetDesktop Condition="'$(TargetWindows)' == 'true'
                            or '$(TargetLinux)' == 'true'
                            or '$(TargetMacOS)' == 'true'
