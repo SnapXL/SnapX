@@ -22,7 +22,7 @@ public static class WebHelpers
         FileHelpers.CreateDirectoryFromFilePath(filePath);
 
         var client = HttpClientFactory.Get();
-        using var responseMessage = await client.GetAsync(url);
+        using var responseMessage = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
 
         if (!responseMessage.IsSuccessStatusCode)
         {
@@ -70,7 +70,7 @@ public static class WebHelpers
         }
 
         var client = HttpClientFactory.Get();
-        using var responseMessage = await client.GetAsync(url);
+        using var responseMessage = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
         if (!responseMessage.IsSuccessStatusCode)
         {
             DebugHelper.Logger.Error("{url}: {responseMessage.ReasonPhrase}", url, responseMessage);
