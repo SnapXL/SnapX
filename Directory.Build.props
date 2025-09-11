@@ -30,10 +30,6 @@
     <TargetMacOS>false</TargetMacOS>
     <TargetFreeBSD>false</TargetFreeBSD>
     <TargetDesktop>false</TargetDesktop>
-    <TargetDesktop Condition="'$(TargetWindows)' == 'true'
-                           or '$(TargetLinux)' == 'true'
-                           or '$(TargetMacOS)' == 'true'
-                           or '$(TargetFreeBSD)' == 'true'">true</TargetDesktop>
   </PropertyGroup>
   <PropertyGroup Condition="'$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('browser'))">
     <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
@@ -97,5 +93,10 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <Platforms>x64;arm64</Platforms>
   </PropertyGroup>
-
+  <PropertyGroup>
+    <TargetDesktop Condition="'$(TargetWindows)' == 'true'
+                           or '$(TargetLinux)' == 'true'
+                           or '$(TargetMacOS)' == 'true'
+                           or '$(TargetFreeBSD)' == 'true'">true</TargetDesktop>
+  </PropertyGroup>
 </Project>
