@@ -1,10 +1,11 @@
 using SixLabors.ImageSharp;
 using SnapX.Core.Media;
 using SnapX.Core.SharpCapture;
-using SnapX.Core.SharpCapture.Linux;
-using SnapX.Core.SharpCapture.macOS;
 #if TARGET_WINDOWS
 using SnapX.Core.SharpCapture.Windows;
+#else
+using SnapX.Core.SharpCapture.Linux;
+using SnapX.Core.SharpCapture.macOS;
 #endif
 
 namespace SnapX.Core.Utils.Native;
