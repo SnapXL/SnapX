@@ -16,13 +16,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <GitVersionTargetFramework>$(TargetFramework)</GitVersionTargetFramework>
     <WriteVersionInfoToBuildLog>true</WriteVersionInfoToBuildLog>
-    <TargetFramework Condition="(
-                             ('$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('win')))
-                             or
-                             ('$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('Windows')))
-                           )">
-      $(TargetFramework)-windows10.0.26100.0
-    </TargetFramework>
+    <TargetFramework Condition="$([MSBuild]::IsOSPlatform('Windows'))">net9.0-windows10.0.26100.0</TargetFramework>
     <RollForward>LatestMajor</RollForward>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Version>0.4.0</Version>
@@ -31,16 +25,21 @@
     <UpdateAssemblyInfo>false</UpdateAssemblyInfo>
     <DisableGitVersionTask>true</DisableGitVersionTask>
   </PropertyGroup>
-  <PropertyGroup Condition="(
-                          ('$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('win')))
-                          or
-                          ('$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('Windows')))
-                        )
-                        and
-                        ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+  <PropertyGroup Condition="
+    (
+        ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'false'
+         and $([System.String]::Copy($(RuntimeIdentifier)).ToLower().Contains('win')))
+        or
+        ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'true'
+         and $([MSBuild]::IsOSPlatform('Windows')))
+    )
+    and
+    ( '$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe' )
+  ">
     <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
     <UseRIDGraph>true</UseRIDGraph>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Platforms>x64;arm64</Platforms>
   </PropertyGroup>
+
 </Project>

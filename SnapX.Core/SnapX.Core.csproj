@@ -130,9 +130,10 @@
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
-  <ItemGroup Condition=" '$(TargetFramework)' != '' and !$(TargetFramework.Contains('windows')) ">
+  <ItemGroup Condition=" '$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)) )' == 'false'
+                       and $([System.String]::Copy($(RuntimeIdentifier)).ToLower().Contains('win')) == 'false' ">
     <Compile Remove="SharpCapture/Windows/*.cs" />
-    <Compile Remove=".\Utils\Native\WindowsAPI.cs" />
+    <Compile Remove="Utils/Native/WindowsAPI.cs" />
   </ItemGroup>
   <Import Project="./Linux.props"
           Condition="
@@ -166,15 +167,6 @@
             )
         " />
   <Import Project="./Windows.props"
-          Condition="
-            (
-                '$(RuntimeIdentifier)' != '' and
-                $(RuntimeIdentifier.Contains('win'))
-            )
-            or
-            (
-                '$(RuntimeIdentifier)' == '' and
-                $([MSBuild]::IsOSPlatform('WINDOWS'))
-            )
-        " />
+          Condition=" ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'true' and $([MSBuild]::IsOSPlatform('Windows')))
+                 or ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'false' and $([System.String]::Copy($(RuntimeIdentifier)).ToLower().Contains('win'))) " />
 </Project>
