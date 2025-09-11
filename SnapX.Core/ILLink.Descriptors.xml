@@ -1,0 +1,6 @@
+﻿<linker>
+  <assembly fullname="SnapX.Core">
+    <type fullname="SnapX.Core*" />
+    <namespace fullname="SnapX.Core.Upload" />
+  </assembly>
+</linker>
