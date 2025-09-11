@@ -3,11 +3,6 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PublishSingleFile Condition="!$(RuntimeIdentifier.Contains('browser'))">true</PublishSingleFile>
-    <SelfContained Condition="!$(RuntimeIdentifier.Contains('browser'))">true</SelfContained>
-    <PublishReadyToRun Condition="!$(RuntimeIdentifier.Contains('browser'))">true</PublishReadyToRun>
-    <EnableMsixTooling Condition="!$(RuntimeIdentifier.Contains('browser'))">true</EnableMsixTooling>
-    <PublishAot>true</PublishAot>
     <AssemblyName>snapx-ui</AssemblyName>
     <AssemblyTitle>SnapX UI</AssemblyTitle>
     <ApplicationIcon>Assets\SnapX_Icon.ico</ApplicationIcon>
@@ -16,16 +11,20 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TrimMode Condition="!$(RuntimeIdentifier.Contains('browser'))">full</TrimMode>
-    <PublishTrimmed Condition="!$(RuntimeIdentifier.Contains('browser'))">true</PublishTrimmed>
-    <Optimize Condition="!$(RuntimeIdentifier.Contains('browser'))">true</Optimize>
     <AvaloniaVersion>11.3.4</AvaloniaVersion>
     <SkiaSharpVersion>3.119.0</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
     <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called snapx-ui. Instead create a executable shell script that calls snapx-ui -->
   </PropertyGroup>
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('browser'))">
-    <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
+  <PropertyGroup Condition="'$(TargetDesktop)' == 'true'">
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <PublishAot>true</PublishAot>
+    <TrimMode>full</TrimMode>
+    <PublishTrimmed>true</PublishTrimmed>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugSymbols>false</DebugSymbols>

@@ -133,43 +133,14 @@
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
-  <ItemGroup Condition=" '$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)) )' == 'false'
-                       and $([System.String]::Copy($(RuntimeIdentifier)).ToLower().Contains('win')) == 'false' ">
+  <ItemGroup Condition="'$(TargetWindows)' != 'true'">
     <Compile Remove="SharpCapture/Windows/*.cs" />
     <Compile Remove="Utils/Native/WindowsAPI.cs" />
   </ItemGroup>
   <Import Project="./Linux.props"
-          Condition="
-            (
-                '$(RuntimeIdentifier)' != '' and (
-                    $(RuntimeIdentifier.Contains('linux'))
-                    or $(RuntimeIdentifier.Contains('ubuntu'))
-                    or $(RuntimeIdentifier.Contains('fedora'))
-                    or $(RuntimeIdentifier.Contains('alpine'))
-                    or $(RuntimeIdentifier.Contains('freebsd'))
-                )
-            )
-            or
-            (
-                '$(RuntimeIdentifier)' == '' and (
-                    $([MSBuild]::IsOSPlatform('Linux'))
-                    or $([MSBuild]::IsOSPlatform('FreeBSD'))
-                )
-            )
-        " />
+          Condition="'$(TargetLinux)' == 'true' or '$(TargetFreeBSD)' == 'true'" />
   <Import Project="./OSX.props"
-          Condition="
-            (
-                '$(RuntimeIdentifier)' != '' and
-                $(RuntimeIdentifier.Contains('osx'))
-            )
-            or
-            (
-                '$(RuntimeIdentifier)' == '' and
-                $([MSBuild]::IsOSPlatform('OSX'))
-            )
-        " />
+          Condition="'$(TargetMacOS)' == 'true'" />
   <Import Project="./Windows.props"
-          Condition=" ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'true' and $([MSBuild]::IsOSPlatform('Windows')))
-                 or ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'false' and $([System.String]::Copy($(RuntimeIdentifier)).ToLower().Contains('win'))) " />
+          Condition="'$(TargetWindows)' == 'true'" />
 </Project>
