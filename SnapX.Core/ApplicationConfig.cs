@@ -18,12 +18,6 @@ public class WindowState
     public Size Size { get; set; }
     public bool IsMaximized { get; set; }
 }
-public class QuickTaskPreset
-{
-    public string Name { get; set; }
-    public List<QuickTaskInfo> AfterCaptureTasks { get; set; }
-    public List<QuickTaskInfo> AfterUploadTasks { get; set; }
-}
 
 public class ApplicationConfig : SettingsBase<ApplicationConfig>
 {
@@ -222,7 +216,6 @@ public class ApplicationConfig : SettingsBase<ApplicationConfig>
     public int DropHoverOpacity { get; set; }
     [Category("Drag and drop window"), DefaultValue(ContentAlignment.BottomRight), Description("Where drop window will open.")]
     public ContentAlignment DropAlignment { get; set; }
-    public string ApplicationVersion { get; set; } = Helpers.GetApplicationVersion();
 
     public string? SQLitePath { get; set; }
 }

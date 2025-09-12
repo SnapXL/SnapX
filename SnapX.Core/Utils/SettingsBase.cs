@@ -20,28 +20,28 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
     public delegate void SettingsSaveFailedEventHandler(Exception e);
     public event SettingsSaveFailedEventHandler SettingsSaveFailed;
 
-    [Browsable(false), System.Text.Json.Serialization.JsonIgnore]
+    [Browsable(false), JsonIgnore]
     public string FilePath { get; private set; }
 
     [Browsable(false)]
     public string ApplicationVersion { get; set; }
 
-    [Browsable(false), System.Text.Json.Serialization.JsonIgnore]
+    [Browsable(false), JsonIgnore]
     public bool IsFirstTimeRun { get; private set; }
 
-    [Browsable(false), System.Text.Json.Serialization.JsonIgnore]
+    [Browsable(false), JsonIgnore]
     public bool IsUpgrade { get; private set; }
 
-    [Browsable(false), System.Text.Json.Serialization.JsonIgnore]
+    [Browsable(false), JsonIgnore]
     public string BackupFolder { get; set; }
 
-    [Browsable(false), System.Text.Json.Serialization.JsonIgnore]
+    [Browsable(false), JsonIgnore]
     public bool CreateBackup { get; set; }
 
-    [Browsable(false), System.Text.Json.Serialization.JsonIgnore]
+    [Browsable(false), JsonIgnore]
     public bool CreateWeeklyBackup { get; set; }
 
-    [Browsable(false), System.Text.Json.Serialization.JsonIgnore]
+    [Browsable(false), JsonIgnore]
     public bool SupportDPAPIEncryption { get; set; }
 
     public bool IsUpgradeFrom(string version)
@@ -93,10 +93,10 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
 
     private bool SaveInternal(string filePath)
     {
-        string typeName = GetType().Name;
+        var typeName = GetType().Name;
         DebugHelper.WriteLine($"{typeName} save started: {filePath}");
 
-        bool isSuccess = false;
+        var isSuccess = false;
 
         try
         {
@@ -106,9 +106,9 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
                 {
                     FileHelpers.CreateDirectoryFromFilePath(filePath);
 
-                    string tempFilePath = filePath + ".temp";
+                    var tempFilePath = filePath + ".temp";
 
-                    using (FileStream fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.WriteThrough))
+                    using (var fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.WriteThrough))
                     {
                         SaveToStream(fileStream, SupportDPAPIEncryption);
                     }
@@ -124,7 +124,7 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
 
                         if (CreateBackup)
                         {
-                            string fileName = Path.GetFileName(filePath);
+                            var fileName = Path.GetFileName(filePath);
                             backupFilePath = Path.Combine(BackupFolder, fileName);
                             FileHelpers.CreateDirectory(BackupFolder);
                         }
@@ -153,7 +153,7 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
         }
         finally
         {
-            string status = isSuccess ? "successful" : "failed";
+            var status = isSuccess ? "successful" : "failed";
             DebugHelper.WriteLine($"{typeName} save {status}: {filePath}");
         }
 
@@ -236,21 +236,21 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
 
     public static T Load(string filePath, string backupFolder = null, bool fallbackSupport = true)
     {
-        List<string> fallbackFilePaths = new List<string>();
+        var fallbackFilePaths = new List<string>();
 
         if (fallbackSupport && !string.IsNullOrEmpty(filePath))
         {
-            string tempFilePath = filePath + ".temp";
+            var tempFilePath = filePath + ".temp";
             fallbackFilePaths.Add(tempFilePath);
 
             if (!string.IsNullOrEmpty(backupFolder) && Directory.Exists(backupFolder))
             {
-                string fileName = Path.GetFileName(filePath);
-                string backupFilePath = Path.Combine(backupFolder, fileName);
+                var fileName = Path.GetFileName(filePath);
+                var backupFilePath = Path.Combine(backupFolder, fileName);
                 fallbackFilePaths.Add(backupFilePath);
 
-                string fileNameNoExt = Path.GetFileNameWithoutExtension(fileName);
-                string lastWeeklyBackupFilePath = Directory.GetFiles(backupFolder, fileNameNoExt + "-*").OrderBy(x => x).LastOrDefault();
+                var fileNameNoExt = Path.GetFileNameWithoutExtension(fileName);
+                var lastWeeklyBackupFilePath = Directory.GetFiles(backupFolder, fileNameNoExt + "-*").OrderBy(x => x).LastOrDefault();
                 if (!string.IsNullOrEmpty(lastWeeklyBackupFilePath))
                 {
                     fallbackFilePaths.Add(lastWeeklyBackupFilePath);
@@ -258,22 +258,20 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
             }
         }
 
-        T setting = LoadInternal(filePath, fallbackFilePaths);
+        var setting = LoadInternal(filePath, fallbackFilePaths);
 
-        if (setting != null)
-        {
-            setting.FilePath = filePath;
-            setting.IsFirstTimeRun = string.IsNullOrEmpty(setting.ApplicationVersion);
-            setting.IsUpgrade = !setting.IsFirstTimeRun && Helpers.CompareApplicationVersion(setting.ApplicationVersion) < 0;
-            setting.BackupFolder = backupFolder;
-        }
+        if (setting == null) return setting;
+        setting.FilePath = filePath;
+        setting.IsFirstTimeRun = string.IsNullOrEmpty(setting.ApplicationVersion);
+        setting.IsUpgrade = !setting.IsFirstTimeRun && Helpers.CompareApplicationVersion(setting.ApplicationVersion) < 0;
+        setting.BackupFolder = backupFolder;
 
         return setting;
     }
 
     private static T LoadInternal(string filePath, List<string> fallbackFilePaths = null)
     {
-        string typeName = typeof(T).Name;
+        var typeName = typeof(T).Name;
 
         if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
         {
@@ -282,7 +280,7 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
             try
             {
                 using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-                string rawJson = File.ReadAllText(filePath);
+                var rawJson = File.ReadAllText(filePath);
 
                 // $type: "Namespace.Type, Assembly" → $type: "Type"
                 rawJson = AssemblyTypeRegex().Replace(rawJson, m => $"\"$type\": \"{m.Groups[1].Value}\"");
@@ -318,7 +316,7 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
             DebugHelper.WriteLine($"{typeName} file does not exist: {filePath}");
         }
 
-        if (fallbackFilePaths != null && fallbackFilePaths.Count > 0)
+        if (fallbackFilePaths is { Count: > 0 })
         {
             filePath = fallbackFilePaths[0];
             fallbackFilePaths.RemoveAt(0);
