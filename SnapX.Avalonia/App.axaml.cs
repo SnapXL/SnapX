@@ -24,6 +24,7 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
+using Point = SixLabors.ImageSharp.Point;
 
 namespace SnapX.Avalonia;
 
@@ -223,13 +224,24 @@ public partial class App : Application
     {
         try
         {
-            SnapX?.shutdown();
+            if (SnapX != null)
+            {
+                var shutdownTask = Task.Run(() => SnapX.shutdown());
+
+                if (!shutdownTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    Console.Error.WriteLine("SnapX shutdown timed out after 10 seconds, continuing exit.");
+                }
+            }
         }
         catch (Exception e)
         {
             Console.Error.WriteLine(e);
-            Console.Error.WriteLine($"Error shutting down SnapX.Core, continuing shut down.");
+            Console.Error.WriteLine("Error shutting down SnapX.Core, continuing shut down.");
         }
+        MyMainWindow?.Close();
+        MyMainWindow = null;
+
         Environment.Exit(0);
     }
 
@@ -330,25 +342,92 @@ public partial class App : Application
                         var full = new NativeMenuItem(Lang.UI_Capture_Fullscreen);
                         full.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
                         capture.Menu.Items.Add(full);
-
+                        var windowMenu = new NativeMenu();
                         var windowPicker = new NativeMenuItem(Lang.UI_Dropdown_Window)
                         {
-                            Menu = new NativeMenu
-                            {
-                                new NativeMenuItem("SnapX UI") { Icon = logoBitmap },
-                                new NativeMenuItem("Marvel Rivals") { Icon = logoBitmap },
-                                new NativeMenuItem("Man of Steel (2013)") { Icon = logoBitmap }
-                            }
+                            Menu = windowMenu
                         };
+                        try
+                        {
+                            var windows = Methods.GetWindowList();
+                            foreach (var window in windows)
+                            {
+                                var nativeWindowItem = new NativeMenuItem(window.Title)
+                                {
+                                    Icon = logoBitmap,
+                                    ToolTip = window.ProcessName,
+                                };
+                                nativeWindowItem.Click += (Sender, EA) =>
+                                {
+                                    if (Sender is NativeMenuItem clickNativeWindow)
+                                    {
+                                        var processName = clickNativeWindow.ToolTip;
+                                        if (processName != null)
+                                        {
+                                            var windowRect = Methods.GetWindowRectangle(window.Handle);
+                                            Task.Factory.StartNew(() =>
+                                            {
+                                                var capturedImage = Methods.CaptureWindow(new Point(windowRect.X, windowRect.Y))
+                                                    .ConfigureAwait(false)
+                                                    .GetAwaiter()
+                                                    .GetResult();
+
+                                                UploadManager.RunImageTask(capturedImage, TaskSettings.GetDefaultTaskSettings());
+                                            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                                        }
+                                    }
+                                };
+                                windowMenu.Add(nativeWindowItem);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowErrorDialog(Lang.SnapXFailedToStart, ex);
+                        }
                         capture.Menu.Items.Add(windowPicker);
+                        var screens = SnapXResources.graphicsInfo?.Monitors;
+                        var screenMenu = new NativeMenu();
+                        var monitorPicker = new NativeMenuItem(Lang.UI_Dropdown_Monitor)
+                        {
+                            Menu = screenMenu
+                        };
+                        monitorPicker.Menu.NeedsUpdate += (sender, e) =>
+                        {
+                            PopulateMonitorMenu(screenMenu);
+                        };
+                        void PopulateMonitorMenu(NativeMenu menu)
+                        {
+                            menu.Items.Clear();
 
-                        var monitorPicker = new NativeMenuItem(Lang.UI_Dropdown_Monitor) { Menu = [] };
-                        monitorPicker.Menu.NeedsUpdate += NativeMenu_OnNeedsUpdate;
+                            foreach (var (screen, i) in screens!.Select((s, idx) => (s, idx)))
+                            {
+                                var item = new NativeMenuItem($"{i}: {screen.Name} {screen.Resolution} ({screen.Position})");
+                                item.Click += (s, ev) =>
+                                {
+                                    Task.Factory.StartNew(() =>
+                                    {
+                                        var capturedImage = Methods.CaptureScreen(ParsePosition(screen.Position))
+                                            .ConfigureAwait(false)
+                                            .GetAwaiter()
+                                            .GetResult();
+
+                                        UploadManager.RunImageTask(capturedImage, TaskSettings.GetDefaultTaskSettings());
+                                    }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                                };
+                                menu.Items.Add(item);
+                            }
+                        }
+                        PopulateMonitorMenu(screenMenu);
+
                         capture.Menu.Items.Add(monitorPicker);
-
-                        capture.Menu.Items.Add(new NativeMenuItem("Region"));
-                        capture.Menu.Items.Add(new NativeMenuItem("Region (Light)"));
-                        capture.Menu.Items.Add(new NativeMenuItem("Region (Transparent)"));
+                        var regionCaptureMenuItem = new NativeMenuItem(Lang.UI_Dropdown_Region);
+                        regionCaptureMenuItem.Click += (_, _) =>
+                        {
+                            new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
+                        };
+                        capture.Menu.Items.Add(regionCaptureMenuItem);
+                        // capture.Menu.Items.Add(new NativeMenuItem("Region (Light)"));
+                        // capture.Menu.Items.Add(new NativeMenuItem("Region (Transparent)"));
                         menu.Items.Add(capture);
 
                         menu.Items.Add(new NativeMenuItem("Upload")
@@ -364,7 +443,7 @@ public partial class App : Application
                                 new NativeMenuItem("Tweet message...")
                             }
                         });
-                        var captureFullscreenMenuItem = new NativeMenuItem("Capture entire screen");
+                        var captureFullscreenMenuItem = new NativeMenuItem(Lang.UI_Capture_Fullscreen);
                         captureFullscreenMenuItem.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
                         var captureActiveWindowMenuItem = new NativeMenuItem("Capture active window");
                         captureActiveWindowMenuItem.Click += NativeMenuItem_Workflows_CaptureActiveWindow_OnClick;
@@ -526,7 +605,43 @@ public partial class App : Application
     {
         NativeMenuAboutSnapXClick(Sender, E);
     }
+    public static Point ParsePosition(string position)
+    {
+        if (string.IsNullOrWhiteSpace(position))
+            return new Point(0, 0);
 
+        try
+        {
+            // Expected format: "X: 0, Y: 0"
+            var parts = position.Split(',');
+            int x = 0, y = 0;
+
+            foreach (var part in parts)
+            {
+                var kv = part.Split(':');
+                if (kv.Length != 2) continue;
+
+                var key = kv[0].Trim().ToUpperInvariant();
+                var value = int.Parse(kv[1].Trim());
+
+                switch (key)
+                {
+                    case "X":
+                        x = value;
+                        break;
+                    case "Y":
+                        y = value;
+                        break;
+                }
+            }
+
+            return new Point(x, y);
+        }
+        catch
+        {
+            return new Point(0, 0); // fallback if parsing fails
+        }
+    }
     private async void NativeMenuItem_Capture_Fullscreen_OnClick(object? Sender, EventArgs E)
     {
         await Task.Factory.StartNew(

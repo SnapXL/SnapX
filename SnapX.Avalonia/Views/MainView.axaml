@@ -11,7 +11,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:miscellaneous="clr-namespace:SnapX.Core.Utils.Miscellaneous;assembly=SnapX.Core"
     xmlns:utils="clr-namespace:SnapX.Core.Utils;assembly=SnapX.Core"
     xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -39,11 +38,14 @@
                     <Label Content="Region" Name="RegionCaptureLabel" />
                     <SplitButton.Flyout>
                         <controls:FAMenuFlyout>
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Capture_Fullscreen}" />
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Window}" />
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Monitor}" />
                             <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Region}" />
                             <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_RegionLight}" />
                             <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" />
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Window}" />
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Monitor}" />
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_ScreenRecording}" />
+                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_ScreenRecordingGIF}" />
                             <controls:MenuFlyoutSubItem IconSource="Clock" Text="Delay">
                                 <controls:RadioMenuFlyoutItem
                                     Click="DelayOption_Checked"
