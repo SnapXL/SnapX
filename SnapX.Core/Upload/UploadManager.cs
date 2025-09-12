@@ -89,6 +89,16 @@ public static class UploadManager
         return !string.IsNullOrEmpty(dir) && Directory.Exists(dir);
     }
 
+    public static void UploadFolder(string? folderPath, TaskSettings? taskSettings = null)
+    {
+        if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+            return;
+
+        foreach (var file in Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories))
+        {
+            UploadFile(file, taskSettings);
+        }
+    }
     public static void UploadFolder(TaskSettings taskSettings = null)
     {
         // using (FolderSelectDialog folderDialog = new FolderSelectDialog())

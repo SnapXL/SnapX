@@ -1,10 +1,14 @@
 using AsyncImageLoader.Loaders;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
+using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.Models;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
+using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Miscellaneous;
 
@@ -19,7 +23,93 @@ public partial class HomePageView : UserControl
         DataContext = vm;
         ViewModel = vm;
         InitializeComponent();
+        AddHandler(DragDrop.DragOverEvent, DragOver);
+        AddHandler(DragDrop.DragEnterEvent, DragEnter);
+        AddHandler(DragDrop.DropEvent, Drop);
         AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader(HttpClientFactory.Get(), false, Path.Combine(Core.SnapX.CacheFolder, "Images"));
+    }
+
+    private void SetupAllDraggables(TopLevel topLevel)
+    {
+        foreach (var element in topLevel.GetVisualDescendants().OfType<Control>())
+        {
+            if (element.Classes.Contains("draggable"))
+            {
+                SetupDnd(element, d =>
+                    {
+                        if (element.DataContext is ListTaskTemplate task && !string.IsNullOrEmpty(task.task.FilePath))
+                        {
+                            d.Set(DataFormats.Files, new[] { task.task.FilePath });
+                        }
+                        else
+                        {
+                            DebugHelper.WriteLine($"Element that has draggable class doesn't have a DataContext of ListTaskTemplate");
+                        }
+                    },
+                    DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link);
+            }
+        }
+    }
+    private void SetupDnd(IInputElement draggable, Action<DataObject> factory, DragDropEffects effects)
+    {
+        draggable.PointerPressed += (_, e) => DoDrag(factory, e, effects);
+    }
+    private async void DoDrag(Action<DataObject> factory, PointerEventArgs e, DragDropEffects effects)
+    {
+        var dragData = new DataObject();
+        factory(dragData);
+
+        var result = await DragDrop.DoDragDrop(e, dragData, effects);
+    }
+
+    private void DragEnter(object? Sender, DragEventArgs e)
+    {
+        // DebugHelper.WriteLine("DragEnter Event");
+        // DebugHelper.WriteLine($"Sender: {Sender} | EventArgs: {e.GetPosition(this)}");
+    }
+
+    private void DragOver(object? Sender, DragEventArgs e)
+    {
+        // DebugHelper.WriteLine("DragOver Event");
+        // DebugHelper.WriteLine($"Sender: {Sender} | EventArgs: {e.GetPosition(this)}");
+    }
+
+    private void Drop(object? Sender, DragEventArgs e)
+    {
+        DebugHelper.WriteLine("Drop Event");
+        DebugHelper.WriteLine($"Sender: {Sender} | EventArgs: {e.GetPosition(this)}");
+        if (e.Source is Control)
+        {
+            e.DragEffects &= DragDropEffects.Move;
+        }
+        else
+        {
+            e.DragEffects &= DragDropEffects.Copy;
+        }
+        if (e.Data.Contains(DataFormats.Text))
+        {
+            UploadManager.UploadText(e.Data.GetText());
+        }
+        else if (e.Data.Contains(DataFormats.Files))
+        {
+            var files = e.Data.GetFiles() ?? Array.Empty<IStorageItem>();
+
+            foreach (var item in files)
+            {
+                switch (item)
+                {
+                    case IStorageFile file:
+                        UploadManager.UploadFile(file.Path.AbsolutePath);
+                        break;
+                    case IStorageFolder folder:
+                        UploadManager.UploadFolder(folder.Path.AbsolutePath);
+                        break;
+                }
+            }
+
+        }
+
+        DebugHelper.WriteLine($"{string.Join(", ", e.Data.GetDataFormats())}");
     }
     public HomePageView() : this(new HomePageViewModel())
     {
@@ -33,6 +123,7 @@ public partial class HomePageView : UserControl
     private void Control_OnLoaded(object? Sender, RoutedEventArgs E)
     {
         Task.Run(() => ViewModel.Initialize()).ConfigureAwait(false);
+        // SetupAllDraggables(TopLevel.GetTopLevel(this)!);
     }
 
     private void DeleteLocallyButton_OnClick(object? Sender, RoutedEventArgs E)

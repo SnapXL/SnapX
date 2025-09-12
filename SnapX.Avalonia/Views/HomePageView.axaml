@@ -21,9 +21,12 @@
     <Design.DataContext>
         <viewModels1:HomePageViewModel />
     </Design.DataContext>
-    <ScrollViewer>
-        <Grid>
-            <controls:ItemsRepeater IsVisible="{Binding recentTasks.Count, Converter={StaticResource CountToBoolean}}" ItemsSource="{Binding recentTasks}">
+    <ScrollViewer DragDrop.AllowDrop="True">
+        <Grid DragDrop.AllowDrop="True">
+            <controls:ItemsRepeater
+                DragDrop.AllowDrop="True"
+                IsVisible="{Binding recentTasks.Count, Converter={StaticResource CountToBoolean}}"
+                ItemsSource="{Binding recentTasks}">
                 <controls:ItemsRepeater.Layout>
                     <controls:UniformGridLayout
                         ItemsJustification="Start"
@@ -35,9 +38,12 @@
                     <DataTemplate DataType="models:ListTaskTemplate">
 
                         <ToggleButton
+                            Classes="draggable"
                             ClickMode="Press"
+                            DragDrop.AllowDrop="True"
                             Height="200"
                             Margin="5"
+                            Name="{Binding task.TrayMenuText}"
                             UseLayoutRounding="True"
                             Width="205">
                             <ToolTip.Tip>
