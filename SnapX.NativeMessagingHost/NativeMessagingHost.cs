@@ -1,4 +1,6 @@
-﻿namespace SnapX.NativeMessagingHost;
+﻿using System.Text;
+
+namespace SnapX.NativeMessagingHost;
 
 public class NativeMessagingHost
 {
