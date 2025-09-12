@@ -1,10 +1,5 @@
+﻿namespace SnapX.NativeMessagingHost;
 
-// SPDX-License-Identifier: GPL-3.0-or-later
-
-
-using System.Text;
-
-namespace SnapX.Core.CLI;
 public class NativeMessagingHost
 {
     public string Read()
@@ -44,4 +39,5 @@ public class NativeMessagingHost
         outputStream.Flush();
     }
 }
+
 

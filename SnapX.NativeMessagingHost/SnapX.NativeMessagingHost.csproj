@@ -12,8 +12,4 @@
     <SelfContained>true</SelfContained>
     <PublishAot>true</PublishAot>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SnapX.Core\SnapX.Core.csproj" PrivateAssets="All" Exclude="Microsoft.EntityFrameworkCore.Sqlite" />
-  </ItemGroup>
 </Project>
