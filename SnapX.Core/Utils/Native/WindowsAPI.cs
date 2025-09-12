@@ -63,7 +63,7 @@ public class WindowsAPI : NativeAPI
         var activeWindow = PInvoke.GetForegroundWindow();
         return hwnd == activeWindow;
     }
-    // [UnmanagedCallersOnly]
+    [UnmanagedCallersOnly(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvStdcall)])]
     private static BOOL EnumWindowsCallback(HWND hwnd, LPARAM lParam)
     {
         // We are only interested in top-level windows that are visible
@@ -102,12 +102,7 @@ public class WindowsAPI : NativeAPI
         windowList.Clear();
         unsafe
         {
-            var callback = EnumWindowsCallback;
-            // Convert delegate to a function pointer
-            var functionPointer =
-                (delegate* unmanaged[Stdcall]<HWND, LPARAM, BOOL>)Marshal.GetFunctionPointerForDelegate(callback);
-
-            PInvoke.EnumWindows(functionPointer, IntPtr.Zero);
+            PInvoke.EnumWindows(&EnumWindowsCallback, IntPtr.Zero);
         }
         return windowList;
     }
