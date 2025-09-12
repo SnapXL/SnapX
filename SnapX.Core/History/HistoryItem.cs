@@ -66,10 +66,19 @@ public class HistoryItem
             return $"[{DateTime:HH:mm:ss}] {text}";
         }
     }
-    public string? BestImageSource =>
-        !string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath)
-            ? FilePath
-            : URL ?? ThumbnailURL;
+    public string? BestImageSource
+    {
+        get
+        {
+            if (!string.Equals(Type, "image", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(Type, "video", StringComparison.OrdinalIgnoreCase)) return ThumbnailURL;
+            if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
+                return FilePath;
+
+            return URL ?? ThumbnailURL;
+        }
+    }
+
 
     public override bool Equals(object? obj)
     {
