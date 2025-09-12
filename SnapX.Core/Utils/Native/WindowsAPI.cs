@@ -75,7 +75,22 @@ public class WindowsAPI : NativeAPI
         var length = PInvoke.GetWindowText(hwnd, buffer);
 
         var windowTitle = new string(buffer, 0, length);
+        uint processId = 0;
+        unsafe
+        {
+            PInvoke.GetWindowThreadProcessId(hwnd, &processId);
+        }
 
+        string? processName = null;
+        try
+        {
+            var process = Process.GetProcessById((int)processId);
+            processName = process.ProcessName;
+        }
+        catch
+        {
+            processName = null;
+        }
         // If the window has a non-empty title, add it to the list
         if (windowTitle.Length <= 0) return true;
         var windowRECT = GetWindowRect(hwnd);
@@ -85,6 +100,7 @@ public class WindowsAPI : NativeAPI
             Title = windowTitle.ToString(),
             Rectangle = windowRECT,
             IsVisible = PInvoke.IsWindowVisible(hwnd),
+            ProcessName = processName,
             IsMinimized = IsWindowMinimized(hwnd),
             IsActive = IsWindowActive(hwnd)
         };
@@ -205,7 +221,15 @@ public class WindowsAPI : NativeAPI
 
         return GetWindowRect(handle);
     }
+    public override Rectangle GetWindowRectangle(IntPtr hwnd)
+    {
+        if (hwnd == IntPtr.Zero)
+        {
+            throw new InvalidOperationException("Invalid window handle.");
+        }
 
+        return GetWindowRect(hwnd);
+    }
     public static Rectangle GetWindowRect(IntPtr hwnd)
     {
         if (hwnd == IntPtr.Zero)
