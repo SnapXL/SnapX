@@ -275,7 +275,7 @@ public class WindowsCapture : BaseCapture
         session.IsCursorCaptureEnabled = true;
         session.StartCapture();
         DebugHelper.WriteLine("Waiting for frame...");
-        using var result = await asyncFrame.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        using var result = await asyncFrame.Task.WaitAsync(TimeSpan.FromSeconds(10));
         if (result == null)
         {
             DebugHelper.WriteLine($"The frame from framePool ({framePool}) was null for {captureItem} :(");
