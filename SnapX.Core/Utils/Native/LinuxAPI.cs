@@ -174,6 +174,7 @@ public partial class LinuxAPI : NativeAPI
                 XCloseDisplay(display);
                 return windows;
             }
+
             DebugHelper.Logger?.Debug("XQueryTree returned: " + status);
             DebugHelper.Logger?.Debug("nchildren: " + nchildren);
 
@@ -184,14 +185,25 @@ public partial class LinuxAPI : NativeAPI
 
                 var title = GetWindowTitle(display, window);
                 DebugHelper.Logger?.Debug("Window title: {Title}", title);
-                if (title == string.Empty || title == "Untitled")
+                // if (title == string.Empty || title == "Untitled")
+                // {
+                //     DebugHelper.Logger?.Debug("Window is untitled, skipping");
+                //     continue;
+                // }
+
+                XGetWindowAttributes(display, window, out var attributes);
+                if (attributes.map_state != MapState.IsViewable)
                 {
-                    DebugHelper.Logger?.Debug("Window is untitled, skipping");
+                    DebugHelper.Logger?.Debug("Window is not viewable, skipping: " + title);
                     continue;
                 }
 
-                XGetWindowAttributes(display, window, out var attributes);
-                var isVisible = attributes.is_colormap_installed;
+                if (attributes.width <= 1 || attributes.height <= 1)
+                {
+                    DebugHelper.Logger?.Debug("Window too small, skipping: " + title);
+                    continue;
+                }
+
                 // Active window
                 XGetInputFocus(display, out var focusWindow, out _);
                 var isActive = focusWindow == window;
@@ -201,7 +213,7 @@ public partial class LinuxAPI : NativeAPI
                     {
                         Handle = window,
                         Title = title,
-                        IsVisible = isVisible,
+                        IsVisible = true,
                         Rectangle = rect,
                         // IsMinimized = IsWindowMinimized(display, window),
                         IsActive = isActive,
@@ -282,19 +294,21 @@ public partial class LinuxAPI : NativeAPI
     );
 
     [LibraryImport(LibX11)]
-    internal static partial IntPtr XGetWindowProperty(
+    internal static partial int XGetWindowProperty(
         IntPtr display,
         IntPtr window,
         IntPtr property,
-        long offset,
-        long length,
+        IntPtr long_offset,
+        IntPtr long_length,
         [MarshalAs(UnmanagedType.Bool)] bool delete,
-        IntPtr type,
-        out IntPtr prop_return,
-        out uint nitems,
-        out uint bytes_after,
-        out int format
+        IntPtr req_type,
+        out IntPtr actual_type_return,
+        out int actual_format_return,
+        out IntPtr nitems_return,
+        out IntPtr bytes_after_return,
+        out IntPtr prop_return
     );
+
 
     [LibraryImport(LibX11)]
     internal static partial IntPtr XGetWMName(IntPtr display, IntPtr window, out IntPtr name);
@@ -464,15 +478,14 @@ public partial class LinuxAPI : NativeAPI
     }
     internal Image? TakeScreenshotOfX11Window(WindowInfo window)
     {
-        DebugHelper.WriteLine($"Screenshotting window '{window.Title}' with bounds {window.Rectangle}");
+        DebugHelper.WriteLine($"Screenshotting window '{window.Title}' ({window.Handle:X}) with bounds {window.Rectangle}");
 
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
             throw new Exception("Unable to open X display.");
 
-        // Get window attributes
-        XGetWindowAttributes(display, window.Handle, out var attributes);
-
+        var gotWindowAttributes = XGetWindowAttributes(display, window.Handle, out var attributes);
+        if (gotWindowAttributes == 0) throw new Exception("Unable to get window attributes.");
         int width = attributes.width;
         int height = attributes.height;
 
@@ -598,35 +611,66 @@ public partial class LinuxAPI : NativeAPI
         public IntPtr value;
         public IntPtr encoding;
         public int format;
-        public ulong nitems;
+        public IntPtr nitems;
     }
 
     [LibraryImport(LibX11)]
     internal static partial int XGetTextProperty(IntPtr display, IntPtr window, out XTextProperty textProp, IntPtr property);
 
-    private static string GetWindowTitle(IntPtr display, IntPtr window)
+    string GetWindowTitle(IntPtr display, IntPtr window)
     {
-        var netWmNameAtom = XInternAtom(display, "_NET_WM_NAME", false);
-        XTextProperty textProp;
+        var netWmName = XInternAtom(display, "_NET_WM_NAME", false);
+        var utf8String = XInternAtom(display, "UTF8_STRING", false);
 
-        if (XGetTextProperty(display, window, out textProp, netWmNameAtom) != 0 && textProp.value != IntPtr.Zero)
+        IntPtr actualType, prop;
+        int actualFormat;
+        IntPtr nItems, bytesAfter;
+
+        int status = XGetWindowProperty(
+            display,
+            window,
+            netWmName,
+            IntPtr.Zero,
+            new IntPtr(1024),
+            false,
+            utf8String,
+            out actualType,
+            out actualFormat,
+            out nItems,
+            out bytesAfter,
+            out prop
+        );
+
+        if (status == 0 && prop != IntPtr.Zero)
         {
-            var title = Marshal.PtrToStringAnsi(textProp.value);
-            XFree(textProp.value);
-            return title ?? "Untitled";
+            try
+            {
+                return Marshal.PtrToStringUTF8(prop) ?? "Untitled";
+            }
+            finally
+            {
+                XFree(prop);
+            }
         }
 
-        // Fallback to XA_WM_NAME
+        // fallback: WM_NAME
+        XTextProperty textProp;
         if (XGetTextProperty(display, window, out textProp, XA_WM_NAME) != 0 && textProp.value != IntPtr.Zero)
         {
-            var title = Marshal.PtrToStringAnsi(textProp.value);
-            XFree(textProp.value);
-            return title ?? "Untitled";
+            try
+            {
+                return Marshal.PtrToStringAnsi(textProp.value) ?? "Untitled";
+            }
+            finally
+            {
+                XFree(textProp.value);
+            }
         }
 
         return "Untitled";
-
     }
+
+
 
 
     [LibraryImport(LibX11)]
@@ -971,26 +1015,53 @@ public partial class LinuxAPI : NativeAPI
         out XWindowAttributes attributes
     );
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XWindowAttributes
+    internal enum MapState
     {
-        public int x,
-            y;
-        public int width,
-            height;
-        public int border_width,
-            depth;
-        public IntPtr visual;
-        public IntPtr root;
-        public uint class_type;
-        public int colormap;
-        public IntPtr visualid;
-        public bool is_colormap_installed;
-        public bool is_border_pixmap_installed;
-        public bool is_bounding_shape_installed;
-        public bool is_shape_installed;
+        IsUnmapped = 0,
+        IsUnviewable = 1,
+        IsViewable = 2
     }
-
+    internal enum Gravity
+    {
+        ForgetGravity = 0,
+        NorthWestGravity = 1,
+        NorthGravity = 2,
+        NorthEastGravity = 3,
+        WestGravity = 4,
+        CenterGravity = 5,
+        EastGravity = 6,
+        SouthWestGravity = 7,
+        SouthGravity = 8,
+        SouthEastGravity = 9,
+        StaticGravity = 10
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct XWindowAttributes
+    {
+        internal int x;
+        internal int y;
+        internal int width;
+        internal int height;
+        internal int border_width;
+        internal int depth;
+        internal IntPtr visual;
+        internal IntPtr root;
+        internal int c_class;
+        internal Gravity bit_gravity;
+        internal Gravity win_gravity;
+        internal int backing_store;
+        internal IntPtr backing_planes;
+        internal IntPtr backing_pixel;
+        internal int save_under;
+        internal IntPtr colormap;
+        internal int map_installed;
+        internal MapState map_state;
+        internal IntPtr all_event_masks;
+        internal IntPtr your_event_mask;
+        internal IntPtr do_not_propagate_mask;
+        internal int override_direct;
+        internal IntPtr screen;
+    }
     [StructLayout(LayoutKind.Sequential)]
 #pragma warning disable CA1815 // Override equals and operator equals on value types
     internal unsafe struct XImage

@@ -165,7 +165,7 @@ public class LinuxCapture : BaseCapture
     }
     public override Task<Image?> CaptureWindow(Point pos)
     {
-        var windows = Methods.NativeAPI.GetWindowList();
+        var windows = Methods.GetWindowList();
 
         return (from window in windows.AsEnumerable().Reverse() let rect = window.Rectangle where rect.Contains(pos) select CaptureWindow(window)).FirstOrDefault() ?? Task.FromResult<Image?>(null);
     }
