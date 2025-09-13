@@ -60,7 +60,6 @@ public partial class MainView : UserControl
             },
             [Lang.UI_Dropdown_Region] = async () =>
             {
-                await Task.Delay(5000);
                 new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
             },
             [Lang.UI_Dropdown_RegionLight] = async () =>
