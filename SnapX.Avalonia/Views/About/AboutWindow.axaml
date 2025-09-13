@@ -132,10 +132,9 @@
                                 </StackPanel>
                             </Button>
                             <Button
-                                Click="DynamicURL_OnPointerPressed"
+                                Click="DonateButton_Click"
                                 ClickMode="Press"
-                                Cursor="Hand"
-                                ToolTip.Tip="{Binding Donate}">
+                                Cursor="Hand">
                                 <StackPanel Orientation="Horizontal" Spacing="5">
                                     <avalonia:FluentIcon
                                         Icon="MoneyHand"

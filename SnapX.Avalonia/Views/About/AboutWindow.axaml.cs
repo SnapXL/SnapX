@@ -6,9 +6,11 @@ using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Styling;
 using FluentAvalonia.Styling;
+using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Media;
 using FluentAvalonia.UI.Windowing;
 using SnapX.Avalonia.ViewModels;
+using SnapX.Avalonia.Views.Controls;
 using SnapX.Core;
 using SnapX.Core.Utils;
 
@@ -121,5 +123,23 @@ public partial class AboutWindow : AppWindow
     private async void AboutWindow_OnInitialized(object? Sender, EventArgs E)
     {
         await ViewModel.InitDataCommand.ExecuteAsync(this);
+    }
+
+    private void DonateButton_Click(object? Sender, RoutedEventArgs E)
+    {
+        var donationMenu = new Donation();
+        var dialog = new ContentDialog
+        {
+            Title = Lang.KeepSnapXOpenAndFree,
+            Content = donationMenu,
+            IsPrimaryButtonEnabled = true,
+            PrimaryButtonText = Lang.CountMeIn,
+            IsSecondaryButtonEnabled = true,
+            SecondaryButtonText = Lang.MaybeLater,
+            DefaultButton = ContentDialogButton.Primary,
+            PrimaryButtonCommand = donationMenu.PrimaryClickCommand,
+            FullSizeDesired = true
+        };
+        dialog.ShowAsync(this);
     }
 }

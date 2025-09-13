@@ -6,7 +6,7 @@ using FluentAvalonia.UI.Controls;
 using SnapX.Core;
 using SnapX.Core.Utils;
 
-namespace SnapX.Avalonia.Views;
+namespace SnapX.Avalonia.Views.Controls;
 
 
 public partial class Donation : UserControl

@@ -5,6 +5,7 @@ using Avalonia.LogicalTree;
 using CommunityToolkit.Mvvm.Input;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.ViewModels;
+using SnapX.Avalonia.Views.Controls;
 using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
