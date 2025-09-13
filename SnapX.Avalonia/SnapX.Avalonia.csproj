@@ -11,11 +11,14 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AvaloniaVersion>11.3.4</AvaloniaVersion>
+    <AvaloniaVersion>11.3.6</AvaloniaVersion>
     <SkiaSharpVersion>3.119.0</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called snapx-ui. Instead create a executable shell script that calls snapx-ui -->
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetWindows)' == 'true'">
+    <AvaloniaVersion>11.3.4</AvaloniaVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetDesktop)' == 'true'">
     <PublishSingleFile>true</PublishSingleFile>
