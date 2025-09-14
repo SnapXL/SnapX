@@ -73,7 +73,6 @@ public partial class App : Application
 
     private void ShowErrorDialog(string? title, Exception ex)
     {
-        // Create the dialog content with a button
         var stackPanel = new StackPanel
         {
             Orientation = Orientation.Vertical,
@@ -139,7 +138,7 @@ public partial class App : Application
             FontWeight = FontWeight.Bold,
             CornerRadius = new CornerRadius(5)
         };
-        reportButton.Click += (sender, e) => OnReportErrorClicked();
+        reportButton.Click += (sender, e) => OnReportErrorClicked(reportButton, ex);
 
         var githubButton = new Button
         {
@@ -173,8 +172,7 @@ public partial class App : Application
             CornerRadius = new CornerRadius(5)
         };
 
-        // Copy error to clipboard when clicked
-        copyButton.Click += (sender, e) => CopyErrorToClipboard(ex.ToString());
+        copyButton.Click += (sender, e) => CopyErrorToClipboard(copyButton, ex.ToString());
 
 
         buttonPanel.Children.Add(reportButton);
@@ -208,18 +206,61 @@ public partial class App : Application
         URLHelpers.OpenURL(newIssueURL);
     }
 
-    private void CopyErrorToClipboard(string? errorMessage)
+    private void CopyErrorToClipboard(Control Sender, string? errorMessage)
     {
-        Clipboard.CopyText(errorMessage);
+        var topLevel = TopLevel.GetTopLevel(Sender);
+        if (topLevel is null)
+        {
+            DebugHelper.WriteLine("TopLevel is null");
+            return;
+        }
+        topLevel.Clipboard?.SetTextAsync(errorMessage);
     }
 
-    private void OnReportErrorClicked()
+    private async void OnReportErrorClicked(Button button, Exception ex)
     {
-        // For now, do nothing when the button is clicked
-        // This is where Sentry comes in
-        Console.WriteLine("Report Error button clicked. No action yet. If you have telemetry enabled, (it is by default) it will have already been sent to Sentry.");
-    }
+        var originalButtonContent = CreateContentCopy(button.Content!);
 
+        try
+        {
+            if (!FeatureFlags.DisableTelemetry && Core.SnapX.TelemetryHandler is null)
+            {
+                Core.SnapX.InitTelemetryServices();
+                SentrySdk.CaptureException(ex);
+
+                DebugHelper.WriteLine("Error reported to Sentry successfully.");
+            }
+            else
+            {
+                DebugHelper.WriteLine("Error has likely already been sent to Sentry as telemetry is not disabled! :heart:");
+            }
+
+            button.Content = "✓ Reported";
+            button.IsEnabled = false;
+
+            await Task.Delay(TimeSpan.FromSeconds(3));
+        }
+        catch (Exception taskEx)
+        {
+            DebugHelper.WriteLine($"Error during exception reporting: {taskEx.Message}");
+        }
+        finally
+        {
+            button.Content = originalButtonContent;
+        }
+    }
+    private object CreateContentCopy(object content)
+    {
+        if (content == null)
+            return null;
+
+        return content switch
+        {
+            string str => string.Copy(str),
+            ICloneable cloneable => cloneable.Clone(),
+            _ => content // For other types, we have to hope they're immutable
+        };
+    }
     private void Shutdown()
     {
         try
