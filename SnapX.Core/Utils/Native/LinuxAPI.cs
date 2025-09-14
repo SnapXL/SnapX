@@ -521,7 +521,7 @@ public partial class LinuxAPI : NativeAPI
         for (var y = 0; y < height; y++)
         {
             if (y % 100 == 0)
-                DebugHelper.Logger?.Debug($"Processing row {y}/{height}");
+                DebugHelper.Logger?.Debug("Processing row {Y}/{Height}", y, height);
 
             for (var x = 0; x < width; x++)
             {
@@ -540,7 +540,7 @@ public partial class LinuxAPI : NativeAPI
                 if ((x == 0 && y == 0) || (x == width / 2 && y == height / 2))
                 {
                     DebugHelper.Logger?.Debug(
-                        "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {BPP}",
+                        "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {Bpp}",
                         x, y,
                         BitConverter.ToString(rawPixelBytes),
                         pixel,
