@@ -8,22 +8,25 @@ body:
         Thanks for taking the time to fill out this bug report!
     validations:
       required: false
+
   - type: checkboxes
     attributes:
       label: Is there an existing issue for this?
       description: Please search to see if an issue already exists for the bug you encountered.
       options:
-      - label: I have searched the existing issues
+      - label: I have searched the existing issues.
         required: true
+
   - type: textarea
     id: what-happened
     attributes:
       label: What happened?
       description: Tell us what happened.
       placeholder: Tell us what you see!
-      value: "A bug happened!"
+      value: "SnapX fails to start with the error..."
     validations:
       required: true
+
   - type: textarea
     id: expectation
     attributes:
@@ -32,6 +35,7 @@ body:
       placeholder: I expected ...
     validations:
       required: true
+
   - type: dropdown
     id: version
     attributes:
@@ -46,12 +50,23 @@ body:
       default: 4
     validations:
       required: true
+
   - type: textarea
     id: logs
     attributes:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
+
+  - type: checkboxes
+    id: log-check
+    attributes:
+      label: Logs do not have PII
+      description: Since SnapX is in development, logs may contain sensitive information such as API keys, file paths, or other personally identifiable information (PII). It is your responsibility to review and strip any PII before sharing log content.
+      options:
+        - label: There is no personally identifiable information in my logs.
+          required: true
+
   - type: checkboxes
     id: terms
     attributes:
