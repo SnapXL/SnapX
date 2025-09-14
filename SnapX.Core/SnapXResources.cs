@@ -29,6 +29,19 @@ public static class SnapXResources
         new(() => $"{SnapX.AppName}/{Helpers.GetApplicationVersion()} (+{Links.GitHub})");
 
     public static string UserAgent => _userAgent.Value;
+    public static (long, long) MemoryInfo => OsInfo.GetMemoryInfo();
+    private static readonly Lazy<string> _sessionType =
+        new(() => Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") ?? "Unknown");
+
+    private static readonly Lazy<string> _desktopEnvironment =
+        new(() => Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? "Unknown");
+
+    private static readonly Lazy<string?> _kdePlasmaMajorVersion =
+        new(() => Environment.GetEnvironmentVariable("KDE_SESSION_VERSION"));
+
+    public static string SessionType => _sessionType.Value;
+    public static string DesktopEnvironment => _desktopEnvironment.Value;
+    public static string? KdePlasmaMajorVersion => _kdePlasmaMajorVersion.Value;
 }
 
 
