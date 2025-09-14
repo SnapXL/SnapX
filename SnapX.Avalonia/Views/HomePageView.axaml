@@ -47,7 +47,7 @@
                             UseLayoutRounding="True"
                             Width="205">
                             <ToolTip.Tip>
-                                <WrapPanel>
+                                <WrapPanel IsVisible="{Binding task.BestImageSource, Converter={StaticResource StringValid}}">
                                     <TextBlock
                                         IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FilePathValidConverter}}"
                                         Margin="5"
