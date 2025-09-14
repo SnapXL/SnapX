@@ -161,9 +161,9 @@ internal static class SettingManager
         Settings.CreateBackup = true;
         Settings.CreateWeeklyBackup = true;
         Settings.SettingsSaveFailed += Settings_SettingsSaveFailed;
-        ApplicationConfigBackwardCompatibilityTasks();
         SnapX.Configuration.Bind(Settings, Options => Options.BindNonPublicProperties = true);
         DefaultTaskSettings = Settings.DefaultTaskSettings;
+        ApplicationConfigBackwardCompatibilityTasks();
 
         if (string.IsNullOrWhiteSpace(Settings.SQLitePath))
             Settings.SQLitePath = Path.Combine(SnapX.DefaultPersonalFolder, "SnapX.db");
