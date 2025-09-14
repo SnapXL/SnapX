@@ -23,7 +23,7 @@ body:
       label: What happened?
       description: Tell us what happened.
       placeholder: Tell us what you see!
-      value: "SnapX fails to start with the error..."
+      value: "A bug happened!"
     validations:
       required: true
 
