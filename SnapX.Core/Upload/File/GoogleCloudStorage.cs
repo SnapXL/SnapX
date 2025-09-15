@@ -49,6 +49,11 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
     public bool RemoveExtensionVideo { get; set; }
     public bool SetPublicACL { get; set; }
 
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        TypeInfoResolver = GoogleContext.Default
+    };
+
     public GoogleCloudStorage(OAuth2Info oauth)
     {
         OAuth2 = new GoogleOAuth2(oauth, this)
@@ -107,7 +112,7 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
             ];
         }
 
-        var serializedGoogleCloudStorageMetadata = JsonSerializer.Serialize(googleCloudStorageMetadata);
+        var serializedGoogleCloudStorageMetadata = JsonSerializer.Serialize(googleCloudStorageMetadata, SerializerOptions);
 
         var result = SendRequestFile(
             "https://www.googleapis.com/upload/storage/v1/b/{Bucket}/o?uploadType=multipart&fields=name",
@@ -119,7 +124,7 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
             relatedData: serializedGoogleCloudStorageMetadata
         );
 
-        var googleCloudStorageResponse = JsonSerializer.Deserialize<GoogleCloudStorageResponse>(result.Response);
+        var googleCloudStorageResponse = JsonSerializer.Deserialize<GoogleCloudStorageResponse>(result.Response, SerializerOptions);
 
         result.URL = GenerateURL(googleCloudStorageResponse.name);
 
@@ -166,18 +171,18 @@ public sealed class GoogleCloudStorage : FileUploader, IOAuth2
         return GenerateURL(uploadPath);
     }
 
-    private class GoogleCloudStorageResponse
+    public class GoogleCloudStorageResponse
     {
         public string? name { get; set; }
     }
 
-    private class GoogleCloudStorageMetadata
+    public class GoogleCloudStorageMetadata
     {
         public string? name { get; set; }
         public GoogleCloudStorageAcl[] acl { get; set; }
     }
 
-    private class GoogleCloudStorageAcl
+    public class GoogleCloudStorageAcl
     {
         public string entity { get; set; }
         public string role { get; set; }
