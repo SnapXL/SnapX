@@ -38,6 +38,7 @@ public class GitHubGistTextUploaderService : TextUploaderService
 }
 [JsonSerializable(typeof(OAuth2Token))]
 [JsonSerializable(typeof(GitHubGist.GistResponse))]
+[JsonSerializable(typeof(GitHubGist.GistUpload))]
 internal partial class GitHubContext : JsonSerializerContext;
 public sealed class GitHubGist : TextUploader, IOAuth2Basic
 {
@@ -48,7 +49,10 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
     public bool PublicUpload { get; set; }
     public bool RawURL { get; set; }
     public string? CustomURLAPI { get; set; }
-
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        TypeInfoResolver = GitHubContext.Default
+    };
     public GitHubGist(OAuth2Info oAuthInfos)
     {
         AuthInfo = oAuthInfos;
@@ -84,11 +88,7 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
 
         var response = SendRequestMultiPart("https://github.com/login/oauth/access_token", args, headers);
         if (string.IsNullOrEmpty(response)) return false;
-        var options = new JsonSerializerOptions
-        {
-            TypeInfoResolver = GitHubContext.Default
-        };
-        var token = JsonSerializer.Deserialize<OAuth2Token>(response, options);
+        var token = JsonSerializer.Deserialize<OAuth2Token>(response, SerializerOptions);
         if (string.IsNullOrEmpty(token?.access_token)) return false;
 
         AuthInfo.Token = token;
@@ -115,7 +115,7 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
             }
         };
 
-        var json = JsonSerializer.Serialize(gistUpload);
+        var json = JsonSerializer.Serialize(gistUpload, SerializerOptions);
 
         var headers = new NameValueCollection
         {
@@ -124,7 +124,7 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
 
         var response = SendRequest(HttpMethod.Post, url, json, RequestHelpers.ContentTypeJSON, null, headers);
 
-        var gistResponse = JsonSerializer.Deserialize<GistResponse>(response);
+        var gistResponse = JsonSerializer.Deserialize<GistResponse>(response, SerializerOptions);
 
         if (gistResponse != null)
         {
@@ -134,14 +134,14 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
         return ur;
     }
 
-    private class GistUpload
+    public class GistUpload
     {
         public string description { get; set; }
         public bool @public { get; set; }
         public Dictionary<string?, GistUploadFileInfo> files { get; set; }
     }
 
-    private class GistUploadFileInfo
+    public class GistUploadFileInfo
     {
         public string? content { get; set; }
     }
