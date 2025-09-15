@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.File;
-using SnapX.Core.Upload.Text;
 using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.OAuth;
