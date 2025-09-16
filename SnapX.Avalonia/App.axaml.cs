@@ -256,7 +256,7 @@ public partial class App : Application
 
         return content switch
         {
-            string str => string.Copy(str),
+            string str => new string(str.ToCharArray()),
             ICloneable cloneable => cloneable.Clone(),
             _ => content // For other types, we have to hope they're immutable
         };
