@@ -224,7 +224,6 @@ public static class Extensions
     public static void ShowError(this Exception e, bool fullError = true)
     {
         var error = fullError ? e.ToString() : e.Message;
-        // TODO: Remove all calls of this function. It shows that they're still handling UI concerns.
         DebugHelper.WriteException(error);
     }
 

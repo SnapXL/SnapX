@@ -443,7 +443,7 @@ public static class TaskHelpers
             switch (taskSettings.ImageSettings.FileExistAction)
             {
                 case FileExistAction.Ask:
-                    throw new NotImplementedException("FileExistAction.Ask not implemented");
+                    new NotImplementedException("FileExistAction.Ask not implemented").ShowError();
                     break;
                 case FileExistAction.UniqueName:
                     filePath = FileHelpers.GetUniqueFilePath(filePath);
