@@ -89,7 +89,6 @@ public static class TaskManager
 
     private static void Task_ImageReady(WorkerTask task, Image image)
     {
-        DebugHelper.Logger?.Debug("Task image for {imageName} is ready", task.Info.FilePath);
     }
 
     private static void Task_UploadStarted(WorkerTask task)
