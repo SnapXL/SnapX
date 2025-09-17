@@ -1,5 +1,8 @@
 title: SnapX
-name: snapx-ui
+# Snapcraft forced me to change the name of the package because they believe they own the word snap.
+# More specifically, when a package starts with those four letters.
+# I surely hope this package rename won't confuse users.
+name: ui-snapx
 summary: Screenshot tool that handles images, text, and video (fork of ShareX)
 description: |
   SnapX is a free, open-source, cross-platform tool that lets you capture or record any area of your screen and instantly share it with a single keypress.
@@ -12,7 +15,7 @@ description: |
 version: '0.4.0'
 license: GPL-3.0-or-later
 source-code: "https://github.com/SnapXL/SnapX"
-adopt-info: snapx-ui
+adopt-info: ui-snapx
 grade: devel
 base: core24
 confinement: strict
@@ -51,10 +54,10 @@ apps:
     plugs:
       - network
       - browser-native-messaging
-  snapx-ui:
+  ui-snapx:
     # Avalonia uses GNOME for some of its stuff. We just really need the base libraries.
     extensions: [gnome]
-    command: usr/lib/snapx/snapx-ui
+    command: usr/lib/snapx/ui-snapx
     # Snap has a issue detecting our icons and thus produces an error. Working on it.
     desktop: usr/share/applications/io.github.SnapXL.SnapX.desktop
     plugs:
@@ -84,7 +87,7 @@ package-repositories:
     ppa: ubuntuhandbook1/ffmpeg7
 
 parts:
-  snapx-ui:
+  ui-snapx:
     parse-info: [usr/share/metainfo/io.github.SnapXL.SnapX.metainfo.xml]
     plugin: nil
     override-build: |
