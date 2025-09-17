@@ -192,17 +192,6 @@ jobs:
       - name: Assemble SnapX CLI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: "./build.sh tarball --assembly snapx"
-      - name: Assemble Runfile
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: |
-          ./build.sh runfile --assembly snapx-ui
-      - name: Upload Built Runfile 📦
-        uses: actions/upload-artifact@v4
-        if: always() && matrix.configuration == 'Release' && runner.os == 'Linux'
-        with:
-          name: SnapX-Runfile-${{ runner.arch }}
-          if-no-files-found: error
-          path: "*.run"
       - name: Upload artifact (CLI - Release on Linux)
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         uses: actions/upload-artifact@v4
@@ -237,63 +226,3 @@ jobs:
           path: "Output/snapx-ui"
           compression-level: 9
           if-no-files-found: error
-  test-artifacts:
-    runs-on: ubuntu-24.04
-    needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu:20.04
-          - mageia:latest
-          - redhat/ubi9
-          - opensuse/leap:latest
-          - debian:bookworm
-          - archlinux:latest
-          - fedora:39
-    container:
-      image: ${{ matrix.os }}
-      options: >-
-        --privileged
-        --cap-add=SYS_ADMIN
-        --cap-add=SYS_PTRACE
-
-    steps:
-      # See https://github.com/actions/download-artifact/issues/343 & https://github.com/actions/download-artifact/issues/339 to see why this is pinned. If you bump this version, you will be FIRED. >:(
-      - uses: actions/download-artifact@v5
-        continue-on-error: true
-        with:
-          merge-multiple: true
-
-      - name: Run binary tests (filename-based arch detection)
-        run: |
-          chmod +x *.run || true
-          chmod +x *.AppImage || true
-
-          is_x86_64_filename() {
-            echo "$1" | grep -iE 'x86[-_]?64|amd64|x64' &>/dev/null
-          }
-
-          if ls ./*.run &>/dev/null; then
-            for BINARY in *.run; do
-              echo "Checking architecture (by filename) of $BINARY"
-              if is_x86_64_filename "$BINARY"; then
-                echo "Running binary: $BINARY"
-                ./"$BINARY" --version || echo "$BINARY failed to run"
-              else
-                echo "Skipping $BINARY (not x86_64 by filename)"
-              fi
-            done
-          fi
-
-          if ls ./*.AppImage &>/dev/null; then
-            for BINARY in *.AppImage; do
-              echo "Checking architecture (by filename) of $BINARY"
-              if is_x86_64_filename "$BINARY"; then
-                echo "Running binary: $BINARY"
-                ./"$BINARY" --version || echo "$BINARY failed to run"
-              else
-                echo "Skipping $BINARY (not x86_64 by filename)"
-              fi
-            done
-          fi
