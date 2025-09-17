@@ -57,7 +57,7 @@ apps:
   ui-snapx:
     # Avalonia uses GNOME for some of its stuff. We just really need the base libraries.
     extensions: [gnome]
-    command: usr/lib/snapx/ui-snapx
+    command: usr/lib/snapx/snapx-ui
     # Snap has a issue detecting our icons and thus produces an error. Working on it.
     desktop: usr/share/applications/io.github.SnapXL.SnapX.desktop
     plugs:
@@ -92,12 +92,13 @@ parts:
     plugin: nil
     override-build: |
       ./build.sh install --no-color --no-extended-chars --prefix /usr --dest-dir $SNAPCRAFT_PART_INSTALL
-    build-snaps: [dotnet-sdk-90/latest/stable]
     build-packages:
       - git
       - clang
       - zlib1g-dev
       - libsm6
+      - ca-certificates
+      - libicu74
     build-environment:
       - PKGTYPE: SNAP
     stage-packages:
