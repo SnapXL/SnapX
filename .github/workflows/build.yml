@@ -175,17 +175,6 @@ jobs:
       - name: Publish
         if: runner.os != 'Windows'
         run: ./build.sh --configuration ${{ matrix.configuration }}
-      - name: Import GPG key
-        id: import_gpg
-        if: github.event_name != 'pull_request' && matrix.configuration == 'Release' && runner.os == 'Linux'
-        uses: crazy-max/ghaction-import-gpg@v6
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          git_user_signingkey: true
-          git_commit_gpgsign: true
-          git_tag_gpgsign: true
-          git_push_gpgsign: false
       - name: Assemble SnapX UI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: "./build.sh tarball --assembly snapx-ui"
