@@ -49,10 +49,10 @@ internal static class Program
                     new() { FontFamily = "Noto Sans" },
                     new() { FontFamily = "Roboto" },
                     new() { FontFamily = "Adwaita Sans" },
-                    new() { FontFamily = "Helvetica Neue" },
                     new() { FontFamily = "Open Sans" },
                     new() { FontFamily = "Segoe UI" },
-                    new() { FontFamily = "Inter" } // kept for compatibility
+                    new() { FontFamily = "Inter" }, // kept for compatibility
+                    new() { FontFamily = "Helvetica Neue" },
                 }
             });
         }
