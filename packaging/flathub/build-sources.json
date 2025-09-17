@@ -1,0 +1,30 @@
+[
+  {
+    "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/bullseye/6.0.0/bullseye.6.0.0.nupkg",
+    "sha512": "07ef885695a3cfb1aa6f1901b361e93d9292d05a50de55f4620a5d0eadb0f04352950dde7d21ad9785acf3d6ed0da480a8a6221e6943b59b8eef2e8c1917d25f",
+    "dest": "vendor",
+    "dest-filename": "bullseye.6.0.0.nupkg"
+  },
+  {
+    "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/gitversion.msbuild/6.4.0/gitversion.msbuild.6.4.0.nupkg",
+    "sha512": "b67857d937a495132dc8a3d75465fb8612e351ff9b566cb84c5e31ed0c6103d531de1fca1d23ef93674a5b513d326615bd1b271de595a52ecc192d41f56b0d63",
+    "dest": "vendor",
+    "dest-filename": "gitversion.msbuild.6.4.0.nupkg"
+  },
+  {
+    "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/simpleexec/12.0.0/simpleexec.12.0.0.nupkg",
+    "sha512": "a2e12b2c5ca5c7e6d0afb9960f3a7b102a1f7f0345256e5502254babe8b905e42ee205260a0c81f2bb87d166a150b7eae47ddce6bde3f1918a23c8c98a90bdd8",
+    "dest": "vendor",
+    "dest-filename": "simpleexec.12.0.0.nupkg"
+  },
+  {
+    "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.commandline/2.0.0-beta6.25358.103/system.commandline.2.0.0-beta6.25358.103.nupkg",
+    "sha512": "dffebbf8e4a0ff04547664abe6871eec1b607db47b45536f600c89654c59d8801b8f61c403ae96f28101689d8e32e053a1eb4d18398ceac91fdecc30f86870b5",
+    "dest": "vendor",
+    "dest-filename": "system.commandline.2.0.0-beta6.25358.103.nupkg"
+  }
+]

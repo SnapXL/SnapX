@@ -7,28 +7,24 @@ command: snapx-ui
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.dotnet9
   - org.freedesktop.Sdk.Extension.llvm20
-build-options:
 
-  build-args:
-
-    - --share=network
 finish-args:
-#  - --socket=wayland # Avalonia Wayland support is coming within few months
-  - --socket=x11 # should turn into fallback-x11 when Avalonia wayland comes
+  - --socket=wayland # Avalonia Wayland support is coming within a few months, without this socket, screenshotting on Wayland fails even though the app runs in X11.
+  - --socket=x11
   - --socket=pulseaudio # SnapX plays sounds on upload
-  - --socket=session-bus # TODO: Despite giving Avalonia it's needed access to create a tray item, it crashes on launch without this.
   - --device=dri # GPU support
   - --share=ipc
   - --share=network
   - --talk-name=com.canonical.AppMenu
   - --talk-name=com.canonical.dbusmenu
   - --talk-name=org.freedesktop.Notifications # Native notfications support
-  - --talk-name=org.freedesktop.secrets
-  - --talk-name=org.kde.kwalletd5 # OS Secret support
+#  - --talk-name=org.freedesktop.secrets
+  - --talk-name=org.freedesktop.portal.Desktop
+#  - --talk-name=org.kde.kwalletd5 # OS Secret support
   - --talk-name=org.kde.StatusNotifierWatcher
+  - --own-name=org.kde.* # Avalonia's Tray implementation is old, it seems? Without this, the app immediately crashes!
   - --talk-name=org.kde.StatusNotifierItem
-  - --filesystem=xdg-run/keyring # OS Secret support
-
+#  - --filesystem=xdg-run/keyring # OS Secret support
 modules:
   - name: snapx-ui
     buildsystem: simple
@@ -37,22 +33,32 @@ modules:
       append-ld-library-path: /usr/lib/sdk/dotnet9/lib
       prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
       prepend-pkg-config-path: /usr/lib/sdk/dotnet9/lib/pkgconfig
-      arch:
-        aarch64:
-          env:
-            RUNTIME: linux-arm64
-        x86_64:
-          env:
-            RUNTIME: linux-x64
       env:
         PKGTYPE: FLATPAK
     build-commands:
-      - ./build.sh install --no-color --no-extended-chars --prefix /app
+      - rm global.json
+      - dotnet restore build -p:RestorePackagesPath=vendor --ignore-failed-sources --source vendor
+      - dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="--source vendor --ignore-failed-sources"
+      - rm ${FLATPAK_DEST}/bin/snapx ${FLATPAK_DEST}/lib/snapx/snapx
     sources:
-#      - type: archive
-#        url: https://nightly.link/SnapXL/SnapX/actions/runs/16850790271/SnapX-Vendored-Source-X64.zip
-#        sha256: 6b17ec11350bb09e609485a537fa71e8de08f2643f9c3757f9aef18f41845e0a
-#        strip-components: 0
       - type: git
         url: https://github.com/SnapXL/SnapX.git
         branch: develop
+        disable-shallow-clone: true
+        commit: 73322102867341870f31548cc061dc17d4a83fe4
+      - sources.json
+      - build-sources.json
+  # XRandr is a required dependency.
+  - name: xrandr
+    sources:
+      - type: archive
+        sha256: 7b99edb7970a1365eaf5bcaf552144e4dfc3ccf510c4abc08569849929fb366e
+        url: https://www.x.org/archive/individual/app/xrandr-1.5.1.tar.gz
+  # TLS 1.3 support
+  - name: msquic
+    buildsystem: cmake
+    builddir: true
+    sources:
+      - type: git
+        url: https://github.com/microsoft/msquic.git
+        tag: v2.5.4

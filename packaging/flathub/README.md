@@ -25,7 +25,7 @@ flatpak build-bundle export io.github.SnapXL.SnapX.flatpak io.github.SnapXL.Snap
 
 ## Important for developers
 
-After you're done with your changes, you should go into the root of this repository and run `./build.sh clean`. This will get rid of the builddir, flatpak bundles, repos, etc. This is needed because on my machine, all these nested directories makes your code editors very very unhappy. At least on VSCode.
+After you're done with your changes, you should `sudo rm -rf export repo builddir .flatpak-builder`. This is needed because on my machine, all these nested directories makes your code editors very very unhappy. At least on Rider.
 
 ## Note
 
