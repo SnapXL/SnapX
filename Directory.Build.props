@@ -43,6 +43,7 @@
             or $(RuntimeIdentifier.Contains('debian'))
             or $(RuntimeIdentifier.Contains('fedora'))
             or $(RuntimeIdentifier.Contains('alpine'))
+            or $(RuntimeIdentifier.Contains('arch'))
             or $(RuntimeIdentifier.Contains('rhel'))
             or $(RuntimeIdentifier.Contains('centos'))
             or $(RuntimeIdentifier.Contains('opensuse'))
