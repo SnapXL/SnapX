@@ -92,6 +92,7 @@ parts:
     plugin: nil
     override-build: |
       ./build.sh install --no-color --no-extended-chars --prefix /usr --dest-dir $SNAPCRAFT_PART_INSTALL
+      rm $SNAPCRAFT_PART_INSTALL/usr/bin/snapx $SNAPCRAFT_PART_INSTALL/usr/lib/snapx/snapx
     build-packages:
       - git
       - clang
