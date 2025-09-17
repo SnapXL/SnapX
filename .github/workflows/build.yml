@@ -49,12 +49,12 @@ jobs:
 
           # all of these default to true, but feel free to set to
           # "false" if necessary for your workflow
-          android: true
+          android: false
           dotnet: false
           haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
       - name: Setup dotnet
         uses: actions/setup-dotnet@v4
         with:
