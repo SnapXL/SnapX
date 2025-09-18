@@ -1,10 +1,10 @@
 [
   {
     "type": "file",
-    "url": "https://api.nuget.org/v3-flatcontainer/asyncimageloader.avalonia/3.3.0/asyncimageloader.avalonia.3.3.0.nupkg",
-    "sha512": "9ada170b401c1cf7bb2f7462d96650ff54d93e967951a63b941b63fe5b4e152e0415ce988bb882646f9c9d64eb611cff25bb598f7d0ab6221324a8a73a0f0176",
+    "url": "https://api.nuget.org/v3-flatcontainer/asyncimageloader.avalonia/3.4.3/asyncimageloader.avalonia.3.4.3.nupkg",
+    "sha512": "aa2986fd5635b06f91d7aff3e2312f145a4b6bac92dd120c35b6233c421a0f868bc4abf252624e766b19b89d5a22796bfc6121a3ef6484089ace95f58a4c93c4",
     "dest": "vendor",
-    "dest-filename": "asyncimageloader.avalonia.3.3.0.nupkg"
+    "dest-filename": "asyncimageloader.avalonia.3.4.3.nupkg"
   },
   {
     "type": "file",
