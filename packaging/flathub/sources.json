@@ -442,6 +442,34 @@
   },
   {
     "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.bcl.hashcode/6.0.0/microsoft.bcl.hashcode.6.0.0.nupkg",
+    "sha512": "9349972fd40c0bb20de2746e007b8b5b2907f07fe7834e085a61928fbd9aaa5687cedbf203a34d73dd0d8a9b9abf2d62a81c95c22255a080e4347fc895c9df2d",
+    "dest": "vendor",
+    "dest-filename": "microsoft.bcl.hashcode.6.0.0.nupkg"
+  },
+  {
+    "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.codeanalysis.analyzers/3.11.0/microsoft.codeanalysis.analyzers.3.11.0.nupkg",
+    "sha512": "b4ff522f32caef65c2131961f0a5dfaca6d4eb272664bdc4c4697f6b7325ecb372d9469a9bb8058e3526773c936243174f27240871e9cf1edb0fa04cba687c06",
+    "dest": "vendor",
+    "dest-filename": "microsoft.codeanalysis.analyzers.3.11.0.nupkg"
+  },
+  {
+    "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.codeanalysis.common/4.14.0/microsoft.codeanalysis.common.4.14.0.nupkg",
+    "sha512": "93d008cceaed71956aafdfa599c116d2f63cd1e9b25f1e4907fef9ecad07505f7a19e51e8930fe7633a5145db2ee4e173d9a36d0baeee2d0e0428b3e54a06bd3",
+    "dest": "vendor",
+    "dest-filename": "microsoft.codeanalysis.common.4.14.0.nupkg"
+  },
+  {
+    "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.codeanalysis.csharp/4.14.0/microsoft.codeanalysis.csharp.4.14.0.nupkg",
+    "sha512": "92a4b6362855bcd407c732de3edc988a2266173a183bd5a6e3a3bd0e17d480821fe4dc136ef4b2eba915f4433ea801e61a98bbcd0cb8c3c254e831673e50324c",
+    "dest": "vendor",
+    "dest-filename": "microsoft.codeanalysis.csharp.4.14.0.nupkg"
+  },
+  {
+    "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.data.sqlite/9.0.8/microsoft.data.sqlite.9.0.8.nupkg",
     "sha512": "6332295dde984c087cb3c263fda9616d4afdaa4afe3e427ef00673d7fbd7422955a61331a6ae2da23406ad501caf52468f0977ac132134e2c3335aa254df3f04",
     "dest": "vendor",
@@ -1338,6 +1366,13 @@
   },
   {
     "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.collections.immutable/9.0.0/system.collections.immutable.9.0.0.nupkg",
+    "sha512": "cff3a8ee7c56999d18e7bf2f8fc11456b1496770d7e8e32e50696079881e79464e1464fcf577da33c7c314cbc9cbafa6388a96eaec7935d3731279539d0189ec",
+    "dest": "vendor",
+    "dest-filename": "system.collections.immutable.9.0.0.nupkg"
+  },
+  {
+    "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.collections.immutable/9.0.1/system.collections.immutable.9.0.1.nupkg",
     "sha512": "8227b30f8043a2c45d87f78c5115c2496a511e58aae644425c17f0b0ab93d6ee8fe32213b449f8e9ba36746ea5ba61309cfa852b16381d99df1ba4d08cb64e82",
     "dest": "vendor",
@@ -1443,6 +1478,13 @@
   },
   {
     "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.reflection.metadata/9.0.0/system.reflection.metadata.9.0.0.nupkg",
+    "sha512": "8f3f98da6fc2a5d3ef76308d46282258960a16eb1d91f265c43c785797165f64ee6c031acf9099a4e0c10ff3f6fb6d12a56be6646e89dd462397e476620ef217",
+    "dest": "vendor",
+    "dest-filename": "system.reflection.metadata.9.0.0.nupkg"
+  },
+  {
+    "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.reflection.primitives/4.3.0/system.reflection.primitives.4.3.0.nupkg",
     "sha512": "d4b9cc905f5a5cab900206338e889068bf66c18ee863a29d68eff3cde2ccca734112a2a851f2e2e5388a21ec28005fa19317c64d9b23923b05d6344be2e49eaa",
     "dest": "vendor",
@@ -1538,6 +1580,13 @@
     "sha512": "01e55dad6b1b3060cf3022727231db50ae1272f8d71112783f9213fe1adc930cd8ee60227f7b5569711287858086a9e882beda137ebd08c279fda23c89af25f2",
     "dest": "vendor",
     "dest-filename": "tmds.dbus.protocol.0.21.2.nupkg"
+  },
+  {
+    "type": "file",
+    "url": "https://api.nuget.org/v3-flatcontainer/waylandsharper/0.1.3/waylandsharper.0.1.3.nupkg",
+    "sha512": "70fd8cec133839f1b10bee21bd4d67e990f802f5fb85eb615e536ab5d621b48a908037ead8615452447353aecb085e5df4dd036253f60edc22afc78c2ba09e19",
+    "dest": "vendor",
+    "dest-filename": "waylandsharper.0.1.3.nupkg"
   },
   {
     "type": "file",
