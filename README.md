@@ -49,7 +49,7 @@
 - Supports 95% of ShareX uploaders (we're a fork!)
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
-- Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* use TLS 1.3 out of the box.
+- Additionally, all uploaders are now encouraged to use HTTPS <2.0 & *optionally* use TLS 1.3.
 - Keeps compatibility with the custom uploader configuration format (.sxcu)
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
@@ -78,9 +78,11 @@ This application relies on XDG portals to handle screenshots in a secure and des
 > [!TIP]
 > Other desktop environments or Wayland compositors—such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal—should also work, but are not officially tested.
 
-## Packages for testers
+## Testing
 
-SnapX is not yet in a usable state. These packages are provided for making testing easier.
+SnapX is not yet in a usable state. Packages are provided for making testing easier.
+
+See our guide here to learn [how to test](https://github.com/SnapXL/SnapX/wiki/Testing).
 
 SnapX is packaged on:
 
@@ -88,7 +90,11 @@ SnapX is packaged on:
 
 - [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
 
+<!-- - [Flathub](https://github.com/flathub/io.github.SnapXL.SnapX) [PENDING] -->
+
 - [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo)
+
+<!-- - [Snapcraft](https://snapcraft.io/ui-snapx) [PENDING] -->
 
 Additionally, you can download nightly builds from [here](https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview).
 
@@ -167,20 +173,6 @@ exec $SHELL -l
 > ```
 
 ## Building from Source
-
-> [!CAUTION]
-> **Only do this if you're a developer**; you should have a backup of all your ShareX/SnapX data. \
-> I do mean it when I say the project isn't ready for use.
-
-> [!IMPORTANT]
-> Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/SnapXL/SnapX/issues/66). \
-> I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
->
-> On **Linux**, it's `~/.config/SnapX`
->
-> On **Windows**, it's `%USERPROFILE%\Documents\SnapX`
->
-> On **macOS**, it's `~/Library/Application Support/SnapX`
 
 ### System Requirements for Compiling
 
