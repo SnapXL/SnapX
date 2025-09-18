@@ -46,7 +46,7 @@
     </AvaloniaResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
+    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.4.3" />
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
     <PackageReference Condition="'$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('browser'))" Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
 
