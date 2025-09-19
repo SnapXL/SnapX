@@ -48,12 +48,6 @@ platforms:
 
 
 apps:
-  snapx:
-    extensions: [gnome]
-    command: usr/lib/snapx/snapx
-    plugs:
-      - network
-      - browser-native-messaging
   ui-snapx:
     # Avalonia uses GNOME for some of its stuff. We just really need the base libraries.
     extensions: [gnome]
@@ -69,18 +63,18 @@ apps:
       - audio-record # FFmpeg Screen Capture is coming soon
       - desktop
       - media-control # FFmpeg Screen Capture
-      - browser-native-messaging
-plugs:
-  browser-native-messaging:
-    interface: personal-files
-    write:
-      - $HOME/.mozilla/native-messaging-hosts/host-manifest-firefox.json
-      - $HOME/.config/chromium/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.config/google-chrome/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.config/microsoft-edge/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.config/vivaldi/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.local/share/torbrowser/tbb/x86_64/tor-browser_en-US/Browser/TorBrowser/Data/Browser/.mozilla/native-messaging-hosts/host-manifest-firefox.json
+#      - browser-native-messaging Super privileged interface
+#plugs:
+#  browser-native-messaging:
+#    interface: personal-files
+#    write:
+#      - $HOME/.mozilla/native-messaging-hosts/host-manifest-firefox.json
+#      - $HOME/.config/chromium/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.config/google-chrome/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.config/microsoft-edge/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.config/vivaldi/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.local/share/torbrowser/tbb/x86_64/tor-browser_en-US/Browser/TorBrowser/Data/Browser/.mozilla/native-messaging-hosts/host-manifest-firefox.json
 
 package-repositories:
   - type: apt
@@ -130,3 +124,21 @@ lint:
         - usr/lib/*/libxcb-glx.so.*
         - usr/lib/*/libxcb-shm.so.*
         - usr/lib/*libicui18n.so.*
+        - usr/lib/*/libcaca++.so.*
+        - usr/lib/*/libcjson_utils.so.*
+        - usr/lib/*/libdcerpc-server.so.*
+        - usr/lib/*/libfftw3_omp.so.*
+        - usr/lib/*/libfftw3_threads.so.*
+        - usr/lib/*/libflite_cmu_grapheme_lang.so.*
+        - usr/lib/*/libflite_cmu_indic_lang.so.*
+        - usr/lib/*/libflite_cmu_grapheme_lex.so.*
+        - usr/lib/*/libflite_cmu_indic_lex.so.*
+        - usr/lib/*/libflite_cmu_time_awb.so.*
+        - usr/lib/*/libhwy_contrib.so.*
+        - usr/lib/*/libhwy_test.so.*
+        - usr/lib/*/libjacknet.so.*
+        - usr/lib/*/libjackserver.so.*
+        - usr/lib/*/libnetapi.so.*
+        - usr/lib/*/libpulse-simple.so.*
+        - usr/lib/*/libtheora.so.*
+        - usr/lib/*/libzvbi-chains.so.*
