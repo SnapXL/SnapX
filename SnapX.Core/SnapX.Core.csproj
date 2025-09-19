@@ -9,7 +9,7 @@
     <PaddleInferenceVersion>3.1.0.54</PaddleInferenceVersion>
     <OpenCvSharp4Version>4.11.0.34</OpenCvSharp4Version>
     <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
-    <MSExtensionsVersion>9.0.8</MSExtensionsVersion>
+    <MSExtensionsVersion>9.0.9</MSExtensionsVersion>
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
 
