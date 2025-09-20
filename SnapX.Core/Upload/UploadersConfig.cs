@@ -97,13 +97,6 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     #endregion Gist
 
-    #region uPaste
-
-    public string? UpasteUserKey { get; set; } = "";
-    public bool UpasteIsPublic { get; set; } = false;
-
-    #endregion uPaste
-
     #region Hastebin
 
     public string HastebinCustomDomain { get; set; } = "https://hastebin.com";
@@ -278,11 +271,6 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     #endregion Pushbullet
 
-    #region Lambda
-
-    public LambdaSettings LambdaSettings { get; set; } = new();
-
-    #endregion Lambda
 
     #region LobFile
 
@@ -385,13 +373,6 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     #region URL shorteners
 
-    #region bit.ly
-
-    public OAuth2Info BitlyOAuth2Info { get; set; } = null;
-    public string BitlyDomain { get; set; } = "";
-
-    #endregion bit.ly
-
     #region yourls.org
 
     public string YourlsAPIURL { get; set; } = "https://yoursite.com/yourls-api.php";
@@ -434,15 +415,6 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #endregion URL shorteners
 
     #region Other uploaders
-
-    #region Twitter
-
-    public List<OAuthInfo> TwitterOAuthInfoList { get; set; } = [];
-    public int TwitterSelectedAccount { get; set; } = 0;
-    public bool TwitterSkipMessageBox { get; set; } = false;
-    public string TwitterDefaultMessage { get; set; } = "";
-
-    #endregion Twitter
 
     #region Custom uploaders
 
