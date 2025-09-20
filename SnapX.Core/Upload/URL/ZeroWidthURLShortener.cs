@@ -52,7 +52,7 @@ public sealed class ZeroWidthURLShortener : URLShortener
 
         var json = JsonSerializer.Serialize(new { url });
 
-        RequestURL ??= "https://api.zws.im"; // Use null-coalescing assignment
+        RequestURL ??= "https://api.zws.im";
 
         var headers = GetAuthHeaders();
 
