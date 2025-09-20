@@ -182,10 +182,8 @@ public partial class LinuxAPI : NativeAPI
             for (uint i = 0; i < nchildren; i++)
             {
                 var window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
-                DebugHelper.Logger?.Debug("Window ptr: {Window:X0}", window);
 
                 var title = GetWindowTitle(display, window);
-                DebugHelper.Logger?.Debug("Window title: {Title}", title);
                 // if (title == string.Empty || title == "Untitled")
                 // {
                 //     DebugHelper.Logger?.Debug("Window is untitled, skipping");
@@ -195,13 +193,11 @@ public partial class LinuxAPI : NativeAPI
                 XGetWindowAttributes(display, window, out var attributes);
                 if (attributes.map_state != MapState.IsViewable)
                 {
-                    DebugHelper.Logger?.Debug("Window is not viewable, skipping: " + title);
                     continue;
                 }
 
                 if (attributes.width <= 1 || attributes.height <= 1)
                 {
-                    DebugHelper.Logger?.Debug("Window too small, skipping: " + title);
                     continue;
                 }
 
