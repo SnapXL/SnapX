@@ -274,24 +274,24 @@
   },
   {
     "type": "file",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia/1.1.308/fluenticons.avalonia.1.1.308.nupkg",
-    "sha512": "7f6664122fee481f72a5d76d46ec64d17fd92113d7c63963c75c050eedf1c57417b534205f856fe4d89aedce8b96c3726266f7c0da2e9e47c4c91162ed42bcec",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia/1.1.310/fluenticons.avalonia.1.1.310.nupkg",
+    "sha512": "a44e35f2372c601c0b6668ea0e068dcb357ba0fdd8fd4afafd4106d2555ee58cd56c59bba2ed17d3c413f0aef8046b3d173f9f306c33ad8423d9d819be2c85a3",
     "dest": "vendor",
-    "dest-filename": "fluenticons.avalonia.1.1.308.nupkg"
+    "dest-filename": "fluenticons.avalonia.1.1.310.nupkg"
   },
   {
     "type": "file",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia.fluent/1.1.308/fluenticons.avalonia.fluent.1.1.308.nupkg",
-    "sha512": "7e454bfe08629be00c4ce9ff34a5c1ada7b89f58ca673104b7d58ba573432e5f2665410558dbdbaa005d1843991ec686fd52c77ee2c49a5dd57f2dc1287794ae",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia.fluent/1.1.310/fluenticons.avalonia.fluent.1.1.310.nupkg",
+    "sha512": "f4c1ed06f77d15ffa8e3d6aaf64e25e1d437f29b164c716087b4b8dc46d595c76d5747c0b7af5f75252b851474a4aed1855bd2d7690ae3ecb318b491e1897659",
     "dest": "vendor",
-    "dest-filename": "fluenticons.avalonia.fluent.1.1.308.nupkg"
+    "dest-filename": "fluenticons.avalonia.fluent.1.1.310.nupkg"
   },
   {
     "type": "file",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.common/1.1.308/fluenticons.common.1.1.308.nupkg",
-    "sha512": "0e52b1572cc3ee9c0010b14c74f6805a2b0ef2229cd144d86045a6a53e6b02f4818b7eaea3c2146999277d14fd4b4b6290eb20b94250defb2507b2211847d58f",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.common/1.1.310/fluenticons.common.1.1.310.nupkg",
+    "sha512": "569833e1ebef43ed218b8a4ef0baf1d2f3dbcd36d9a4843daf540616264d745b8b86fe7b6439c2bc4914b4569d23b7cfbf47235897751399dd8ea1cf3018fadd",
     "dest": "vendor",
-    "dest-filename": "fluenticons.common.1.1.308.nupkg"
+    "dest-filename": "fluenticons.common.1.1.310.nupkg"
   },
   {
     "type": "file",

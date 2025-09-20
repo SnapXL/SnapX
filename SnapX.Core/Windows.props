@@ -9,7 +9,7 @@
   <ItemGroup>
     <!-- Windows Registry Configuration Support -->
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17"  />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" >
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.205" >
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
