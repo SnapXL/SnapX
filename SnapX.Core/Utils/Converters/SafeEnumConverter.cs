@@ -11,15 +11,15 @@ public class SafeEnumConverter<T> : JsonConverter<T> where T : struct, Enum
         switch (reader.TokenType)
         {
             case JsonTokenType.String:
-            {
-                var enumString = reader.GetString();
-                if (Enum.TryParse(enumString, ignoreCase: true, out T value))
                 {
-                    return value;
-                }
+                    var enumString = reader.GetString();
+                    if (Enum.TryParse(enumString, ignoreCase: true, out T value))
+                    {
+                        return value;
+                    }
 
-                break;
-            }
+                    break;
+                }
             case JsonTokenType.Number when reader.TryGetInt32(out int intValue) && Enum.IsDefined(typeof(T), intValue):
                 return (T)Enum.ToObject(typeof(T), intValue);
         }
