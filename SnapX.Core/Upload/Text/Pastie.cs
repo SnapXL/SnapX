@@ -41,7 +41,7 @@ public sealed class Pastie : TextUploader
             { "paste[authorization]", "burger" }
         };
 
-        SendRequestURLEncoded(HttpMethod.Post, "https://pastie.org/pastes", arguments);
+        SendRequestURLEncoded(HttpMethod.Post, "http://pastie.org/pastes", arguments);
 
         ur.URL = LastResponseInfo?.ResponseURL;
 
