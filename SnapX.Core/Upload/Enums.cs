@@ -15,8 +15,6 @@ public enum ImageDestination
     Photobucket,
     [Description("Google Photos")]
     Picasa,
-    [Description("X")]
-    Twitter,
     [Description("Chevereto")]
     Chevereto,
     [Description("vgy.me")]
