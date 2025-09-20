@@ -87,8 +87,6 @@ public enum FileDestination
     Localhostr,
     [Description("JIRA")]
     Jira,
-    [Description("Lambda")]
-    Lambda,
     [Description("Pomf")]
     Pomf,
     [Description("Uguu")]
