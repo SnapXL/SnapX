@@ -1,10 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace SnapX.Core.Utils.Converters;
 
 
-public class SafeEnumConverter<T> : JsonConverter<T> where T : struct, Enum
+public class SafeEnumConverter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] T> : JsonConverter<T>
+    where T : struct, Enum
 {
     public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
