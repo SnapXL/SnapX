@@ -102,8 +102,7 @@ parts:
       - mesa-utils         # for `glxinfo`
       - ffmpeg             # for screen capture & sounds
                            # I acknowledge ffplay probably is broken, it has a million and one dependencies.
-    source: https://github.com/SnapXL/SnapX
-    source-type: git
+    source: .
     override-pull: |
       craftctl default
       version=$(./build.sh --version | tail -n1)
