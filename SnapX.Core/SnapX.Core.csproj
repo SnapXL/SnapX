@@ -9,7 +9,7 @@
     <PaddleInferenceVersion>3.1.0.54</PaddleInferenceVersion>
     <OpenCvSharp4Version>4.11.0.34</OpenCvSharp4Version>
     <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
-    <MSExtensionsVersion>9.0.8</MSExtensionsVersion>
+    <MSExtensionsVersion>9.0.9</MSExtensionsVersion>
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
 
@@ -75,7 +75,7 @@
     <PackageReference Include="Sdcb.PaddleOCR" Version="$(PaddleOCRVersion)" />
     <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="$(PaddleOCRVersion)" />
     <!-- Crash forensics & performance analytics -->
-    <PackageReference Include="Sentry.Profiling" Version="5.15.0" />
+    <PackageReference Include="Sentry.Profiling" Version="5.15.1" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
