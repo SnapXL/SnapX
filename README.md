@@ -10,7 +10,6 @@
   <br>
   <br>
   <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base"/></a>
-  <a href="https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/copr_vector.svg" height="40" alt="COPR"/></a>
   <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap"/></a>
   <br>
   <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord"/></a>
@@ -88,13 +87,11 @@ SnapX is packaged on:
 
 - [AUR](https://aur.archlinux.org/packages/snapx-ui)
 
-- [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
-
 <!-- - [Flathub](https://github.com/flathub/io.github.SnapXL.SnapX) [PENDING] -->
 
 - [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo)
 
-<!-- - [Snapcraft](https://snapcraft.io/ui-snapx) [PENDING] -->
+- [Snapcraft](https://snapcraft.io/ui-snapx)
 
 Additionally, you can download nightly builds from [here](https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview).
 

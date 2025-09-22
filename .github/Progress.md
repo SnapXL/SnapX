@@ -10,7 +10,7 @@
 - [x] Package PaddleOCR for Linux properly.
 - [ ] Add charts for statistics like uploading, avg image size, most used image extension, and error rate for uploading
 - [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation.
-- [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
+- [ ] Package for popular technologies (Flatpak, RPM (Fedora/OpenSUSE), Snap, Homebrew)
 - [ ] Expose the entire Core in UI (Avalonia) (Missing direct upload function & drag and drop)
 - [x] Add telemetry & Aptabase is a work in progress, PR pending https://github.com/aptabase/aptabase-maui/pull/12
 - [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp)
@@ -18,14 +18,12 @@
 - [ ] Integrate with Windows Share https://discussions.unity.com/t/calling-windows-shareui-dialog-from-unity-on-windows-10-11-on-non-uwp-build-target/1586504
 - [ ] Add to Microsoft Store
 - [ ] Add to Winget, Chocolately, and Scoop
-- [X] [Add to COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
 - [x] [Add to Homebrew](https://github.com/BrycensRanch/homebrew-repo)
 - [ ] Make a v1.0.0 release date ETA that aligns with a ShareX release date ie (a day after a new major version)
 - [ ] Add to Itch.io
 - [x] [Add to AUR (see PR #56 for the initial PKGBUILD)](https://aur.archlinux.org/packages/snapx-ui)
 - [ ] Add to FOSS Torrents
 - [ ] Add to PortableApps.com
-- [ ] Add to AppImageHub
 - [ ] Add [Jump list](https://github.com/ShareX/ShareX/issues/1106#issuecomment-596048694)
 - [ ] Rework settings. Making it fit in with the WinUI style.
 - [ ] Add database viewer as an built in SQLite database viewer that is able to complete operations like mass path replacement ie `C:\Users/Brycen` -> `/home/brycen`

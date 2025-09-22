@@ -491,6 +491,7 @@ packaging/tarball/
 packaging/run/
 packaging/AppDir/
 packaging/flathub/repo/
+packaging/flathub/export/
 builddir/
 *.pkg*
 
