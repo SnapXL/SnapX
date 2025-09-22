@@ -88,7 +88,7 @@ jobs:
           flatpak-dotnet-generator build/build.csproj -o packaging/flathub/build-sources.json -d vendor --no-self-contained --user
       - name: 📦 Commit Flatpak Sources
         if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           file_pattern: "packaging/flathub/*.json"
           commit_options: "--no-verify --no-gpg-sign"
