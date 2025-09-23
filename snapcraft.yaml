@@ -78,6 +78,7 @@ apps:
 
 package-repositories:
   - type: apt
+    architectures: [amd64, armhf, arm64]
     ppa: ubuntuhandbook1/ffmpeg8
 
 parts:
