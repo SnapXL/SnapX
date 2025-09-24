@@ -78,7 +78,6 @@ apps:
 
 package-repositories:
   - type: apt
-    architectures: [amd64, armhf, arm64]
     ppa: ubuntuhandbook1/ffmpeg8
 
 parts:
@@ -113,6 +112,13 @@ parts:
 
       # Set the version with truncation. Good luck everyone else! :)
       snapcraftctl set-version "$truncated_version"
+  # TLS 1.3 support
+  msquic:
+    plugin: cmake
+    source-type: git
+    source: https://github.com/microsoft/msquic.git
+    source-tag: v2.5.4
+    cmake-parameters: [-DCMAKE_INSTALL_PREFIX=/usr]
 lint:
   ignore:
     - library:
@@ -142,3 +148,4 @@ lint:
         - usr/lib/*/libpulse-simple.so.*
         - usr/lib/*/libtheora.so.*
         - usr/lib/*/libzvbi-chains.so.*
+        - usr/lib/*/libmsquic.so.*
