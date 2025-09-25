@@ -36,13 +36,13 @@ public class LoggingHttpMessageHandler(HttpMessageHandler InnerHandler, ILogger 
                                 break;
                             case ByteArrayContent:
                             case StreamContent:
-                            {
-                                var fileName = part.Headers.ContentDisposition?.FileName?.Trim('"') ?? "[unknown]";
-                                var name = part.Headers.ContentDisposition?.Name?.Trim('"') ?? "[unknown]";
-                                var mediaType = part.Headers.ContentType?.MediaType ?? "[unknown]";
-                                partDescription += $", Name: {name}, FileName: {fileName}, MediaType: {mediaType}";
-                                break;
-                            }
+                                {
+                                    var fileName = part.Headers.ContentDisposition?.FileName?.Trim('"') ?? "[unknown]";
+                                    var name = part.Headers.ContentDisposition?.Name?.Trim('"') ?? "[unknown]";
+                                    var mediaType = part.Headers.ContentType?.MediaType ?? "[unknown]";
+                                    partDescription += $", Name: {name}, FileName: {fileName}, MediaType: {mediaType}";
+                                    break;
+                                }
                         }
 
                         Logger.Debug("Multipart part: {Description}", partDescription);
