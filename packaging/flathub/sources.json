@@ -155,10 +155,10 @@
   },
   {
     "type": "file",
-    "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.aptabase.core/0.2.4/brycensranch.aptabase.core.0.2.4.nupkg",
-    "sha512": "85f29261328bac6d038bf9299e728a21a81b6530a85778cb43d9e87c3a9f74dc3a683ec7e337b425c6f8becf2267c01f8571bad73a9994ef8c8519d0674cdb3e",
+    "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.aptabase.core/0.2.5/brycensranch.aptabase.core.0.2.5.nupkg",
+    "sha512": "91864e641ea4aac66aecad611debc2ba5b84ac434a306d87f6dd84ae39fffecbde229eb36231b7d4e818c2b797da06e0916d46062b56162c9d70d69da63b2c77",
     "dest": "vendor",
-    "dest-filename": "brycensranch.aptabase.core.0.2.4.nupkg"
+    "dest-filename": "brycensranch.aptabase.core.0.2.5.nupkg"
   },
   {
     "type": "file",
