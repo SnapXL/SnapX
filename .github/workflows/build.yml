@@ -88,13 +88,13 @@ jobs:
           flatpak-dotnet-generator build/build.csproj -o packaging/flathub/build-sources.json -d vendor --no-self-contained --user
       - name: 📦 Commit Flatpak Sources
         if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-        uses: stefanzweifel/git-auto-commit-action@v6
+        uses: EndBug/add-and-commit@v9
+        continue-on-error: true
         with:
-          file_pattern: "packaging/flathub/*.json"
-          commit_options: "--no-verify --no-gpg-sign"
-          push_options: "--no-verify --no-signed"
-          commit_message: "build(flathub): update nuget vendor sources [skip ci]"
-          commit_author: "github-actions <41898282+github-actions[bot]@users.noreply.github.com>"
+          add: "packaging/flathub/*.json"
+          commit: "--no-verify --no-gpg-sign"
+          push: "--no-verify --no-signed"
+          message: "build(flathub): update nuget vendor sources [skip ci]"
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet
@@ -119,9 +119,10 @@ jobs:
 
           # Check if there are any changes
           if ! git diff --quiet Directory.Build.props; then
+            git pull --ff-only
             git add Directory.Build.props
-            git commit -m "chore(release): update fallback version to ${fallback_version}"
-            git push
+            git commit -m "chore(release): update fallback version to ${fallback_version}" --no-verify
+            git push --no-verify
           else
             echo "No changes to commit."
           fi
