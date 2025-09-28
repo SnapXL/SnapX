@@ -18,6 +18,7 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Zip;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Extensions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -35,6 +36,12 @@ namespace SnapX.Core;
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(uint))]
 [JsonSerializable(typeof(bool))]
+// [JsonSerializable(typeof(Keys))]
+// [JsonSerializable(typeof(SafeEnumConverter<Keys>))]
+// [JsonSerializable(typeof(SafeEnumConverter<Modifiers>))]
+// [JsonSerializable(typeof(SafeEnumConverter<HotkeyType>))]
+// [JsonSerializable(typeof(SafeEnumConverter<HotkeyStatus>))]
+
 internal partial class SettingsContext : JsonSerializerContext;
 internal static class SettingManager
 {

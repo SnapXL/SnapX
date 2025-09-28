@@ -26,7 +26,7 @@ public record CustomUploaderItem
     public string? Name { get; set; }
 
     public bool ShouldSerializeName() => !string.IsNullOrEmpty(Name) && Name != URLHelpers.GetHostName(RequestURL);
-    [JsonConverter(typeof(SafeEnumConverterFactory))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     [DefaultValue(CustomUploaderDestinationType.None)]
     public CustomUploaderDestinationType DestinationType { get; set; }
     [JsonConverter(typeof(HttpMethodConverter))]
@@ -52,7 +52,7 @@ public record CustomUploaderItem
     public Dictionary<string, string?> Headers { get; set; }
 
     public bool ShouldSerializeHeaders() => Headers is { Count: > 0 };
-    [JsonConverter(typeof(SafeEnumConverterFactory))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     [DefaultValue(CustomUploaderBody.None)]
     public CustomUploaderBody Body { get; set; } = CustomUploaderBody.None;
 
@@ -72,7 +72,7 @@ public record CustomUploaderItem
     public string? Data { get; set; }
 
     public bool ShouldSerializeData() => (Body == CustomUploaderBody.JSON || Body == CustomUploaderBody.XML) && !string.IsNullOrEmpty(Data);
-    [JsonConverter(typeof(SafeEnumConverterFactory))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     // TEMP: For backward compatibility
     public ResponseType ResponseType { private get; set; }
 

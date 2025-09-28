@@ -4,7 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace SnapX.Core.Utils.Converters;
 
-
+[RequiresUnreferencedCode("JSON serialization and deserialization might require types that cannot be statically analyzed. Use the overload that takes a JsonTypeInfo or JsonSerializerContext.")]
+[UnconditionalSuppressMessage("Trimming", "IL2026:RequiresUnreferencedCode",
+    Justification = "The converter factory handles all required types using dynamic accessors. The types are preserved by other attributes.")]
 public class SafeEnumConverter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] T> : JsonConverter<T>
     where T : struct, Enum
 {

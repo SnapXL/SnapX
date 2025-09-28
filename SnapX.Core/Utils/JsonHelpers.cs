@@ -27,7 +27,7 @@ public static class JsonHelpers
         AllowTrailingCommas = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
         RespectNullableAnnotations = true,
-        Converters = { new HttpMethodConverter(), new SafeEnumConverterFactory() },
+        Converters = { new HttpMethodConverter(), new JsonStringEnumConverter() },
         WriteIndented = true
     };
 

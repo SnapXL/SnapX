@@ -178,7 +178,8 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
                 new JsonTimeZoneInfoConverter(),
                 new JsonColorConverter(),
                 new JsonFontConverter(),
-                new SafeEnumConverterFactory()
+                // new SafeEnumConverterFactory()
+                new JsonStringEnumConverter()
             }
         };
 
@@ -299,7 +300,7 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
                         new UtcDateTimeConverter(),
                         new JsonColorConverter(),
                         new JsonFontConverter(),
-                        new SafeEnumConverterFactory()
+                        new JsonStringEnumConverter()
                     }
                 });
                 if (settings == null) { throw new Exception($"{typeName} object is null."); }
