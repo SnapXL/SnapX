@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.CLI;
 using SnapX.Core.Upload.Custom;
-using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Utils;
