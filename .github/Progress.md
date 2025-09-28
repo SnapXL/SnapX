@@ -28,6 +28,7 @@
 - [ ] Rework settings. Making it fit in with the WinUI style.
 - [ ] Add database viewer as an built in SQLite database viewer that is able to complete operations like mass path replacement ie `C:\Users/Brycen` -> `/home/brycen`
 - [ ] Make CLI UNIX friendly while keeping ShareX's CLI valid. The CLI should be able to print its usage and autocomplete.
+- [ ] Add first tool, the FFMPEG 100MB video transcoder
 - [ ] Port `go-keyring` to C# (Needed for not saving auth creds in plaintext, big no no )
 - [ ] Search for missing files button in main window and locate missing file to allow users to fix broken entries.
 - [x] Bring in XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
