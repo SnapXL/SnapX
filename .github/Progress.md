@@ -85,6 +85,8 @@ It is opt-out and can be disabled in the settings. Additionally, the `ShareNoSna
 
 Telemetry is best when it represents the majority of the user base. I kindly ask you to not disable it. It's for the greater good. I know companies continue to abuse "telemetry" for their own gain, but this is not the case here. This is for the betterment of the application and the user experience. I'm not selling your data to advertisers. I'm not selling your data to anyone.
 
+If you're concerned, view our [Privacy Policy](../packaging/PRIVACY.md)
+
 #### Why are you doing this?
 
 WINE is not a solution. Wine is a compatibility layer. It is not a replacement for native applications. I enjoyed using ShareX. Previous attempts to have always been to try and negate the fact that ultimately a Windows application. I hope to reuse ShareX's code with the introduction of .NET 9 and Avalonia, but with this port, it should become a cross platform application
