@@ -108,7 +108,7 @@ public class Uninstall(IBuildLogger Logger, FS FileSystem, BuildConfig config)
         }
 
         // Remove NMH binary
-        await FileSystem.TryDeleteFile(config.NMHostPath);
+        if (config.NMHostPath is not null) await FileSystem.TryDeleteFile(config.NMHostPath);
 
         // Clean up empty directories (optional, and cautious)
         await FileSystem.TryDeleteEmptyDir(config.BinDir);
