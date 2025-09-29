@@ -1,12 +1,20 @@
 id: io.github.SnapXL.SnapX
 runtime: org.freedesktop.Platform
-runtime-version: "24.08"
+runtime-version: "25.08"
 sdk: org.freedesktop.Sdk
 command: snapx-ui
 
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.dotnet9
+#  - org.freedesktop.Sdk.Extension.dotnet9
   - org.freedesktop.Sdk.Extension.llvm20
+
+# No longer builds with the old .NET SDK.
+# I have tried contacting the maintainer for the extension, but they're unresponsive at the moment.
+build-options:
+
+  build-args:
+
+    - --share=network
 
 finish-args:
   - --socket=wayland # Avalonia Wayland support is coming within a few months, without this socket, screenshotting on Wayland fails even though the app runs in X11.
@@ -29,25 +37,31 @@ modules:
   - name: snapx-ui
     buildsystem: simple
     build-options:
-      append-path: /usr/lib/sdk/dotnet9/bin:/usr/lib/sdk/llvm20/bin
-      append-ld-library-path: /usr/lib/sdk/dotnet9/lib
-      prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
-      prepend-pkg-config-path: /usr/lib/sdk/dotnet9/lib/pkgconfig
+#      append-path: /usr/lib/sdk/dotnet9/bin:/usr/lib/sdk/llvm20/bin
+#      append-ld-library-path: /usr/lib/sdk/dotnet9/lib
+#      prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
+#      prepend-pkg-config-path: /usr/lib/sdk/dotnet9/lib/pkgconfig
       env:
         PKGTYPE: FLATPAK
     build-commands:
-      - rm global.json
-      - dotnet restore build -p:RestorePackagesPath=vendor --ignore-failed-sources --source vendor
-      - dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="--source vendor --ignore-failed-sources"
+#      - rm global.json
+#      - wcurl https://dot.net/v1/dotnet-install.sh
+#      - chmod +x dotnet-install.sh
+#      - |
+#        sh -c '
+#          ./dotnet-install.sh --channel "STS" --install-dir temp
+#          export PATH="$PWD/temp:$PATH"
+#          dotnet --info
+#          dotnet restore build -p:RestorePackagesPath=vendor --ignore-failed-sources --source vendor
+#          dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="--source vendor --ignore-failed-sources"
+#        '
+      - ./build.sh install --no-color --no-extended-chars --prefix ${FLATPAK_DEST}
       - rm ${FLATPAK_DEST}/bin/snapx ${FLATPAK_DEST}/lib/snapx/snapx
     sources:
-      - type: git
-        url: https://github.com/SnapXL/SnapX.git
-        branch: develop
-        disable-shallow-clone: true
-        commit: 73322102867341870f31548cc061dc17d4a83fe4
-      - sources.json
-      - build-sources.json
+      - type: dir
+        path: ../..
+#      - sources.json
+#      - build-sources.json
   # XRandr is a required dependency.
   - name: xrandr
     sources:

@@ -5,7 +5,7 @@ This directory is meant to be mirrored to https://github.com/flathub/io.github.S
 ## Test changes
 
 ```sh
-flatpak-builder --force-clean --sandbox --user --install --install-deps-from=flathub --ccache --mirror-screenshots-url=https://dl.flathub.org/media/ --repo=repo builddir io.github.SnapXL.SnapX.yml
+flatpak-builder --force-clean --user --install --install-deps-from=flathub --ccache --mirror-screenshots-url=https://dl.flathub.org/media/ --repo=repo builddir io.github.SnapXL.SnapX.yml
 ```
 
 ## Run it!
