@@ -68,12 +68,17 @@ internal static class RequestHelpers
 
             foreach (var key in headers.AllKeys)
             {
-                requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
+                var values = headers.GetValues(key);
+                if (values == null) continue;
+                foreach (var value in values)
+                {
+                    requestMessage.Headers.TryAddWithoutValidation(key, value);
+                }
             }
 
             if (cookies != null)
             {
-                requestMessage.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
+                requestMessage.Headers.TryAddWithoutValidation("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
             }
 
             requestMessage.Headers.UserAgent.ParseAdd(SnapXResources.UserAgent);
