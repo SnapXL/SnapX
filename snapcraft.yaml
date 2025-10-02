@@ -46,6 +46,12 @@ platforms:
     build-on: [armhf]
     build-for: [armhf]
 
+# for screen capture & sounds
+plugs:
+  ffmpeg-2404:
+    interface: content
+    target: ffmpeg-platform
+    default-provider: ffmpeg-2404
 
 apps:
   ui-snapx:
@@ -54,6 +60,9 @@ apps:
     command: usr/lib/snapx/snapx-ui
     # Snap has a issue detecting our icons and thus produces an error. Working on it.
     desktop: usr/share/applications/io.github.SnapXL.SnapX.desktop
+    environment:
+      LD_LIBRARY_PATH: $SNAP/ffmpeg-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$LD_LIBRARY_PATH
+      PATH: $SNAP/ffmpeg-platform/usr/bin:$SNAP/bin:$PATH
     plugs:
       - network
       - alsa
@@ -76,10 +85,6 @@ apps:
 #      - $HOME/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/host-manifest-chrome.json
 #      - $HOME/.local/share/torbrowser/tbb/x86_64/tor-browser_en-US/Browser/TorBrowser/Data/Browser/.mozilla/native-messaging-hosts/host-manifest-firefox.json
 
-package-repositories:
-  - type: apt
-    ppa: ubuntuhandbook1/ffmpeg8
-
 parts:
   ui-snapx:
     parse-info: [usr/share/metainfo/io.github.SnapXL.SnapX.metainfo.xml]
@@ -99,9 +104,7 @@ parts:
     stage-packages:
       - x11-xserver-utils  # for `xrandr`
       - pciutils           # for `lspci`
-      - mesa-utils         # for `glxinfo`
-      - ffmpeg             # for screen capture & sounds
-                           # I acknowledge ffplay probably is broken, it has a million and one dependencies.
+      - mesa-utils         # for `glxinfo
     source: .
     override-pull: |
       craftctl default
@@ -129,23 +132,4 @@ lint:
         - usr/lib/*/libicutu.so.*
         - usr/lib/*/libxcb-glx.so.*
         - usr/lib/*/libxcb-shm.so.*
-        - usr/lib/*libicui18n.so.*
-        - usr/lib/*/libcaca++.so.*
-        - usr/lib/*/libcjson_utils.so.*
-        - usr/lib/*/libdcerpc-server.so.*
-        - usr/lib/*/libfftw3_omp.so.*
-        - usr/lib/*/libfftw3_threads.so.*
-        - usr/lib/*/libflite_cmu_grapheme_lang.so.*
-        - usr/lib/*/libflite_cmu_indic_lang.so.*
-        - usr/lib/*/libflite_cmu_grapheme_lex.so.*
-        - usr/lib/*/libflite_cmu_indic_lex.so.*
-        - usr/lib/*/libflite_cmu_time_awb.so.*
-        - usr/lib/*/libhwy_contrib.so.*
-        - usr/lib/*/libhwy_test.so.*
-        - usr/lib/*/libjacknet.so.*
-        - usr/lib/*/libjackserver.so.*
-        - usr/lib/*/libnetapi.so.*
-        - usr/lib/*/libpulse-simple.so.*
-        - usr/lib/*/libtheora.so.*
-        - usr/lib/*/libzvbi-chains.so.*
         - usr/lib/*/libmsquic.so.*
