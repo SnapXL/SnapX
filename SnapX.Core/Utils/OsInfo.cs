@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
+using SixLabors.ImageSharp;
 #if WINDOWS
 using SnapX.Core.Utils.Native;
 using Windows.Win32.System.SystemInformation;
@@ -16,17 +17,18 @@ namespace SnapX.Core.Utils;
 
 public static partial class OsInfo
 {
+#if WINDOWS
     public record WindowsGpuInfo(string Description, string DriverVersion);
-    public record WindowsMonitorInfo(string Name, string Position, string Resolution);
+    public record WindowsMonitorInfo(string Name, Point Position, string Resolution);
     public record WindowsGraphicsInfo(List<WindowsGpuInfo> Gpus, List<WindowsMonitorInfo> Monitors);
-
+#endif
     public record LinuxGpuInfo(string Description, string Vendor, string DriverVersion);
-    public record LinuxMonitorInfo(string Name, string Resolution, string Coordinates);
+    public record LinuxMonitorInfo(string Name, string Resolution, Point Coordinates);
     public record LinuxGraphicsInfo(List<LinuxGpuInfo>? Gpus, List<LinuxMonitorInfo> Monitors);
 
     public record MacOSGraphicsInfo(string GpuChipset, string GpuDriverVersion, string MonitorResolution);
     public record GenericGpuInfo(string Description, string DriverVersion, string? Vendor = null);
-    public record GenericMonitorInfo(string Name, string Resolution, string? Position = null)
+    public record GenericMonitorInfo(string Name, string Resolution, Point? Position = null)
     {
         public override string ToString() =>
             Position is not null
@@ -34,7 +36,7 @@ public static partial class OsInfo
                 : $"{Name} [{Resolution}]";
     }
     public record GenericGraphicsInfo(List<GenericGpuInfo>? Gpus, List<GenericMonitorInfo>? Monitors, string OperatingSystemName, string? ErrorMessage = null);
-
+#if WINDOWS
     private static readonly Dictionary<string, string> BuildToFriendlyName = new()
     {
         // Windows 11
@@ -61,6 +63,7 @@ public static partial class OsInfo
         { "19044", "21H2" },
         { "19045", "22H2" }
     };
+#endif
     public static string GetFancyOSNameAndVersion()
     {
         if (OperatingSystem.IsWindows()) return GetWindowsVersion();
@@ -218,7 +221,7 @@ public static partial class OsInfo
             foreach (var line in lines)
             {
                 if (!line.StartsWith("model name")) continue;
-                var processorName = line[(line.IndexOf(":") + 2)..].Trim();
+                var processorName = line[(line.IndexOf(':') + 2)..].Trim();
                 return processorName;
             }
         }
@@ -294,10 +297,10 @@ public static partial class OsInfo
 
         return (0, 0);
     }
+#if WINDOWS
     [SupportedOSPlatform("windows5.1.2600")]
     private static (long totalMemory, long usedMemory) GetMemoryInfoWindows()
     {
-#if WINDOWS
         try
         {
             var status = new MEMORYSTATUSEX
@@ -320,13 +323,11 @@ public static partial class OsInfo
         {
             DebugHelper.WriteException("Error reading memory info on Windows: " + ex.Message);
         }
-#endif
         return (0, 0);
     }
     [SupportedOSPlatform("windows5.1.2600")]
     private static long GetAvailableMemoryWindows()
     {
-#if WINDOWS
         var status = new MEMORYSTATUSEX
         {
             dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX))
@@ -337,9 +338,9 @@ public static partial class OsInfo
             return (long)status.ullAvailPhys;
         }
         DebugHelper.WriteException(new Exception("Unable to retrieve memory information."));
-#endif
         return -1;
     }
+#endif
     [SupportedOSPlatform("linux")]
     private static (long totalMemory, long usedMemory) GetMemoryInfoLinux()
     {
@@ -501,6 +502,7 @@ public static partial class OsInfo
     {
         if (OperatingSystem.IsWindows())
         {
+#if WINDOWS
             var windowsInfo = GetGraphicsInfoWindows();
             if (windowsInfo == null)
                 return new GenericGraphicsInfo([], [], "Windows",
@@ -508,6 +510,9 @@ public static partial class OsInfo
             var genericGpus = windowsInfo.Gpus.Select(g => new GenericGpuInfo(g.Description, g.DriverVersion)).ToList();
             var genericMonitors = windowsInfo.Monitors.Select(m => new GenericMonitorInfo(m.Name, m.Resolution, m.Position)).ToList();
             return new GenericGraphicsInfo(genericGpus, genericMonitors, "Windows");
+#else
+            return new GenericGraphicsInfo([], [], "Windows", "Compilation error for Windows specific code not being included??");
+#endif
         }
         else
         {
@@ -546,10 +551,10 @@ public static partial class OsInfo
             return new GenericGraphicsInfo(genericGpusmacOS, genericMonitors, "macOS");
         }
     }
+#if WINDOWS
     [SupportedOSPlatform("windows")]
     public static WindowsGraphicsInfo? GetGraphicsInfoWindows()
     {
-#if WINDOWS
         try
         {
             const string gpuCommand = """
@@ -610,9 +615,6 @@ public static partial class OsInfo
         {
             return null;
         }
-#else
-        return null;
-#endif
     }
     private static List<WindowsGpuInfo> ParseWindowsGpuInfo(string rawOutput)
     {
@@ -620,12 +622,56 @@ public static partial class OsInfo
         var regex = WindowsGPUInfoRegex();
         return (from line in lines select line.Trim() into trimmedLine select regex.Match(trimmedLine) into match where match.Success let name = match.Groups[1].Value.Trim() let driver = match.Groups[2].Value.Trim() select new WindowsGpuInfo(name, driver)).ToList();
     }
-
     private static List<WindowsMonitorInfo> ParseWindowsMonitorInfo(string rawOutput)
     {
         var lines = rawOutput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-        return (from line in lines where line.StartsWith("Monitor:") select line["Monitor: ".Length..].Split([", Position: ", ", Resolution: "], StringSplitOptions.RemoveEmptyEntries) into parts where parts.Length == 3 let name = parts[0] let positionPart = parts[1] let resolutionPart = parts[2] select new WindowsMonitorInfo(name, positionPart, resolutionPart)).ToList();
+        return (from line in lines where line.StartsWith("Monitor:") select line["Monitor: ".Length..].Split([", Position: ", ", Resolution: "], StringSplitOptions.RemoveEmptyEntries) into parts where parts.Length == 3 let name = parts[0] let positionPart = parts[1] let resolutionPart = parts[2] select new WindowsMonitorInfo(name, ParsePosition(positionPart), resolutionPart)).ToList();
     }
+    public static Point ParsePosition(string position)
+    {
+        if (string.IsNullOrWhiteSpace(position))
+            return new Point(0, 0);
+
+        try
+        {
+            // Remove surrounding parentheses if present
+            position = position.Trim();
+            if (position.StartsWith("(") && position.EndsWith(")"))
+            {
+                position = position.Substring(1, position.Length - 2).Trim();
+            }
+
+            // Expected format after trimming: "X: 0, Y: 0"
+            var parts = position.Split(',');
+            int x = 0, y = 0;
+
+            foreach (var part in parts)
+            {
+                var kv = part.Split(':');
+                if (kv.Length != 2) continue;
+
+                var key = kv[0].Trim().ToUpperInvariant();
+                var value = int.Parse(kv[1].Trim());
+
+                switch (key)
+                {
+                    case "X":
+                        x = value;
+                        break;
+                    case "Y":
+                        y = value;
+                        break;
+                }
+            }
+
+            return new Point(x, y);
+        }
+        catch
+        {
+            return new Point(0, 0); // fallback if parsing fails
+        }
+    }
+#endif
     public static LinuxGraphicsInfo? GetGraphicsInfoLinux()
     {
         try
@@ -658,9 +704,9 @@ public static partial class OsInfo
                 var glxLines = glxInfo.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
                 if (string.IsNullOrWhiteSpace(driverVersion))
                 {
-                    driverVersion = glxLines.FirstOrDefault(line => line.Contains("OpenGL version"))?.Split(':')[1]?.Trim();
+                    driverVersion = glxLines.FirstOrDefault(glxLine => glxLine.Contains("OpenGL version"))?.Split(':')[1]?.Trim();
                     var mesaRegex = MesaRegex();
-                    var versionLine = glxLines.FirstOrDefault(line => line.Contains("OpenGL version"));
+                    var versionLine = glxLines.FirstOrDefault(glxLine => glxLine.Contains("OpenGL version"));
                     var mesaMatch = mesaRegex.Match(versionLine ?? string.Empty);
                     if (mesaMatch.Success)
                         driverVersion = mesaMatch.Value;
@@ -668,6 +714,10 @@ public static partial class OsInfo
                     if (!string.IsNullOrWhiteSpace(kernelVersion) && mesaMatch.Success)
                     {
                         driverVersion = $"Kernel {kernelVersion} {driverVersion}";
+                    }
+                    else if (driverVersion?.Contains("NVIDIA", StringComparison.InvariantCultureIgnoreCase) ?? false)
+                    {
+                        driverVersion = driverVersion?.Split(' ').Last();
                     }
                 }
                 var vendor = glxLines.FirstOrDefault(line => line.Contains("OpenGL vendor string"))?.Split(':')[1]?.Trim();
@@ -700,11 +750,10 @@ public static partial class OsInfo
                     }
 
                     var coordinateParts = resolutionAndCoords.Split('+');
-                    var x = coordinateParts.Length > 1 ? coordinateParts[1] : string.Empty;
-                    var y = coordinateParts.Length > 2 ? coordinateParts[2] : string.Empty;
-                    var coordinates = $"({x}, {y})";
+                    var x = int.Parse(coordinateParts.Length > 1 ? coordinateParts[1] : string.Empty);
+                    var y = int.Parse(coordinateParts.Length > 2 ? coordinateParts[2] : string.Empty);
 
-                    monitors.Add(new LinuxMonitorInfo(monitorName, resolution, coordinates));
+                    monitors.Add(new LinuxMonitorInfo(monitorName, resolution, new Point(x, y)));
                 }
             }
             catch (Exception ex)
@@ -779,7 +828,6 @@ public static partial class OsInfo
         // If they're on Linux, they should know they're using things like HDR.
     }
 
-    [SupportedOSPlatform("linux")]
     public static bool IsWSL()
     {
         if (!OperatingSystem.IsLinux()) return false;
@@ -793,18 +841,15 @@ public static partial class OsInfo
             return false;
         }
     }
+#if WINDOWS
     [SupportedOSPlatform("windows5.0")]
     private static bool CheckWindowsHdr()
     {
-#if WINDOWS
         var hdc = PInvoke.GetDC(new HWND(IntPtr.Zero));
         var bpp = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.BITSPIXEL);
         return bpp >= 30;
-#else
-        return false;
-#endif
     }
-
+#endif
     private static bool CheckMacOSHdr()
     {
         var displayInfo = GetMacOSDisplayInfo();
