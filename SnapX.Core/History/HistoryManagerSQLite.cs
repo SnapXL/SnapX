@@ -5,25 +5,20 @@ using Microsoft.Data.Sqlite;
 namespace SnapX.Core.History;
 
 
-public class HistoryManagerSQLite : HistoryManager
+public class HistoryManagerSQLite(SqliteConnection Connection) : HistoryManager(SnapX.DBPath)
 {
-    public HistoryManagerSQLite(SqliteConnection connection) : base(SnapX.DBPath)
-    {
-        _connection = connection;
-    }
-    private SqliteConnection _connection;
     [DapperAot]
     protected override List<HistoryItem> Load(string? filePath)
     {
         const string sql = "SELECT * FROM HistoryItems";
-        return _connection.Query<HistoryItem>(sql).AsList();
+        return Connection.Query<HistoryItem>(sql).AsList();
     }
     [DapperAot]
     public override List<HistoryItem> GetHistoryItems(int Items = int.MaxValue)
     {
-        if (_connection.State == ConnectionState.Closed) return [];
+        if (Connection.State == ConnectionState.Closed) return [];
         const string sql = "SELECT * FROM HistoryItems LIMIT @Items";
-        return _connection.Query<HistoryItem>(sql, new { Items }).AsList();
+        return Connection.Query<HistoryItem>(sql, new { Items }).AsList();
     }
 
     [DapperAot]
@@ -42,13 +37,15 @@ public class HistoryManagerSQLite : HistoryManager
             ShortenedURL = @ShortenedURL,
             Hidden       = @Hidden
         WHERE Id = @Id;";
+        using var connection = new SqliteConnection(Connection.ConnectionString);
+        connection.Open();
 
-        using var transaction = _connection.BeginTransaction();
+        using var transaction = connection.BeginTransaction();
         try
         {
             foreach (var item in historyItems)
             {
-                _connection.Execute(updateSql, item, transaction);
+                connection.Execute(updateSql, item, transaction);
             }
 
             transaction.Commit();
@@ -66,7 +63,7 @@ public class HistoryManagerSQLite : HistoryManager
     [DapperAot]
     public override bool RemoveHistoryItem(HistoryItem historyItem)
     {
-        var rowsAffected = _connection.Execute(
+        var rowsAffected = Connection.Execute(
             "DELETE FROM HistoryItems WHERE Id = @Id",
             new { historyItem.Id });
         return rowsAffected > 0;
@@ -75,7 +72,7 @@ public class HistoryManagerSQLite : HistoryManager
     [DapperAot]
     public override HistoryItem UpdateHistoryItem(HistoryItem historyItem)
     {
-        _connection.Execute("""
+        Connection.Execute("""
                             UPDATE HistoryItems
                             SET
                                 FileName = @FileName,
@@ -91,7 +88,7 @@ public class HistoryManagerSQLite : HistoryManager
                             WHERE
                                 Id = @Id;
                             """, historyItem);
-        return _connection.QuerySingle<HistoryItem>(
+        return Connection.QuerySingle<HistoryItem>(
             "SELECT * FROM HistoryItems WHERE Id = @Id",
             new { historyItem.Id }
         );
@@ -100,58 +97,65 @@ public class HistoryManagerSQLite : HistoryManager
     [DapperAot]
     protected override bool Append(string? filePath, IEnumerable<HistoryItem> historyItems)
     {
-        using var tx = _connection.BeginTransaction();
-        DebugHelper.WriteLine("SQLite: Beginning SQL transaction");
+        // For each Append operation, we create a new connection for concurrency. SQLite handles the connections.
+        using var connection = new SqliteConnection(Connection.ConnectionString);
+        connection.Open();
+        using var tx = connection.BeginTransaction();
         try
         {
             var processedHistoryItems = new List<HistoryItem>();
             foreach (var historyItem in historyItems)
             {
-                DebugHelper.WriteLine($"SQLite: Processing {historyItem.FileName ?? historyItem.FilePath} ({historyItem.Type}, {historyItem.Host ?? "No Host"})");
 
-                // I swear I'm not paranoid!!!
+                try
+                {
+                    // I swear I'm not paranoid!!!
 #pragma warning disable CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                if (historyItem.DateTime == null) historyItem.DateTime = DateTime.Now;
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                    if (historyItem.DateTime == null) historyItem.DateTime = DateTime.Now;
 #pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                if (historyItem.DateTime > DateTime.Now)
-                {
-                    DebugHelper.WriteLine($"SQLite: WARN Date '{historyItem.DateTime:D}' is in the future. System clock misconfigured?? Still saving it.");
+                    if (historyItem.DateTime > DateTime.Now)
+                    {
+                        DebugHelper.WriteLine($"SQLite: WARN Date '{historyItem.DateTime:D}' is in the future. System clock misconfigured?? Still saving it.");
+                    }
+
+                    if (historyItem.FilePath == null)
+                    {
+                        DebugHelper.WriteLine($"SQLite: WARN {historyItem.FileName ?? historyItem.FilePath} has a NULL FilePath. Still saving it.");
+                    }
+
+                    if (historyItem.FilePath != null && !File.Exists(historyItem.FilePath))
+                    {
+                        DebugHelper.WriteLine($"SQLite: WARN {historyItem.FileName ?? historyItem.FilePath} does not exist on the filesystem. Still saving it.");
+                    }
+
+                    var ShareXCreationDate = new DateTime(2007, 8, 22);
+                    // This is an Easter egg
+                    if (historyItem.DateTime < ShareXCreationDate)
+                    {
+                        DebugHelper.WriteLine($"SQLite: WARN Date '{historyItem.DateTime:D}' indicates that this screenshot was taken before ShareX's creation??? Still saving, but what the heck!");
+                    }
+                    historyItem.FileName ??= Path.GetFileName(historyItem.FilePath);
+
+                    const string insertHistorySql = """
+                    INSERT INTO HistoryItems
+                    (FileName, FilePath, [DateTime], Type, Hidden, Host, URL, ThumbnailURL, DeletionURL, ShortenedURL)
+                    VALUES
+                    (@FileName, @FilePath, @DateTime, @Type, @Hidden, @Host, @URL, @ThumbnailURL, @DeletionURL, @ShortenedURL)
+                    RETURNING *;
+                """;
+                    var processedHistoryItem = connection.QuerySingle<HistoryItem>(
+                        insertHistorySql,
+                        historyItem,
+                        tx
+                    );
+                    processedHistoryItems.Add(processedHistoryItem);
+
                 }
-
-                if (historyItem.FilePath == null)
+                catch (Exception ex)
                 {
-                    DebugHelper.WriteLine($"SQLite: WARN {historyItem.FileName ?? historyItem.FilePath} has a NULL FilePath. Still saving it.");
+                    DebugHelper.WriteException(ex);
                 }
-
-
-                if (historyItem.FilePath != null && !File.Exists(historyItem.FilePath))
-                {
-                    DebugHelper.WriteLine($"SQLite: WARN {historyItem.FileName ?? historyItem.FilePath} does not exist on the filesystem. Still saving it.");
-                }
-
-                var ShareXCreationDate = new DateTime(2007, 8, 22);
-                // This is an Easter egg
-                if (historyItem.DateTime < ShareXCreationDate)
-                {
-                    DebugHelper.WriteLine($"SQLite: WARN Date '{historyItem.DateTime:D}' indicates that this screenshot was taken before ShareX's creation??? Still saving, but what the heck!");
-                }
-                historyItem.FileName ??= Path.GetFileName(historyItem.FilePath);
-
-
-                const string insertHistorySql = """
-                                                INSERT INTO HistoryItems
-                                                  (FileName, FilePath, [DateTime], Type, Hidden, Host, URL, ThumbnailURL, DeletionURL, ShortenedURL)
-                                                VALUES
-                                                (@FileName, @FilePath, @DateTime, @Type, @Hidden, @Host, @URL, @ThumbnailURL, @DeletionURL, @ShortenedURL)
-                                                RETURNING *;
-                                                """;
-                var processedHistoryItem = _connection.QuerySingle<HistoryItem>(
-                    insertHistorySql,
-                    historyItem,
-                    transaction: tx
-                );
-                processedHistoryItems.Add(processedHistoryItem);
-                DebugHelper.WriteLine($"SQLite: Processed {processedHistoryItem.FileName}");
             }
 
             var allTags = processedHistoryItems
@@ -169,17 +173,15 @@ public class HistoryManagerSQLite : HistoryManager
                 foreach (var tag in allTags)
                 {
                     const string insertTagSql = """
-                                                INSERT INTO Tags
-                                                  (HistoryItemId, Text, WindowTitle, ProcessName)
-                                                VALUES
-                                                   (@HistoryItemId, @Text, @WindowTitle, @ProcessName);
-                                                """;
+                    INSERT INTO Tags
+                    (HistoryItemId, Text, WindowTitle, ProcessName)
+                    VALUES
+                       (@HistoryItemId, @Text, @WindowTitle, @ProcessName);
+                """;
 
-                    _connection.Execute(
+                    connection.Execute(
                         insertTagSql,
-                        tag,
-                        transaction: tx
-                    );
+                        tag, tx);
                 }
             }
 
@@ -193,4 +195,5 @@ public class HistoryManagerSQLite : HistoryManager
             return false;
         }
     }
+
 }
