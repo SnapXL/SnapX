@@ -64,21 +64,43 @@ public partial class MainWindow : AppWindow
     }
     private async void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
     {
-        var topLevel = TopLevel.GetTopLevel(this);
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = @event.Title,
-            AllowMultiple = @event.Multiselect,
-            SuggestedFileName = @event.FileName,
-            SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(@event.Directory)
-        });
+        var topLevel = GetTopLevel(this);
+        IEnumerable<IStorageItem> items;
 
-        if (files.Count > 0)
+        if (@event.FolderPicker)
         {
-            string?[] filePaths = files.Select(f => f.Path.ToString()).ToArray();
-            UploadManager.UploadFile(filePaths, @event.TaskSettings);
+            items = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = @event.Title,
+                SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(@event.Directory),
+                AllowMultiple = @event.Multiselect,
+                SuggestedFileName = @event.FileName,
+            });
+        }
+        else
+        {
+            items = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = @event.Title,
+                AllowMultiple = @event.Multiselect,
+                SuggestedFileName = @event.FileName,
+                SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(@event.Directory),
+            });
+        }
+
+        if (items.Any())
+        {
+            var itemPaths = items.Select(item => item.Path.LocalPath).ToArray();
+            var itemPathsAsString = string.Join(", ", itemPaths);
+            DebugHelper.WriteLine(itemPathsAsString);
+            UploadManager.UploadFile(itemPaths, @event.TaskSettings);
+        }
+        else
+        {
+            DebugHelper.WriteLine("Got no files/folders back!");
         }
     }
+
 
     // Event handler for the button click
     private void OnDemoTestButtonClick(object sender, RoutedEventArgs e)
