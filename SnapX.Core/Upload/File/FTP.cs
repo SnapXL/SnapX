@@ -4,6 +4,7 @@
 
 using System.Net;
 using System.Net.Security;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using FluentFTP;
@@ -117,8 +118,7 @@ public sealed class FTP : FileUploader, IDisposable
                     client.Config.EncryptionMode = FtpEncryptionMode.Implicit;
                     break;
             }
-            // The Operating System knows best about what SSL Protocols it should use with .NET
-            // client.Config.SslProtocols = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
+            client.Config.SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12;
             client.Config.DataConnectionEncryption = true;
 
             if (!string.IsNullOrEmpty(account.FTPSCertificateLocation) && System.IO.File.Exists(account.FTPSCertificateLocation))
