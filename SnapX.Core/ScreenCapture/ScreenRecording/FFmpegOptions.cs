@@ -51,7 +51,9 @@ public class FFmpegOptions
                 return FileHelpers.GetAbsolutePath(CLIPath);
             }
 
-            return FileHelpers.GetAbsolutePath("ffmpeg.exe");
+            var destiredFFmpegFileName = "ffmpeg";
+            if (OperatingSystem.IsWindows()) destiredFFmpegFileName += ".exe";
+            return FileHelpers.GetAbsolutePath(destiredFFmpegFileName);
         }
     }
 
