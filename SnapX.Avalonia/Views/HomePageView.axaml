@@ -57,11 +57,6 @@
                                         IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FilePathValidConverter}}"
                                         Margin="0,0,0,5"
                                         Text="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, StringFormat='File size: {0:N0} bytes'}" />
-                                    <Image
-                                        Height="300"
-                                        Stretch="Uniform"
-                                        Width="800"
-                                        asyncImageLoader:ImageLoader.Source="{Binding task.BestImageSource}" />
                                 </WrapPanel>
                             </ToolTip.Tip>
                             <ToggleButton.ContextFlyout>
