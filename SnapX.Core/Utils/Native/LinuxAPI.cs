@@ -808,7 +808,7 @@ public partial class LinuxAPI : NativeAPI
 
             wlRegistry.Global += (_, e) =>
             {
-                DebugHelper.Logger.Debug($"{e.Name}:{e.Interface}:{e.Version}");
+                // DebugHelper.Logger.Debug($"{e.Name}:{e.Interface}:{e.Version}");
             };
 
             wlDisplay.Roundtrip();
