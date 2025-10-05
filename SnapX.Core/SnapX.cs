@@ -15,7 +15,6 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
-using SnapX.Core.Utils.Miscellaneous;
 #if WINDOWS
 using SnapX.Core.Utils.Native;
 #endif

@@ -4,12 +4,12 @@
 
 using System.Collections.Specialized;
 using System.Net;
+using System.Net.Http.Handlers;
 using System.Text;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
-using SnapX.Core.Utils.Miscellaneous;
 using Math = System.Math;
 
 namespace SnapX.Core.Upload.BaseUploaders;
@@ -112,18 +112,63 @@ public class Uploader
     {
         if (method == null) method = HttpMethod.Post;
 
-        var boundary = RequestHelpers.CreateBoundary();
-        var contentType = headers.Get("Content-Type") ?? RequestHelpers.ContentTypeMultipartFormData + "; boundary=" + boundary;
 
-        // Create multipart/form-data body
-        var data = RequestHelpers.MakeInputContent(boundary, args);
+        var multipartContent = GetMultipartFormDataContent(args, null, null, null, null);
 
-        using var stream = new MemoryStream(data);
+        var requestMessage = new HttpRequestMessage(method, url)
+        {
+            Content = multipartContent
+        };
 
-        using var response = GetResponse(method, url, stream, contentType, args, headers, cookies);
+        if (headers != null)
+        {
+            foreach (var key in headers.AllKeys)
+            {
+                requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
+            }
+        }
+
+        if (cookies != null)
+        {
+            var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
+            requestMessage.Headers.Add("Cookie", cookieHeader);
+        }
+        var client = HttpClientFactory.Get();
+        var response = client.SendAsync(requestMessage).GetAwaiter().GetResult();
+        response.EnsureSuccessStatusCode();
         return ProcessWebResponseText(response);
     }
 
+    protected MultipartFormDataContent GetMultipartFormDataContent(Dictionary<string, string?>? args, Stream? data, string? fileName, string? fileFormName, string? relatedData = null)
+    {
+        var multipartContent = new MultipartFormDataContent();
+
+        if (args != null)
+        {
+            foreach (var arg in args)
+            {
+                multipartContent.Add(new StringContent(arg.Value), arg.Key);
+            }
+        }
+
+        if (relatedData != null)
+        {
+            multipartContent.Add(
+                new StringContent(relatedData, Encoding.UTF8, "application/json"),
+                "file",
+                fileName
+            );
+        }
+        else if (data is not null)
+        {
+            var fileContent = new StreamContent(data);
+            var mimeType = MimeTypes.GetMimeType(fileName);
+
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType);
+            multipartContent.Add(fileContent, fileFormName, fileName);
+        }
+        return multipartContent;
+    }
     protected UploadResult SendRequestFile(string? url, Stream data, string? fileName, string fileFormName,
         Dictionary<string, string?> args = null, NameValueCollection headers = null, CookieCollection cookies = null,
         HttpMethod? method = null, string contentType = null, string relatedData = null)
@@ -133,36 +178,12 @@ public class Uploader
         var result = new UploadResult();
         IsUploading = true;
         StopUploadRequested = false;
+        EventHandler<HttpProgressEventArgs>? handler = null;
 
         try
         {
             var client = HttpClientFactory.Get();
-            var multipartContent = new MultipartFormDataContent();
-
-            if (args != null)
-            {
-                foreach (var arg in args)
-                {
-                    multipartContent.Add(new StringContent(arg.Value), arg.Key);
-                }
-            }
-
-            if (relatedData != null)
-            {
-                multipartContent.Add(
-                    new StringContent(relatedData, Encoding.UTF8, "application/json"),
-                    "file",
-                    fileName
-                );
-            }
-            else
-            {
-                var fileContent = new StreamContent(data);
-                var mimeType = MimeTypes.GetMimeType(fileName);
-
-                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType);
-                multipartContent.Add(fileContent, fileFormName, fileName);
-            }
+            var multipartContent = GetMultipartFormDataContent(args, data, fileName, fileFormName, relatedData);
 
             var requestMessage = new HttpRequestMessage(method, url)
             {
@@ -176,13 +197,27 @@ public class Uploader
                     requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
                 }
             }
-
+            requestMessage.Headers.TransferEncodingChunked = true;
+            requestMessage.Content.Headers.ContentLength = null;
             if (cookies != null)
             {
                 var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
                 requestMessage.Headers.Add("Cookie", cookieHeader);
             }
 
+            var ph = HttpClientFactory._ph!;
+            var requestLength = data.Length;
+            var progress = new ProgressManager(requestLength);
+
+            handler = (_, args) =>
+            {
+                progress.Length = new[] { requestLength, args.TotalBytes ?? 0, args.BytesTransferred }.Max();
+
+                if (AllowReportProgress && progress.UpdateAbsoluteProgress(args.BytesTransferred))
+                    OnProgressChanged(progress);
+            };
+
+            ph.HttpSendProgress += handler;
             var response = client.SendAsync(requestMessage).GetAwaiter().GetResult();
 
             if (response.IsSuccessStatusCode)
@@ -214,6 +249,7 @@ public class Uploader
         finally
         {
             IsUploading = false;
+            HttpClientFactory._ph!.HttpSendProgress -= handler; // prevent dangling event ref
         }
 
         return result;
@@ -353,16 +389,34 @@ public class Uploader
             {
                 contentLength = data.Length;
             }
-            var request = RequestHelpers.CreateHttpRequest(method, url, headers, cookies, contentType, contentLength).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            StreamContent? requestContent = null;
 
             if (data != null && (method == HttpMethod.Post || method == HttpMethod.Put))
             {
-                using var requestStream = request.Content?.ReadAsStreamAsync().GetAwaiter().GetResult();
-                if (requestStream is not null) data.CopyTo(requestStream);
+                requestContent = new StreamContent(data);
+            }
+            var requestMessage = new HttpRequestMessage(method, url)
+            {
+                Content = requestContent
+            };
+
+            if (headers != null)
+            {
+                foreach (var key in headers.AllKeys)
+                {
+                    requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
+                }
+            }
+
+            if (cookies != null)
+            {
+                var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
+                requestMessage.Headers.Add("Cookie", cookieHeader);
             }
 
             var client = HttpClientFactory.Get();
-            var response = client.SendAsync(request).ConfigureAwait(false).GetAwaiter().GetResult();
+            var response = client.SendAsync(requestMessage).ConfigureAwait(false).GetAwaiter().GetResult();
             if (!response.IsSuccessStatusCode && !allowNon2xxResponses)
             {
                 response.EnsureSuccessStatusCode();
@@ -505,13 +559,6 @@ public class Uploader
         return responseText;
     }
 
-    private HttpRequestMessage CreateHttpRequest(HttpMethod method, string? url, NameValueCollection headers = null, CookieCollection cookies = null,
-        string contentType = null, long contentLength = 0)
-    {
-        LastResponseInfo = null;
-
-        return RequestHelpers.CreateHttpRequest(method, url, headers, cookies, contentType, contentLength).GetAwaiter().GetResult();
-    }
     private Dictionary<string, string> ConvertHeadersToDictionary(HttpResponseMessage response)
     {
         var headersDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -556,7 +603,7 @@ public class Uploader
             ResponseText = response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
         };
 
-        DebugHelper.WriteLine($"ResponseInfo: StatusCode={responseInfo.StatusCode} StatusDescription={responseInfo.StatusDescription} ResponseText={responseInfo.ResponseText} ResponseURL={responseInfo.ResponseURL}");
+        // DebugHelper.WriteLine($"ResponseInfo: StatusCode={responseInfo.StatusCode} StatusDescription={responseInfo.StatusDescription} ResponseText={responseInfo.ResponseText} ResponseURL={responseInfo.ResponseURL}");
 
         LastResponseInfo = responseInfo;
         return responseInfo;

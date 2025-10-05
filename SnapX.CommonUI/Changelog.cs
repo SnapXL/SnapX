@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using SnapX.CommonUI.Types;
 using SnapX.Core;
 using SnapX.Core.Utils.Miscellaneous;
+using HttpClientFactory = SnapX.Core.Utils.Miscellaneous.HttpClientFactory;
 
 namespace SnapX.CommonUI;
 

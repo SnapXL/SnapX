@@ -10,7 +10,7 @@ using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Miscellaneous;
+using HttpClientFactory = SnapX.Core.Utils.Miscellaneous.HttpClientFactory;
 
 namespace SnapX.Avalonia;
 
