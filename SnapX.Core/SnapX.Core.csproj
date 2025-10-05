@@ -57,6 +57,7 @@
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
     <PackageReference Include="JsonPath.Net" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
     <PackageReference Include="Microsoft.Data.Sqlite" Version="$(MSExtensionsVersion)" />
     <!-- Builds are notably not provided for FreeBSD. Dynamic loading of normal system sqlite3 supported. -->
@@ -142,10 +143,7 @@
     <Compile Remove="SharpCapture/Windows/*.cs" />
     <Compile Remove="Utils/Native/WindowsAPI.cs" />
   </ItemGroup>
-  <Import Project="./Linux.props"
-          Condition="'$(TargetLinux)' == 'true' or '$(TargetFreeBSD)' == 'true'" />
-  <Import Project="./OSX.props"
-          Condition="'$(TargetMacOS)' == 'true'" />
-  <Import Project="./Windows.props"
-          Condition="'$(TargetWindows)' == 'true'" />
+  <Import Project="./Linux.props" Condition="'$(TargetLinux)' == 'true' or '$(TargetFreeBSD)' == 'true'" />
+  <Import Project="./OSX.props" Condition="'$(TargetMacOS)' == 'true'" />
+  <Import Project="./Windows.props" Condition="'$(TargetWindows)' == 'true'" />
 </Project>

@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using NeoSolve.ImageSharp.AVIF;
 using OpenCvSharp;
 using Sdcb.PaddleInference;
 using Sdcb.PaddleOCR;
@@ -19,8 +20,10 @@ using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tiff;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SnapX.Core.Capture;
 using SnapX.Core.CLI;
 using SnapX.Core.ImageEffects;
@@ -392,9 +395,20 @@ public static class TaskHelpers
                 {
                     Quality = jpegQuality
                 },
-                EImageFormat.GIF => new GifEncoder(),
+                EImageFormat.GIF => new GifEncoder()
+                {
+                    Quantizer = GetGifQuantizer(gifQuality)
+                },
                 EImageFormat.BMP => new BmpEncoder(),
                 EImageFormat.TIFF => new TiffEncoder(),
+                EImageFormat.WEBP => new WebpEncoder()
+                {
+                    Quality = jpegQuality,
+                },
+                EImageFormat.AVIF => new AVIFEncoder()
+                {
+                    CQLevel = 10
+                },
                 _ => throw new NotSupportedException($"Unsupported image format: {imageFormat} {typeof(EImageFormat)}")
             };
             if (SnapX.Settings.PNGStripColorSpaceInformation)
@@ -415,7 +429,49 @@ public static class TaskHelpers
 
         return ms;
     }
+    public static IQuantizer? GetGifQuantizer(GIFQuality quality)
+    {
+        QuantizerOptions options = new QuantizerOptions();
+        // The default GIF quantizer is Octree for ImageSharp.
+        // The same one ShareX uses! UNACCEPTABLE!!!
+        // This one is higher quality.
+        IQuantizer quantizer = new WuQuantizer(options);
+        switch (quality)
+        {
+            case GIFQuality.Bit8:
+            case GIFQuality.Default:
+                break;
 
+            case GIFQuality.Bit4:
+                options.MaxColors = 16;
+                quantizer = new WuQuantizer(options);
+                break;
+
+            case GIFQuality.Grayscale:
+                var grayPalette = CreateGrayscalePalette(256);
+
+                quantizer = new PaletteQuantizer(grayPalette);
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(quality), quality, null);
+        }
+
+        return quantizer;
+    }
+    private static ReadOnlyMemory<Color> CreateGrayscalePalette(int maxGrayLevels)
+    {
+        // Create a list of grayscale colors (from black to white)
+        var grayscaleColors = new Color[maxGrayLevels];
+
+        for (int i = 0; i < maxGrayLevels; i++)
+        {
+            var grayValue = i * 255 / (maxGrayLevels - 1);
+            grayscaleColors[i] = new Color(new Rgba32(grayValue, grayValue, grayValue, 255));
+        }
+
+        return new ReadOnlyMemory<Color>(grayscaleColors);
+    }
     public static void SaveImageAsFile(Image img, TaskSettings taskSettings, bool overwriteFile = false)
     {
         using (ImageData imageData = PrepareImage(img, taskSettings))
