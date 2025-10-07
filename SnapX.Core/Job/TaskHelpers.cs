@@ -39,6 +39,8 @@ using ZXing;
 using ZXing.Common;
 using ZXing.ImageSharp.Rendering;
 using ZXing.QrCode;
+using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode;
+using Size = SixLabors.ImageSharp.Size;
 
 namespace SnapX.Core.Job;
 
@@ -350,29 +352,31 @@ public static class TaskHelpers
         return imageData;
     }
 
-    // public static string CreateThumbnail(Bitmap bmp, string folder, string fileName, TaskSettings taskSettings)
-    // {
-    //     if ((taskSettings.ImageSettings.ThumbnailWidth > 0 || taskSettings.ImageSettings.ThumbnailHeight > 0) && (!taskSettings.ImageSettings.ThumbnailCheckSize ||
-    //         (bmp.Width > taskSettings.ImageSettings.ThumbnailWidth && bmp.Height > taskSettings.ImageSettings.ThumbnailHeight)))
-    //     {
-    //         string thumbnailFileName = Path.GetFileNameWithoutExtension(fileName) + taskSettings.ImageSettings.ThumbnailName + ".jpg";
-    //         string thumbnailFilePath = HandleExistsFile(folder, thumbnailFileName, taskSettings);
-    //
-    //         if (!string.IsNullOrEmpty(thumbnailFilePath))
-    //         {
-    //             using (Bitmap thumbnail = (Bitmap)bmp.Clone())
-    //             using (Bitmap resizedImage = new Resize(taskSettings.ImageSettings.ThumbnailWidth, taskSettings.ImageSettings.ThumbnailHeight).Apply(thumbnail))
-    //             using (Bitmap newImage = MediaTypeNames.Image.FillBackground(resizedImage, Color.White))
-    //             {
-    //                 MediaTypeNames.Image.SaveJPEG(newImage, thumbnailFilePath, 90);
-    //                 return thumbnailFilePath;
-    //             }
-    //         }
-    //     }
-    //
-    //     return null;
-    // }
+    public static string? CreateThumbnail(Image image, string folder, string fileName, TaskSettings taskSettings)
+    {
+        var settings = taskSettings.ImageSettings;
 
+        if (settings is { ThumbnailWidth: <= 0, ThumbnailHeight: <= 0 } ||
+            (settings.ThumbnailCheckSize &&
+             (image.Width <= settings.ThumbnailWidth || image.Height <= settings.ThumbnailHeight))) return null;
+        var baseName = Path.GetFileNameWithoutExtension(fileName);
+        var thumbnailFileName = Path.ChangeExtension($"{baseName}{settings.ThumbnailName}", ".webp");
+        var thumbnailFilePath = HandleExistsFile(folder, thumbnailFileName, taskSettings);
+
+        if (string.IsNullOrEmpty(thumbnailFilePath)) return null;
+        using var clone = image.Clone(ctx =>
+        {
+            ctx.Resize(new ResizeOptions
+            {
+                Mode = ResizeMode.Max,
+                Size = new Size(settings.ThumbnailWidth, settings.ThumbnailHeight)
+            });
+        });
+        var encoder = new WebpEncoder { Quality = 90 };
+        clone.Save(thumbnailFilePath, encoder);
+        return thumbnailFilePath;
+
+    }
     public static MemoryStream SaveImageAsStream(Image img, EImageFormat imageFormat, TaskSettings taskSettings)
     {
         return SaveImageAsStream(img, imageFormat, taskSettings.ImageSettings.ImagePNGBitDepth,
@@ -645,16 +649,16 @@ public static class TaskHelpers
         // }
     }
 
-    // public static void StartScreenRecording(ScreenRecordOutput outputType, ScreenRecordStartMethod startMethod, TaskSettings taskSettings = null)
-    // {
-    //     if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-    //
-    //     ScreenRecordManager.StartStopRecording(outputType, startMethod, taskSettings);
-    // }
+    public static void StartScreenRecording(ScreenRecordOutput outputType, ScreenRecordStartMethod startMethod, TaskSettings taskSettings = null)
+    {
+        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
+
+        ScreenRecordManager.StartStopRecording(outputType, startMethod, taskSettings);
+    }
 
     public static void StopScreenRecording()
     {
-        // ScreenRecordManager.StopRecording();
+        ScreenRecordManager.StopRecording();
     }
 
     public static void PauseScreenRecording()
