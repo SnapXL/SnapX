@@ -43,7 +43,7 @@
 - UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
 - Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
-- Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
+- Supports PNG (including animated variant), WEBP (including animated variant), AVIF, JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!)
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
@@ -86,10 +86,9 @@ SnapX is packaged on:
 
 - [AUR](https://aur.archlinux.org/packages/snapx-ui)
 
-<!-- - [Flathub](https://github.com/flathub/io.github.SnapXL.SnapX) [PENDING] -->
+<!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) [PENDING] -->
 
 - [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo)
-
 - [Snapcraft](https://snapcraft.io/ui-snapx)
 
 Additionally, you can download nightly builds from [here](https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview).
@@ -135,8 +134,8 @@ sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang zlib1g-dev libsm6
 
 End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and, thus, unsupported.
 
-SnapX now uses the Windows SDK to generate C# Windows API binding code. \
-You need the Windows 11 SDK `10.0.26100.0`. \
+SnapX now uses the Windows SDK to generate C# Windows API binding code.
+You need the Windows 11 SDK `10.0.26100.0`.
 It works on Windows 10, too.
 
 ```shell
@@ -161,8 +160,10 @@ brew install ffmpeg@7 rust
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
+
 > [!TIP]
 > If you're using MacPorts, run this instead of `brew install`:
+>
 > ```zsh
 > sudo port selfupdate
 > sudo port install ffmpeg7 cargo
