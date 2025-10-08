@@ -85,10 +85,14 @@ public static class Methods
     public static Rectangle GetWindowRectangle(IntPtr windowHandle = 0) =>
         NativeAPI.GetWindowRectangle(windowHandle);
 
-    public static WindowInfo GetForegroundWindow()
+    public static WindowInfo? GetForegroundWindow()
     {
-        // TODO: Reimplement GetForegroundWindow
-        return new WindowInfo();
+        var windows = NativeAPI.GetWindowList();
+
+        // Find the window marked as active/foreground
+        var activeWindow = windows.FirstOrDefault(w => w.IsActive);
+
+        return activeWindow;
     }
 
     // Linux (Wayland): Use DBus to interact with the Wayland compositor
