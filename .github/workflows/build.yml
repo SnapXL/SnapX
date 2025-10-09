@@ -82,7 +82,7 @@ jobs:
 #        run: |
 #          sudo apt install -y flatpak flatpak-builder
 #          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-#          flatpak install --user -y org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.dotnet9//24.08
+#          flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet9//25.08
 #          dotnet tool install --global Nickvision.FlatpakGenerator --version 2025.1.0
 #          flatpak-dotnet-generator SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json -d vendor --no-self-contained --user
 #          flatpak-dotnet-generator build/build.csproj -o packaging/flathub/build-sources.json -d vendor --no-self-contained --user
