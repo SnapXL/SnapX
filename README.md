@@ -97,7 +97,7 @@ Additionally, you can download nightly builds from [here](https://nightly.link/S
 
 - `git`
 - `dotnet-sdk-9.0`
-- `ffmpeg` (7)
+- `ffmpeg` (<7)
 - `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
 - `clang`
 - `zlib-devel`
@@ -126,7 +126,7 @@ sudo dnf in -y git dotnet-sdk-aot-9.0 /usr/bin/ffmpeg
 ```bash
 sudo apt update && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports -y # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
-sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
+sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg8 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
 sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang zlib1g-dev libsm6
 ```
 
@@ -156,7 +156,7 @@ End of life macOS versions are not supported. For example, macOS Monterey is at 
 
 ```zsh
 xcode-select --install
-brew install ffmpeg@7 rust
+brew install ffmpeg@8 rust
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
@@ -166,7 +166,7 @@ exec $SHELL -l
 >
 > ```zsh
 > sudo port selfupdate
-> sudo port install ffmpeg7 cargo
+> sudo port install ffmpeg8 cargo
 > ```
 
 ## Building from Source
