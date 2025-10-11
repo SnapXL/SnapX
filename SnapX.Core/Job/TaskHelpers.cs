@@ -421,13 +421,11 @@ public static class TaskHelpers
             }
 
             image.Save(ms, encoder);
-            DebugHelper.WriteLine(image.Width + " x " + image);
+            DebugHelper.WriteLine(image.ToString());
             ms.Position = 0;
-            DebugHelper.WriteLine(ms.CanRead.ToString());
         }
         catch (Exception e)
         {
-            DebugHelper.WriteException(e);
             e.ShowError();
         }
 
@@ -949,7 +947,6 @@ public static class TaskHelpers
             }
             catch (Exception e)
             {
-                DebugHelper.WriteException(e);
                 e.ShowError();
             }
         }
@@ -966,7 +963,6 @@ public static class TaskHelpers
         }
         catch (Exception e)
         {
-            DebugHelper.WriteException(e);
             e.ShowError();
         }
 
@@ -1066,31 +1062,29 @@ public static class TaskHelpers
     }
     public static Image GenerateQRCode(string text, int size)
     {
-        if (CheckQRCodeContent(text))
+        if (!CheckQRCodeContent(text)) return null;
+        try
         {
-            try
+            var writer = new ZXing.ImageSharp.BarcodeWriter<Rgba32>
             {
-                var writer = new ZXing.ImageSharp.BarcodeWriter<Rgba32>
+                Format = BarcodeFormat.QR_CODE,
+                Options = new QrCodeEncodingOptions
                 {
-                    Format = BarcodeFormat.QR_CODE,
-                    Options = new QrCodeEncodingOptions
-                    {
-                        Width = size,
-                        Height = size,
-                        CharacterSet = "UTF-8",
-                        PureBarcode = true,
-                        NoPadding = false,
-                        Margin = 1
-                    },
-                    Renderer = new ImageSharpRenderer<Rgba32>()
-                };
+                    Width = size,
+                    Height = size,
+                    CharacterSet = "UTF-8",
+                    PureBarcode = true,
+                    NoPadding = false,
+                    Margin = 1
+                },
+                Renderer = new ImageSharpRenderer<Rgba32>()
+            };
 
-                return writer.Write(text);
-            }
-            catch (Exception e)
-            {
-                e.ShowError();
-            }
+            return writer.Write(text);
+        }
+        catch (Exception e)
+        {
+            e.ShowError();
         }
 
         return null;
