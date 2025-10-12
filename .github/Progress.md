@@ -38,7 +38,7 @@
 - [ ] Add first-class support for [ImgBB](https://imgbb.com/), [Mastodon](https://mastodon.social/explore), [Bluesky](https://bsky.app/), [Pcloud](https://www.pcloud.com/), [SourceBin](https://sourceb.in/), [PrivateBin](https://github.com/PrivateBin/PrivateBin/wiki/API), [LimeWire](https://limewire.com/),   and [Pixeldrain](https://pixeldrain.com/)
 - [ ] Add Custom Uploader List to SnapX via a build-time HTTP Fetch, or if the file is there already, use that. Can be disabled by packagers as they need offline builds. Or they could fetch the list, or rather, JSON, as part of their build script that isn't done during packaging time. That list is then embedded into the binary, and then at runtime it is checked *again* for any new entries to said list. Thus, the functionality keeps working even in an environment where SnapX cannot access the internet.
 - [ ] ~~Add automatic region detection that suggests to users in Egypt, Russia, Ukraine, and possibly more to switch their default image uploader from Imgur to ImgBB. According to my tests, ImgBB doesn't have such region blocks for Ukraine & Egypt. Russia is untested because PIA doesn't have any servers there.~~ Imgur continually gets less reliable. I am investigating making ImgBB the default uploader for now until a more suitable alternative is found.
-
+- [ ] Add instructions to generate API keys for those interested
 ## Studying ShareX's behavior on Windows 11 24H2
 
 It's important to know how the program *should* behave per user expectations. As such, I've done a little recording of it.
