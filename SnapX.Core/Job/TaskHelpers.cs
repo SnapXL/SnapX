@@ -788,7 +788,7 @@ public static class TaskHelpers
                 image = await Image.LoadAsync(new DecoderOptions()
                 {
                     Configuration = configuration
-                } , filePath);
+                }, filePath);
         }
         catch (Exception ex)
         {
