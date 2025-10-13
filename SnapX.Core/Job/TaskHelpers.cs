@@ -778,10 +778,17 @@ public static class TaskHelpers
 #endif
         var model = GetModelForLanguage(languageCode ?? "eng");
         using var ms = new MemoryStream();
+        var configuration = new Configuration();
+        configuration.ImageFormatsManager.AddImageFormat(AVIFFormat.Instance);
+        configuration.ImageFormatsManager.SetDecoder(AVIFFormat.Instance, new AVIFDecoder());
+        configuration.ImageFormatsManager.AddImageFormatDetector(new AVIFImageFormatDetector());
         try
         {
             if (filePath is not null && image is null)
-                image = await Image.LoadAsync(filePath);
+                image = await Image.LoadAsync(new DecoderOptions()
+                {
+                    Configuration = configuration
+                } , filePath);
         }
         catch (Exception ex)
         {
