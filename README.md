@@ -146,9 +146,9 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-### macOS 13 Ventura+ 🍎
+### macOS 14 Sonoma+ 🍎
 
-End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
+End of life macOS versions are not supported. For example, macOS 13 Ventura is at its EOL and thus, unsupported.
 
 > Using the script to install the .NET SDK from the .NET team ensures you don't run into issues of Rider not detecting it.
 
