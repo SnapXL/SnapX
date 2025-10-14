@@ -4,7 +4,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.Media;
-using WaylandSharp;
 
 namespace SnapX.Core.Utils.Native;
 
@@ -803,15 +802,15 @@ public partial class LinuxAPI : NativeAPI
     {
         if (IsWayland())
         {
-            using var wlDisplay = WlDisplay.Connect();
-            using var wlRegistry = wlDisplay.GetRegistry();
+            // using var wlDisplay = WlDisplay.Connect();
+            // using var wlRegistry = wlDisplay.GetRegistry();
+            //
+            // wlRegistry.Global += (_, e) =>
+            // {
+            //     // DebugHelper.Logger.Debug($"{e.Name}:{e.Interface}:{e.Version}");
+            // };
 
-            wlRegistry.Global += (_, e) =>
-            {
-                // DebugHelper.Logger.Debug($"{e.Name}:{e.Interface}:{e.Version}");
-            };
-
-            wlDisplay.Roundtrip();
+            // wlDisplay.Roundtrip();
             return;
         }
         var display = XOpenDisplay(null);
