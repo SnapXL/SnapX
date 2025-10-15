@@ -37,24 +37,24 @@
 
 ## Technical Details
 
-- It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
-- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28)
+- It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
+- It uses [SQLite](https://www.sqlite.org/about.html) for [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28).
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
-- UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
-- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
+- UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU).
+- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS.
 - Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), AVIF, JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
-- Supports 95% of ShareX uploaders (we're a fork!)
+- Supports 95% of ShareX uploaders (we're a fork!).
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now encouraged to use HTTPS <2.0 & *optionally* use TLS 1.3.
-- Keeps compatibility with the custom uploader configuration format (.sxcu)
+- Keeps compatibility with the custom uploader configuration format (.sxcu).
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
 
 You will *not* receive any support from the ShareX project for this software. \
-If you have any issues with this project or would like us to add any new feature, please **open an issue** in this repository or use the `#development` channel in our [Discord](https://discord.gg/ys3ZCzttVQ).
+If you have any issues with this project or would like us to add any new feature, please **open an issue** in this repository or use the [`#development`](https://discord.com/channels/1267996919922430063/1404876855861051562) channel in our [Discord](https://discord.gg/ys3ZCzttVQ).
 
 ## Supported Linux Distributions
 
@@ -85,9 +85,7 @@ See our guide here to learn [how to test](https://github.com/SnapXL/SnapX/wiki/T
 SnapX is packaged on:
 
 - [AUR](https://aur.archlinux.org/packages/snapx-ui)
-
 <!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) [PENDING] -->
-
 - [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo)
 - [Snapcraft](https://snapcraft.io/ui-snapx)
 
@@ -148,9 +146,9 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-### macOS Ventura (13)+ 🍎
+### macOS 14 Sonoma+ 🍎
 
-End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
+End of life macOS versions are not supported. For example, macOS 13 Ventura is at its EOL and thus, unsupported.
 
 > Using the script to install the .NET SDK from the .NET team ensures you don't run into issues of Rider not detecting it.
 
