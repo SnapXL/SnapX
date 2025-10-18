@@ -218,7 +218,7 @@ public partial class RegionSelectorWindow : Window
     }
     private readonly Dictionary<Window, WindowBase?> _ownershipMap = new();
 
-    private async void OnOpened(object? Sender, EventArgs EventArgs)
+    private async void OnInit(object? Sender, EventArgs EventArgs)
     {
         foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != this && w.IsVisible) ?? [])
         {
