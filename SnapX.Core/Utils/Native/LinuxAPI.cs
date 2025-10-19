@@ -71,22 +71,22 @@ public partial class LinuxAPI : NativeAPI
                     if (atomNamePtr != IntPtr.Zero)
                     {
                         monitorName = Marshal.PtrToStringAnsi(atomNamePtr) ?? "Unnamed";
+#pragma warning disable CA1806
+                        XFree(atomNamePtr);
+#pragma warning restore CA1806
                     }
-
                     var name = $"Monitor_{i} ({monitorName})";
                     DebugHelper.WriteLine($"{name}: {bounds}");
 
-                    if (pos.X < bounds.X || pos.X >= bounds.X + bounds.Width ||
-                        pos.Y < bounds.Y || pos.Y >= bounds.Y + bounds.Height) continue;
-                    DebugHelper.Logger?.Debug("Point {Pos} is within monitor bounds", pos);
+                    if (!bounds.Contains(pos))
+                        continue;
+                    DebugHelper.Logger?.Debug("Point {Pos} is within monitor bounds {MonitorName}", pos, monitorName);
                     var width = monitorInfo.width;
                     var height = monitorInfo.height;
-                    var x = monitorInfo.x;
-                    var y = monitorInfo.y;
                     var mwidth = monitorInfo.mwidth;
                     var mheight = monitorInfo.mheight;
 
-                    double dpi = 0;
+                    var dpi = 96.0;
                     double diagonalInches = 0;
                     if (mwidth > 0 && mheight > 0)
                     {
@@ -94,6 +94,7 @@ public partial class LinuxAPI : NativeAPI
                         var resolutionDiagonal = Math.Sqrt(width * width + height * height);
                         dpi = resolutionDiagonal / diagonalInches;
                     }
+                    if (dpi == 0) dpi = 96.0; // X server is lying
 
                     var orientation = width >= height ? ScreenOrientation.Landscape : ScreenOrientation.Portrait;
 
@@ -102,7 +103,7 @@ public partial class LinuxAPI : NativeAPI
                         Id = $"X11_{i}",
                         Index = i,
                         Name = monitorName,
-                        Bounds = new Rectangle(x, y, width, height),
+                        Bounds = bounds,
                         DPI = dpi,
                         DiagonalSizeInches = diagonalInches,
                         Orientation = orientation,
@@ -800,19 +801,19 @@ public partial class LinuxAPI : NativeAPI
 
     public override void CopyText(string text)
     {
-        if (IsWayland())
-        {
-            // using var wlDisplay = WlDisplay.Connect();
-            // using var wlRegistry = wlDisplay.GetRegistry();
-            //
-            // wlRegistry.Global += (_, e) =>
-            // {
-            //     // DebugHelper.Logger.Debug($"{e.Name}:{e.Interface}:{e.Version}");
-            // };
-
-            // wlDisplay.Roundtrip();
-            return;
-        }
+        // if (IsWayland())
+        // {
+        //     // using var wlDisplay = WlDisplay.Connect();
+        //     // using var wlRegistry = wlDisplay.GetRegistry();
+        //     //
+        //     // wlRegistry.Global += (_, e) =>
+        //     // {
+        //     //     // DebugHelper.Logger.Debug($"{e.Name}:{e.Interface}:{e.Version}");
+        //     // };
+        //
+        //     // wlDisplay.Roundtrip();
+        //     return;
+        // }
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
@@ -962,6 +963,10 @@ public partial class LinuxAPI : NativeAPI
     public override Point GetCursorPosition()
     {
         DebugHelper.Logger?.Debug("Get cursor position");
+        if (IsWayland())
+        {
+
+        }
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
