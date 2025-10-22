@@ -15,10 +15,17 @@
 # Please submit bugfixes or comments via https://github.com/SnapXL/SnapX/issues
 
 
-# This spec requires internet access! This is only meant to be built on Fedora COPR at the moment!
+# This spec requires internet access! This is only meant to be built on GitHub Actions at the moment!
+%global srcdir %(realpath ../)
+%global base_release 3
+%global full_version %(../build.sh --version | tail -n1 | tr -d '\n')
 
+# extract upstream version (everything before the last dot-number+git)
+%global version %(echo "%{full_version}" | sed 's/\.[^.]*$//; s/-/~/g')
 
-%global version         0.4.0
+# extract commit number and git sha
+%global gitversion %(echo "%{full_version}" | awk -F. '{print $NF}' | tr '+' '.')
+
 %ifarch x86_64 aarch64
     %{!?build_with_aot:%global build_with_aot true}
 %else
@@ -31,11 +38,7 @@
 
 Name:           snapx
 Version:        %{version}
-%if 0%{?fedora}
-Release:        %autorelease
-%else
-Release:        3%{?dist}
-%endif
+Release:        %{base_release}.%{?gitversion}%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
@@ -87,7 +90,6 @@ SnapX but with Avalonia. Works best on X11.
 %autosetup -n SnapX-develop
 
 %build
-
 # Setup the correct compilation flags for the environment
 # Not all distributions do this automatically
 %if 0%{?fedora}
@@ -96,7 +98,6 @@ SnapX but with Avalonia. Works best on X11.
     %set_build_flags
 %endif
 export PATH=$PATH:/usr/local/bin
-export VERSION=%{version}
 export PKGTYPE=RPM
 
 %if "%{build_with_aot}" != "true"
@@ -104,6 +105,15 @@ export PKGTYPE=RPM
 %else
     %{!?build_extra_args:%global build_extra_args %{nil}}
 %endif
+
+set +x  # Prevent secrets leaking.
+if [ -n "${API_KEYS:-}" ]; then
+    curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+    echo "🔐 API Keys have been DEPLOYED into this build."
+else
+    echo "⚠️ No API_KEYS environment variable defined, skipping API key download."
+fi
+set -x
 
 ./build.sh --no-color --no-extended-chars --configuration Release %{build_extra_args}
 
@@ -133,6 +143,9 @@ for f in %{buildroot}%{_prefix}/lib/%{name}/*.so; do
     fi
 done
 
+%check
+snapx-ui --version
+
 %files
 %{_bindir}/%{name}
 %{_prefix}/lib/%{name}
@@ -142,12 +155,12 @@ done
 
 %files ui
 %{_bindir}/%{name}-ui
-%{_datadir}/applications/io.github.BrycensRanch.SnapX.desktop
-%{_datadir}/metainfo/io.github.BrycensRanch.SnapX.metainfo.xml
-%{_datadir}/icons/hicolor/48x48/apps/io.github.BrycensRanch.SnapX.png
-%{_datadir}/icons/hicolor/128x128/apps/io.github.BrycensRanch.SnapX.png
-%{_datadir}/icons/hicolor/256x256/apps/io.github.BrycensRanch.SnapX.png
-%{_datadir}/icons/hicolor/scalable/apps/io.github.BrycensRanch.SnapX.svg
+%{_datadir}/applications/io.github.SnapXL.SnapX.desktop
+%{_datadir}/metainfo/io.github.SnapXL.SnapX.metainfo.xml
+%{_datadir}/icons/hicolor/48x48/apps/io.github.SnapXL.SnapX.png
+%{_datadir}/icons/hicolor/128x128/apps/io.github.SnapXL.SnapX.png
+%{_datadir}/icons/hicolor/256x256/apps/io.github.SnapXL.SnapX.png
+%{_datadir}/icons/hicolor/scalable/apps/io.github.SnapXL.SnapX.svg
 %license LICENSE.md
 
 
