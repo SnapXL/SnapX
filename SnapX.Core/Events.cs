@@ -14,6 +14,12 @@ public class NeedFileOpenerEvent
     public TaskSettings TaskSettings { get; set; }
 }
 
+public class NeedMainWindowHandle
+{
+    // The subscriber will fill this property
+    public IntPtr ResultHandle { get; set; } = IntPtr.Zero;
+}
+
 public class NeedRegionCaptureEvent
 {
 

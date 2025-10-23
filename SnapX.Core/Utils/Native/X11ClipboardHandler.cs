@@ -24,20 +24,38 @@ public class X11ClipboardHandler : IDisposable
 
     private Image? _currentImage;
     private string? _currentFilename;
+    private string? _currentText;
+    private IntPtr _atomText;
 
     private X11ClipboardHandler()
     {
         _display = LinuxAPI.XOpenDisplay(null);
         if (_display == IntPtr.Zero)
-        {
             throw new Exception("Unable to open X11 display for clipboard handler.");
+
+        var request = new NeedMainWindowHandle();
+        SnapX.EventAggregator.Publish(request);
+
+        var mainWindowHandle = request.ResultHandle;
+
+
+        if (mainWindowHandle == IntPtr.Zero)
+        {
+            DebugHelper.WriteLine("Unable to get app window for clipboard handler, creating dummy window.");
+            _clipboardWindow = LinuxAPI.XCreateSimpleWindow(
+                _display,
+                LinuxAPI.XDefaultRootWindow(_display),
+                0, 0, 1, 1, 0, 0, 0
+            );
+            LinuxAPI.XMapWindow(_display, _clipboardWindow);
+        }
+        else
+        {
+            _clipboardWindow = mainWindowHandle;
+            DebugHelper.WriteLine($"Using app window 0x{_clipboardWindow.ToInt64():X} for clipboard handler.");
         }
 
-        _clipboardWindow = LinuxAPI.XCreateSimpleWindow(_display, LinuxAPI.XDefaultRootWindow(_display),
-                                                   0, 0, 1, 1, 0, 0, 0);
-
-        LinuxAPI.XSelectInput(_display, _clipboardWindow,
-                             LinuxAPI.SelectionClearMask | LinuxAPI.SelectionRequestMask);
+        LinuxAPI.XFlush(_display);
 
         InitializeAtoms();
 
@@ -70,6 +88,8 @@ public class X11ClipboardHandler : IDisposable
         _atomPng = LinuxAPI.XInternAtom(_display, "PNG", false);
         _atomImagePng = LinuxAPI.XInternAtom(_display, "image/png", false);
         _atomUtf8String = LinuxAPI.XInternAtom(_display, "UTF8_STRING", false);
+        _atomText = LinuxAPI.XInternAtom(_display, "TEXT", false);
+
     }
 
     public void SetImage(Image image, string? filename = null)
@@ -77,33 +97,44 @@ public class X11ClipboardHandler : IDisposable
         lock (_lock)
         {
             _currentImage = image;
+            _currentText = null;
             _currentFilename = string.IsNullOrEmpty(filename) ? "image.png" : filename;
 
-            LinuxAPI.XSetSelectionOwner(_display, _atomClipboard, _clipboardWindow, LinuxAPI.CurrentTime);
-            LinuxAPI.XFlush(_display);
-
-            var owner = LinuxAPI.XGetSelectionOwner(_display, _atomClipboard);
-            if (owner == _clipboardWindow)
-            {
-                DebugHelper.Logger?.Debug($"Successfully claimed X11 CLIPBOARD ownership for image and filename '{_currentFilename}'.");
-            }
-            else
-            {
-                DebugHelper.Logger?.Warning("Failed to claim X11 CLIPBOARD ownership. Another application might be the owner.");
-            }
+            ClaimClipboardOwnership();
         }
     }
+    public void SetText(string text)
+    {
+        lock (_lock)
+        {
+            _currentText = text;
+            _currentImage = null;
+            _currentFilename = null;
 
+            ClaimClipboardOwnership();
+        }
+    }
+    private void ClaimClipboardOwnership()
+    {
+        LinuxAPI.XSetSelectionOwner(_display, _atomClipboard, _clipboardWindow, LinuxAPI.CurrentTime);
+        LinuxAPI.XFlush(_display);
+
+        var owner = LinuxAPI.XGetSelectionOwner(_display, _atomClipboard);
+        if (owner == _clipboardWindow)
+            DebugHelper.Logger?.Debug("Successfully claimed X11 CLIPBOARD ownership.");
+        else
+            DebugHelper.Logger?.Warning("Failed to claim X11 CLIPBOARD ownership. Another application might own it.");
+    }
     private void EventLoop(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            if (LinuxAPI.XEventsQueued(_display, 0) == 0)
+            if (LinuxAPI.XPending(_display) == 0)
             {
                 Thread.Sleep(10);
                 continue;
             }
-
+            DebugHelper.Logger.Debug("EventLoop: Processing event!");
             LinuxAPI.XNextEvent(_display, out var eventData);
 
             switch (eventData.type)
@@ -115,6 +146,7 @@ public class X11ClipboardHandler : IDisposable
                     HandleSelectionClear(eventData.xselectionclear);
                     break;
                 default:
+                    DebugHelper.Logger.Debug("Unknown event data type: {EventDataType}", eventData.type);
                     break;
             }
         }
@@ -123,7 +155,7 @@ public class X11ClipboardHandler : IDisposable
 
     private void HandleSelectionRequest(LinuxAPI.XSelectionRequestEvent request)
     {
-        DebugHelper.Logger?.Debug($"SelectionRequest received: Target {GetAtomName(request.target)}");
+        DebugHelper.Logger?.Debug($"SelectionRequest target={GetAtomName(request.target)} property={GetAtomName(request.property)}");
 
         var property = request.property;
         var type = IntPtr.Zero;
@@ -134,33 +166,33 @@ public class X11ClipboardHandler : IDisposable
         try
         {
             if (request.selection != _atomClipboard)
-            {
-                DebugHelper.Logger?.Debug("Selection request for non-CLIPBOARD selection ignored.");
                 return;
-            }
 
-            if (_currentImage == null)
+            if (_currentImage == null && _currentText == null)
             {
-                DebugHelper.Logger?.Warning("Selection request received but no image is set.");
+                DebugHelper.Logger?.Warning("Selection request received but clipboard is empty.");
                 property = IntPtr.Zero;
-                type = IntPtr.Zero;
             }
             else if (request.target == _atomTargets)
             {
-                DebugHelper.Logger?.Debug("Responding to TARGETS request.");
-                IntPtr[] supportedTargets = { _atomTargets, _atomPng, _atomImagePng, _atomUtf8String };
-                data = new byte[supportedTargets.Length * Marshal.SizeOf<IntPtr>()];
-                for (int i = 0; i < supportedTargets.Length; i++)
+                var supportedTargets = new List<IntPtr> { _atomTargets, _atomUtf8String, _atomText };
+                if (_currentImage != null)
                 {
-                    Marshal.WriteIntPtr(data, i * Marshal.SizeOf<IntPtr>(), supportedTargets[i]);
+                    supportedTargets.Add(_atomPng);
+                    supportedTargets.Add(_atomImagePng);
                 }
+
+                data = new byte[supportedTargets.Count * Marshal.SizeOf<IntPtr>()];
+                for (int i = 0; i < supportedTargets.Count; i++)
+                    Marshal.WriteIntPtr(data, i * Marshal.SizeOf<IntPtr>(), supportedTargets[i]);
+
                 type = _atomTargets;
                 format = 32;
-                nElements = supportedTargets.Length;
+                nElements = supportedTargets.Count;
             }
-            else if (request.target == _atomPng || request.target == _atomImagePng)
+            else if (_currentImage != null &&
+                     (request.target == _atomPng || request.target == _atomImagePng))
             {
-                DebugHelper.Logger?.Debug($"Responding to image/png request. Image dimensions: {_currentImage.Width}x{_currentImage.Height}");
                 using var ms = new MemoryStream();
                 _currentImage.Save(ms, new PngEncoder());
                 data = ms.ToArray();
@@ -168,30 +200,24 @@ public class X11ClipboardHandler : IDisposable
                 format = 8;
                 nElements = data.Length;
             }
-            else if (request.target == _atomUtf8String && !string.IsNullOrEmpty(_currentFilename))
+            else if (_currentText != null &&
+                     (request.target == _atomUtf8String || request.target == _atomText))
             {
-                DebugHelper.Logger?.Debug("Responding to UTF8_STRING request (filename).");
-                data = Encoding.UTF8.GetBytes(_currentFilename);
+                data = Encoding.UTF8.GetBytes(_currentText);
                 type = _atomUtf8String;
                 format = 8;
                 nElements = data.Length;
             }
             else
             {
-                DebugHelper.Logger?.Debug($"Unsupported selection target: {GetAtomName(request.target)}.");
+                DebugHelper.Logger?.Debug($"Unsupported selection target: {GetAtomName(request.target)}");
                 property = IntPtr.Zero;
-                type = IntPtr.Zero;
             }
 
             if (property != IntPtr.Zero && data != null)
             {
-                LinuxAPI.XChangeProperty(_display, request.requestor, property, type, format, LinuxAPI.PropModeReplace, data, nElements);
-                DebugHelper.Logger?.Debug($"XChangeProperty successful for target {GetAtomName(request.target)}.");
-            }
-            else if (property != IntPtr.Zero && data == null)
-            {
-                DebugHelper.Logger?.Debug($"No data to provide for target {GetAtomName(request.target)}, setting property to None.");
-                property = IntPtr.Zero;
+                LinuxAPI.XChangeProperty(_display, request.requestor, property, type,
+                    format, LinuxAPI.PropModeReplace, data, nElements);
             }
         }
         catch (Exception ex)
@@ -230,13 +256,7 @@ public class X11ClipboardHandler : IDisposable
             LinuxAPI.XFlush(_display);
 
             if (status == 0)
-            {
                 DebugHelper.Logger?.Warning("XSendEvent for SelectionNotify failed.");
-            }
-            else
-            {
-                DebugHelper.Logger?.Debug($"SelectionNotify sent to {requestor} (property: {GetAtomName(property)}).");
-            }
         }
         finally
         {
@@ -253,6 +273,7 @@ public class X11ClipboardHandler : IDisposable
             {
                 _currentImage = null;
                 _currentFilename = null;
+                _currentText = null;
             }
         }
     }
@@ -278,11 +299,13 @@ public class X11ClipboardHandler : IDisposable
             LinuxAPI.XDestroyWindow(_display, _clipboardWindow);
             _clipboardWindow = IntPtr.Zero;
         }
+
         if (_display != IntPtr.Zero)
         {
             LinuxAPI.XCloseDisplay(_display);
             _display = IntPtr.Zero;
         }
+
         _instance = null;
     }
 }

@@ -61,6 +61,12 @@ public partial class MainWindow : AppWindow
     public void ListenForEvents()
     {
         Core.SnapX.EventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
+        Core.SnapX.EventAggregator.Subscribe<NeedMainWindowHandle>(HandleMainWindowHandleRequested);
+
+        void HandleMainWindowHandleRequested(NeedMainWindowHandle Obj)
+        {
+            Obj.ResultHandle = TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
+        }
     }
     private async void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
     {
