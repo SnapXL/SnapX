@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
@@ -246,74 +245,74 @@ public partial class LinuxAPI : NativeAPI
 
         return windows;
     }
-/// <summary>
-/// Attempts to read the _NET_WM_PID property of a window.
-/// </summary>
-private bool TryGetWindowPid(IntPtr display, IntPtr window, out int pid)
-{
-    pid = 0;
-
-    var atomNetWmPid = XInternAtom(display, "_NET_WM_PID", false);
-
-    IntPtr prop = IntPtr.Zero;
-    IntPtr actualType;
-    int actualFormat;
-    IntPtr nItems;
-    IntPtr bytesAfter;
-
-    // The property should be XA_CARDINAL (a 32-bit unsigned integer).
-    // long_length is 1 because we expect one 32-bit value (the PID).
-    int result = XGetWindowProperty(
-        display,
-        window,
-        atomNetWmPid,
-        0,            // long_offset
-        1,            // long_length (1 CARDINAL = 4 bytes)
-        false,        // delete
-        XA_CARDINAL,  // req_type
-        out actualType,
-        out actualFormat,
-        out nItems,
-        out bytesAfter,
-        out prop);
-
-    if (result != 0)
+    /// <summary>
+    /// Attempts to read the _NET_WM_PID property of a window.
+    /// </summary>
+    private bool TryGetWindowPid(IntPtr display, IntPtr window, out int pid)
     {
-        DebugHelper.WriteLine("Failed to get window process id. XGetWindowProperty returned error code: {0}", result);
-        return false;
-    }
+        pid = 0;
 
-    bool success = false;
-    int itemCount = (int)nItems.ToInt64();
+        var atomNetWmPid = XInternAtom(display, "_NET_WM_PID", false);
 
-    if (itemCount > 0 && prop != IntPtr.Zero)
-    {
+        IntPtr prop = IntPtr.Zero;
+        IntPtr actualType;
+        int actualFormat;
+        IntPtr nItems;
+        IntPtr bytesAfter;
 
-        if (actualType == XA_CARDINAL && actualFormat == 32)
+        // The property should be XA_CARDINAL (a 32-bit unsigned integer).
+        // long_length is 1 because we expect one 32-bit value (the PID).
+        int result = XGetWindowProperty(
+            display,
+            window,
+            atomNetWmPid,
+            0,            // long_offset
+            1,            // long_length (1 CARDINAL = 4 bytes)
+            false,        // delete
+            XA_CARDINAL,  // req_type
+            out actualType,
+            out actualFormat,
+            out nItems,
+            out bytesAfter,
+            out prop);
+
+        if (result != 0)
         {
-            pid = Marshal.ReadInt32(prop);
-            DebugHelper.WriteLine("Got process id {0} for window 0x{1:X}", pid, window.ToInt64());
-            success = true;
+            DebugHelper.WriteLine("Failed to get window process id. XGetWindowProperty returned error code: {0}", result);
+            return false;
+        }
+
+        bool success = false;
+        int itemCount = (int)nItems.ToInt64();
+
+        if (itemCount > 0 && prop != IntPtr.Zero)
+        {
+
+            if (actualType == XA_CARDINAL && actualFormat == 32)
+            {
+                pid = Marshal.ReadInt32(prop);
+                DebugHelper.WriteLine("Got process id {0} for window 0x{1:X}", pid, window.ToInt64());
+                success = true;
+            }
+            else
+            {
+                DebugHelper.WriteLine("Property type or format mismatch. Expected type 0x{0:X} (XA_CARDINAL) and format 32. Got type 0x{1:X} and format {2}.",
+                                      XA_CARDINAL.ToInt64(), actualType.ToInt64(), actualFormat);
+            }
         }
         else
         {
-            DebugHelper.WriteLine("Property type or format mismatch. Expected type 0x{0:X} (XA_CARDINAL) and format 32. Got type 0x{1:X} and format {2}.",
-                                  XA_CARDINAL.ToInt64(), actualType.ToInt64(), actualFormat);
+            DebugHelper.WriteLine("XGetWindowProperty succeeded but returned no items (nItems = {0}).", itemCount);
         }
-    }
-    else
-    {
-        DebugHelper.WriteLine("XGetWindowProperty succeeded but returned no items (nItems = {0}).", itemCount);
-    }
 
-    if (prop != IntPtr.Zero)
-    {
-        XFree(prop);
-    }
+        if (prop != IntPtr.Zero)
+        {
+            XFree(prop);
+        }
 
-    DebugHelper.WriteLine("TryGetWindowPid finished. Success: {0}, PID: {1}", success, pid);
-    return success;
-}
+        DebugHelper.WriteLine("TryGetWindowPid finished. Success: {0}, PID: {1}", success, pid);
+        return success;
+    }
     [LibraryImport(LibX11, StringMarshalling = StringMarshalling.Utf16)]
     internal static partial IntPtr XOpenDisplay(string? display);
 
