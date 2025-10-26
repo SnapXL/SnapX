@@ -144,7 +144,7 @@ for f in %{buildroot}%{_prefix}/lib/%{name}/*.so; do
 done
 
 %check
-snapx-ui --version
+Output/snapx-ui/snapx-ui --version
 
 %files
 %{_bindir}/%{name}
