@@ -200,12 +200,24 @@ jobs:
       - name: Assemble SnapX CLI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: "./build.sh tarball --assembly snapx"
+      - name: Assemble RPM
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        working-directory: packaging
+        run: "spectool -g -R snapx.spec && rpmbuild -ba snapx.spec"
       - name: Upload artifact (CLI - Release on Linux)
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         uses: actions/upload-artifact@v5
         with:
           name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "SnapX-CLI*"
+          compression-level: 9
+          if-no-files-found: error
+      - name: Upload artifact (RPM - Release on Linux)
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        uses: actions/upload-artifact@v5
+        with:
+          name: SnapX-RPM-${{ runner.os }}-${{ runner.arch }}
+          path: "~/rpmbuild/RPMS/*/"
           compression-level: 9
           if-no-files-found: error
 
