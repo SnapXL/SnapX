@@ -200,10 +200,40 @@ jobs:
       - name: Assemble SnapX CLI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: "./build.sh tarball --assembly snapx"
-      - name: Assemble RPM
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        working-directory: packaging
-        run: "spectool -g -R snapx.spec && rpmbuild -ba snapx.spec"
+
+      - name: Pull Fedora image
+        run: sudo docker pull fedora:latest
+
+      - name: Start privileged Fedora container
+        run: |
+          sudo docker run --privileged -d --name fedora_build \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace/packaging \
+            fedora:latest sleep infinity
+
+      - name: Install build tools (Container)
+        run: |
+          sudo docker exec fedora_build bash -c "
+            dnf -y upgrade --refresh &&
+            dnf -y groupinstall 'Development Tools' &&
+            dnf -y install git rpmdevtools rpm-build '@rpm-development-tools' '@fedora-packager' &&
+            echo 'Fedora build environment ready.'
+          "
+      - name: Build RPM package
+        run: |
+          sudo docker exec fedora_build bash -c "
+            cd /workspace/packaging
+            spectool -g -R snapx.spec
+            rpmbuild -ba snapx.spec
+          "
+      - name: Collect built RPMs
+        run: |
+          sudo docker exec fedora_build bash -c "
+            mkdir -p /workspace/packaging/rpms
+            cp -r /root/rpmbuild/RPMS /workspace/packaging/rpms/ || true
+            cp -r /root/rpmbuild/SRPMS /workspace/packaging/rpms/ || true
+          "
+          echo "Built packages are in ./packaging/rpms/"
       - name: Upload artifact (CLI - Release on Linux)
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         uses: actions/upload-artifact@v5
@@ -217,7 +247,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: SnapX-RPM-${{ runner.os }}-${{ runner.arch }}
-          path: "~/rpmbuild/RPMS/*/"
+          path: "packaging/rpms/*.*"
           compression-level: 9
           if-no-files-found: error
 
