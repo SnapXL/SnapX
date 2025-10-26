@@ -202,9 +202,11 @@ jobs:
         run: "./build.sh tarball --assembly snapx"
 
       - name: Pull Fedora image
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: sudo docker pull fedora:latest
 
       - name: Start privileged Fedora container
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: |
           sudo docker run --privileged -d --name fedora_build \
             -v ${{ github.workspace }}:/workspace \
@@ -212,14 +214,15 @@ jobs:
             fedora:latest sleep infinity
 
       - name: Install build tools (Container)
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: |
           sudo docker exec fedora_build bash -c "
             dnf -y upgrade --refresh &&
-            dnf -y groupinstall 'Development Tools' &&
             dnf -y install git rpmdevtools rpm-build '@rpm-development-tools' '@fedora-packager' &&
             echo 'Fedora build environment ready.'
           "
       - name: Build RPM package
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: |
           sudo docker exec fedora_build bash -c "
             cd /workspace/packaging
@@ -227,6 +230,7 @@ jobs:
             rpmbuild -ba snapx.spec
           "
       - name: Collect built RPMs
+        if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: |
           sudo docker exec fedora_build bash -c "
             mkdir -p /workspace/packaging/rpms
