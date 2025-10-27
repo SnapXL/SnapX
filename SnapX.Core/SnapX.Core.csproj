@@ -100,7 +100,7 @@
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->
-    <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.17" />
+    <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.18" />
     <PackageReference Include="FluentFTP" Version="53.0.2" />
     <PackageReference Include="BrycensRanch.MegaApiClient" Version="1.0.0" />
     <PackageReference Include="SSH.NET" Version="2025.0.0" />
