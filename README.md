@@ -196,7 +196,7 @@ Contributions are welcome. The documentation for contributing is a work in progr
 - [Skorlok](https://github.com/Skorlok)
 - [Abdullah16M](https://github.com/Abdullah16M)
 
-**Thank you so much!**
+**Thank you so much!** People like you are the reason why this project is possible. For anyone interested in financially contributing, donate via [Liberapay](https://liberapay.com/BrycensRanch)!
 
 ## Roadmap
 
