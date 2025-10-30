@@ -40,7 +40,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Free Disk Space (Ubuntu)
-        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
+        if: runner.os == 'Linux'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed,
