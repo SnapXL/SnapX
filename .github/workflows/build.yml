@@ -226,6 +226,7 @@ jobs:
           sudo docker exec fedora_build bash -c "
             cd /workspace/packaging
             spectool -g -R snapx.spec
+            dnf builddep -y snapx.spec
             rpmbuild -ba snapx.spec
           "
       - name: Collect built RPMs
@@ -250,7 +251,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: SnapX-RPM-${{ runner.os }}-${{ runner.arch }}
-          path: "packaging/rpms/*.*"
+          path: "packaging/**/*.rpm"
           compression-level: 9
           if-no-files-found: error
 
