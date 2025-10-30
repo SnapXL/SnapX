@@ -217,7 +217,7 @@ jobs:
         run: |
           sudo docker exec fedora_build bash -c "
             dnf -y upgrade --refresh &&
-            dnf -y install git rpmdevtools rpm-build '@rpm-development-tools' '@fedora-packager' libicu &&
+            dnf -y install git rpmdevtools rpm-build '@rpm-development-tools' '@fedora-packager' &&
             echo 'Fedora build environment ready.'
           "
       - name: Build RPM package
