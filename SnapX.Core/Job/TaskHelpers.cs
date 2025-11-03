@@ -34,6 +34,7 @@ using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.SharingServices;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
 using ZXing;
 using ZXing.Common;
@@ -778,32 +779,38 @@ public static class TaskHelpers
 #endif
         var model = GetModelForLanguage(languageCode ?? "eng");
         using var ms = new MemoryStream();
-        var configuration = new Configuration();
-        configuration.ImageFormatsManager.AddImageFormat(AVIFFormat.Instance);
-        configuration.ImageFormatsManager.SetDecoder(AVIFFormat.Instance, new AVIFDecoder());
-        configuration.ImageFormatsManager.AddImageFormatDetector(new AVIFImageFormatDetector());
+
+        var imageConfig = Configuration.Default;
+        imageConfig.ImageFormatsManager.SetEncoder(AVIFFormat.Instance, AVIFEncoder.Instance);
+        imageConfig.ImageFormatsManager.SetDecoder(AVIFFormat.Instance, AVIFDecoder.Instance);
+        imageConfig.ImageFormatsManager.AddImageFormatDetector(new PatchedAVIFImageFormatDetector());
+
         try
         {
             if (filePath is not null && image is null)
-                image = await Image.LoadAsync(new DecoderOptions()
-                {
-                    Configuration = configuration
-                }, filePath);
+            {
+                image = await Image.LoadAsync(filePath);
+            }
         }
         catch (Exception ex)
         {
-            DebugHelper.Logger.Warning("Failed to load image for OCR");
+            var issue = "Failed to load image for OCR";
+            DebugHelper.Logger.Warning(issue);
             DebugHelper.WriteException(ex);
+            return issue + Environment.NewLine + ex.Message;
         }
-        if (image is null) return string.Empty;
-        await image.SaveAsPngAsync(ms);
+        if (image is null) return "SNAPX ERROR: PASSED NULL IMAGE AND NULL FILEPATH.";
+        using (image)
+        {
+            await image.SaveAsPngAsync(ms);
+        }
         DebugHelper.WriteLine(filePath);
 
         // macOS ARM64 does not support ONNX yet.
         var config = model.DetectionModel.Version == ModelVersion.V4 &&
                      !(OperatingSystem.IsMacOS() && RuntimeInformation.OSArchitecture == Architecture.Arm64)
             ? PaddleDevice.Onnx()
-            : PaddleDevice.Blas();
+            : PaddleDevice.Gpu();
 
         using var all = new PaddleOcrAll(model, config)
         {
@@ -815,6 +822,7 @@ public static class TaskHelpers
         DebugHelper.WriteLine($"OCR image bytes: {ms.Length}");
         using var src = Cv2.ImDecode(ms.ToArray(), ImreadModes.Color);
         var result = all.Run(src);
+
         DebugHelper.WriteLine("Detected all texts: \n" + result.Text);
         foreach (var region in result.Regions)
         {
