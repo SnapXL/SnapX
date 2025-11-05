@@ -467,7 +467,7 @@ public static class TaskHelpers
         // Create a list of grayscale colors (from black to white)
         var grayscaleColors = new Color[maxGrayLevels];
 
-        for (int i = 0; i < maxGrayLevels; i++)
+        for (var i = 0; i < maxGrayLevels; i++)
         {
             var grayValue = i * 255 / (maxGrayLevels - 1);
             grayscaleColors[i] = new Color(new Rgba32(grayValue, grayValue, grayValue, 255));
@@ -477,40 +477,38 @@ public static class TaskHelpers
     }
     public static void SaveImageAsFile(Image img, TaskSettings taskSettings, bool overwriteFile = false)
     {
-        using (ImageData imageData = PrepareImage(img, taskSettings))
+        using var imageData = PrepareImage(img, taskSettings);
+        var screenshotsFolder = GetScreenshotsFolder(taskSettings);
+        var fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), img);
+        var filePath = Path.Combine(screenshotsFolder, fileName);
+
+        if (!overwriteFile)
         {
-            string? screenshotsFolder = GetScreenshotsFolder(taskSettings);
-            string? fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), img);
-            string? filePath = Path.Combine(screenshotsFolder, fileName);
-
-            if (!overwriteFile)
-            {
-                filePath = HandleExistsFile(filePath, taskSettings);
-            }
-
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                imageData.Write(filePath);
-                DebugHelper.WriteLine("Image saved to file: " + filePath);
-            }
+            filePath = HandleExistsFile(filePath, taskSettings);
         }
+
+        if (string.IsNullOrEmpty(filePath)) return;
+        imageData.Write(filePath);
+        DebugHelper.WriteLine("Image saved to file: " + filePath);
     }
     public static string? HandleExistsFile(string? filePath, TaskSettings taskSettings)
     {
-        if (File.Exists(filePath))
+        if (!File.Exists(filePath)) return filePath;
+        switch (taskSettings.ImageSettings.FileExistAction)
         {
-            switch (taskSettings.ImageSettings.FileExistAction)
-            {
-                case FileExistAction.Ask:
-                    new NotImplementedException("FileExistAction.Ask not implemented").ShowError();
-                    break;
-                case FileExistAction.UniqueName:
-                    filePath = FileHelpers.GetUniqueFilePath(filePath);
-                    break;
-                case FileExistAction.Cancel:
-                    filePath = "";
-                    break;
-            }
+            case FileExistAction.Ask:
+                new NotImplementedException("FileExistAction.Ask not implemented").ShowError();
+                break;
+            case FileExistAction.UniqueName:
+                filePath = FileHelpers.GetUniqueFilePath(filePath);
+                break;
+            case FileExistAction.Cancel:
+                filePath = "";
+                break;
+            case FileExistAction.Overwrite:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         return filePath;
@@ -689,24 +687,72 @@ public static class TaskHelpers
     {
         try
         {
-            using (Process process = new Process())
+            using var process = new Process();
+            var exePath = Assembly.GetExecutingAssembly().Location;
+            var isWindows = OperatingSystem.IsWindows();
+            var isLinux = OperatingSystem.IsLinux();
+            var isMacOS = OperatingSystem.IsMacOS();
+            var isFreeBSD = OperatingSystem.IsFreeBSD();
+
+            ProcessStartInfo psi;
+
+            if (isWindows)
             {
-                ProcessStartInfo psi = new ProcessStartInfo()
+                psi = new ProcessStartInfo()
                 {
-                    FileName = Assembly.GetExecutingAssembly().Location,
+                    FileName = exePath,
                     Arguments = arguments,
                     UseShellExecute = true,
                     Verb = "runas"
                 };
-
-                process.StartInfo = psi;
-                process.Start();
             }
+            else if (isLinux)
+            {
+                psi = new ProcessStartInfo()
+                {
+                    FileName = "pkexec",
+                    ArgumentList = { exePath },
+                    UseShellExecute = false
+                };
+                if (!string.IsNullOrEmpty(arguments))
+                    psi.ArgumentList.Add(arguments);
+            }
+            else if (isMacOS)
+            {
+                psi = new ProcessStartInfo()
+                {
+                    FileName = "osascript",
+                    ArgumentList =
+                    {
+                        "-e", $"do shell script \"'{exePath}' {(arguments ?? "")}\" with administrator privileges"
+                    },
+                    UseShellExecute = false
+                };
+            }
+            else if (isFreeBSD)
+            {
+                psi = new ProcessStartInfo()
+                {
+                    FileName = "doas",
+                    ArgumentList = { exePath },
+                    UseShellExecute = false
+                };
+                if (!string.IsNullOrEmpty(arguments))
+                    psi.ArgumentList.Add(arguments);
+            }
+            else
+            {
+                return;
+            }
+
+            process.StartInfo = psi;
+            process.Start();
         }
         catch
         {
         }
     }
+
 
     public static void SearchImageUsingGoogleLens(string? url)
     {
