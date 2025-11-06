@@ -76,7 +76,7 @@
     <PackageReference Include="Sdcb.PaddleOCR" Version="$(PaddleOCRVersion)" />
     <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="$(PaddleOCRVersion)" />
     <!-- Crash forensics & performance analytics -->
-    <PackageReference Include="Sentry.Profiling" Version="5.16.1" />
+    <PackageReference Include="Sentry.Profiling" Version="5.16.2" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
@@ -104,6 +104,7 @@
     <PackageReference Include="FluentFTP" Version="53.0.2" />
     <PackageReference Include="BrycensRanch.MegaApiClient" Version="1.0.0" />
     <PackageReference Include="SSH.NET" Version="2025.1.0" />
+    <PackageReference Update="GitVersion.MsBuild" Version="6.5.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Resources\host-manifest-chrome.json">
