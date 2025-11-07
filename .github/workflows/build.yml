@@ -25,6 +25,7 @@ jobs:
       options: --privileged
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
+      API_KEYS: ${{ secrets.API_KEYS }}
     strategy:
       fail-fast: false
       matrix:
@@ -57,8 +58,8 @@ jobs:
       - name: Collect RPMs
         run: |
           mkdir -p ${{github.workspace}}/packaging/rpms
-          cp -r /root/rpmbuild/RPMS ${{github.workspace}}/packaging/rpms/ || true
-          cp -r /root/rpmbuild/SRPMS ${{github.workspace}}/packaging/rpms/ || true
+          cp -r ~/rpmbuild/RPMS ${{github.workspace}}/packaging/rpms/ || true
+          cp -r ~/rpmbuild/SRPMS ${{github.workspace}}/packaging/rpms/ || true
       - name: Upload artifact (RPM - Release on Linux)
         uses: actions/upload-artifact@v5
         with:
