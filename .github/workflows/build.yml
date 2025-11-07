@@ -96,7 +96,8 @@ jobs:
         run: |
           sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
             set -e
-            dnf builddep -y /workspace/packaging/snapx.spec
+            cd /workspace/packaging
+            dnf builddep -y snapx.spec
           '
       - name: Build RPM package
         run: |
