@@ -16,6 +16,82 @@ permissions:
   contents: read
 
 jobs:
+  rpms:
+    name: RPMs
+    runs-on: ${{matrix.os}}
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, ubuntu-24.04-arm]
+        include:
+          - container: fedora
+            tag: rawhide
+          - container: fedora
+            tag: 43
+          - container: fedora
+            tag: 42
+          - container: fedora
+            tag: 41
+#          - container: opensuse
+#          - container: mageia
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Free Disk Space (Ubuntu)
+        if: runner.os == 'Linux'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: false
+          dotnet: false
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
+      - name: Start privileged ${{matrix.container}} container
+        run: |
+          sudo docker run --privileged -d --name ${{matrix.container}}${{matrix.tag}}_build \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace/packaging \
+            ${{matrix.container}}:${{matrix.tag}} sleep infinity
+
+      - name: Install build tools (Container)
+        run: |
+          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c "
+            dnf -y upgrade --refresh &&
+            dnf -y install git rpmdevtools rpm-build '@rpm-development-tools' '@fedora-packager' &&
+            dnf builddep -y /workspace/packaging/snapx.spec
+          "
+      - name: Build RPM package
+        run: |
+          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c "
+            cd /workspace/packaging
+            spectool -g -R snapx.spec
+            rpmbuild -ba snapx.spec
+          "
+      - name: Collect built RPMs
+        run: |
+          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c "
+            mkdir -p /workspace/packaging/rpms
+            cp -r /root/rpmbuild/RPMS /workspace/packaging/rpms/ || true
+            cp -r /root/rpmbuild/SRPMS /workspace/packaging/rpms/ || true
+          "
+          echo "Built packages are in ./packaging/rpms/"
+      - name: Upload artifact (RPM - Release on Linux)
+        uses: actions/upload-artifact@v5
+        with:
+          name: SnapX-RPM-${{ matrix.container }}-${{matrix.tag}}-${{ runner.arch }}
+          path: "packaging/**/*.rpm"
+          if-no-files-found: error
   build:
     name: Build
     runs-on: ${{matrix.os}}
@@ -199,59 +275,12 @@ jobs:
       - name: Assemble SnapX CLI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: "./build.sh tarball --assembly snapx"
-
-      - name: Pull Fedora image
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: sudo docker pull fedora:latest
-
-      - name: Start privileged Fedora container
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: |
-          sudo docker run --privileged -d --name fedora_build \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace/packaging \
-            fedora:latest sleep infinity
-
-      - name: Install build tools (Container)
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: |
-          sudo docker exec fedora_build bash -c "
-            dnf -y upgrade --refresh &&
-            dnf -y install git rpmdevtools rpm-build '@rpm-development-tools' '@fedora-packager' &&
-            echo 'Fedora build environment ready.'
-          "
-      - name: Build RPM package
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: |
-          sudo docker exec fedora_build bash -c "
-            cd /workspace/packaging
-            spectool -g -R snapx.spec
-            dnf builddep -y snapx.spec
-            rpmbuild -ba snapx.spec
-          "
-      - name: Collect built RPMs
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: |
-          sudo docker exec fedora_build bash -c "
-            mkdir -p /workspace/packaging/rpms
-            cp -r /root/rpmbuild/RPMS /workspace/packaging/rpms/ || true
-            cp -r /root/rpmbuild/SRPMS /workspace/packaging/rpms/ || true
-          "
-          echo "Built packages are in ./packaging/rpms/"
       - name: Upload artifact (CLI - Release on Linux)
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         uses: actions/upload-artifact@v5
         with:
           name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "SnapX-CLI*"
-          compression-level: 9
-          if-no-files-found: error
-      - name: Upload artifact (RPM - Release on Linux)
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        uses: actions/upload-artifact@v5
-        with:
-          name: SnapX-RPM-${{ runner.os }}-${{ runner.arch }}
-          path: "packaging/**/*.rpm"
           compression-level: 9
           if-no-files-found: error
 
