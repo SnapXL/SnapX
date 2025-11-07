@@ -73,14 +73,18 @@ jobs:
             dnf -y install git
             git clone https://github.com/${GITHUB_REPOSITORY}.git /tmp/workspace_tmp
             cp -a /tmp/workspace_tmp/. /workspace/
+            cp -a /tmp/workspace_tmp/* /workspace/
             rm -rf /tmp/workspace_tmp
             cd /workspace
             # Checkout the exact commit from CI
             git fetch --all --tags
             git checkout ${GITHUB_SHA}
-            curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
           '
-
+      - name: File list (Container)
+        run: |
+          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
+          tree /workspace
+          '
       - name: Install build tools (Container)
         run: |
           sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
