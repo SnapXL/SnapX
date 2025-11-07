@@ -21,30 +21,16 @@ jobs:
     runs-on: ${{matrix.os}}
     timeout-minutes: 360
     container:
-      image: ${{ matrix.container }}:${{ matrix.tag }}
+      image: ${{ matrix.container }}
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
       API_KEYS: ${{ secrets.API_KEYS }}
     strategy:
       fail-fast: false
       matrix:
-          os: [ ubuntu-24.04, ubuntu-24.04-arm ]
-  
-          container: [ fedora ]
-  
-          # Tags that apply to Fedora containers
-          tag: [ rawhide, '43', '42', '41' ]
-  
-          include:
-          # Example OpenSUSE builds (commented for now)
-          # - os: ubuntu-24.04
-          #   container: opensuse/leap
-          #   tag: '15.6'
-          # - os: ubuntu-24.04-arm
-          #   container: opensuse/tumbleweed
-          #   tag: latest
-#          - container: opensuse
-#          - container: mageia
+        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+
+        container: [ fedora:rawhide, fedora:43, fedora:42, fedora:41 ]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -69,10 +55,15 @@ jobs:
 
           # Save the list as an output for the next step
           echo "rpm_paths=$(paste -sd ' ' rpm_files.txt)" >> $GITHUB_OUTPUT
+      - name: Format Container Name
+        id: format
+        run: |
+          name="${{ matrix.container }}"
+          echo "formattedName=${name^//:/-}" >> "$GITHUB_OUTPUT"
       - name: Upload artifact (RPM - Release on Linux)
         uses: actions/upload-artifact@v5
         with:
-          name: SnapX-RPM-${{ matrix.container }}-${{matrix.tag}}-${{ runner.arch }}
+          name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
           path: /github/home/rpmbuild/**/*.rpm
           if-no-files-found: error
   build:
