@@ -78,7 +78,7 @@ jobs:
             cd /workspace
             # Checkout the exact commit from CI
             git fetch --all --tags
-            git checkout ${GITHUB_SHA}
+            git checkout -B ci_rpms ${GITHUB_SHA}
           '
       - name: File list (Container)
         run: |
