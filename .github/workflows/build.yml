@@ -54,6 +54,7 @@ jobs:
           cd packaging
           dnf builddep -y snapx.spec
           spectool -g -R snapx.spec
+          rpmdev-setuptree
           rpmbuild -ba snapx.spec
       - name: Collect RPMs
         run: |
