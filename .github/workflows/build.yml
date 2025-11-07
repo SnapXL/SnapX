@@ -68,7 +68,7 @@ jobs:
         run: |
           sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c "
             dnf -y upgrade --refresh &&
-            dnf -y install git rpmdevtools rpm-build '@rpm-development-tools' '@fedora-packager' &&
+            dnf -y install git rpmdevtools rpm-build '@rpm-development-tools' '@fedora-packager' icu-libs &&
             dnf builddep -y /workspace/packaging/snapx.spec
           "
       - name: Build RPM package
