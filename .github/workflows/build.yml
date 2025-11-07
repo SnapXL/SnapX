@@ -77,7 +77,7 @@ jobs:
             rm -rf /tmp/workspace_tmp
             cd /workspace
             # Checkout the exact commit from CI
-            git config --global --add safe.directory /workspace
+            git config --add safe.directory /workspace
             git fetch --all --tags
             git checkout ${GITHUB_SHA}
           '
