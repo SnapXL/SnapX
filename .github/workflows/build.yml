@@ -71,10 +71,10 @@ jobs:
           sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
             set -e
             dnf -y install git
-            git clone https://github.com/${GITHUB_REPOSITORY}.git /workspace_tmp
+            git clone https://github.com/${GITHUB_REPOSITORY}.git /tmp/workspace_tmp
             shopt -s dotglob extglob  # include hidden files in globs
-            mv /workspace_tmp/!(packaging) /workspace/
-            rm -rf /workspace_tmp
+            mv /tmp/workspace_tmp/!(packaging/rpms) /workspace/
+            rm -rf /tmp/workspace_tmp
             cd /workspace
             # Checkout the exact commit from CI
             git fetch --all --tags
