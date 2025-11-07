@@ -17,7 +17,7 @@
 
 # This spec requires internet access! This is only meant to be built on GitHub Actions at the moment!
 %global base_release 3
-%global full_version %(../build.sh --version 2>/dev/null | tail -n1 | tr -d '\n' || echo 0.4.0)
+%global full_version %(../build.sh --version | tail -n1 | tr -d '\n' || echo 0.4.0)
 
 # extract upstream version (everything before the last dot-number+git)
 %global version %(echo "%{full_version}" | sed 's/\.[^.]*$//; s/-/~/g')
