@@ -49,8 +49,6 @@ jobs:
       - name: Build RPM
         run: |
           cd packaging
-          git fetch --all --tags
-          git checkout $GITHUB_SHA
           dnf builddep -y snapx.spec
           spectool -g -R snapx.spec
           rpmbuild -ba snapx.spec
