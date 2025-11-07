@@ -70,6 +70,10 @@ jobs:
             dnf -y upgrade --refresh &&
             dnf -y install git rpmdevtools rpm-build dotnet-sdk-9.0 &&
             dotnet tool install --global GitVersion.Tool &&
+            cat << \EOF >> ~/.bash_profile
+            # Add .NET Core SDK tools
+            export PATH="$PATH:~/.dotnet/tools"
+            EOF
             dotnet-gitversion &&
             dnf builddep -y /workspace/packaging/snapx.spec
           "
