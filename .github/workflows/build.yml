@@ -23,6 +23,8 @@ jobs:
     container:
       image: ${{ matrix.container }}:${{ matrix.tag }}
       options: --privileged
+    env:
+      ALLOW_DOTNET_DOWNLOAD: 1
     strategy:
       fail-fast: false
       matrix:
