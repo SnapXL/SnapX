@@ -72,8 +72,7 @@ jobs:
             set -e
             dnf -y install git
             git clone https://github.com/${GITHUB_REPOSITORY}.git /tmp/workspace_tmp
-            shopt -s dotglob extglob  # include hidden files in globs
-            mv /tmp/workspace_tmp/!(packaging/rpms) /workspace/
+            cp -a /tmp/workspace_tmp/. /workspace/
             rm -rf /tmp/workspace_tmp
             cd /workspace
             # Checkout the exact commit from CI
