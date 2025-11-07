@@ -68,7 +68,9 @@ jobs:
         run: |
           sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c "
             dnf -y upgrade --refresh &&
-            dnf -y install git rpmdevtools rpm-build '@rpm-development-tools' '@fedora-packager' libicu &&
+            dnf -y install git rpmdevtools rpm-build dotnet-sdk-9.0 &&
+            dotnet tool install --global GitVersion.Tool &&
+            dotnet-gitversion &&
             dnf builddep -y /workspace/packaging/snapx.spec
           "
       - name: Build RPM package
