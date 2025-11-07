@@ -60,6 +60,7 @@ jobs:
       - name: Start privileged ${{matrix.container}} container
         run: |
           env | grep -vE '^(PWD|OLDPWD|SHLVL|_)=' > env.list
+          echo "ALLOW_DOTNET_DOWNLOAD=1" >> env.list
           sudo docker run --privileged -d --name ${{matrix.container}}${{matrix.tag}}_build \
             --env-file env.list \
             -v ${{ github.workspace }}:/workspace \
