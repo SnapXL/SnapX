@@ -68,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: SnapX-RPM-${{ matrix.container }}-${{matrix.tag}}-${{ runner.arch }}
-          path: ${{ steps.build_rpm.outputs.rpm_paths }}
+          path: /github/home/rpmbuild/**/*.rpm
           if-no-files-found: error
   build:
     name: Build
