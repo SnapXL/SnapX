@@ -20,6 +20,9 @@ jobs:
     name: RPMs
     runs-on: ${{matrix.os}}
     timeout-minutes: 360
+    container:
+      image: ${{ matrix.container }}:${{ matrix.tag }}
+      options: --privileged
     strategy:
       fail-fast: false
       matrix:
@@ -36,86 +39,26 @@ jobs:
 #          - container: opensuse
 #          - container: mageia
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Free Disk Space (Ubuntu)
-        if: runner.os == 'Linux'
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: false
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: false
-          dotnet: false
-          haskell: true
-          large-packages: false
-          docker-images: false
-          swap-storage: false
-
-      - name: Clone repo inside container
+      - name: Setup environment
         run: |
-          env | grep -vE '^(PWD|OLDPWD|SHLVL|_)=' > env.list
-          echo "ALLOW_DOTNET_DOWNLOAD=1" >> env.list
-          echo "DisableGitVersionTask=1" >> env.list
-
-          sudo docker run --privileged -d --name ${{matrix.container}}${{matrix.tag}}_build \
-            --env-file env.list \
-            -w /workspace \
-            -v ${{github.workspace}}/packaging/rpms:/workspace/packaging/rpms \
-            ${{matrix.container}}:${{matrix.tag}} sleep infinity
-
-          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
-            set -e
-            dnf -y install git tree
-            git clone https://github.com/${GITHUB_REPOSITORY}.git /tmp/workspace_tmp
-            cp -a /tmp/workspace_tmp/. /workspace/
-            cp -a /tmp/workspace_tmp/* /workspace/
-            rm -rf /tmp/workspace_tmp
-            cd /workspace
-            # Checkout the exact commit from CI
-            git config --add safe.directory /workspace
-            git fetch --all --tags
-            git checkout ${GITHUB_SHA}
-          '
-      - name: File list (Container)
+          dnf -y upgrade --refresh
+          dnf -y install git rpmdevtools rpm-build libicu
+      - name: Build RPM
         run: |
-          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
-          tree /workspace
-          '
-      - name: Install build tools (Container)
+          cd packaging
+          git fetch --all --tags
+          git checkout $GITHUB_SHA
+          dnf builddep -y snapx.spec
+          spectool -g -R snapx.spec
+          rpmbuild -ba snapx.spec
+      - name: Collect RPMs
         run: |
-          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
-            set -e
-            dnf -y upgrade --refresh &&
-            dnf -y install rpmdevtools rpm-build libicu
-          '
-      - name: Install build dependencies (Container)
-        run: |
-          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
-            set -e
-            cd /workspace/packaging
-            dnf builddep -y snapx.spec
-          '
-      - name: Build RPM package
-        run: |
-          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c "
-            cd /workspace/packaging
-            spectool -g -R snapx.spec
-            rpmbuild -ba snapx.spec
-          "
-      - name: Collect built RPMs
-        run: |
-          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c "
-            mkdir -p /workspace/packaging/rpms
-            cp -r /root/rpmbuild/RPMS /workspace/packaging/rpms/ || true
-            cp -r /root/rpmbuild/SRPMS /workspace/packaging/rpms/ || true
-          "
-          echo "Built packages are in ./packaging/rpms/"
+          mkdir -p ${{github.workspace}}/packaging/rpms
+          cp -r /root/rpmbuild/RPMS ${{github.workspace}}/packaging/rpms/ || true
+          cp -r /root/rpmbuild/SRPMS ${{github.workspace}}/packaging/rpms/ || true
       - name: Upload artifact (RPM - Release on Linux)
         uses: actions/upload-artifact@v5
         with:
