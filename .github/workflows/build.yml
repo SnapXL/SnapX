@@ -59,24 +59,24 @@ jobs:
 
       - name: Start privileged ${{matrix.container}} container
         run: |
+          env | grep -vE '^(PWD|OLDPWD|SHLVL|_)=' > env.list
           sudo docker run --privileged -d --name ${{matrix.container}}${{matrix.tag}}_build \
+            --env-file env.list \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace/packaging \
             ${{matrix.container}}:${{matrix.tag}} sleep infinity
 
       - name: Install build tools (Container)
         run: |
-          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c "
+          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
+            set -e
             dnf -y upgrade --refresh &&
-            dnf -y install git rpmdevtools rpm-build dotnet-sdk-9.0 &&
-            dotnet tool install --global GitVersion.Tool &&
-            cat << \EOF >> ~/.bash_profile
-            # Add .NET Core SDK tools
-            export PATH="$PATH:~/.dotnet/tools"
-            EOF
-            dotnet-gitversion &&
+            dnf -y install git rpmdevtools rpm-build libicu &&
+            echo "# Add .NET Core SDK tools" >> ~/.bash_profile &&
+            echo "export PATH=\$PATH:\$HOME/.dotnet/tools" >> ~/.bash_profile &&
+            source ~/.bash_profile &&
             dnf builddep -y /workspace/packaging/snapx.spec
-          "
+          '
       - name: Build RPM package
         run: |
           sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c "
