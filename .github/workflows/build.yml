@@ -22,7 +22,6 @@ jobs:
     timeout-minutes: 360
     container:
       image: ${{ matrix.container }}:${{ matrix.tag }}
-      options: --privileged
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
       API_KEYS: ${{ secrets.API_KEYS }}
@@ -50,22 +49,26 @@ jobs:
           dnf -y upgrade --refresh
           dnf -y install git rpmdevtools rpm-build libicu
       - name: Build RPM
+        id: build_rpm
         run: |
           cd packaging
           dnf builddep -y snapx.spec
           spectool -g -R snapx.spec
           rpmdev-setuptree
-          rpmbuild -ba snapx.spec
-      - name: Collect RPMs
-        run: |
-          mkdir -p ${{github.workspace}}/packaging/rpms
-          cp -r ~/rpmbuild/RPMS ${{github.workspace}}/packaging/rpms/ || true
-          cp -r ~/rpmbuild/SRPMS ${{github.workspace}}/packaging/rpms/ || true
+          rpmbuild -ba packaging/snapx.spec | tee rpmbuild.log
+          # Extract all lines starting with "Wrote:" and get the file paths
+          grep '^Wrote:' rpmbuild.log | awk '{print $2}' > rpm_files.txt
+
+          # Print the paths for debugging
+          cat rpm_files.txt
+
+          # Save the list as an output for the next step
+          echo "rpm_paths=$(paste -sd ',' rpm_files.txt)" >> $GITHUB_OUTPUT
       - name: Upload artifact (RPM - Release on Linux)
         uses: actions/upload-artifact@v5
         with:
           name: SnapX-RPM-${{ matrix.container }}-${{matrix.tag}}-${{ runner.arch }}
-          path: "packaging/**/*.rpm"
+          path: ${{ steps.build_rpm.outputs.rpm_paths }}
           if-no-files-found: error
   build:
     name: Build
