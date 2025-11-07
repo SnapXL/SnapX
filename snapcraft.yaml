@@ -120,7 +120,7 @@ parts:
     plugin: cmake
     source-type: git
     source: https://github.com/microsoft/msquic.git
-    source-tag: v2.5.4
+    source-tag: v2.5.5
     cmake-parameters: [-DCMAKE_INSTALL_PREFIX=/usr]
 lint:
   ignore:
