@@ -72,8 +72,8 @@ jobs:
             set -e
             dnf -y upgrade --refresh &&
             dnf -y install git rpmdevtools rpm-build libicu &&
-            echo "# Add .NET Core SDK tools" >> ~/.bash_profile &&
-            echo "export PATH=\$PATH:\$HOME/.dotnet/tools" >> ~/.bash_profile
+            echo "# Add .NET Core SDK tools" >> $HOME/.bash_profile &&
+            echo "export PATH=\$PATH:\$HOME/.dotnet/tools" >> $HOME/.bash_profile
           '
       - name: Install build dependencies (Container)
         run: |
