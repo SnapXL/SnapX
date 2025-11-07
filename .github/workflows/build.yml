@@ -74,7 +74,11 @@ jobs:
             dnf -y install git rpmdevtools rpm-build libicu &&
             echo "# Add .NET Core SDK tools" >> ~/.bash_profile &&
             echo "export PATH=\$PATH:\$HOME/.dotnet/tools" >> ~/.bash_profile &&
-            source \$HOME/.bash_profile &&
+          '
+      - name: Install build dependencies (Container)
+        run: |
+          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
+            set -e
             dnf builddep -y /workspace/packaging/snapx.spec
           '
       - name: Build RPM package
