@@ -55,7 +55,7 @@ jobs:
           dnf builddep -y snapx.spec
           spectool -g -R snapx.spec
           rpmdev-setuptree
-          rpmbuild -ba packaging/snapx.spec | tee rpmbuild.log
+          rpmbuild -ba snapx.spec | tee rpmbuild.log
           # Extract all lines starting with "Wrote:" and get the file paths
           grep '^Wrote:' rpmbuild.log | awk '{print $2}' > rpm_files.txt
 
