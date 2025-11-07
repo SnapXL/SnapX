@@ -28,16 +28,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, ubuntu-24.04-arm]
-        include:
-          - container: fedora
-            tag: rawhide
-          - container: fedora
-            tag: 43
-          - container: fedora
-            tag: 42
-          - container: fedora
-            tag: 41
+          os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+  
+          container: [ fedora ]
+  
+          # Tags that apply to Fedora containers
+          tag: [ rawhide, '43', '42', '41' ]
+  
+          include:
+          # Example OpenSUSE builds (commented for now)
+          # - os: ubuntu-24.04
+          #   container: opensuse/leap
+          #   tag: '15.6'
+          # - os: ubuntu-24.04-arm
+          #   container: opensuse/tumbleweed
+          #   tag: latest
 #          - container: opensuse
 #          - container: mageia
     steps:
