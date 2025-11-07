@@ -57,22 +57,33 @@ jobs:
           docker-images: false
           swap-storage: false
 
-      - name: Start privileged ${{matrix.container}} container
+      - name: Clone repo inside container
         run: |
           env | grep -vE '^(PWD|OLDPWD|SHLVL|_)=' > env.list
           echo "ALLOW_DOTNET_DOWNLOAD=1" >> env.list
+
           sudo docker run --privileged -d --name ${{matrix.container}}${{matrix.tag}}_build \
             --env-file env.list \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace/packaging \
+            -w /workspace \
+            -v ${{github.workspace}}/packaging/rpms:/workspace/packaging/rpms
             ${{matrix.container}}:${{matrix.tag}} sleep infinity
+
+          sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
+            set -e
+            dnf -y install git
+            git clone --depth=0 https://github.com/${GITHUB_REPOSITORY}.git /workspace
+            cd /workspace
+            # Checkout the exact commit from CI
+            git fetch --all --tags
+            git checkout ${GITHUB_SHA}
+          '
 
       - name: Install build tools (Container)
         run: |
           sudo docker exec ${{matrix.container}}${{matrix.tag}}_build bash -c '
             set -e
             dnf -y upgrade --refresh &&
-            dnf -y install git rpmdevtools rpm-build libicu
+            dnf -y install rpmdevtools rpm-build libicu
           '
       - name: Install build dependencies (Container)
         run: |
