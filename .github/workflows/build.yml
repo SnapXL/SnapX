@@ -63,7 +63,7 @@ jobs:
           cat rpm_files.txt
 
           # Save the list as an output for the next step
-          echo "rpm_paths=$(paste -sd ',' rpm_files.txt)" >> $GITHUB_OUTPUT
+          echo "rpm_paths=$(paste -sd ' ' rpm_files.txt)" >> $GITHUB_OUTPUT
       - name: Upload artifact (RPM - Release on Linux)
         uses: actions/upload-artifact@v5
         with:
