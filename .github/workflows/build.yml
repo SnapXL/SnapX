@@ -24,7 +24,6 @@ jobs:
       image: ${{ matrix.container }}
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
-      API_KEYS: ${{ secrets.API_KEYS }}
     strategy:
       fail-fast: false
       matrix:
@@ -41,6 +40,8 @@ jobs:
           dnf -y install git rpmdevtools rpm-build libicu
       - name: Build RPM
         id: build_rpm
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
         run: |
           cd packaging
           dnf builddep -y snapx.spec
@@ -58,8 +59,11 @@ jobs:
       - name: Format Container Name
         id: format
         run: |
-          name="${{ matrix.container }}"
-          echo "formattedName=${name^//:/-}" >> "$GITHUB_OUTPUT"
+          CONTAINER_NAME="${{ matrix.container }}"
+          formattedName=$(echo "${CONTAINER_NAME}" | awk -F: '{
+            printf "%s", toupper(substr($1,1,1)) tolower(substr($1,2)) "-" toupper(substr($2,1,1)) tolower(substr($2,2))
+          }')
+          echo "formattedName=${formattedName}" >> "$GITHUB_OUTPUT"
       - name: Upload artifact (RPM - Release on Linux)
         uses: actions/upload-artifact@v5
         with:
