@@ -5,7 +5,6 @@
     <Nullable>enable</Nullable>
     <AssemblyName>snapx-ui</AssemblyName>
     <AssemblyTitle>SnapX UI</AssemblyTitle>
-    <ApplicationIcon>Assets\SnapX_Icon.ico</ApplicationIcon>
     <InvariantGlobalization>false</InvariantGlobalization>
     <!-- Recommended Avalonia trimming settings for Native AOT -->
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -14,8 +13,12 @@
     <AvaloniaVersion>11.3.8</AvaloniaVersion>
     <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.2</HarfBuzzSharpVersion>
+    <VelloSharpVersion>0.5.0-alpha.3</VelloSharpVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called snapx-ui. Instead create a executable shell script that calls snapx-ui -->
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFreeBSD)' != 'true'">
+    <ApplicationIcon>Assets\SnapX_Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetWindows)' == 'true'">
     <AvaloniaVersion>11.3.4</AvaloniaVersion>
@@ -68,6 +71,23 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
     <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
     <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFreeBSD)' == 'true'">
+    <!-- Fork with patched X11 threading semantics -->
+    <PackageReference Remove="Avalonia.X11" />
+    <PackageReference Include="BrycensRanch.Avalonia.X11" Version="$(AvaloniaVersion)" />
+
+
+    <PackageReference Include="VelloSharp.Avalonia.Vello" Version="$(VelloSharpVersion)" />
+    <PackageReference Include="VelloSharp.HarfBuzzSharp" Version="$(VelloSharpVersion)" />
+    <PackageReference Remove="HarfBuzzSharp" />
+    <PackageReference Remove="HarfBuzzSharp.NativeAssets.Linux" />
+    <PackageReference Remove="HarfBuzzSharp.NativeAssets.macOS" />
+    <PackageReference Remove="HarfBuzzSharp.NativeAssets.Win32" />
+    <PackageReference Remove="HarfBuzzSharp.NativeAssets.WebAssembly" />
+
+    <PackageReference Include="VelloSharp.Native.Vello" Version="$(VelloSharpVersion)" />
+    <PackageReference Include="BrycensRanch.VelloSharp.Native.Vello.freebsd-x64" Version="$(VelloSharpVersion)" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\" />
