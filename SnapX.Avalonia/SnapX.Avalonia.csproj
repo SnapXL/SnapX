@@ -74,9 +74,10 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFreeBSD)' == 'true'">
     <!-- Fork with patched X11 threading semantics -->
+    <PackageReference Remove="Avalonia.Desktop" />
     <PackageReference Remove="Avalonia.X11" />
+    <PackageReference Include="BrycensRanch.Avalonia.Desktop" Version="$(AvaloniaVersion)" />
     <PackageReference Include="BrycensRanch.Avalonia.X11" Version="$(AvaloniaVersion)" />
-
 
     <PackageReference Include="VelloSharp.Avalonia.Vello" Version="$(VelloSharpVersion)" />
     <PackageReference Include="VelloSharp.HarfBuzzSharp" Version="$(VelloSharpVersion)" />
