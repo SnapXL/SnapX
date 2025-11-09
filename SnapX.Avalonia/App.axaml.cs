@@ -357,7 +357,7 @@ public partial class App : Application
                     DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
 
                     var logoBitmap = new Bitmap(AssetLoader.Open(new Uri("avares://snapx-ui/SnapX_Logo.png")));
-                    if (SnapX.GetConfiguration().ShowTray)
+                    if (!OperatingSystem.IsFreeBSD() && SnapX.GetConfiguration().ShowTray)
                     {
                         var trayIcon = new TrayIcon
                         {
