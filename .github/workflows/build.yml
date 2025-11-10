@@ -116,7 +116,7 @@ jobs:
           Write-Host "Uninstalling browsers via Chocolatey"
 
           if (Get-Command choco -ErrorAction SilentlyContinue) {
-            choco list --local-only
+            choco list -i
 
             Write-Host "Uninstalling browsers via Chocolatey..."
             choco uninstall googlechrome -y --remove-dependencies || Write-Host "Chrome not found via choco."
