@@ -110,27 +110,15 @@ jobs:
           docker-images: false
           swap-storage: false
       - name: Free Disk Space (Windows)
-        if: runner.os == 'Windows'
+        if: matrix.os == 'windows-11-arm'
         shell: pwsh
         run: |
-          Write-Host "Uninstalling browsers via Chocolatey and Winget..."
+          Write-Host "Uninstalling browsers via Chocolatey"
 
           if (Get-Command choco -ErrorAction SilentlyContinue) {
           choco uninstall googlechrome -y --remove-dependencies || Write-Host "Chrome not found via choco."
           } else {
             Write-Host "Chocolatey not available."
-          }
-
-          # Try Winget only if installed
-          if (Get-Command winget -ErrorAction SilentlyContinue) {
-          $apps = @("Google.Chrome", "Mozilla.Firefox")
-          foreach ($app in $apps) {
-          Write-Host "Trying to uninstall $app via Winget..."
-          winget uninstall --id $app --silent --accept-source-agreements `
-          || Write-Host "$app not found via Winget."
-          }
-          } else {
-            Write-Host "Winget not available, skipping Winget uninstalls."
           }
       - name: Setup dotnet
         uses: actions/setup-dotnet@v5
