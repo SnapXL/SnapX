@@ -198,7 +198,7 @@ The version bump is automatically determined based on your commit messages. Here
 - All commits must follow [Conventional Commit](https://www.conventionalcommits.org/) format.
   _We accept the Angular flavor (e.g., `feat:`, `fix:`) and support semantic bump hints._
 
-### AI policy {#ai-policy}
+### AI policy
 
 Okay, so here's the thing:
 
