@@ -123,7 +123,7 @@ jobs:
           $apps = @("Google.Chrome", "Mozilla.Firefox", "Microsoft.Edge")
           foreach ($app in $apps) {
           Write-Host "Trying to uninstall $app via Winget..."
-          winget uninstall --id $app --silent --accept-source-agreements --accept-package-agreements `
+          winget uninstall --id $app --silent `
            || Write-Host "$app not found via Winget."
           }
       - name: Setup dotnet
