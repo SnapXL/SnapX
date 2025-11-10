@@ -117,13 +117,12 @@ jobs:
 
           choco uninstall googlechrome -y --remove-dependencies || Write-Host "Chrome not found via choco."
           choco uninstall firefox -y --remove-dependencies || Write-Host "Firefox not found via choco."
-          choco uninstall microsoft-edge -y --remove-dependencies || Write-Host "Edge not found via choco."
 
           # Fallback: Winget (some browsers may only be registered here)
-          $apps = @("Google.Chrome", "Mozilla.Firefox", "Microsoft.Edge")
+          $apps = @("Google.Chrome", "Mozilla.Firefox")
           foreach ($app in $apps) {
           Write-Host "Trying to uninstall $app via Winget..."
-          winget uninstall --id $app --silent `
+          winget uninstall --id $app --silent --accept-source-agreements `
            || Write-Host "$app not found via Winget."
           }
       - name: Setup dotnet
