@@ -109,6 +109,23 @@ jobs:
           large-packages: false
           docker-images: false
           swap-storage: false
+      - name: Free Disk Space (Windows)
+        if: runner.os = "Windows"
+        shell: pwsh
+        run: |
+          Write-Host "Uninstalling browsers via Chocolatey and Winget..."
+
+          choco uninstall googlechrome -y --remove-dependencies || Write-Host "Chrome not found via choco."
+          choco uninstall firefox -y --remove-dependencies || Write-Host "Firefox not found via choco."
+          choco uninstall microsoft-edge -y --remove-dependencies || Write-Host "Edge not found via choco."
+
+          # Fallback: Winget (some browsers may only be registered here)
+          $apps = @("Google.Chrome", "Mozilla.Firefox", "Microsoft.Edge")
+          foreach ($app in $apps) {
+          Write-Host "Trying to uninstall $app via Winget..."
+          winget uninstall --id $app --silent --accept-source-agreements --accept-package-agreements `
+           || Write-Host "$app not found via Winget."
+          }
       - name: Setup dotnet
         uses: actions/setup-dotnet@v5
         with:
