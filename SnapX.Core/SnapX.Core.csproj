@@ -86,7 +86,7 @@
     <PackageReference Include="Serilog.Sinks.InMemory" Version="2.0.0" />
     <!-- Cross platform image library -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-    <PackageReference Include="NeoSolve.ImageSharp.AVIF" Version="1.3.0" />
+    <PackageReference Include="BrycensRanch.NeoSolve.ImageSharp.AVIF" Version="1.3.1" />
     <!-- Helpers for drawing -->
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
     <!-- Wayland support,
