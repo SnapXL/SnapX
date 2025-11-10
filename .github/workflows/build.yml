@@ -113,13 +113,52 @@ jobs:
         if: matrix.os == 'windows-11-arm'
         shell: pwsh
         run: |
-          Write-Host "Uninstalling browsers via Chocolatey"
-
+          Write-Host "Listing installed Chocolatey packages..."
           if (Get-Command choco -ErrorAction SilentlyContinue) {
             choco list -i
 
-            Write-Host "Uninstalling browsers via Chocolatey..."
-            choco uninstall googlechrome -y --remove-dependencies || Write-Host "Chrome not found via choco."
+            Write-Host "Uninstalling unneeded packages via Chocolatey..."
+            $packages = @(
+              '7zip.install',
+              'apache-httpd',
+              'aria2',
+              'awscli',
+              'azcopy10',
+              'bazel',
+              'bicep',
+              'composer',
+              'gradle',
+              'hg',
+              'imagemagick',
+              'imagemagick.app',
+              'InnoSetup',
+              'jq',
+              'julia',
+              'kubernetes-cli',
+              'kubernetes-helm',
+              'maven',
+              'Minikube',
+              'nginx',
+              'nsis',
+              'nsis.install',
+              'nssm',
+              'packer',
+              'php',
+              'pulumi',
+              'R.Project',
+              'rtools',
+              'sbt',
+              'strawberryperl',
+              'swig'
+            )
+
+            foreach ($app in $packages) {
+              try {
+                choco uninstall $app -y --remove-dependencies --no-progress
+              } catch {
+                Write-Host "$app not found or failed to uninstall."
+              }
+            }
           } else {
             Write-Host "Chocolatey not available."
           }
