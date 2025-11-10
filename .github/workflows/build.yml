@@ -110,7 +110,7 @@ jobs:
           docker-images: false
           swap-storage: false
       - name: Free Disk Space (Windows)
-        if: runner.os = "Windows"
+        if: runner.os == "Windows"
         shell: pwsh
         run: |
           Write-Host "Uninstalling browsers via Chocolatey and Winget..."
