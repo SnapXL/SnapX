@@ -9,7 +9,7 @@
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia/11.3.8/avalonia.11.3.8.nupkg",
-    "sha512": "56eac22ff97b162260f9117d8ae0c386e6e9bd8e377376f12b54275b55146c7ded121047f965207dda753fccb05a449f5a7c7c0c93e44d75cb7ffe00d7bc6fcf",
+    "sha512": "3b9b91b6f33869c4d385caef17958864b27c8420cdcfaa77e993374799b9e48652221054591f8d46ecdd38a209dc36c81f522a7671ae46ce77f1bb2ae3bbb57e",
     "dest": "vendor",
     "dest-filename": "avalonia.11.3.8.nupkg"
   },
@@ -58,14 +58,14 @@
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.desktop/11.3.8/avalonia.desktop.11.3.8.nupkg",
-    "sha512": "96877e63a8ff69dcde00d0c2ce18091cf1cfcecc57237fa2df4ecc05cb46a22416d0dcbab865bb27e44895094d31ac20b006e709a6b9ca011a7536c6b9d5d95a",
+    "sha512": "68b137299f5ea22979dc7f4754752fde324c6198aeb1d311a0a5e864e90e1be2021b5546f1dcbeb3529f9558b8ac3d100985192498e73cc9b09f7f656677e1fe",
     "dest": "vendor",
     "dest-filename": "avalonia.desktop.11.3.8.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.diagnostics/11.3.8/avalonia.diagnostics.11.3.8.nupkg",
-    "sha512": "ce6f47fb37ab1159b121bb6706782960a5688b667471e2b08276fff11d78465775d92b45ad14d79701e12b902e7be8329ecf9afebe38efd4ac39cbcec30eba29",
+    "sha512": "539c3c47cf75a305a706d8ca96a4441b712bcaaf935d85c861b6015ba54ce99234fa925ebb4f68ded1c6cc386a283dac4bc74cb7e53235c8123243743ae72282",
     "dest": "vendor",
     "dest-filename": "avalonia.diagnostics.11.3.8.nupkg"
   },
@@ -79,7 +79,7 @@
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.markup.xaml.loader/11.3.8/avalonia.markup.xaml.loader.11.3.8.nupkg",
-    "sha512": "5f5a4a3b1db4bee7a1e592ab373933488c2654483db77d31a779213613a845bf5c76e1e133fa4c3097eadfdfb60a1fd563ac8043ac42c9bb09f7efdf0e76738e",
+    "sha512": "c9b90195e8e7898641b147883f94eb134b3611ddc22e15ce04eae1deb7d1395a1aa11fbbcac9c41345c02860ccab2cedbd74be19ca78aa8c713099531d5fb4c6",
     "dest": "vendor",
     "dest-filename": "avalonia.markup.xaml.loader.11.3.8.nupkg"
   },
