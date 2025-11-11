@@ -109,59 +109,6 @@ jobs:
           large-packages: false
           docker-images: false
           swap-storage: false
-      - name: Free Disk Space (Windows)
-        if: matrix.os == 'windows-11-arm'
-        shell: pwsh
-        run: |
-          Write-Host "Listing installed Chocolatey packages..."
-          if (Get-Command choco -ErrorAction SilentlyContinue) {
-            choco list -i
-
-            Write-Host "Uninstalling unneeded packages via Chocolatey..."
-            $packages = @(
-              '7zip.install',
-              'apache-httpd',
-              'aria2',
-              'awscli',
-              'azcopy10',
-              'bazel',
-              'bicep',
-              'composer',
-              'gradle',
-              'hg',
-              'imagemagick',
-              'imagemagick.app',
-              'InnoSetup',
-              'jq',
-              'julia',
-              'kubernetes-cli',
-              'kubernetes-helm',
-              'maven',
-              'Minikube',
-              'nginx',
-              'nsis',
-              'nsis.install',
-              'nssm',
-              'packer',
-              'php',
-              'pulumi',
-              'R.Project',
-              'rtools',
-              'sbt',
-              'strawberryperl',
-              'swig'
-            )
-
-            foreach ($app in $packages) {
-              try {
-                choco uninstall $app -y --remove-dependencies --no-progress
-              } catch {
-                Write-Host "$app not found or failed to uninstall."
-              }
-            }
-          } else {
-            Write-Host "Chocolatey not available."
-          }
       - name: Setup dotnet
         uses: actions/setup-dotnet@v5
         with:
@@ -176,7 +123,7 @@ jobs:
           path: vendor
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
-            ${{ runner.os }}-nuget-
+            ${{ runner.os }}-${{ runner.arch }}-nuget-
       - name: Install NativeAOT Linux Deps
         if: runner.os == 'Linux'
         run: "sudo apt update && sudo apt install -y clang zlib1g-dev"
