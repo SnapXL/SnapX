@@ -33,12 +33,7 @@
     <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
   </PropertyGroup>
   <!-- Windows 11 ARM64, Musl based distributions, and FreeBSD are not supported for OCR -->
-  <PropertyGroup Condition="'$(DisableOCR)' == '1'
-  OR $(RuntimeIdentifier.Contains('freebsd'))
-  OR $(RuntimeIdentifier.Contains('browser'))
-  OR $(RuntimeIdentifier.Contains('alpine'))
-  OR $(RuntimeIdentifier.Contains('musl'))
-  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')">
+  <PropertyGroup Condition="'$(DisableOCR)' == '1'&#xA;  OR $(RuntimeIdentifier.Contains('freebsd'))&#xA;  OR $(RuntimeIdentifier.Contains('browser'))&#xA;  OR $(RuntimeIdentifier.Contains('alpine'))&#xA;  OR $(RuntimeIdentifier.Contains('musl'))&#xA;  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')">
     <DefineConstants>$(DefineConstants);DISABLE_OCR</DefineConstants>
   </PropertyGroup>
 
@@ -104,7 +99,6 @@
     <PackageReference Include="FluentFTP" Version="53.0.2" />
     <PackageReference Include="BrycensRanch.MegaApiClient" Version="1.0.0" />
     <PackageReference Include="SSH.NET" Version="2025.1.0" />
-    <PackageReference Update="GitVersion.MsBuild" Version="6.5.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Resources\host-manifest-chrome.json">

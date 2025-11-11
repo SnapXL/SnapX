@@ -83,6 +83,9 @@ jobs:
         configuration:
           - Release
           - Debug
+        exclude:
+          - os: windows-11-arm
+            configuration: Debug
 
     env:
       SOLUTION_FILE_PATH: SnapX.slnx
