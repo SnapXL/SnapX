@@ -35,36 +35,36 @@ copy_deps() {
     }
 
     # Copy direct dependencies
-    ldd "$bin" | awk '{print $3}' | grep -v 'not found' | while read dep; do
-        if [ -n "$dep" ] && [ -f "$dep" ]; then
-            destfile="$dest/$(basename "$dep")"
-            if ! cmp -s "$dep" "$destfile"; then
-                cp -L --no-preserve=mode "$dep" "$dest" || {
-                    echo "Failed to copy $dep"
-                    exit 1
-                }
-            fi
-
-            # Check if dependency itself is static
-            if ldd "$dep" 2>&1 | grep -q "statically linked"; then
-                echo "⚡ $dep is statically linked — skipping its deps."
-                continue
-            fi
-
-            # Copy subdependencies of each dep
-            ldd "$dep" | awk '{print $3}' | grep -v 'not found' | while read subdep; do
-                if [ -n "$subdep" ] && [ -f "$subdep" ]; then
-                    destfile="$dest/$(basename "$subdep")"
-                    if ! cmp -s "$subdep" "$destfile"; then
-                        cp -L --no-preserve=mode "$subdep" "$dest" || {
-                            echo "Failed to copy $subdep"
-                            exit 1
-                        }
-                    fi
-                fi
-            done
-        fi
-    done
+#    ldd "$bin" | awk '{print $3}' | grep -v 'not found' | while read dep; do
+#        if [ -n "$dep" ] && [ -f "$dep" ]; then
+#            destfile="$dest/$(basename "$dep")"
+#            if ! cmp -s "$dep" "$destfile"; then
+#                cp -L --no-preserve=mode "$dep" "$dest" || {
+#                    echo "Failed to copy $dep"
+#                    exit 1
+#                }
+#            fi
+#
+#            # Check if dependency itself is static
+#            if ldd "$dep" 2>&1 | grep -q "statically linked"; then
+#                echo "⚡ $dep is statically linked — skipping its deps."
+#                continue
+#            fi
+#
+#            # Copy subdependencies of each dep
+#            ldd "$dep" | awk '{print $3}' | grep -v 'not found' | while read subdep; do
+#                if [ -n "$subdep" ] && [ -f "$subdep" ]; then
+#                    destfile="$dest/$(basename "$subdep")"
+#                    if ! cmp -s "$subdep" "$destfile"; then
+#                        cp -L --no-preserve=mode "$subdep" "$dest" || {
+#                            echo "Failed to copy $subdep"
+#                            exit 1
+#                        }
+#                    fi
+#                fi
+#            done
+#        fi
+#    done
 
     chmod +x "$dest"/*.so* 2>/dev/null || echo "Failed to set libraries executable! Oh well"
 }
