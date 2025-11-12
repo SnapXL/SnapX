@@ -848,7 +848,10 @@ public static class TaskHelpers
         if (image is null) return "SNAPX ERROR: PASSED NULL IMAGE AND NULL FILEPATH.";
         using (image)
         {
-            await image.SaveAsPngAsync(ms);
+            await image.SaveAsWebpAsync(ms, new WebpEncoder()
+            {
+                Method = 0
+            });
         }
         DebugHelper.WriteLine(filePath);
 
@@ -856,7 +859,7 @@ public static class TaskHelpers
         var config = model.DetectionModel.Version == ModelVersion.V4 &&
                      !(OperatingSystem.IsMacOS() && RuntimeInformation.OSArchitecture == Architecture.Arm64)
             ? PaddleDevice.Onnx()
-            : PaddleDevice.Gpu();
+            : PaddleDevice.Blas();
 
         using var all = new PaddleOcrAll(model, config)
         {
