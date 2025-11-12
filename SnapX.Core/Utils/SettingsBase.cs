@@ -276,7 +276,7 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
 
         if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
         {
-            DebugHelper.WriteLine($"{typeName} load started: {filePath}");
+            DebugHelper.WriteLine($"{typeName} load started");
 
             try
             {
@@ -304,7 +304,7 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
                     }
                 });
                 if (settings == null) { throw new Exception($"{typeName} object is null."); }
-                DebugHelper.WriteLine($"{typeName} load finished: {filePath}");
+                DebugHelper.WriteLine($"{typeName} load finished");
                 return settings;
             }
             catch (Exception e)
