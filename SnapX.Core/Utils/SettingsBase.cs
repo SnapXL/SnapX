@@ -10,9 +10,8 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SnapX.Core.Utils;
 
-
-
-public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
+public abstract partial class SettingsBase<T>
+    where T : SettingsBase<T>, new()
 {
     public delegate void SettingsSavedEventHandler(T settings, string filePath, bool result);
     public event SettingsSavedEventHandler SettingsSaved;
@@ -94,7 +93,7 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
     private bool SaveInternal(string filePath)
     {
         var typeName = GetType().Name;
-        DebugHelper.WriteLine($"{typeName} save started: {filePath}");
+        DebugHelper.WriteLine($"{typeName} save started");
 
         var isSuccess = false;
 
@@ -108,7 +107,16 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
 
                     var tempFilePath = filePath + ".temp";
 
-                    using (var fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.WriteThrough))
+                    using (
+                        var fileStream = new FileStream(
+                            tempFilePath,
+                            FileMode.Create,
+                            FileAccess.Write,
+                            FileShare.Read,
+                            4096,
+                            FileOptions.WriteThrough
+                        )
+                    )
                     {
                         SaveToStream(fileStream, SupportDPAPIEncryption);
                     }
@@ -154,22 +162,32 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
         finally
         {
             var status = isSuccess ? "successful" : "failed";
-            DebugHelper.WriteLine($"{typeName} save {status}: {filePath}");
+            DebugHelper.WriteLine($"{typeName} save {status}");
         }
 
         return isSuccess;
     }
-    [RequiresDynamicCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
-    [RequiresUnreferencedCode("Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)")]
+
+    [RequiresDynamicCode(
+        "Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)"
+    )]
+    [RequiresUnreferencedCode(
+        "Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)"
+    )]
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
-    private void SaveToStream(Stream stream, bool supportDPAPIEncryption = false, bool leaveOpen = false)
+    private void SaveToStream(
+        Stream stream,
+        bool supportDPAPIEncryption = false,
+        bool leaveOpen = false
+    )
     {
         var options = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
             WriteIndented = true,
             TypeInfoResolver = SettingsContext.Default,
-            Converters = {
+            Converters =
+            {
                 new JsonRectangleConverter(),
                 new JsonPointConverter(),
                 new JsonSizeConverter(),
@@ -179,8 +197,8 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
                 new JsonColorConverter(),
                 new JsonFontConverter(),
                 // new SafeEnumConverterFactory()
-                new JsonStringEnumConverter()
-            }
+                new JsonStringEnumConverter(),
+            },
         };
 
         var json = JsonSerializer.Serialize((T)this, options);
@@ -234,7 +252,6 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
         }
     }
 
-
     public static T Load(string filePath, string backupFolder = null, bool fallbackSupport = true)
     {
         var fallbackFilePaths = new List<string>();
@@ -251,7 +268,10 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
                 fallbackFilePaths.Add(backupFilePath);
 
                 var fileNameNoExt = Path.GetFileNameWithoutExtension(fileName);
-                var lastWeeklyBackupFilePath = Directory.GetFiles(backupFolder, fileNameNoExt + "-*").OrderBy(x => x).LastOrDefault();
+                var lastWeeklyBackupFilePath = Directory
+                    .GetFiles(backupFolder, fileNameNoExt + "-*")
+                    .OrderBy(x => x)
+                    .LastOrDefault();
                 if (!string.IsNullOrEmpty(lastWeeklyBackupFilePath))
                 {
                     fallbackFilePaths.Add(lastWeeklyBackupFilePath);
@@ -261,10 +281,13 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
 
         var setting = LoadInternal(filePath, fallbackFilePaths);
 
-        if (setting == null) return setting;
+        if (setting == null)
+            return setting;
         setting.FilePath = filePath;
         setting.IsFirstTimeRun = string.IsNullOrEmpty(setting.ApplicationVersion);
-        setting.IsUpgrade = !setting.IsFirstTimeRun && Helpers.CompareApplicationVersion(setting.ApplicationVersion) < 0;
+        setting.IsUpgrade =
+            !setting.IsFirstTimeRun
+            && Helpers.CompareApplicationVersion(setting.ApplicationVersion) < 0;
         setting.BackupFolder = backupFolder;
 
         return setting;
@@ -280,30 +303,43 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
 
             try
             {
-                using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using var fileStream = new FileStream(
+                    filePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read
+                );
                 var rawJson = File.ReadAllText(filePath);
 
                 // $type: "Namespace.Type, Assembly" → $type: "Type"
-                rawJson = AssemblyTypeRegex().Replace(rawJson, m => $"\"$type\": \"{m.Groups[1].Value}\"");
+                rawJson = AssemblyTypeRegex()
+                    .Replace(rawJson, m => $"\"$type\": \"{m.Groups[1].Value}\"");
 
-                var settings = JsonSerializer.Deserialize<T>(rawJson, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    TypeInfoResolver = SettingsContext.Default,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.Never,
-                    Converters = {
-                        new JsonRectangleConverter(),
-                        new JsonPointConverter(),
-                        new JsonPaddingConverter(),
-                        new JsonTimeZoneInfoConverter(),
-                        new JsonSizeConverter(),
-                        new UtcDateTimeConverter(),
-                        new JsonColorConverter(),
-                        new JsonFontConverter(),
-                        new JsonStringEnumConverter()
+                var settings = JsonSerializer.Deserialize<T>(
+                    rawJson,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        TypeInfoResolver = SettingsContext.Default,
+                        DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+                        Converters =
+                        {
+                            new JsonRectangleConverter(),
+                            new JsonPointConverter(),
+                            new JsonPaddingConverter(),
+                            new JsonTimeZoneInfoConverter(),
+                            new JsonSizeConverter(),
+                            new UtcDateTimeConverter(),
+                            new JsonColorConverter(),
+                            new JsonFontConverter(),
+                            new JsonStringEnumConverter(),
+                        },
                     }
-                });
-                if (settings == null) { throw new Exception($"{typeName} object is null."); }
+                );
+                if (settings == null)
+                {
+                    throw new Exception($"{typeName} object is null.");
+                }
                 DebugHelper.WriteLine($"{typeName} load finished");
                 return settings;
             }
@@ -329,7 +365,10 @@ public abstract partial class SettingsBase<T> where T : SettingsBase<T>, new()
         return new T();
     }
 
-    private static void Serializer_Error(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+    private static void Serializer_Error(
+        object sender,
+        Newtonsoft.Json.Serialization.ErrorEventArgs e
+    )
     {
         // Handle missing enum values
         if (e.ErrorContext.Error.Message.StartsWith("Error converting value"))
