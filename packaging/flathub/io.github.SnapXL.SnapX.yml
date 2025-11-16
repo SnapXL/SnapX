@@ -6,7 +6,7 @@ command: snapx-ui
 
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.dotnet9
-  - org.freedesktop.Sdk.Extension.llvm20
+  - org.freedesktop.Sdk.Extension.llvm21
 
 finish-args:
   - --socket=wayland # Avalonia Wayland support is coming within a few months, without this socket, screenshotting on Wayland fails even though the app runs in X11.
@@ -29,9 +29,9 @@ modules:
   - name: snapx-ui
     buildsystem: simple
     build-options:
-      append-path: /usr/lib/sdk/dotnet9/bin:/usr/lib/sdk/llvm20/bin
+      append-path: /usr/lib/sdk/dotnet9/bin:/usr/lib/sdk/llvm21/bin
       append-ld-library-path: /usr/lib/sdk/dotnet9/lib
-      prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
+      prepend-ld-library-path: /usr/lib/sdk/llvm21/lib
       prepend-pkg-config-path: /usr/lib/sdk/dotnet9/lib/pkgconfig
       env:
         PKGTYPE: FLATPAK
@@ -81,7 +81,7 @@ modules:
         sources:
           - type: archive
             url: https://archive.mesa3d.org/glu/glu-9.0.3.tar.xz
-            sha256: bd43fe12f374b1192eb15fe20e45ff456b9bc26ab57f0eee919f96ca0f8a330f
+            sha256: bd43fe12f374b1192eb15fe21e45ff456b9bc26ab57f0eee919f96ca0f8a330f
         cleanup:
           - "/include"
           - "/lib/*.a"
