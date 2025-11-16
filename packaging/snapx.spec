@@ -47,7 +47,7 @@ Source:         %{url}/archive/refs/heads/develop.tar.gz
 # RISCV64 support is coming soon. Maybe .NET 10 will add it?
 ExclusiveArch:  x86_64 aarch64 ppc64le s390x
 
-BuildRequires:  dotnet-sdk-9.0
+BuildRequires:  dotnet-sdk-10.0
 BuildRequires:  (patchelf or chrpath)
 
 %if "%{build_with_aot}" == "true"
@@ -61,7 +61,7 @@ BuildRequires:  zlib-devel
 %endif
 
 %if "%{build_with_aot}" != "true"
-Requires:       dotnet-runtime-9.0
+Requires:       dotnet-runtime-10.0
 %endif
 
 Recommends:     /usr/bin/ffmpeg
