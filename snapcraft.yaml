@@ -28,7 +28,7 @@ donation:
   - https://ko-fi.com/BrycensRanch
   - https://github.com/sponsors/BrycensRanch
 # By default, snaps have an epoch of ‘0’. When a new version breaks data compatibility with this old version, incrementing the epoch in the new release stops those old users automatically refreshing to the new version.
-epoch: 0
+epoch: "0"
 
 assumes:
   - snapd2.39
