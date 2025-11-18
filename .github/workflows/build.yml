@@ -38,6 +38,7 @@ jobs:
         with:
           packages: >
             clang
+            curl
             zlib-dev
             icu-libs
 
