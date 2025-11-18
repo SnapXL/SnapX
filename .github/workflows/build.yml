@@ -41,6 +41,7 @@ jobs:
             curl
             bash
             build-base
+            sudo
             libunwind-dev
             xz-dev
             zlib-dev
@@ -58,7 +59,7 @@ jobs:
         run: rm global.json
         shell: alpine.sh {0}
       - name: Remove GCC
-        run: apk del gcc
+        run: sudo apk del gcc
         shell: alpine.sh {0}
       - name: Publish
         run: ./build.sh --configuration ${{ matrix.configuration }}
