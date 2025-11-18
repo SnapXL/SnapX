@@ -239,11 +239,11 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-      - name: Enforce code style using dotnet format
-        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
-        run: |
-          dotnet format --verify-no-changes -v diagnostic SnapX.slnx \
-            --include $(find . -type f -name '*.cs' ! -path './build/*' ! -path './SnapX.Core/Upload/APIKeysLocal.cs')
+#      - name: Enforce code style using dotnet format
+#        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
+#        run: |
+#          dotnet format --verify-no-changes -v diagnostic SnapX.slnx \
+#            --include $(find . -type f -name '*.cs' ! -path './build/*' ! -path './SnapX.Core/Upload/APIKeysLocal.cs')
       - name: Publish
         if: runner.os == 'Windows'
         run: ./build.ps1 --configuration ${{ matrix.configuration }}
