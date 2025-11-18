@@ -58,7 +58,7 @@ jobs:
         run: rm global.json
         shell: alpine.sh {0}
       - name: Remove GCC
-        run: pkg del gcc
+        run: apk del gcc
         shell: alpine.sh {0}
       - name: Publish
         run: ./build.sh --configuration ${{ matrix.configuration }}
