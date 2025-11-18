@@ -16,6 +16,50 @@ permissions:
   contents: read
 
 jobs:
+  alpine:
+    name: Alpine Build
+    runs-on: ${{matrix.os}}
+    timeout-minutes: 360
+    env:
+      ALLOW_DOTNET_DOWNLOAD: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+        configuration:
+          - Release
+          - Debug
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Setup Alpine Linux
+        uses: bgilbert/setup-alpine@aarch64
+        with:
+          packages: >
+            clang
+            zlib-dev
+            icu-libs
+
+      - run: cat /etc/alpine-release
+        shell: alpine.sh {0}
+      - name: Download API keys
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != ''
+        shell: alpine.sh {0}
+        run: |
+          set -euo pipefail
+          curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+      - name: Build
+        run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
+        shell: alpine.sh {0}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-musl-${{ runner.arch }}
+          path: "SnapX-UI*"
+          if-no-files-found: error
   rpms:
     name: RPMs
     runs-on: ${{matrix.os}}
@@ -223,18 +267,7 @@ jobs:
       - name: Download API keys
         env:
           API_KEYS: ${{ secrets.API_KEYS }}
-        if: env.API_KEYS != '' && runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          try {
-            Invoke-WebRequest -Uri $env:API_KEYS -OutFile "SnapX.Core\Upload\APIKeysLocal.cs" -ErrorAction Stop | Out-Null
-          } catch {
-            throw "Failed to download API keys. Error has been redacted for security reasons."
-          }
-      - name: Download API keys
-        env:
-          API_KEYS: ${{ secrets.API_KEYS }}
-        if: env.API_KEYS != '' && runner.os != 'Windows'
+        if: env.API_KEYS != ''
         shell: bash
         run: |
           set -euo pipefail
