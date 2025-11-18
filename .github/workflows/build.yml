@@ -43,7 +43,9 @@ jobs:
             build-base
             sudo
             libunwind-dev
+            libunwind-static
             xz-dev
+            xz-static
             zlib-dev
             icu-libs
 
