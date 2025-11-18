@@ -41,11 +41,11 @@ jobs:
             curl
             bash
             build-base
+            libunwind-dev
+            xz-dev
             zlib-dev
             icu-libs
 
-      - run: cat /etc/alpine-release
-        shell: alpine.sh {0}
       - name: Download API keys
         env:
           API_KEYS: ${{ secrets.API_KEYS }}
@@ -54,6 +54,9 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+      - name: Remove version requirement
+        run: rm global.json
+        shell: alpine.sh {0}
       - name: Publish
         run: ./build.sh --configuration ${{ matrix.configuration }}
         shell: alpine.sh {0}
