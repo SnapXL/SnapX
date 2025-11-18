@@ -54,6 +54,9 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+      - name: Publish
+        if: runner.os != 'Windows'
+        run: ./build.sh --configuration ${{ matrix.configuration }}
       - name: Build
         run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
         shell: alpine.sh {0}
