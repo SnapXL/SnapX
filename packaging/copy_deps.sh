@@ -29,10 +29,10 @@ copy_deps() {
     fi
     flock "$PROCESSED_DEPS_FILE" grep -qxF "$bin" "$PROCESSED_DEPS_FILE" && return
     flock "$PROCESSED_DEPS_FILE" sh -c "echo '$bin' >> '$PROCESSED_DEPS_FILE'"
-    cp -L $(ldd "$bin" | grep -E '(^|[^a-zA-Z0-9])ld' | awk '{print $1}') "$dest" || {
-        echo "Failed to copy dynamic linker"
-        exit 1
-    }
+    # cp -L $(ldd "$bin" | grep -E '(^|[^a-zA-Z0-9])ld' | awk '{print $1}') "$dest" || {
+    #     echo "Failed to copy dynamic linker"
+    #     exit 1
+    # }
 
     # Copy direct dependencies
 #    ldd "$bin" | awk '{print $3}' | grep -v 'not found' | while read dep; do

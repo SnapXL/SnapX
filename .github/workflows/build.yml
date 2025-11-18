@@ -48,6 +48,7 @@ jobs:
             xz-static
             zlib-dev
             icu-libs
+            patchelf
 
       - name: Download API keys
         env:
