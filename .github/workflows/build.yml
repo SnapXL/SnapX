@@ -39,6 +39,8 @@ jobs:
           packages: >
             clang
             curl
+            bash
+            build-base
             zlib-dev
             icu-libs
 
