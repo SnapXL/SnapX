@@ -16,6 +16,56 @@ permissions:
   contents: read
 
 jobs:
+  freebsd:
+    name: FreeBSD Build
+    runs-on: ${{matrix.os}}
+    timeout-minutes: 360
+    env:
+      ALLOW_DOTNET_DOWNLOAD: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        # I haven't built binaries for FreeBSD ARM64 yet. Sorry.
+        os: [ ubuntu-24.04 ]
+        configuration:
+          - Release
+          - Debug
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Download API keys
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+      - name: Setup FreeBSD VM
+        id: vm
+        uses: vmactions/freebsd-vm@v1
+        with:
+          envs: 'ALLOW_DOTNET_DOWNLOAD'
+          usesh: true
+          run: |
+            pkg install -y curl bash clang sudo dotnet patchelf
+      - name: Publish
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE;
+          ./build.sh --configuration ${{ matrix.configuration }} --extra-args="-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false -p:SelfContained=false -p:PublishTrimmed=false -p:Optimize=false --use-current-runtime"
+      - name: Tarball
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE;
+          ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: SnapX-Avalonia-${{ matrix.configuration }}-FreeBSD-${{ runner.arch }}
+          path: "SnapX-UI*"
+          if-no-files-found: error
   alpine:
     name: Alpine Build
     runs-on: ${{matrix.os}}
@@ -67,7 +117,7 @@ jobs:
       - name: Publish
         run: ./build.sh --configuration ${{ matrix.configuration }}
         shell: alpine.sh {0}
-      - name: Build
+      - name: Tarball
         run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
         shell: alpine.sh {0}
       - name: Upload artifact
