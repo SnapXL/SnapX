@@ -63,34 +63,33 @@ jobs:
           sync: sshfs
           run: |
             pkg install -y curl bash llvm21 sudo dotnet patchelf git flock
-            pw useradd runner -m -s /usr/local/bin/bash
-            pw groupmod wheel -m runner
+            # pw useradd runner -m -s /usr/local/bin/bash
+            # pw groupmod wheel -m runner
 
-            echo 'runner ALL=(ALL) NOPASSWD: ALL' >> /usr/local/etc/sudoers.d/runner
-            chmod 440 /usr/local/etc/sudoers.d/runner
+            # echo 'runner ALL=(ALL) NOPASSWD: ALL' >> /usr/local/etc/sudoers.d/runner
+            # chmod 440 /usr/local/etc/sudoers.d/runner
 
-            echo "Runner user created with sudo privileges."
+            # echo "Runner user created with sudo privileges."
 
 
             # Ensure bash profile exists
-            install -d -o runner -g runner /home/runner
-      - name: Remove version requirement
+            # install -d -o runner -g runner /home/runner
+      - name: Ready VM
         shell: freebsd {0}
         run: |
-          printenv | grep -E '^(GITHUB|CI|ALLOW)' | while IFS= read -r line; do
-            echo "export $line" >> /etc/profile.d/github-envs.sh
-          done
+          # printenv | grep -E '^(GITHUB|CI|ALLOW)' | while IFS= read -r line; do
+          #   echo "export $line" >> /etc/profile.d/github-envs.sh
+          # done
           workspace="$GITHUB_WORKSPACE"
-          chown -R runner:runner "$workspace"
+          # chown -R runner:runner "$workspace"
 
           # Make runner auto-cd to the workspace
-          echo "cd \"$workspace\"" >> /home/runner/.bash_profile
-          chown runner:runner /home/runner/.bash_profile
-          su runner -c /usr/local/bin/bash
-          ls -la .
-          echo $SHELL
-          pwd
-          rm global.json
+          echo "cd \"$workspace\"" >> ~/.profile
+          # chown runner:runner /home/runner/.bash_profile
+          # su runner -c /usr/local/bin/bash
+      - name: Remove version requirement
+        shell: freebsd {0}
+        run: rm global.json
       # - name: Remove git metadata
       #   shell: freebsd {0}
       #   run: |
@@ -98,12 +97,10 @@ jobs:
       - name: Publish
         shell: freebsd {0}
         run: |
-          su runner -c /usr/local/bin/bash
           ./build.sh --configuration ${{ matrix.configuration }} --extra-args="-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false"
       - name: Tarball
         shell: freebsd {0}
         run: |
-          su runner -c /usr/local/bin/bash
           ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
           sleep 10
       - name: Upload artifact
