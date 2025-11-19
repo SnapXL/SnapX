@@ -24,6 +24,7 @@ jobs:
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
+      DisableGitVersionTask: 1
     strategy:
       fail-fast: false
       matrix:
@@ -38,7 +39,7 @@ jobs:
         run: |
           envs=$(printenv \
             | cut -d= -f1 \
-            | grep -E '^(GITHUB|CI|ALLOW|KEY|API)' \
+            | grep -E '^(GITHUB|CI|ALLOW|KEY|API|Disable|Git)' \
             | grep -v '^GITHUB_WORKSPACE$' \
             | sort \
             | tr '\n' ' ')
