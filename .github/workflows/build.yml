@@ -24,6 +24,7 @@ jobs:
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
+      API_KEYS: ${{ secrets.API_KEYS }}
     strategy:
       fail-fast: false
       matrix:
@@ -38,7 +39,7 @@ jobs:
         run: |
           envs=$(printenv \
             | cut -d= -f1 \
-            | grep -E '^(GITHUB|CI|ALLOW)' \
+            | grep -E '^(GITHUB|CI|ALLOW|KEY|API)' \
             | grep -v '^GITHUB_WORKSPACE$' \
             | sort \
             | tr '\n' ' ')
@@ -93,9 +94,6 @@ jobs:
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
       - name: Download API keys
-        env:
-          API_KEYS: ${{ secrets.API_KEYS }}
-        if: env.API_KEYS != ''
         shell: freebsd {0}
         run: |
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
