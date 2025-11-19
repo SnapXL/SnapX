@@ -111,14 +111,13 @@ jobs:
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
-          su runner -c /usr/local/bin/bash
-          ./build.sh --configuration ${{ matrix.configuration }} --extra-args="-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false"
+          su runner -c "bash build.sh --configuration ${{ matrix.configuration }} --extra-args='-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false'"
+
       - name: Tarball
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
-          su runner -c /usr/local/bin/bash
-          ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
+          su runner -c "bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui"
           sleep 10
       - name: Upload artifact
         uses: actions/upload-artifact@v5
