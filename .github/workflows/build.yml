@@ -33,17 +33,6 @@ jobs:
           - Release
           - Debug
     steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - name: Download API keys
-        env:
-          API_KEYS: ${{ secrets.API_KEYS }}
-        if: env.API_KEYS != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
       - name: Get relevant env variable names
         id: envnames
         run: |
@@ -88,15 +77,32 @@ jobs:
           echo "cd \"$workspace\"" >> ~/.profile
           # chown runner:runner /home/runner/.bash_profile
           # su runner -c /usr/local/bin/bash
+      - name: Checkout repository
+        shell: freebsd {0}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p /tmp/repo
+
+          git clone --branch "$GITHUB_REF_NAME" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" /tmp/repo
+          cp -R /tmp/repo/. "$GITHUB_WORKSPACE"
+          rm -rf /tmp/repo
+
+          git reset --hard "$GITHUB_SHA"
+
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      - name: Download API keys
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != ''
+        shell: freebsd {0}
+        run: |
+          curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
       - name: Remove version requirement
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
           rm global.json
-      # - name: Remove git metadata
-      #   shell: freebsd {0}
-      #   run: |
-      #     rm -rf .git || true
       - name: Publish
         shell: freebsd {0}
         run: |
