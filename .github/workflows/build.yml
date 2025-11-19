@@ -20,7 +20,7 @@ jobs:
     name: FreeBSD Build
     runs-on: ${{matrix.os}}
     # Prevent Ubuntu runner starvation from regular builds. FreeBSD builds are slightly slower than normal builds.
-    needs: build
+    # needs: build
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
@@ -44,33 +44,56 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+      - name: Get all env variable names
+        id: envnames
+        run: |
+          printenv | cut -d= -f1 | sort > envlist.txt
+          {
+            echo "envs<<EOF"
+            cat envlist.txt
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
       - name: Setup FreeBSD VM
         id: vm
         uses: vmactions/freebsd-vm@v1
         with:
-          envs: 'ALLOW_DOTNET_DOWNLOAD'
+          envs: ${{ steps.envnames.outputs.envs }}
           usesh: true
           run: |
             pkg install -y curl bash llvm21 sudo dotnet patchelf git flock
+            pw useradd runner -m -s /usr/local/bin/bash || true
+
+            pw groupmod wheel -m runner
+
+            echo 'runner ALL=(ALL) NOPASSWD: ALL' >> /usr/local/etc/sudoers.d/runner
+            chmod 440 /usr/local/etc/sudoers.d/runner
+
+            echo "Runner user created with sudo privileges."
+
+            chown -R runner:runner "$GITHUB_WORKSPACE"
+
+            # Ensure bash profile exists
+            install -d -o runner -g runner /home/runner
+
+            # Make runner auto-cd to the workspace
+            echo 'cd "$GITHUB_WORKSPACE"' >> /home/runner/.bash_profile
+            chown runner:runner /home/runner/.bash_profile
       - name: Remove version requirement
         shell: freebsd {0}
-        run: |
-          cd $GITHUB_WORKSPACE;
-          rm global.json
-      - name: Remove git metadata
-        shell: freebsd {0}
-        run: |
-          cd $GITHUB_WORKSPACE;
-          rm -rf .git || true
+        run: rm global.json
+      # - name: Remove git metadata
+      #   shell: freebsd {0}
+      #   run: |
+      #     rm -rf .git || true
       - name: Publish
         shell: freebsd {0}
         run: |
-          cd $GITHUB_WORKSPACE;
+          su - runner
           ./build.sh --configuration ${{ matrix.configuration }} --extra-args="-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false"
       - name: Tarball
         shell: freebsd {0}
         run: |
-          cd $GITHUB_WORKSPACE;
+          su - runner
           ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
           sleep 10
       - name: Upload artifact
