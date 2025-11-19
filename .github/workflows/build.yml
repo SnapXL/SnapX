@@ -72,6 +72,10 @@ jobs:
       - name: Remove version requirement
         shell: freebsd {0}
         run: |
+          printenv | grep -E '^(GITHUB|CI|ALLOW)' | while IFS= read -r line; do
+            echo "export $line" >> /etc/profile.d/github-envs.sh
+          done
+
           chown -R runner:runner "$GITHUB_WORKSPACE"
           # Make runner auto-cd to the workspace
           echo 'cd "$GITHUB_WORKSPACE"' >> /home/runner/.bash_profile
