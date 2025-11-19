@@ -49,7 +49,7 @@ jobs:
           envs: 'ALLOW_DOTNET_DOWNLOAD'
           usesh: true
           run: |
-            pkg install -y curl bash clang sudo dotnet patchelf
+            pkg install -y curl bash llvm21 sudo dotnet patchelf
       - name: Publish
         shell: freebsd {0}
         run: |
