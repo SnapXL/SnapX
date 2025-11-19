@@ -82,7 +82,8 @@ jobs:
         run: |
           cd "$GITHUB_WORKSPACE"
           mkdir -p /tmp/repo
-
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory /tmp/repo
           git clone --branch "$GITHUB_REF_NAME" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" /tmp/repo
           cp -R /tmp/repo/. "$GITHUB_WORKSPACE"
           rm -rf /tmp/repo
