@@ -366,26 +366,7 @@ jobs:
       - name: Assemble SnapX UI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: "./build.sh tarball --assembly snapx-ui"
-      - name: Assemble SnapX CLI Tarball
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: "./build.sh tarball --assembly snapx"
-      - name: Upload artifact (CLI - Release on Linux)
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        uses: actions/upload-artifact@v5
-        with:
-          name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
-          path: "SnapX-CLI*"
-          compression-level: 9
-          if-no-files-found: error
 
-      - name: Upload artifact (CLI - Non-Release or non-Linux)
-        if: matrix.configuration != 'Release' || runner.os != 'Linux'
-        uses: actions/upload-artifact@v5
-        with:
-          name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
-          path: "Output/snapx"
-          compression-level: 9
-          if-no-files-found: error
       - name: Upload artifact (Avalonia - Release on Linux)
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         uses: actions/upload-artifact@v5
