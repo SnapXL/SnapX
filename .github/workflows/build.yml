@@ -117,6 +117,10 @@ jobs:
         uses: gittools/actions/gitversion/command@v4.2.0
         with:
           arguments: '/output file /outputfile "build/obj/gitversion.json"'
+      - name: Update project files with GitVersion
+        uses: gittools/actions/gitversion/command@v4.2.0
+        with:
+          arguments: '/updateprojectfiles'
       - name: Copy GitVersion data
         shell: freebsd {0}
         run: |
