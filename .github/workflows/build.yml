@@ -60,10 +60,10 @@ jobs:
         with:
           envs: ${{ steps.envnames.outputs.envs }}
           usesh: true
+          sync: sshfs
           run: |
             pkg install -y curl bash llvm21 sudo dotnet patchelf git flock
-            pw useradd runner -m -s /usr/local/bin/bash || true
-
+            pw useradd runner -m -s /usr/local/bin/bash
             pw groupmod wheel -m runner
 
             echo 'runner ALL=(ALL) NOPASSWD: ALL' >> /usr/local/etc/sudoers.d/runner
@@ -86,7 +86,7 @@ jobs:
           # Make runner auto-cd to the workspace
           echo "cd \"$workspace\"" >> /home/runner/.bash_profile
           chown runner:runner /home/runner/.bash_profile
-          su - runner
+          su - runner -c /usr/local/bin/bash -c /usr/local/bin/bash
           ls -la .
           echo $SHELL
           pwd
@@ -98,12 +98,12 @@ jobs:
       - name: Publish
         shell: freebsd {0}
         run: |
-          su - runner
+          su - runner -c /usr/local/bin/bash
           ./build.sh --configuration ${{ matrix.configuration }} --extra-args="-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false"
       - name: Tarball
         shell: freebsd {0}
         run: |
-          su - runner
+          su - runner -c /usr/local/bin/bash
           ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
           sleep 10
       - name: Upload artifact
