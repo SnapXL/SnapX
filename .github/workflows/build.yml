@@ -20,7 +20,7 @@ jobs:
     name: FreeBSD Build
     runs-on: ${{matrix.os}}
     # Prevent Ubuntu runner starvation from regular builds. FreeBSD builds are slightly slower than normal builds.
-    # needs: build
+    needs: build
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
@@ -72,6 +72,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE;
           ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
+          sleep 10
       - name: Upload artifact
         uses: actions/upload-artifact@v5
         with:
