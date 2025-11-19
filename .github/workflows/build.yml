@@ -66,17 +66,16 @@ jobs:
 
             echo "Runner user created with sudo privileges."
 
-            chown -R runner:runner "$GITHUB_WORKSPACE"
 
             # Ensure bash profile exists
             install -d -o runner -g runner /home/runner
-
-            # Make runner auto-cd to the workspace
-            echo 'cd "$GITHUB_WORKSPACE"' >> /home/runner/.bash_profile
-            chown runner:runner /home/runner/.bash_profile
       - name: Remove version requirement
         shell: freebsd {0}
         run: |
+          chown -R runner:runner "$GITHUB_WORKSPACE"
+          # Make runner auto-cd to the workspace
+          echo 'cd "$GITHUB_WORKSPACE"' >> /home/runner/.bash_profile
+          chown runner:runner /home/runner/.bash_profile
           su - runner
           rm global.json
       # - name: Remove git metadata
