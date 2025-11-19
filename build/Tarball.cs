@@ -161,9 +161,12 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
 
             var tarballName = Path.Combine(
                 config.RootDirectory,
-                $"SnapX{suffix}-{config.Configuration}-{uname}-{version}-{arch}.tar.xz"
+                $"SnapX{suffix}-{config.Configuration}-{uname}-{version}-{arch}.tar.zst"
             );
-            await CommandRunner.RunInstallCommand($"-cJf {tarballName} -C {config.Tarballdir} .", "tar");
+            await CommandRunner.RunInstallCommand(
+                $"--zstd -cf {tarballName} -C {config.Tarballdir} .",
+                "tar"
+            );
         }
     }
 
