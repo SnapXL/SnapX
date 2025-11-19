@@ -44,15 +44,15 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-      - name: Get all env variable names
+      - name: Get relevant env variable names
         id: envnames
         run: |
-          printenv | cut -d= -f1 | sort > envlist.txt
+          printenv | cut -d= -f1 | grep -E 'GITHUB|CI|ALLOW' | sort > envlist.txt
           {
             echo "envs<<EOF"
             cat envlist.txt
             echo "EOF"
-          } >> $GITHUB_OUTPUT
+          } >> "$GITHUB_OUTPUT"
       - name: Setup FreeBSD VM
         id: vm
         uses: vmactions/freebsd-vm@v1
