@@ -51,7 +51,9 @@ jobs:
           run: |
             pkg install -y curl bash llvm21 sudo dotnet patchelf git
       - name: Remove version requirement
-        run: rm global.json
+        run: |
+          cd $GITHUB_WORKSPACE;
+          rm global.json
         shell: freebsd {0}
       - name: Publish
         shell: freebsd {0}
@@ -95,6 +97,7 @@ jobs:
             bash
             build-base
             sudo
+            git
             libunwind-dev
             libunwind-static
             xz-dev
@@ -113,9 +116,6 @@ jobs:
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
       - name: Remove version requirement
         run: rm global.json
-        shell: alpine.sh {0}
-      - name: Remove GCC
-        run: sudo apk del gcc
         shell: alpine.sh {0}
       - name: Publish
         run: ./build.sh --configuration ${{ matrix.configuration }}
