@@ -108,6 +108,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE;
           rm global.json
+          mkdir -p build/obj
       - name: GitVersion
         uses: gittools/actions/gitversion/setup@v4.2.0
         with:
