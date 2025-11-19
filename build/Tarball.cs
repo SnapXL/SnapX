@@ -141,7 +141,14 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             var snapxfiles = Directory.EnumerateFiles(config.LibDir, "*snapx*", SearchOption.AllDirectories);
             foreach (var file in snapxfiles)
             {
-                await CommandRunner.RunAsync("patchelf", $"--set-rpath \"$ORIGIN\" {file}");
+                try
+                {
+                    await CommandRunner.RunAsync("patchelf", $"--set-rpath \"$ORIGIN\" {file}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Error patching {file}: {ex.Message}");
+                }
             }
         }
 

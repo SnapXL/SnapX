@@ -51,7 +51,7 @@ jobs:
           envs: 'ALLOW_DOTNET_DOWNLOAD'
           usesh: true
           run: |
-            pkg install -y curl bash llvm21 sudo dotnet patchelf git
+            pkg install -y curl bash llvm21 sudo dotnet patchelf git flock
       - name: Remove version requirement
         shell: freebsd {0}
         run: |
@@ -81,6 +81,7 @@ jobs:
   alpine:
     name: Alpine Build
     runs-on: ${{matrix.os}}
+    needs: build
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
@@ -139,6 +140,8 @@ jobs:
   rpms:
     name: RPMs
     runs-on: ${{matrix.os}}
+    # Building the RPMs causes Ubuntu runner starvation due to it triggering multiple jobs. Normal builds take priority.
+    needs: build
     timeout-minutes: 360
     container:
       image: ${{ matrix.container }}
