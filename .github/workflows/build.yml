@@ -61,11 +61,12 @@ jobs:
           envs: ${{ steps.envnames.outputs.envs }}
           # usesh: true
           sync: sshfs
-          run: |
+          prepare: |
             pkg install -y curl bash llvm21 sudo dotnet patchelf git flock
+            chsh -s /usr/local/bin/bash
             # pw useradd runner -m -s /usr/local/bin/bash
             # pw groupmod wheel -m runner
-            chsh -s /usr/local/bin/bash
+
             # echo 'runner ALL=(ALL) NOPASSWD: ALL' >> /usr/local/etc/sudoers.d/runner
             # chmod 440 /usr/local/etc/sudoers.d/runner
 
@@ -89,7 +90,9 @@ jobs:
           # su runner -c /usr/local/bin/bash
       - name: Remove version requirement
         shell: freebsd {0}
-        run: rm global.json
+        run: |
+          cd $GITHUB_WORKSPACE;
+          rm global.json
       # - name: Remove git metadata
       #   shell: freebsd {0}
       #   run: |
@@ -97,10 +100,12 @@ jobs:
       - name: Publish
         shell: freebsd {0}
         run: |
+          cd $GITHUB_WORKSPACE;
           ./build.sh --configuration ${{ matrix.configuration }} --extra-args="-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false"
       - name: Tarball
         shell: freebsd {0}
         run: |
+          cd $GITHUB_WORKSPACE;
           ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
           sleep 10
       - name: Upload artifact
