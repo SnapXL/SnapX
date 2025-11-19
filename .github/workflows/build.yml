@@ -108,6 +108,21 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE;
           rm global.json
+      - name: GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+        with:
+          versionSpec: '6.4.x'
+          arguments: '/output file /outputfile "build/obj/gitversion.json"'
+      - name: Copy GitVersion data
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE;
+          su runner -c /usr/local/bin/bash
+          for dir in SnapX*/; do
+              [ -d "$dir" ] || continue
+              mkdir -p "$dir/obj"
+              cp build/obj/gitversion.json "$dir/obj/"
+          done
       - name: Publish
         shell: freebsd {0}
         run: |
