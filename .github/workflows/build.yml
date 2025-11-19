@@ -47,12 +47,8 @@ jobs:
       - name: Get relevant env variable names
         id: envnames
         run: |
-          printenv | cut -d= -f1 | grep -E 'GITHUB|CI|ALLOW' | sort > envlist.txt
-          {
-            echo "envs<<EOF"
-            cat envlist.txt
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          envs=$(printenv | cut -d= -f1 | grep -E '^(GITHUB|CI|ALLOW)' | sort | tr '\n' ' ')
+          echo "envs=$envs" >> "$GITHUB_OUTPUT"
       - name: Setup FreeBSD VM
         id: vm
         uses: vmactions/freebsd-vm@v1
