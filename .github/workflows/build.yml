@@ -59,13 +59,13 @@ jobs:
         uses: vmactions/freebsd-vm@v1
         with:
           envs: ${{ steps.envnames.outputs.envs }}
-          usesh: true
+          # usesh: true
           sync: sshfs
           run: |
             pkg install -y curl bash llvm21 sudo dotnet patchelf git flock
             # pw useradd runner -m -s /usr/local/bin/bash
             # pw groupmod wheel -m runner
-
+            chsh -s /usr/local/bin/bash
             # echo 'runner ALL=(ALL) NOPASSWD: ALL' >> /usr/local/etc/sudoers.d/runner
             # chmod 440 /usr/local/etc/sudoers.d/runner
 
