@@ -76,7 +76,9 @@ jobs:
             chown runner:runner /home/runner/.bash_profile
       - name: Remove version requirement
         shell: freebsd {0}
-        run: rm global.json
+        run: |
+          su - runner
+          rm global.json
       # - name: Remove git metadata
       #   shell: freebsd {0}
       #   run: |
