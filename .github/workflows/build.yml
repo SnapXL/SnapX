@@ -114,6 +114,7 @@ jobs:
             zlib-dev
             icu-libs
             patchelf
+            zstd
 
       - name: Download API keys
         env:
