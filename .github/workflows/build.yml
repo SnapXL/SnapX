@@ -19,6 +19,8 @@ jobs:
   freebsd:
     name: FreeBSD Build
     runs-on: ${{matrix.os}}
+    # Prevent Ubuntu runner starvation from regular builds. FreeBSD builds are slightly slower than normal builds.
+    # needs: build
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
@@ -51,10 +53,15 @@ jobs:
           run: |
             pkg install -y curl bash llvm21 sudo dotnet patchelf git
       - name: Remove version requirement
+        shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
           rm global.json
+      - name: Remove git metadata
         shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE;
+          rm -rf .git || true
       - name: Publish
         shell: freebsd {0}
         run: |
