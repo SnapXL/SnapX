@@ -75,10 +75,11 @@ jobs:
           printenv | grep -E '^(GITHUB|CI|ALLOW)' | while IFS= read -r line; do
             echo "export $line" >> /etc/profile.d/github-envs.sh
           done
+          workspace="$GITHUB_WORKSPACE"
+          chown -R runner:runner "$workspace"
 
-          chown -R runner:runner "$GITHUB_WORKSPACE"
           # Make runner auto-cd to the workspace
-          echo 'cd "$GITHUB_WORKSPACE"' >> /home/runner/.bash_profile
+          echo "cd \"$workspace\"" >> /home/runner/.bash_profile
           chown runner:runner /home/runner/.bash_profile
           su - runner
           rm global.json
