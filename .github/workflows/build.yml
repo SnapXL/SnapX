@@ -373,7 +373,6 @@ jobs:
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "SnapX-UI*"
-          compression-level: 9
           if-no-files-found: error
 
       - name: Upload artifact (Avalonia - Non-Release or non-Linux)
@@ -382,5 +381,4 @@ jobs:
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "Output/snapx-ui"
-          compression-level: 9
           if-no-files-found: error
