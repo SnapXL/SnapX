@@ -87,6 +87,8 @@ jobs:
           echo "cd \"$workspace\"" >> /home/runner/.bash_profile
           chown runner:runner /home/runner/.bash_profile
           su - runner
+          ls -la .
+          pwd
           rm global.json
       # - name: Remove git metadata
       #   shell: freebsd {0}
