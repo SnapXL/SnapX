@@ -24,7 +24,6 @@ jobs:
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
-      API_KEYS: ${{ secrets.API_KEYS }}
     strategy:
       fail-fast: false
       matrix:
@@ -94,8 +93,12 @@ jobs:
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
       - name: Download API keys
-        shell: freebsd {0}
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != ''
+        shell: bash
         run: |
+          set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
       - name: Remove version requirement
         shell: freebsd {0}
