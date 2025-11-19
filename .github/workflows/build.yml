@@ -75,6 +75,7 @@ jobs:
 
           # Make runner auto-cd to the workspace
           echo "cd \"$workspace\"" >> ~/.profile
+          echo "cd \"$workspace\"" >> /home/runner/.bash_profile
           chown runner:runner /home/runner/.bash_profile
           # su runner -c /usr/local/bin/bash
       - name: Checkout repository
