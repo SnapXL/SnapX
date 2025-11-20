@@ -10,7 +10,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AvaloniaVersion>11.3.8</AvaloniaVersion>
+    <AvaloniaVersion>11.3.9</AvaloniaVersion>
     <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.2</HarfBuzzSharpVersion>
     <VelloSharpVersion>0.5.0-alpha.3</VelloSharpVersion>
