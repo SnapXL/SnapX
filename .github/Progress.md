@@ -22,6 +22,7 @@
 - [ ] Make a v1.0.0 release date ETA that aligns with a ShareX release date ie (a day after a new major version)
 - [ ] Add to Itch.io
 - [x] [Add to AUR (see PR #56 for the initial PKGBUILD)](https://aur.archlinux.org/packages/snapx-ui)
+- [ ] Ensure RPM uses correct source tarball when building on GitHub Actions. Currently, it always uses the latest develop branch.
 - [ ] Add to FOSS Torrents
 - [ ] Add to PortableApps.com
 - [ ] Add [Jump list](https://github.com/ShareX/ShareX/issues/1106#issuecomment-596048694)
