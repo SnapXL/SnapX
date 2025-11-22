@@ -93,7 +93,7 @@ StyleCopReport.xml
 *.pdb
 *.dll
 *.dylib
-*.so
+*.so*
 *.ipdb
 *.pgc
 *.pgd
