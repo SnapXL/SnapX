@@ -489,7 +489,8 @@ NSIS/Plugins/x86-unicode/
 packaging/dmg/
 packaging/tarball/
 packaging/run/
-packaging/AppDir/
+AppDir/
+squashfs-root/
 packaging/flathub/repo/
 packaging/flathub/export/
 builddir/
