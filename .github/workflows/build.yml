@@ -164,7 +164,7 @@ jobs:
           - Release
           - Debug
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup Alpine Linux
@@ -228,7 +228,7 @@ jobs:
 
         container: [ fedora:rawhide, fedora:43, fedora:42, fedora:41 ]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup environment
@@ -290,7 +290,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Free Disk Space (Ubuntu)
@@ -330,24 +330,24 @@ jobs:
       - name: Install Rust toolchain
         if: runner.os == 'macOS'
         run: brew install rust
-#      - name: 🔷 Update Flatpak Sources
-#        if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-#        run: |
-#          sudo apt install -y flatpak flatpak-builder
-#          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-#          flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet9//25.08
-#          dotnet tool install --global Nickvision.FlatpakGenerator --version 2025.1.0
-#          flatpak-dotnet-generator SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json -d vendor --no-self-contained --user
-#          flatpak-dotnet-generator build/build.csproj -o packaging/flathub/build-sources.json -d vendor --no-self-contained --user
-#      - name: 📦 Commit Flatpak Sources
-#        if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-#        uses: EndBug/add-and-commit@v9
-#        continue-on-error: true
-#        with:
-#          add: "packaging/flathub/*.json"
-#          commit: "--no-verify --no-gpg-sign"
-#          push: "--no-verify --no-signed"
-#          message: "build(flathub): update nuget vendor sources [skip ci]"
+      - name: 🔷 Update Flatpak Sources
+        if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
+        run: |
+          sudo apt install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet9//25.08
+          dotnet tool install --global Nickvision.FlatpakGenerator
+          flatpak-dotnet-generator SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json -d vendor --no-self-contained --user
+          flatpak-dotnet-generator build/build.csproj -o packaging/flathub/build-sources.json -d vendor --no-self-contained --user
+      - name: 📦 Commit Flatpak Sources
+        if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
+        uses: EndBug/add-and-commit@v9
+        continue-on-error: true
+        with:
+          add: "packaging/flathub/*.json"
+          commit: "--no-verify --no-gpg-sign"
+          push: "--no-verify --no-signed"
+          message: "build(flathub): update nuget vendor sources [skip ci]"
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet
