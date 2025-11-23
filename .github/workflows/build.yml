@@ -331,6 +331,9 @@ jobs:
       - name: Install Rust toolchain
         if: runner.os == 'macOS'
         run: brew install rust
+      - name: Add .NET global tools to PATH
+        if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
+        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
       - name: 🔷 Update Flatpak Sources
         if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
         run: |
