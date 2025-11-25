@@ -1,4 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <AssemblyTitle>SnapX Core</AssemblyTitle>
@@ -11,6 +12,7 @@
     <MSExtensionsVersion>10.0.0</MSExtensionsVersion>
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
+
   <!-- Feature Flags -->
   <PropertyGroup Condition="'$(DisableTelemetry)' == '1'">
     <DefineConstants>$(DefineConstants);DISABLE_TELEMETRY</DefineConstants>
@@ -34,10 +36,12 @@
   <PropertyGroup Condition="'$(DisableOCR)' == '1'&#xA;  OR $(RuntimeIdentifier.Contains('freebsd'))&#xA;  OR $(RuntimeIdentifier.Contains('browser'))&#xA;  OR $(RuntimeIdentifier.Contains('alpine'))&#xA;  OR $(RuntimeIdentifier.Contains('musl'))&#xA;  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')">
     <DefineConstants>$(DefineConstants);DISABLE_OCR</DefineConstants>
   </PropertyGroup>
+
   <!-- For packagers -->
   <PropertyGroup Condition="'$(PKGTYPE)' != ''">
     <DefineConstants>$(DefineConstants);$(PKGTYPE)</DefineConstants>
   </PropertyGroup>
+
   <ItemGroup>
     <!-- Google Photos Library from Microsoft employee -->
     <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
@@ -77,17 +81,17 @@
     <PackageReference Include="Serilog.Sinks.InMemory" Version="2.0.0" />
     <!-- Cross platform image library -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-    <PackageReference Include="BrycensRanch.NeoSolve.ImageSharp.AVIF" Version="1.3.2" />
+    <PackageReference Include="BrycensRanch.NeoSolve.ImageSharp.AVIF" Version="1.3.1" />
     <!-- Helpers for drawing -->
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
     <!-- Wayland support,
     while these are only useful for Linux,
-    hiding them behind a compiler conditional makes debugging more difficult. -->z
+    hiding them behind a compiler conditional makes debugging more difficult. -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
-    <!--    <PackageReference Include="WaylandSharper" Version="0.1.3">-->
-    <!--      <IncludeAssets>build; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
-    <!--      <PrivateAssets>all</PrivateAssets>-->
-    <!--    </PackageReference>-->
+<!--    <PackageReference Include="WaylandSharper" Version="0.1.3">-->
+<!--      <IncludeAssets>build; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
+<!--      <PrivateAssets>all</PrivateAssets>-->
+<!--    </PackageReference>-->
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->
@@ -109,6 +113,7 @@
     <Content Include="Resources\jira_sharex.pfx" />
     <EmbeddedResource Include="Resources\*.flac" />
     <EmbeddedResource Include="Migrations\*.sql" />
+
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Localization\Resources.resx">
@@ -125,9 +130,9 @@
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="WaylandProtocol" />
     <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
-  </ItemGroup>
+<ItemGroup>
+  <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
+</ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
   <ItemGroup Condition="'$(TargetWindows)' != 'true'">
     <Compile Remove="SharpCapture/Windows/*.cs" />
