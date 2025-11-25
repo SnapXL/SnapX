@@ -3,28 +3,28 @@
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/bullseye/6.0.0/bullseye.6.0.0.nupkg",
     "sha512": "07ef885695a3cfb1aa6f1901b361e93d9292d05a50de55f4620a5d0eadb0f04352950dde7d21ad9785acf3d6ed0da480a8a6221e6943b59b8eef2e8c1917d25f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "bullseye.6.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/gitversion.msbuild/6.5.0/gitversion.msbuild.6.5.0.nupkg",
     "sha512": "99c0618d01f0a0c095bbe5a6ce705c3d8c7aa4f5f76088c9ac664cae5d9734673c5960418addd942d56e68370a09090397e38fe4103f96b1f671a2abceb0330f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "gitversion.msbuild.6.5.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/simpleexec/12.0.0/simpleexec.12.0.0.nupkg",
     "sha512": "a2e12b2c5ca5c7e6d0afb9960f3a7b102a1f7f0345256e5502254babe8b905e42ee205260a0c81f2bb87d166a150b7eae47ddce6bde3f1918a23c8c98a90bdd8",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "simpleexec.12.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.commandline/2.0.0/system.commandline.2.0.0.nupkg",
     "sha512": "0c86dbeaa2c9b74785df37b3996bff4f640ebf6b2ca64c2424a865e9359224d00faabde9206d4b6ac139d83afacf287928a38be3edb99d2d54cf171ae6ab0a32",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.commandline.2.0.0.nupkg"
   }
 ]

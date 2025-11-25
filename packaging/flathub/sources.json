@@ -3,1638 +3,1638 @@
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/asyncimageloader.avalonia/3.4.3/asyncimageloader.avalonia.3.4.3.nupkg",
     "sha512": "aa2986fd5635b06f91d7aff3e2312f145a4b6bac92dd120c35b6233c421a0f868bc4abf252624e766b19b89d5a22796bfc6121a3ef6484089ace95f58a4c93c4",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "asyncimageloader.avalonia.3.4.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia/11.3.9/avalonia.11.3.9.nupkg",
     "sha512": "61f693ad4c5c9954ec18ec3662a759cae9c7a9902b2b5ea6d6961f34806fcaf0205fcf4fcdddc0d4f8283247fae2eeec70bdb720de8791faa165e15c6d858ba0",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.angle.windows.natives/2.1.25547.20250602/avalonia.angle.windows.natives.2.1.25547.20250602.nupkg",
     "sha512": "5cf4ba739c4fe0bf9e36ad2b4d481338239ea98216e6188f8c2f7af5efbdcb8926ce7d6af2df951071f8d9294d4d25ce1e52835f2bf4ac08c3dceba5e503ae60",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.angle.windows.natives.2.1.25547.20250602.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.avaloniaedit/11.0.0/avalonia.avaloniaedit.11.0.0.nupkg",
     "sha512": "66905ecf9985286d4a84dafc7c301c04122e85ad7b754cb2d63b52e82fa5af04e92e1bb669b9b149b8ed58bc13d9a565b227a41232a0fed4403b9283b3c97e08",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.avaloniaedit.11.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.buildservices/11.3.2/avalonia.buildservices.11.3.2.nupkg",
     "sha512": "233f868e74ab91e56818004ad0aa7d0bb6e978044ddcf0061e373ada06a1846b17a82e94c777ab907ba484c1873d2212b47d3539d2694e89a415f1af047c3045",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.buildservices.11.3.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.controls.colorpicker/11.2.5/avalonia.controls.colorpicker.11.2.5.nupkg",
     "sha512": "ac1f886ae8f0d0ad2cb6d455054e78de25b84f87156bc6757e65fedd6ff4fd7824307cf1712293b45ea5dcd53ec648eb6cb04807429f11b640b3482389268ebb",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.controls.colorpicker.11.2.5.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.controls.colorpicker/11.3.9/avalonia.controls.colorpicker.11.3.9.nupkg",
     "sha512": "8ea77dff9d0a4c8d0e41c437adf4bb45d60c27a1c6e4edb2b4ceeb6e1f09369f69788d6c47b11c6b8a761320718464b49505ca7ee2183b5c6d48158d361f63c0",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.controls.colorpicker.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.controls.datagrid/11.2.5/avalonia.controls.datagrid.11.2.5.nupkg",
     "sha512": "29b04299b29c9e94f89a609bf8add7e369cff9c27e5ef753b1a22bfce0fec170dc452897d1cc897ff63c2447c7060c8b2e2a87d8d38f25c4182c7481dc65a156",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.controls.datagrid.11.2.5.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.desktop/11.3.9/avalonia.desktop.11.3.9.nupkg",
     "sha512": "cce1db02cb238cbcfce5ad9138d2b650c7d5feea8cb68b7d971714ad2af06b74a77849bc00b7a0e8f7b0734bbf62abd5448e69c939b81c2b4df70e7244ad2e66",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.desktop.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.diagnostics/11.3.9/avalonia.diagnostics.11.3.9.nupkg",
     "sha512": "7765c66a0c9866f146bfa69d1ab13308dca817ee8f7e5f9853dcdf504e17c9804cc35cd072fd9304bea745db999ea942a2f7fecc966734703c72aa6fc16269ed",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.diagnostics.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.freedesktop/11.3.9/avalonia.freedesktop.11.3.9.nupkg",
-    "sha512": "825a9b5dfafe4e8fc1c47217a5f58b1905bc554cfb25b0a71dccad098383067909f643981ae248e8acf550336e1fd11dc1f273c7e65e4598356b67077efaa2f0",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "sha512": "3cb1504f2ce8f53ecfa45804d2f6205a3c4e5c02b04ad53130374b640c37bda73328185e50d8f6b08362168eb47583cc6d6f5fdb20151df1dc9d1791b23b8b0e",
+    "dest": "vendor",
     "dest-filename": "avalonia.freedesktop.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.markup.xaml.loader/11.3.9/avalonia.markup.xaml.loader.11.3.9.nupkg",
     "sha512": "0745277338cf5e124b3cd466d54e0fd74afdb01f3986c8db75822de4dfad041c5f4afbc3f414aed24e2f5442b652f0f56e20897ba06446149d46d12109c1867c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.markup.xaml.loader.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.native/11.3.9/avalonia.native.11.3.9.nupkg",
     "sha512": "4e475c045418ae8b0a725401275ac68655bf911c53e7976d691814bc316eac4f35fb4e96af43e1fefcf4f4702f32c055d13b380bc25fc2a96115d506f394945c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.native.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.remote.protocol/11.2.5/avalonia.remote.protocol.11.2.5.nupkg",
     "sha512": "fd1623d6281158d15d217c3d6e608e31e2ff31efa34420b8b6b0e32b4d2207594e1084b84f4601ca7b8ddd7cf982db3ad863c42e67ffb141eaf80cbbb5fdd1d6",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.remote.protocol.11.2.5.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.remote.protocol/11.3.9/avalonia.remote.protocol.11.3.9.nupkg",
     "sha512": "0cdba0b6e40d5b74003b5ac7abbe937ad4b822767e533c162c62babf134f2e02fea1ba34ac21caa4b887a514ba3559c99d0ec7c317fd25daa94ba3828fb739b9",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.remote.protocol.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.skia/11.2.5/avalonia.skia.11.2.5.nupkg",
     "sha512": "5a0b662ece87a4b75cc3ff37c35fa35aa79aa3378bb4e7615f13edec38b7a58b3d4e9943773974fdc4278ec64353cd65a1dc696eae888f822d67146812f3de2b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.skia.11.2.5.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.skia/11.3.9/avalonia.skia.11.3.9.nupkg",
     "sha512": "a29564f5b0f0cc4ebd5d15fbb18b07d74e2c9418cd9899c8b04ae35ad79c4c65ebab3005a863305121fa09e191c12914a064a1025f2d43bd7aedfb96f99be20c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.skia.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.svg/11.0.0/avalonia.svg.11.0.0.nupkg",
     "sha512": "23887ff72712f07b32e291fbb81643e04cfb45c93755fc0e94c761096b7c5642671726a33c48c6c20e010f10e753ec3dc0cf5d3472be25d14af05fec9d21eef3",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.svg.11.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.themes.simple/11.3.9/avalonia.themes.simple.11.3.9.nupkg",
     "sha512": "c9300bf5d83886dc00694ecf3d1e66607cb7efa7d5abbec8d983ba2282919aa8cc200975354605bf1d79405124e16c86e808e2760f67f2f3ae2be8620d3f3378",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.themes.simple.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.win32/11.3.9/avalonia.win32.11.3.9.nupkg",
     "sha512": "bfb97e33d2c2c0382337a32a9e6c9c91142330a208398b61c1d8170b6151eaff53907d0f1fa1e4522bcd54d1c8628e90ce8d66e0a8dfe16d9ffe3eb332de093f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.win32.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.x11/11.3.9/avalonia.x11.11.3.9.nupkg",
     "sha512": "6afca81d44ddcc5babbdbd661bfb7984703d33b162b5dcb2ea9ed6477bf233764b0427386e2418f15596c35ce7892c3b286c0606ce46acbff6cedce0639ad629",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "avalonia.x11.11.3.9.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/bouncycastle.cryptography/2.6.2/bouncycastle.cryptography.2.6.2.nupkg",
     "sha512": "4e1a32f937eebba134f1c6646c0b554edaa1bc41969dec5816d11c3c285906e106377113ea6c1cb0b161749ff08ae8ad39df05956b62abe2274d4b3060f0daef",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "bouncycastle.cryptography.2.6.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.aptabase.core/0.2.5/brycensranch.aptabase.core.0.2.5.nupkg",
     "sha512": "91864e641ea4aac66aecad611debc2ba5b84ac434a306d87f6dd84ae39fffecbde229eb36231b7d4e818c2b797da06e0916d46062b56162c9d70d69da63b2c77",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "brycensranch.aptabase.core.0.2.5.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.megaapiclient/1.0.0/brycensranch.megaapiclient.1.0.0.nupkg",
     "sha512": "404d807e91a563c73b950c302a32b6ff7372e9cba771f8b18c9cad3bec71acda7e75dea3f3c5d4d30d0a58693a196980e1648c4cfb056c6ea4f2eeb4dcffeec1",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "brycensranch.megaapiclient.1.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.neosolve.imagesharp.avif/1.3.2/brycensranch.neosolve.imagesharp.avif.1.3.2.nupkg",
     "sha512": "335aa6e394279c4ba61e0f6550f5d6d0fe987182f877352bdf88e9aebc6e8194e97d8c179af219da64daee902f5fd74b7760704c915440addcac4ede47b09d66",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "brycensranch.neosolve.imagesharp.avif.1.3.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/cascap.api.googlephotos/3.1.0/cascap.api.googlephotos.3.1.0.nupkg",
     "sha512": "0338bed5fd1729433170e29d796b6a5ecda7825e1fa12fa1d9dde8f53a6c09da23ada16eded154a5c08ce75fd62aeac57a8e55e1365943c629bac5a57335a1d0",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "cascap.api.googlephotos.3.1.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/cascap.common.extensions/4.2.3/cascap.common.extensions.4.2.3.nupkg",
     "sha512": "88eb13f076a8e9022e3ef69adfc07233447edfa5e5292e69ed13b12a4d051f87b86f2e0bc5e303f3ebc53acdfd0c0674323c91bcf78c861cbe86bceffaf0be2b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "cascap.common.extensions.4.2.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/cascap.common.logging/4.2.3/cascap.common.logging.4.2.3.nupkg",
     "sha512": "9862bae607b1c3a58b9f144618207b3369d1d8895e8d4fb4b6902430829134d053ec7169f452eee958f4174081e17790a42ecb4ff54bdb9bd70600aeb5d8f53c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "cascap.common.logging.4.2.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/cascap.common.net/4.2.3/cascap.common.net.4.2.3.nupkg",
     "sha512": "d19ad8589ad452ba3940e251e6667fe06e3fc9d27fa911575151c82ed9c8b6e68517b54879702fa31383cfefdbe6dec631d1daeaed077f040f6812e72cbfca7a",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "cascap.common.net.4.2.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/cascap.common.serialization.json/4.2.3/cascap.common.serialization.json.4.2.3.nupkg",
     "sha512": "5e486eb504864e32eb683dd7a39235bbd7a619bbac866a6df7470b5189d834400747e8ae63709220054ab4958e7c0af96e5fc360ac9d61947b99f1f2c2b6ea76",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "cascap.common.serialization.json.4.2.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/colortextblock.avalonia/11.0.2/colortextblock.avalonia.11.0.2.nupkg",
     "sha512": "2b8a572c3480731c498ef7e9d1841209d6198b1c567005e922e324de8661b7dbee4bec8be21a36a6c9520ada27d021aa0dc25ec9375ec2030480badccfc134e6",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "colortextblock.avalonia.11.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/communitytoolkit.mvvm/8.4.0/communitytoolkit.mvvm.8.4.0.nupkg",
     "sha512": "5e9705a1ad58b19f0b3ce956ac40226337402a7b17d067fbb5fd987e9ecee2a100c2d76f15537932b18618599599023542257fe67df32b193dc2b30542b2c30b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "communitytoolkit.mvvm.8.4.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/dapper/2.1.66/dapper.2.1.66.nupkg",
     "sha512": "80c9499838bd81b3c532ca2fcb6eb72ff8c5607e55f81992d1dbbe6727e0fbc5e8ce325b342adb292e970d9f5829796dab19b097529c52c1cd382a669ba96dcf",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "dapper.2.1.66.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/dapper.aot/1.0.48/dapper.aot.1.0.48.nupkg",
     "sha512": "d4f89a03c9b58dcc42719e05e559e7e683a050d63834b29fd919b7abaf43ac4a290b923d29986249b6446e9615897d96e660b529c2de66d491132177ec5283ce",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "dapper.aot.1.0.48.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/dotnext/5.2.0/dotnext.5.2.0.nupkg",
     "sha512": "e9d702febca57deb9ab41aa1f8f153a7ccc5e7d95023c6f11768851763aca1b1295d93302895d23ae88f427d2dd687c2bc3af03455792253f1cb67b1e5eb1c25",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "dotnext.5.2.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/dotnext.threading/5.2.0/dotnext.threading.5.2.0.nupkg",
     "sha512": "447c8b6d0f063b2c9cd97fdd005eb913c323ef2a423a8a65d4dce5063660380bf4f99eb669caaf83e0de4961f20de7428a5c236575e75164eb32a4c5a4d2acd5",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "dotnext.threading.5.2.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/excss/4.1.4/excss.4.1.4.nupkg",
     "sha512": "7de5ccf229c00c2d20a7c89bab3a9e2ff190c8dc67845098e4a49ce284a81b77a7dd6fe5736a69bfa638b72ae30c75e3b39a4c08ed8a8083f21bbdf5db059f33",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "excss.4.1.4.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/fizzler/1.2.1/fizzler.1.2.1.nupkg",
     "sha512": "4a0fe8626c283acce7c7fe0406222a0195ad203515b2af297b0f9268646e54b860010eba96562ba2cf1e44deb1e903ddc81c26374cd6ca522318e36e94655520",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "fizzler.1.2.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/fluentavaloniaui/2.4.1/fluentavaloniaui.2.4.1.nupkg",
     "sha512": "613e2b01c3c62b55e89b025b69c7bc347146b7e6b35856cb47147e4078ee86c0ff62c4435c7fc3dcf8af4cf8d7f5d0f789f14716bd3a01050dde106355483a1f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "fluentavaloniaui.2.4.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/fluentftp/53.0.2/fluentftp.53.0.2.nupkg",
     "sha512": "05b07f8ebc641c5e989782d387adf1381119cc320058fb3d9d14b1c9f2ad7c514934c3bc5265d4b74d4484d58f98be981e8c17f611f62d3157b8230247bdd38e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "fluentftp.53.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia/1.2.315/fluenticons.avalonia.1.2.315.nupkg",
     "sha512": "0c1dd913b5cf6b6ea1ad08e1fa722f24efd1cabf2301ea33ad34209e1164d8505f7e5076181f3de4711c2243f1264ffd2dc20be9fa6aaa92e1874963fb9149df",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "fluenticons.avalonia.1.2.315.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia.fluent/1.2.315/fluenticons.avalonia.fluent.1.2.315.nupkg",
     "sha512": "bc71fa3904cb375c362f88898f7596af4165672fb3b9a3fe2178b9d800c147fa5a6340e444d5faca8bbb753a445cfd2ce266167f5d341080d7c984d09a9e8177",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "fluenticons.avalonia.fluent.1.2.315.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.common/1.2.315/fluenticons.common.1.2.315.nupkg",
     "sha512": "32c504c9864eb77bab1266da89d007b9a7487480023076c0c7c99fb6a4ac81df0c36947682f01452736536965732c0957bd1a132748e12d81dcd1b314e4f8397",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "fluenticons.common.1.2.315.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/gitversion.msbuild/6.5.0/gitversion.msbuild.6.5.0.nupkg",
     "sha512": "99c0618d01f0a0c095bbe5a6ce705c3d8c7aa4f5f76088c9ac664cae5d9734673c5960418addd942d56e68370a09090397e38fe4103f96b1f671a2abceb0330f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "gitversion.msbuild.6.5.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/google.apis/1.68.0/google.apis.1.68.0.nupkg",
     "sha512": "9f74a75f99404998f171a866a9a298f448bbcf6b796c3a7cd0399abd7702ea1f73e6c792cc9d3b9cd73c2cc5186130f26720366db046cd8fe4ba30cb1083fbf1",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "google.apis.1.68.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/google.apis.auth/1.68.0/google.apis.auth.1.68.0.nupkg",
     "sha512": "7df0e6e6af8e87524beeadc0ace0192bdc8663f6330e76309c0108eeef09f12ecbe0a52e1ae3fa109fc29dfc0264571bc656cd294f4f03e3105a7d279b33927d",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "google.apis.auth.1.68.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/google.apis.core/1.68.0/google.apis.core.1.68.0.nupkg",
     "sha512": "31794476a53c3daf5463a213ab037b524645a4a9d543a22925dcb7dfeb21501ac8c636ae82729171a2f592f7574a337f3faa7d178de29ffae78ae0f3846ea7fd",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "google.apis.core.1.68.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp/8.3.1.2/harfbuzzsharp.8.3.1.2.nupkg",
     "sha512": "8e3125def22e148286f0d597c80bb626bb5640c0cca4e72d58bfe8a31e2ba4dd12d44060c90537a2b32f05b76f321c8515d31fc164ad8b630cc22ac576debfc7",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "harfbuzzsharp.8.3.1.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.linux/8.3.1.2/harfbuzzsharp.nativeassets.linux.8.3.1.2.nupkg",
     "sha512": "caf3c6bd434b7755dffb232b8d2932d6282134a7fe5637f68bb18fd8e86da57307b157a158aa20843f2b68f543105ba782c4d129e3613d7c138234fcda431be1",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "harfbuzzsharp.nativeassets.linux.8.3.1.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.macos/8.3.1.2/harfbuzzsharp.nativeassets.macos.8.3.1.2.nupkg",
     "sha512": "8ae0370c25c5e601cdbef019789a315c64dc4a44892762d4bb37c32d9f3cc1eddb14f29a4ab080245adde4d4b18f82a3a1710884e6890623fa3c62249b5c8299",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "harfbuzzsharp.nativeassets.macos.8.3.1.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.webassembly/8.3.1.2/harfbuzzsharp.nativeassets.webassembly.8.3.1.2.nupkg",
     "sha512": "ff85a051116cbd4b12a540a13f4e1266622dc6c36a32a836cd05b6939b4d8a60d0ae0bcf3ee2becbfc03bdbb70636933498e918a50f97cb5ad0f57d5411d9ba2",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "harfbuzzsharp.nativeassets.webassembly.8.3.1.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.win32/8.3.1.2/harfbuzzsharp.nativeassets.win32.8.3.1.2.nupkg",
     "sha512": "6b3ae3a7d94cf5509c89aa6e61f287408885ee770ab895c3ae0b466f45fd0d0180b2b3f436ee8d17d9d062fb5305f3b85bac529819f1fcfcd6244d73c6066b5a",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "harfbuzzsharp.nativeassets.win32.8.3.1.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/htmlagilitypack/1.11.42/htmlagilitypack.1.11.42.nupkg",
     "sha512": "23c0136da756dc13cbf71950c7279645d455cc3968038bb650cfcb9f2bb5df478ef2a130373e6fb04786c42fd793faebe667a03d34c766a1aa8444a99f3e0872",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "htmlagilitypack.1.11.42.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/json.more.net/2.1.1/json.more.net.2.1.1.nupkg",
     "sha512": "737ecfc42e607d494622520af076aa51cd65ee524050757d8fd4708767c55ad43d5b58ad8fe821e8fef13e6de13d98443c57f9ec79d23b39ee64afca01a66af7",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "json.more.net.2.1.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/jsonpath.net/2.1.1/jsonpath.net.2.1.1.nupkg",
     "sha512": "e24d69e912371943a732fb28e5a813a5247bb110167ad116b340566d9aa22f422341ea9729c66e23d70981ead1ad3450d07b7383dce75eb94484d49f175321c9",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "jsonpath.net.2.1.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/markdown.avalonia/11.0.2/markdown.avalonia.11.0.2.nupkg",
     "sha512": "30cfb19622344ec92c6b2c9485781530c9bc50e31af590b46de28ad01eaa92da3325dfed186f27ecaf91bf187110f705884e11502f220a1c5d27355d0e640ed3",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "markdown.avalonia.11.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/markdown.avalonia.html/11.0.2/markdown.avalonia.html.11.0.2.nupkg",
     "sha512": "26b91db65261fd48abb52e33dee8ddf2240ef10e445460c48bc304de25e940c05ee681f4e0ee060f04209a67a33c284d6c243fa6828e28e1854f0be3aee1fe7d",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "markdown.avalonia.html.11.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/markdown.avalonia.svg/11.0.2/markdown.avalonia.svg.11.0.2.nupkg",
     "sha512": "2fdd118f7af1e67f41f13b04d1cff047849988c45f79e6c98e1f8cf06ee8fbcadf4951f77139b700e4ca32085622058b9fd3b5ce1571d064f086919bcf3e815e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "markdown.avalonia.svg.11.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/markdown.avalonia.syntaxhigh/11.0.2/markdown.avalonia.syntaxhigh.11.0.2.nupkg",
     "sha512": "0b2884d35e625856fefe7f2c514f60747a5d2762377f7c632a0bbeacda1c30f63c970d1fdd8755727ed2c289179ecb08b00ebc97227c67c99cbf466bd5b779fe",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "markdown.avalonia.syntaxhigh.11.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/markdown.avalonia.tight/11.0.2/markdown.avalonia.tight.11.0.2.nupkg",
     "sha512": "ba8a1db153c9a3cf1d64486679423c8b29df6f827de0161804165b2466a65ab794f56167732c8b55cc9ec7214078cdb10270e055345622cace8568d060fd4749",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "markdown.avalonia.tight.11.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microcom.runtime/0.11.0/microcom.runtime.0.11.0.nupkg",
     "sha512": "c00731176e34ea7b936ad58a38639843c790b027b714ed5d3ea828b85ea94b14a502ded52ca7f60bb10c0ac0e744bd6e62fdcce0108ebaaf9731c408eece031e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microcom.runtime.0.11.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.aspnet.webapi.client/6.0.0/microsoft.aspnet.webapi.client.6.0.0.nupkg",
     "sha512": "47d509834cca423ca9a6393ee4b6b7c56149d93dae96ac02b0712cd39bfd642969402a93a8cba924171e0103c915a3ab892e20a54e49943138f0509c1d51bccd",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.aspnet.webapi.client.6.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.aspnetcore.app.runtime.linux-x64/9.0.11/microsoft.aspnetcore.app.runtime.linux-x64.9.0.11.nupkg",
     "sha512": "1565381f3b055a367799c32eca9ba444d7ac6d679088b7fe2f48034bdff7b133542f121771b671871ce5bb1528e137f81352a05ff1ba2d0ededb666a8fecf3c4",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.aspnetcore.app.runtime.linux-x64.9.0.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.aspnetcore.webutilities/9.0.0/microsoft.aspnetcore.webutilities.9.0.0.nupkg",
     "sha512": "5f3177256a60a655c2315dd992012d0c95203db7d0edbd5da795835663c9702ebe897d4f7510e1f2b4bcccb1587036bc40e3c71a6629aa678898dab33707956a",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.aspnetcore.webutilities.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.bcl.asyncinterfaces/6.0.0/microsoft.bcl.asyncinterfaces.6.0.0.nupkg",
     "sha512": "221a05a0c910f7a87b620d8f3831ed392b4eb95d112bee274d35f27009ad2a26445de9d7cd235fe6fb4a03f2550874bda3be3dddd96edaf9c0852a9c23d7b099",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.bcl.asyncinterfaces.6.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.data.sqlite/10.0.0/microsoft.data.sqlite.10.0.0.nupkg",
     "sha512": "bef331ce90d17e09c61ba098dd9daeb817349bb6e493cb55c8f0dfd0775ab0435c818d97d9eec5719729f8cb9084c0755736046e66bf744f8b5725b51948e453",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.data.sqlite.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.data.sqlite.core/10.0.0/microsoft.data.sqlite.core.10.0.0.nupkg",
     "sha512": "79ee3833af7220dfa70edfccf24cd4ef1adbd86bf12dfbfc87b1a9003d5b19eabc63e3940efaf8ae7e26ab4efd5dc060706f44ee1b561b98595ecbce20601d7c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.data.sqlite.core.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.diagnostics.netcore.client/0.2.510501/microsoft.diagnostics.netcore.client.0.2.510501.nupkg",
     "sha512": "81b656becf5254f33e3fbffda0dcecb26817d95667b6c5ec5c1efc6f0643e6d0d0e5c6b01146365785c2e8aa2d60b6e9b95ffe8e6a0ebe0c2f4cef14af99ef8f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.diagnostics.netcore.client.0.2.510501.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.dotnet.ilcompiler/9.0.11/microsoft.dotnet.ilcompiler.9.0.11.nupkg",
     "sha512": "823f7e02459265c9a7fedefd88761595189dcb582326aba2c27107270774d62822e924d822cb941ca94d2f542aadaa2706d55ba3f7300ae77c692378bfc8d0dd",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.dotnet.ilcompiler.9.0.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.ambientmetadata.application/9.0.0/microsoft.extensions.ambientmetadata.application.9.0.0.nupkg",
     "sha512": "8101753b36ecb52f579b5948d69ed5e63beb083ad09d257c57bb603e9bbe684089d017a53a98a7366bd40777d3e7017277a21048312a8313a9aa1549e8203768",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.ambientmetadata.application.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.compliance.abstractions/9.0.0/microsoft.extensions.compliance.abstractions.9.0.0.nupkg",
     "sha512": "4e003cb48e90368989dd8136befe3ab78cd9aa2972efe9849300762f107539fc35443de70d53ca218d0bd633e7fb949f2f158b4d33bf4ea4e0a273955ec1570e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.compliance.abstractions.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration/10.0.0/microsoft.extensions.configuration.10.0.0.nupkg",
     "sha512": "7148bfe7a41903421db7c49ec8c12c8c79175f9e6c994a869d60ecb45a3606868aa0429b1d8e7f78e32a895193b1ce8e76c5eae49cbd7d22ce391861912e4b35",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.configuration.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration/9.0.0/microsoft.extensions.configuration.9.0.0.nupkg",
     "sha512": "534f843342f2ca2bc09663fd37fdd3d8acd50c9904fc8f1f3fa14498bf4b9fe91329a1a9bfc012d17fd1358d894c15efdbd026ebfaecea48fa0bb59e79b8ee71",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.configuration.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.abstractions/10.0.0/microsoft.extensions.configuration.abstractions.10.0.0.nupkg",
     "sha512": "63c407e088d6927a64ecd84ddea7e87735c5164ea4f3a877435ba6de1f35e83a1f0d565a2179ca7c7eaadebcfccc50692aece10e0212a7c3d5803229446c6e16",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.configuration.abstractions.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.abstractions/9.0.0/microsoft.extensions.configuration.abstractions.9.0.0.nupkg",
     "sha512": "3282710ed202a188cf30d23fe4d9831c4111752907d00b963294fd71917633bbf0f45e2b4b7fb9fde1c3a52710bcc122d06a7ace70b836b0d4b5576656dcc3b9",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.configuration.abstractions.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.binder/9.0.0/microsoft.extensions.configuration.binder.9.0.0.nupkg",
     "sha512": "43666627d5d88a031f8f48a06d1317fb6b3752786c15a20b9f96fe59ef2348462b134e5d4beb9a2e313def38df27d2fcb3f797baf24b5c5187d0e86102153926",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.configuration.binder.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.commandline/10.0.0/microsoft.extensions.configuration.commandline.10.0.0.nupkg",
     "sha512": "197fedea2c7be3243d2c60ca2941bebe711350ea80d3add4d9de9a680c16b6c28ea84166e67b3fca7e04e01be1252812e72a264d0950be1ab14427272cfa5500",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.configuration.commandline.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.environmentvariables/10.0.0/microsoft.extensions.configuration.environmentvariables.10.0.0.nupkg",
     "sha512": "4dcbacdb9f69dc3bcb7bba603be1950fea154379f61412d2c85e0185963f31cf36387b848d549e95eddf8cac5550fd2593de110ae19b8a8c82987fa6997ce29b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.configuration.environmentvariables.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.fileextensions/10.0.0/microsoft.extensions.configuration.fileextensions.10.0.0.nupkg",
     "sha512": "82ea39465bab27e29f4261cf34543b8b974e629f73fa2cb0ed9e0391d4f6a5108180235bc13a454a1ca3aa97de3caf5b4b715de867cd4d104ed7ce06d1915b9c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.configuration.fileextensions.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.json/10.0.0/microsoft.extensions.configuration.json.10.0.0.nupkg",
     "sha512": "fc29fa355f942259fb1550eeb2967ded70899d0da31e5ef7edcd8a7735f9e38716c4c2b1fa15bf36ee807161f28f332d0b1e3dcce719fe38ef8ec89f536bb804",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.configuration.json.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.dependencyinjection/8.0.0/microsoft.extensions.dependencyinjection.8.0.0.nupkg",
     "sha512": "96391af4ae0542f4ae96c8009c9ffbf304acadf476cda262a8ea73e33b172529541044186c59d656377bb2de42c9f5925e0632a81f6e7516f2a646e8916f16ec",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.dependencyinjection.8.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.dependencyinjection/9.0.0/microsoft.extensions.dependencyinjection.9.0.0.nupkg",
     "sha512": "3cd3f939c041941c3d6f185e0b0e29a519c9a561d61716c4574d8ef447bed0a9f787508f88780c53ba9e9142aaf926147024500784da88f3955a041a5350f8cf",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.dependencyinjection.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg",
     "sha512": "ba1960ef110ac7387a2a06eefc02c59ce57b0fe58b3e0cccb79b1c8f2150105c5d1f4b65e0ed95ff50d70f28142917c6a735b83f4e5406bb1d8f9dd1f9635d7d",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.dependencyinjection.abstractions/9.0.0/microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg",
     "sha512": "62d69c591f1f533930baceef96d13562c46f3a254edda207aede39df86aa344c0ca13389b72adbc03f943b120db945c04944551d9a17165f820ab0bfec9b7e2b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.dependencyinjection.autoactivation/9.0.0/microsoft.extensions.dependencyinjection.autoactivation.9.0.0.nupkg",
     "sha512": "77065f30d337b164643b96bbea9998ff8a8cf36fa9b34f8ee8ecc96def50db218f0361852c5a5c6e287763cc5cfca73064288a36db3fb56fa7b5ee2e00025c47",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.dependencyinjection.autoactivation.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.dependencymodel/9.0.0/microsoft.extensions.dependencymodel.9.0.0.nupkg",
     "sha512": "99fd298636f8bc5fb10908eb35729fd3cba4683e5a5525ba511de07e6533c944a8e4a0583bb21aefaf4fd79fee9d4c356d2a2e5375293f5d44dd9607452b68e4",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.dependencymodel.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.diagnostics/9.0.0/microsoft.extensions.diagnostics.9.0.0.nupkg",
     "sha512": "eaea1bfb186b2b50f08e30e77d8dd8ccefcb44f665849db806db929e47975849922c53c6750f6d85c1970122d65726750984b3bf9e46e43c8cfc3cc000587362",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.diagnostics.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.diagnostics.abstractions/9.0.0/microsoft.extensions.diagnostics.abstractions.9.0.0.nupkg",
     "sha512": "a5598c2bb424e046e2032c3c9fd2494fe378d5a9ec782a584d7502f3f92f684ffdc78f541953533ca04f69f5e9e1391959a32591f9cae549292515aac51d7e78",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.diagnostics.abstractions.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.diagnostics.exceptionsummarization/9.0.0/microsoft.extensions.diagnostics.exceptionsummarization.9.0.0.nupkg",
     "sha512": "eb8b5d24298c1296e08fa56db2a4f4cada6ddae2313b8b7c9ae0616ad6b26b3eaec36a003d93fa440c51dc1b5ea886de5fce4db6da01a5c446b0d6fdad688dc2",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.diagnostics.exceptionsummarization.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.fileproviders.abstractions/10.0.0/microsoft.extensions.fileproviders.abstractions.10.0.0.nupkg",
     "sha512": "974c24652ff64eceb9752c814be807ba76f80cbacacbc0a9eb7dae8d1d9d5c1184f56a7679fa0cb36f3a024f480fffc620735034ddad5c5c7ae8f787fa3aab4e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.fileproviders.abstractions.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.fileproviders.abstractions/9.0.0/microsoft.extensions.fileproviders.abstractions.9.0.0.nupkg",
     "sha512": "48b2b5b2d0678f7b77ae159ba1f8ca7dc5a3d8bd0678e5dfc75e615cf818db42e2995968ccf94c3cf08e61395d9c43972fb81dea3892f51dc82acd7281a22afb",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.fileproviders.abstractions.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.fileproviders.physical/10.0.0/microsoft.extensions.fileproviders.physical.10.0.0.nupkg",
     "sha512": "35bbf2aff668b879fb9d33d29e115d8e8e78946c6f5d88c21660cfacb9d51fd4850872f74c77e6823c8e998a9f244a882931e148e0bf5e5de1a11a549144b497",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.fileproviders.physical.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.filesystemglobbing/10.0.0/microsoft.extensions.filesystemglobbing.10.0.0.nupkg",
     "sha512": "ec80416600238ff8028c04e116a34d748f1f688ad6a318737c9c3f7ed7e1b49df0773ec0294a91d456796c96b4846192124a38da69af1292ab611494a9794ff6",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.filesystemglobbing.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.hosting.abstractions/9.0.0/microsoft.extensions.hosting.abstractions.9.0.0.nupkg",
     "sha512": "50d29238db63bcf23232a4b39890748a6d3e7832f8dd85884c6cff2a8fe8074c4e37750d96748b66fa0dcf5848712054f766ed7e032fc3271c49868ca10efccc",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.hosting.abstractions.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.http/9.0.0/microsoft.extensions.http.9.0.0.nupkg",
     "sha512": "67969d0eee051c6fb53d73bd0913f4c7d366834272c6e091914a58f6c4f756640d7365c6e94b78308e2312882dac22bd4a86c703ea02dd0c6131aa0472de68c1",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.http.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.http.diagnostics/9.0.0/microsoft.extensions.http.diagnostics.9.0.0.nupkg",
     "sha512": "9fe90bdc6b30b1fafb6d2c89598d2c4f14338eb4a7ec41a4d0de652425d2eb60f5a0908318b4cca808940a9893d3fe092a6dc09641c752cee920f53c1921ba6d",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.http.diagnostics.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.http.resilience/9.0.0/microsoft.extensions.http.resilience.9.0.0.nupkg",
     "sha512": "47bb55dcecf5029d143364c5b6714390344d08d9465916dd177868fea8227e8030646946ca6457a190f20dee2b4fce647bfd037cffbf435e496fca99573fb156",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.http.resilience.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging/6.0.0/microsoft.extensions.logging.6.0.0.nupkg",
     "sha512": "f5dec590a353b7fbb35fda799c083dc07857c70fa0d46daec0e00c4950a8d65f42c6f399a86706e2d97ee51fb5042be27f35637673a2479dc4f623590d597311",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.logging.6.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging/8.0.0/microsoft.extensions.logging.8.0.0.nupkg",
     "sha512": "aa30576c428dff69bac5f5d71721af6c4ef583bc524edbd0a94b49cbd80f698905021260e1a432c32e6d48ce5a30f6822c209f11dcf7c819aba1fa8347925b06",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.logging.8.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging/9.0.0/microsoft.extensions.logging.9.0.0.nupkg",
     "sha512": "38b8e95ad6133abc93b207b5f4ca8fcc582d7b8b137a9af060939f78ef4f8247b3e595b4caef7133928174d571a7c0d31ce3b3ad31e8188fa3472cdc37c8e7e9",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.logging.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging.abstractions/8.0.0/microsoft.extensions.logging.abstractions.8.0.0.nupkg",
     "sha512": "50a0add96d30d90580fb8e02a25cea0aa15f4d22744279b5acfe18cc8568b74402aa062d5db13cc5887a08bfd24e07cbc88b2fc10ee8eec2c37edf3bcda7f8a7",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.logging.abstractions.8.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging.abstractions/8.0.3/microsoft.extensions.logging.abstractions.8.0.3.nupkg",
     "sha512": "e689ec1e2cb9d2fafa9fd9f6ab861a0895aa9a1cbc9fb37e9dd856c8d1709004eb1455e64570b51013be88b60e9ae0c44f8f853932d9cdeab33ddb42fcec199b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.logging.abstractions.8.0.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging.abstractions/9.0.0/microsoft.extensions.logging.abstractions.9.0.0.nupkg",
     "sha512": "fcaed8b683033737a9ccfb361a41569663c045c63997887f376726748c58c92d79c28796f132ef7e561c9cd9602c7011e1fb112a9d30bf9973626587b0ae5d74",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.logging.abstractions.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging.configuration/9.0.0/microsoft.extensions.logging.configuration.9.0.0.nupkg",
     "sha512": "634f023d4206cfc269574a2faa7dcb5aed637a192aa50a16277c8461848aa84f503f6ee540e0a68fa6acc652074bd12c5dd45be4deacd59ac75ecd9267b73591",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.logging.configuration.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging.console/9.0.0/microsoft.extensions.logging.console.9.0.0.nupkg",
     "sha512": "7bce5e38ae4a7f377b690bc5e64568ca9fe1fc412a149b3ae285d095ac4bd8939ff88b7aab32410407d4b5b38e2fcf149a8fa3bf4d106df54ddcb773b47d5443",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.logging.console.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging.debug/9.0.0/microsoft.extensions.logging.debug.9.0.0.nupkg",
     "sha512": "a042d1bcffe24191939d4bfc46b73e23df5585b25199db1bf742afd6291211cb7981f21560a012eb2347c13016fb14585cf50bcfe81f361991345163bc388863",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.logging.debug.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.objectpool/9.0.0/microsoft.extensions.objectpool.9.0.0.nupkg",
     "sha512": "758eb84bd5e6b2c7c08f0bee18c1e57858f670a221205514d83f8aaf50f563ef769803cdff7f4740c25acb6147c5245c0c423d8404e2bd157f23537b43154971",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.objectpool.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.options/8.0.0/microsoft.extensions.options.8.0.0.nupkg",
     "sha512": "1c004082a132e7b75a0c95acef3578a4d5db42c55e0996e40b95b663e9a83c5a20ed481a85db7567fff7e3de3dbba6a7d4fe5c825dc7ce95de956689afa16c5a",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.options.8.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.options/9.0.0/microsoft.extensions.options.9.0.0.nupkg",
     "sha512": "05e7c9042523094fca2fc81345b157f5e78e42f03917b22458528dcb9fad77215f0f6fb078eabd3032022c9d66d7fffaf7f32437e29fecc613cc597ac0770b9d",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.options.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.options.configurationextensions/9.0.0/microsoft.extensions.options.configurationextensions.9.0.0.nupkg",
     "sha512": "f5002a5028cf6c3cc7dd415ec765bc3bd256577e13f4e651def19be2db6f84b11251a7003540dc0fbe59ae741427e64ee4f86588281f1b0963a237e8cb22d26e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.options.configurationextensions.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.primitives/10.0.0/microsoft.extensions.primitives.10.0.0.nupkg",
     "sha512": "abb05f3f99ab4df467b8cd2a04587e556a576ae13c2d3cd7b482f549983487f33239818b2a7b0f3db5eb451d28747718c40e4e9f721074a2dda9338c34093b6d",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.primitives.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.primitives/9.0.0/microsoft.extensions.primitives.9.0.0.nupkg",
     "sha512": "679d7986b0dc51b41addcb0bb0de1c6d8bb80f6f4c6bf19e929afdca8784fa8cfa3e0e9a8ca634bd3acee4cdeea83a43a3290f60e871e609502eaeeec1aa945b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.primitives.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.resilience/9.0.0/microsoft.extensions.resilience.9.0.0.nupkg",
     "sha512": "e80d11fe7d9d15fa091e1e8a176ae7545b8f01aee8287cde27bebf7a7cff7d2adc63c119687c373f3f3a29d0bb5f2ed2eff0b39c8bafe0da67055f449f8a5438",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.resilience.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.telemetry/9.0.0/microsoft.extensions.telemetry.9.0.0.nupkg",
     "sha512": "e3cb99ce0877dbdcca68191ef2bead0e4dcdb7d2f64a29177fb131f64171ecca74e55398ed43b66fdeed9d36b2d9da1213cefd5ea81d31b5df489feb91055e93",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.telemetry.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.telemetry.abstractions/9.0.0/microsoft.extensions.telemetry.abstractions.9.0.0.nupkg",
     "sha512": "2bbb396a6591a2a15f370c30d9627d60fd2246714a8ad671a373dc93848e75899583d37cdb65dbd62284a4dceebf0f97eafc87d2c3d7cfc80afd1c6094a1240c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.extensions.telemetry.abstractions.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.io.recyclablememorystream/3.0.0/microsoft.io.recyclablememorystream.3.0.0.nupkg",
     "sha512": "ef1548eb301d88e00a72190f50b8f2df7591a7730fc70a18201de4c7441655d17d7e56f70e1a221ad487adeedcff547d0c87b7b2142bae261e8b05d63a4037ca",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.io.recyclablememorystream.3.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.net.http.headers/9.0.0/microsoft.net.http.headers.9.0.0.nupkg",
     "sha512": "cd645458b0ed65bd0a85732452f20bf92fb0970315e9a21839716f7e12e1b5659251df063aead33a8e4c0fff6b2498fa30705caedad5443819b9c4d218b97a66",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.net.http.headers.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.net.illink.tasks/9.0.11/microsoft.net.illink.tasks.9.0.11.nupkg",
     "sha512": "6a035c092a7a2a776d76300acc2eee0646512d0b958cf28ba1af25827584eb540b9ed84e0ed20ddf29722291bf0ecfa5520dfb3417085c2ea041dbbb13afd500",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.net.illink.tasks.9.0.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.app.crossgen2.linux-x64/9.0.11/microsoft.netcore.app.crossgen2.linux-x64.9.0.11.nupkg",
     "sha512": "ea09e3c961717d886a14e4766f8cebd0e02223bcfa4c8f7c93a3f7a23a5e27d3f3958e47882c1bfd7b4ca32531b08cf4bb7cb988bf6403f0c174c7dc763cfc8f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.netcore.app.crossgen2.linux-x64.9.0.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.app.runtime.linux-x64/9.0.11/microsoft.netcore.app.runtime.linux-x64.9.0.11.nupkg",
     "sha512": "645d28c1fea64dcde4c222d15e2b9bfd69a63f0e4b468f099e1b0c8520fcdf88a644d4873c59bbbd8e6aab3dcbd3d4b6fe5a0ef49836a809952cd4d03bc8d08b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.netcore.app.runtime.linux-x64.9.0.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg",
     "sha512": "6bf892c274596fe2c7164e3d8503b24e187f64d0b7bec6d9b05eb95f04086fceb7a85ea6b2685d42dc465c52f6f0e6f636c0b3fddac48f6f0125dfd83e92d106",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.netcore.platforms.1.1.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.targets/1.1.0/microsoft.netcore.targets.1.1.0.nupkg",
     "sha512": "1ef033a68688aab9997ec1c0378acb1638b4afb618e533fcaf749d93389737ba94f4a0a94481becdf701c7e988ae2fe390136a8eae225887ee60db45063490fe",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "microsoft.netcore.targets.1.1.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/mimetypemapofficial/1.0.17/mimetypemapofficial.1.0.17.nupkg",
     "sha512": "6b856f001f4be8cd5004e49cf9d671d783371100e0fc0acba46297f6dc477c1b56c09a3892ae7996dfbe741a61d343e794a0c93988e948143a2776fc6c142ccd",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "mimetypemapofficial.1.0.17.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/mimetypes/2.5.2/mimetypes.2.5.2.nupkg",
     "sha512": "0484afb938a3ec03e1df3fcd099e7bbd389c11f0dc6f6f997c1893818559584d0f15a340412bde2cacec2dfcd0dfe6f8389bc9e78fb7d132b98f93b3b093ac7e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "mimetypes.2.5.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/newtonsoft.json/12.0.1/newtonsoft.json.12.0.1.nupkg",
     "sha512": "8e6572a04ca4d089fcafe00e6d843214a5459bbb924731345d21d26c4b4125c643315e83a89a3207814b707c29acf561021f36eaca3475bdc320a5d59e91a83c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "newtonsoft.json.12.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg",
     "sha512": "83731b662eaf05379a23f8446ef47bbc111349dd4358b7bd8b51383fe9cf637e2fe62f78cea52a0d7bdd582dc6fbbb5837d4a7b1d53dcf37a0ae7473e21ee7b1",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "newtonsoft.json.13.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg",
     "sha512": "99b252bc77d1c5f5f7b51fd4ea7d5653e9961d7b3061cf9207f8643a9c7cc9965eebc84d6467f2989bb4723b1a244915cc232a78f894e8b748ca882a7c89fb92",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "newtonsoft.json.13.0.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/newtonsoft.json.bson/1.0.2/newtonsoft.json.bson.1.0.2.nupkg",
     "sha512": "339d937e19fc2b3b1f99328797dfca8d51ef03acd6c6e61ae3a1d9de576a953e14dcdfe911e1efc2dcb3631fb7fe35672dbe2deb6841db358d5700c69745477e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "newtonsoft.json.bson.1.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/opencvsharp4/4.11.0.20250507/opencvsharp4.4.11.0.20250507.nupkg",
     "sha512": "dd0ec0d6b86959c255a48519da9e7fe659108678794a3ea0d0a673d80c0ba267aaf8528565b3a2a6db4ffc3cf3a0c35511952f7a4052cbbec026ce2ddff5e5f1",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "opencvsharp4.4.11.0.20250507.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/polly.core/8.4.2/polly.core.8.4.2.nupkg",
     "sha512": "d622f23fc3f85879efe408f3d5747c593f2a8e5922376266984df585e0005411b68ec5b5b5e5879056554d73b6b2b673e70b88ff594953c72aa5f3dddce49500",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "polly.core.8.4.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/polly.extensions/8.4.2/polly.extensions.8.4.2.nupkg",
     "sha512": "046ea47a2d814d4d2f7988ab9bce2d44223c144ab6e19a3d25ec5677353ea05c9829440f917c8a09fcb28308133b3e0a5f3c5e1d33ded47bce1a1b9042639a41",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "polly.extensions.8.4.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/polly.ratelimiting/8.4.2/polly.ratelimiting.8.4.2.nupkg",
     "sha512": "e803277f02b5236e636f724ca6470791f5849470384b5fa608d9908175532595fe0324b16ac577bfcc42c047951d265a94033a630bf444ce74a37f2b2dad028a",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "polly.ratelimiting.8.4.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.collections/4.3.0/runtime.any.system.collections.4.3.0.nupkg",
     "sha512": "9f8833176c139b71a58694ae401c5aec209a63227be07c7ab559bef772082bd1f6cc38ba2949cb1c8e5c5514ad9f4ff51859838dc2f28191f8bb7ae611a50239",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.collections.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.globalization/4.3.0/runtime.any.system.globalization.4.3.0.nupkg",
     "sha512": "3aac1a076212fae7d0ac81d2b5fdf216b064a1d890577307f89c9a4984c239838c3bdfac4dea052027de090704839319231eef49ce542f3e8bb2f85ba23d28dc",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.globalization.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.io/4.3.0/runtime.any.system.io.4.3.0.nupkg",
     "sha512": "7e0d4a238322d434a19afc79ea988d3727c1687fdd5bcd1c4c39cb6201073caabb924cc201c70545d60acf8b94cde8b783d0c268743e040c357d100677e4c5ed",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.io.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.reflection/4.3.0/runtime.any.system.reflection.4.3.0.nupkg",
     "sha512": "293d3dd8be87e1c5cd76ece4ed64ebb5ae6b50be95a39bee401eeed64355e34641905f8c14392fbc3acf8609f5d6fca731f39ce7607962eb5951f09516480015",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.reflection.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.reflection.extensions/4.3.0/runtime.any.system.reflection.extensions.4.3.0.nupkg",
     "sha512": "8de7a4c53fc0324e766bfec360342ee4a4b99a5975a9d61faab0a715ef71ff97aa83383a5a8affb354c02a4e2fbbb91e1b4ae6b282d2880108cb489f06aba500",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.reflection.extensions.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.reflection.primitives/4.3.0/runtime.any.system.reflection.primitives.4.3.0.nupkg",
     "sha512": "a2f374276290ad9b799d3e49cd8fe7839c07b52f22894bcd77b9470841564319fb2ebbd7503e76feef42db4e8a362af8648cf0842a1cb0b5d9a60a58ef8b205e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.reflection.primitives.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.resources.resourcemanager/4.3.0/runtime.any.system.resources.resourcemanager.4.3.0.nupkg",
     "sha512": "39fab03cbade2b3848d62e137313530c06b37216e24cd58c70ed6ae54bdaf9d9613a3b410375ee167c87ff935a558b1f8766ee016b8b244fde99c38fcf42a49b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.resources.resourcemanager.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.runtime/4.3.0/runtime.any.system.runtime.4.3.0.nupkg",
     "sha512": "bfee3c68312296860e5459af5e770c2e9fcd4ac134361fd569a9ce1e6574b9ae3978aad403f89639a4b5bac8ee5bb0ee1b8edb819e9a60f13ca5bd1812889bbd",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.runtime.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.runtime.handles/4.3.0/runtime.any.system.runtime.handles.4.3.0.nupkg",
     "sha512": "95cdae2867a2182535bd0f4d01dc3eff70319dff044b070ab7791fa2bf8688a69b00a279ed569b7f0c5f3e26bf705303dc344ecf7d1ea014c579436d8e7b7389",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.runtime.handles.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.runtime.interopservices/4.3.0/runtime.any.system.runtime.interopservices.4.3.0.nupkg",
     "sha512": "70eeb2469726d092bb95568e51ba5cfdd1cc07a9e65077e2b6dd5b7c8b164d4b45c749ef4a52f45928f63a27e8accdb83b861ea73c9ad3d42dc38e6afdbd0e8c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.runtime.interopservices.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.text.encoding/4.3.0/runtime.any.system.text.encoding.4.3.0.nupkg",
     "sha512": "cbe6df98acd50e2251d3343620c408af56cfe7c1979277a8ec65b5eef093e93ed93c05980902a7152ed83302d5a625d7058921baa7f446c5e67194fa4c06f20a",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.text.encoding.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.any.system.threading.tasks/4.3.0/runtime.any.system.threading.tasks.4.3.0.nupkg",
     "sha512": "5f37a56f5d6c7fc198c7ef76b822b85284f9d7d1c06583c26a698793ade65da1b273d5fb03c20be1eb91a9c835f7122ad2775f4e51dffb2758fabac2a30f8c23",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.any.system.threading.tasks.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.linux-x64.microsoft.dotnet.ilcompiler/9.0.11/runtime.linux-x64.microsoft.dotnet.ilcompiler.9.0.11.nupkg",
     "sha512": "d77dd50fbb3679d5bd08db8e2722b27389c233d2fbc8e4aef736e2b01c6382dc0104a1f90f694d75d21fc6767856425e1031415ff8daafb77c6981e1668f150f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.linux-x64.microsoft.dotnet.ilcompiler.9.0.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.native.system/4.3.0/runtime.native.system.4.3.0.nupkg",
     "sha512": "299c5a96fffdcaf1972e3e3d1c727837d18ac9e88cb79c09914f12ff1de7280dff10c9232a49a1c1d3ba7785a5cf76f28c9dce414f0a2a567688de7fd5331dc8",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.native.system.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.unix.system.diagnostics.debug/4.3.0/runtime.unix.system.diagnostics.debug.4.3.0.nupkg",
     "sha512": "a8ce331953b1f4424aa7f4b6dfedfce9ad138940bc92f332de2bc6d05185830ec6eb832e752f62eaf425f749caadd4ea1789121cb7ed79740fa5868eba55c838",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.unix.system.diagnostics.debug.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/runtime.unix.system.private.uri/4.3.0/runtime.unix.system.private.uri.4.3.0.nupkg",
     "sha512": "203ebe272791d79ab0c40afe9d0543852ee91b9fb4ae5bc15524d97728bc8bc9d7e0cbcf65d1fab8cfb0aa7a4ae37e7938933eef127aa5ea46f60e57b6ad2d91",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "runtime.unix.system.private.uri.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.opencvsharp4.mini.runtime.linux-arm64/4.11.0.35/sdcb.opencvsharp4.mini.runtime.linux-arm64.4.11.0.35.nupkg",
     "sha512": "5b3696fa768de8188987cc1a150268854fd731692d08c2dfeb57d848d60cb05c046a30f88214076429d442fa7d8b01198c5c3dbb1a05ba1fc72f68bcb3de3d7c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.opencvsharp4.mini.runtime.linux-arm64.4.11.0.35.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.opencvsharp4.mini.runtime.linux-x64/4.11.0.35/sdcb.opencvsharp4.mini.runtime.linux-x64.4.11.0.35.nupkg",
     "sha512": "c0d40433d4ef6adce68b68147d54d51590acd1d2eb71df7a29f921612cfebb76ada4d4793f315a0c7c032cae765c27054dbab292306178245e165adbd429b44b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.opencvsharp4.mini.runtime.linux-x64.4.11.0.35.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleinference/3.0.1/sdcb.paddleinference.3.0.1.nupkg",
     "sha512": "9699aca47dcc6e40a9ca456687657e6ce0f4b11b6a6c09ed827d05e96faa268915eedc1bf5ba4a04df5c33036a62a1e29ffff91e84d3c33c6bb7579884e8b8d0",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleinference.3.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleinference.runtime.linux-arm64/3.1.0.54/sdcb.paddleinference.runtime.linux-arm64.3.1.0.54.nupkg",
     "sha512": "6dce6dd7784bb6381a153bf24f489ea13a13d88c6787c6f9834f46c17868eca91707b83f44b594f5074202547cb41db9f7afcf6a904160f838962477adfcb690",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleinference.runtime.linux-arm64.3.1.0.54.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleinference.runtime.linux-x64.openblas/3.1.0.54/sdcb.paddleinference.runtime.linux-x64.openblas.3.1.0.54.nupkg",
     "sha512": "5b68b10639af11a79b0b4fafb8e370cfc21e1365ccba4d11abb224035d3c36c02e014712a7362de2316608f71543de3a9425404bea210345bbf11e2625306fca",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleinference.runtime.linux-x64.openblas.3.1.0.54.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr/3.0.0/sdcb.paddleocr.3.0.0.nupkg",
     "sha512": "d9cf3412562b344c8fd808aba9c74870a206d99f42ad5a1919a82b4da20c346c60cff5e4c88eccabed3627d572792bd0d46f11ccb47c61a32455274d879ca4cb",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleocr.3.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr/3.0.1/sdcb.paddleocr.3.0.1.nupkg",
     "sha512": "70e3ac5190ad851f26f246d62525611d550d5995c81795d86dbe43cf987001326fe62c118b3f48cc461388538f4527e826753f234ebd1d591e19984171e74e41",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleocr.3.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr.models.local/3.0.1/sdcb.paddleocr.models.local.3.0.1.nupkg",
     "sha512": "8ae97275ed8c596b5afe6c938db6fd41e3d46d83ddd242c5cb9103ed84f1e83198ba75ce1c406e5ac52829d12f6eb7b4d0c1b5f756e0d3438ee84c1b813b04a5",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleocr.models.local.3.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr.models.localv3/2.7.0.1/sdcb.paddleocr.models.localv3.2.7.0.1.nupkg",
     "sha512": "98040ff998f2e1d095ed38f7d0134d25692d596eda8ea871f9980d65e78349223520a1aa359507c25320972aecbb8a37f8fe4fb4d16d9c06283b5f33adbd5ce8",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleocr.models.localv3.2.7.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr.models.localv4/2.7.0.1/sdcb.paddleocr.models.localv4.2.7.0.1.nupkg",
     "sha512": "9b4967dd07d2dfd92bf59a72b8dec8b3ed6b6ffdad6ac87ec1004a37f5f74170c04693b14e5551eb0f8e674250cc0f22a9877cf869e1ef277ca224af26cb83fb",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleocr.models.localv4.2.7.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr.models.localv5/3.0.0/sdcb.paddleocr.models.localv5.3.0.0.nupkg",
     "sha512": "386c399d99e15c090ed3fc7add78269fbf6964e08ee1121a1504f66718bb4766a0650741e8e81d90860035ee903b7d05bbd2cefe4ca80b07d3ff9b30b2e15af5",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleocr.models.localv5.3.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr.models.shared/2.7.0.1/sdcb.paddleocr.models.shared.2.7.0.1.nupkg",
     "sha512": "5dee4b146512b352579374960e383a4d68943ce380a6e2f783fd38a1aa8175536824a5fa073f76c4a1de668528f48525e9b11a59d71350755c41cb3fee84dc9f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sdcb.paddleocr.models.shared.2.7.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sentry/5.16.2/sentry.5.16.2.nupkg",
     "sha512": "f84febe5b2f8ff9889e6ec04daac8d61e7efdeb216f919b50e7d1b24d0b27590cd130e9287e4785eea8a2172df656328079e21c55cc1a76ed6e1e0b216351812",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sentry.5.16.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sentry.profiling/5.16.2/sentry.profiling.5.16.2.nupkg",
     "sha512": "a0831fc5812de5148a0062917207871f09dcf4a0f6a76a08135ffa9c45edb0dfd82d9c93119975f155b13b430a8db2eb4d6cc64c77a6efeb8f1e362e08c00434",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sentry.profiling.5.16.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog/4.0.0/serilog.4.0.0.nupkg",
     "sha512": "1f6279bcfa93ca9c13180dd7c7e5944d5351358b9cd3a360cbbf12f2dda508700cb9ffadeffd4dfe772a6ddb2c029e2c3473e655a3b660a644de51d67133268c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.4.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog/4.1.0/serilog.4.1.0.nupkg",
     "sha512": "4b0bcbc6ef35b4d1914dc870f3ecafc4a7e320b66842f8fce03d733874fd4d171885343c91e43dd1d5e49f55c50f948cf6c681c64819a8632187309ff82be15a",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.4.1.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog/4.2.0/serilog.4.2.0.nupkg",
     "sha512": "e6e3335a3019d18420018672c4ccdc9b293364785f24222ac5598fa80e6be592826b142ab29881f8d1a1a8a3f5016584c014aa4cf99deaaf4350a7ba3cb7897d",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.4.2.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog/4.3.0/serilog.4.3.0.nupkg",
     "sha512": "8f647fe61de431b0a0d40a7f90cceb950a3c2a9878422e0f5721186009b79210a80b3035e78061c935b2fa01a8865560b449314a2f51e352d3d96c30ef2b2cc2",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog.extensions.logging/9.0.2/serilog.extensions.logging.9.0.2.nupkg",
     "sha512": "057a05519b649dc66b436d88456df24168b66864b0e06bbb94f4f509a9586831de0f3710acb4a1b6abfbeb6a97c678b875c8baf74fb389f5b18a682f9d2aab78",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.extensions.logging.9.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog.settings.configuration/9.0.0/serilog.settings.configuration.9.0.0.nupkg",
     "sha512": "4fdee434f3408e4ac7418712070e2fba4ef4472263e72ccbdf3632f93235b53c48b5bb984f506dbc68aab3c828db08a8203e75fc8b1e2e3834395caa5882b455",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.settings.configuration.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog.sinks.async/2.1.0/serilog.sinks.async.2.1.0.nupkg",
     "sha512": "04c6181f987cf459d96ffafca2a7cb7d5bef0f5b079277deb5ac009d238929ff8b075b2e73504330505462d76652ce106966dd3a0407c8799bfe5d0bec7f0fdd",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.sinks.async.2.1.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog.sinks.console/6.1.1/serilog.sinks.console.6.1.1.nupkg",
     "sha512": "f4474707a9bcd96d6e8faf3feb49dac71ce1c1349e3b1681dfcc5b21a9585f0377261a421b371b0d5e0e734149c504a18fe0efb8e0ea42dc798f039451461f08",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.sinks.console.6.1.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog.sinks.file/7.0.0/serilog.sinks.file.7.0.0.nupkg",
     "sha512": "6081f48413e3c04b47df1737af1b6b1d21dcb2d60c1fe7a866da6c14d702c50995fed33ea07058e975e5b925269e675dc340bd20a3a2a167b05e14ead43f5419",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.sinks.file.7.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog.sinks.inmemory/2.0.0/serilog.sinks.inmemory.2.0.0.nupkg",
     "sha512": "5d3ac66cc2534bed0b98ee7a86203514d3068966638af7e48bdbfd34c9d6186e5ff2abba0f479cc0f1bb2a5dea894b008adf0196eee3a71d2591e2c30c55aaaa",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "serilog.sinks.inmemory.2.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/shimskiasharp/1.0.0/shimskiasharp.1.0.0.nupkg",
     "sha512": "66c7839c30786dee558e24b4683d7d34db944c1f62d88cc2359fcb8580102206cd4bfcb30e37094f10e6720fd99f0e5845bd979c60295ec3629a4f1ae7660c7a",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "shimskiasharp.1.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sixlabors.fonts/2.1.3/sixlabors.fonts.2.1.3.nupkg",
     "sha512": "2a341d5250effbc1c3fbdf22a3f40b51bd59dd5281b25534d58bc1f4a6c35d7865b5ca18a5aa43693980dace26a8b8764c339877b733ce6417513b71e413acab",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sixlabors.fonts.2.1.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sixlabors.imagesharp/3.1.11/sixlabors.imagesharp.3.1.11.nupkg",
     "sha512": "a3305e5784285de117b9498fcf578bf651bfc8d3d08c38f897e6b879bf41449a144b2b8863f56407646c2a332e62d45061456ea6eba153d2e950b52dd3540897",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sixlabors.imagesharp.3.1.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sixlabors.imagesharp/3.1.12/sixlabors.imagesharp.3.1.12.nupkg",
     "sha512": "b3093e4e529ff9e02bbb4e482396beffda0db7174a64a71a04146d31b69dc349a3ab5f6ae8197856a8255a72a712abf0e36a25dec83b0da70c1b1b0ac9b041ec",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sixlabors.imagesharp.3.1.12.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sixlabors.imagesharp.drawing/2.1.7/sixlabors.imagesharp.drawing.2.1.7.nupkg",
     "sha512": "df73a1597f5127165285d2d0aebb6f37256471c2b3a04320ac9cb749bce5aba369ac8f122f00bc485ce29c24b456449d12b8693151306163d7f32bbee625f224",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sixlabors.imagesharp.drawing.2.1.7.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/skiasharp/3.119.1/skiasharp.3.119.1.nupkg",
     "sha512": "179fc561c21ff05087fbe92cd7c720a87a189e415c2189c8e5eb8e3e14bbf4cf3eae68a61f35e1c335875787c20694ac847f4d2a9d1ea22ae9bc60af4ea088b9",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "skiasharp.3.119.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.linux/3.119.1/skiasharp.nativeassets.linux.3.119.1.nupkg",
     "sha512": "187858855d79da40d415d7cdeb69d1c089154081e01b1a04ac67660e2201ba6a1dc32f6db7f48a42713ba5eb191b1eafd66c6e85b40aedc70f44adebadb2cbd8",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "skiasharp.nativeassets.linux.3.119.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.macos/3.119.1/skiasharp.nativeassets.macos.3.119.1.nupkg",
     "sha512": "3fa7655fbafaa26f8e3204c08fc73f2d99a6df56bad6339430476ea231dd2baa55e896e70beef2586db6a7ed1c419dac141ba4be3e4b93e1b0fc56593208b77c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "skiasharp.nativeassets.macos.3.119.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.webassembly/3.119.1/skiasharp.nativeassets.webassembly.3.119.1.nupkg",
     "sha512": "86df84d457f6af13adbce38ec61f40891d4230effc25011138f12fba0daba5be575ea99b246bfdb6f1054583deb25c96f5e2c1a393f049fe70b75eb31115be67",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "skiasharp.nativeassets.webassembly.3.119.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.win32/3.119.1/skiasharp.nativeassets.win32.3.119.1.nupkg",
     "sha512": "2c27941c243a087ed8a1bd94d7de16efb3e152050efd50756c50343f259190f73204e879a85f25a3467daaf60b152e65b6fb55a80a59e15e1fe9abb650e8bcb1",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "skiasharp.nativeassets.win32.3.119.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sourcegear.sqlite3/3.50.4.2/sourcegear.sqlite3.3.50.4.2.nupkg",
     "sha512": "a66b1a6964610b46a5b5cee6722c70d17bf77f70fb31b9f9a2109fd3d8b5be788508e582bb85b26540029546871f665df1f50c33269b53b5ca44a8991e7f20a4",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sourcegear.sqlite3.3.50.4.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sqlitepclraw.bundle_e_sqlite3/2.1.11/sqlitepclraw.bundle_e_sqlite3.2.1.11.nupkg",
     "sha512": "575ffc49117c3cf796d09f42167b74efaf177c122ea89dcd5fe2d42f06952fa495eb9d2686d83abd5567534ac43b5e596e66219f358a722f37c07ed181b759d3",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sqlitepclraw.bundle_e_sqlite3.2.1.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sqlitepclraw.bundle_e_sqlite3/3.0.2/sqlitepclraw.bundle_e_sqlite3.3.0.2.nupkg",
     "sha512": "177e55c9e4482f77314b44d5e05d122544a4d4e0c12cf7a9335dc82994c444b7f4e7810946622b8b199969ba54746de77e3f6d3e948c9afee805e65de2ddd619",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sqlitepclraw.bundle_e_sqlite3.3.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sqlitepclraw.config.e_sqlite3/3.0.2/sqlitepclraw.config.e_sqlite3.3.0.2.nupkg",
     "sha512": "089b22b2a1f77cad02a497618bb51c68b40219b0c6f64ad600d5d5d13d43717a8b0bb69fe52ac253fab26ec92d1e45ef08290941c6326deab6998b2861ece518",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sqlitepclraw.config.e_sqlite3.3.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sqlitepclraw.core/2.1.11/sqlitepclraw.core.2.1.11.nupkg",
     "sha512": "0f5d108f19bcf1a0df06a6bc1885724f1c0f5a76426aa38461e85523746167e5b60b1081d57046c03fb44d395fa4ce936d3e2a44e9d20dcacebee671b7ae0340",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sqlitepclraw.core.2.1.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sqlitepclraw.core/3.0.2/sqlitepclraw.core.3.0.2.nupkg",
     "sha512": "e1c785f5d82d170650dc44b20dcbc5595c548a1bd06cbe6ffbaf9d869275280f8d78e36ac182a64be56af9aac4b188c445227573404fb4792f2c3db312df0d6c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sqlitepclraw.core.3.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sqlitepclraw.provider.e_sqlite3/3.0.2/sqlitepclraw.provider.e_sqlite3.3.0.2.nupkg",
     "sha512": "be81cb559e4e431edaf8cd79804ca782633e31dab4014fd1bd878bfd1e0d1bf7941ba9946c2716a196828c39e2591c7c0b9759a74c5333be6918ee0d5ceddb50",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sqlitepclraw.provider.e_sqlite3.3.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/sqlitepclraw.provider.sqlite3/3.0.2/sqlitepclraw.provider.sqlite3.3.0.2.nupkg",
     "sha512": "a0d50ccc8f5e997165b01d9ba31f762e547edfa36fa2d1752778d364dc73f22ae5840c62031a65731a10f907d19259ddd7bea455b60e47c5adc9e6d80886cdad",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "sqlitepclraw.provider.sqlite3.3.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/ssh.net/2025.1.0/ssh.net.2025.1.0.nupkg",
     "sha512": "7d25d55821aea996b610f9ec69bd885de658d035711cfae22db490c4e08def83bda0dfbd964a1dde043df44a83598a1cf826469055aa866f01f1540dbca32075",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "ssh.net.2025.1.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/svg.custom/1.0.0/svg.custom.1.0.0.nupkg",
     "sha512": "144e01050cb487e1f0a973e1e633683baf5929aa173ed728a22928c6ff16863fabb52e8a0027d1772a2823a8bf691e99f3689ee06ce71ae7444890f55fd4220d",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "svg.custom.1.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/svg.model/1.0.0/svg.model.1.0.0.nupkg",
     "sha512": "a7038e5281fb1ef85e43f90ff7340d493345a5cc7078cf4b3faf4928384bebbc568d14f47cea8dde46f0e495976a130a02f892085079d699d4c8f408fd1bef08",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "svg.model.1.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.codedom/7.0.0/system.codedom.7.0.0.nupkg",
     "sha512": "eb3d7dece2b09817d0e3606f8a2c0e0e94a0fc928f18ae5dd7d5c768606f01fe75c9d70d047c8f44f0ade90a133c77c00f9bce6cb88f09902a9d503ab2cbccc3",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.codedom.7.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.collections/4.3.0/system.collections.4.3.0.nupkg",
     "sha512": "ca7b952d30da1487ca4e43aa522817b5ee26e7e10537062810112fc67a7512766c39d402f394bb0426d1108bbcf9bbb64e9ce1f5af736ef215a51a35e55f051b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.collections.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.collections.immutable/1.6.0/system.collections.immutable.1.6.0.nupkg",
     "sha512": "607f7fad70cc92fb5d22689ea24ad63f9616491a945d1c6020a4403051faf028ade09a017388b17322c3b46422fd9c22d11422d52f1c233f25afa093a6cc3cfa",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.collections.immutable.1.6.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.collections.immutable/9.0.1/system.collections.immutable.9.0.1.nupkg",
     "sha512": "8227b30f8043a2c45d87f78c5115c2496a511e58aae644425c17f0b0ab93d6ee8fe32213b449f8e9ba36746ea5ba61309cfa852b16381d99df1ba4d08cb64e82",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.collections.immutable.9.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.diagnostics.debug/4.3.0/system.diagnostics.debug.4.3.0.nupkg",
     "sha512": "6c58fe1e3618e7f87684c1cea7efc7d3b19bd7df8d2535f9e27b62c52f441f11b67b21225d6bcd62f409e02c2a16231c4db19be33b8fab5b9b0a5c8660ddab24",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.diagnostics.debug.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.globalization/4.3.0/system.globalization.4.3.0.nupkg",
     "sha512": "823d2ba308cb073b40a3146ecccd0d9fd7b1615ac3fbefb16f73d873e411fd81c3bdc87df206d3dc7e2f14c9cd53aafca684a3570c25471280aada8de805ece2",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.globalization.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.io/4.3.0/system.io.4.3.0.nupkg",
     "sha512": "bfca5a21e3e1986b9765b13dc6fbcd6f8b89e4c1383855d1d7ef256bf1bf2f51889769db5365859dd7606fbf6454add4daeb3bab56994ffb98fd1d03fe8bc1e6",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.io.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.io.hashing/8.0.0/system.io.hashing.8.0.0.nupkg",
     "sha512": "842b1dff4b1dcb484689f244a93b1f65fa94da7082d11736a65080e669353cdd6a95ca18214b9a79c94b635fe8cec13057b0dbf0d6b8d67a4a79aaca5c7534ec",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.io.hashing.8.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.io.pipelines/10.0.0/system.io.pipelines.10.0.0.nupkg",
     "sha512": "bbf0c728ec1707ab0f76cc19967f9dbbe8d4a566248a4f5b1634f72a29df61ecbfc0a055f38e66e18dae9771ed9042760492677d360de79ea243ac5cfcc12faa",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.io.pipelines.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.io.pipelines/8.0.0/system.io.pipelines.8.0.0.nupkg",
     "sha512": "57eb6a11e84f40a48b57b1dc5786a01aa9852122b7d15363490d8a12c9a458bf99a8ddf4c0c0247be98559c2b42e769a10bda2c5a9817735484d960dc652eb12",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.io.pipelines.8.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.linq.async/6.0.1/system.linq.async.6.0.1.nupkg",
     "sha512": "792b7b14a6fcc52f88cc0475a2ba8a694399393fa602446fe23fa6d39d782c16f908b4bc3acd58454554932b7a41056d84424b5fd66f0fe6e3c00178eb3d8a1a",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.linq.async.6.0.1.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.management/7.0.2/system.management.7.0.2.nupkg",
     "sha512": "9e00c0030d7fa1858fc0211d47261b6387fd9481ef9674b218cc217048f94c1fb1bbe23e72e27280fcd1852b5847a0c2f351157920bbc6f72452ba0cd32fd18e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.management.7.0.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.memory/4.5.3/system.memory.4.5.3.nupkg",
     "sha512": "70fce15a52cc76aacbae05c8e89e2e398d1d32903f63f640a7dd4a3e5747f2c7a887d4bfd22f2a2e40274906cf91648dfd169734fb7c74eb9b4f72614084e1db",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.memory.4.5.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.memory/4.5.4/system.memory.4.5.4.nupkg",
     "sha512": "8ece5491eb0fe332bc190f40cf76b3beee0c5f996325034861be221fdb0ff02fd59e4f7020b3c4a1f29a457f76ff76c4c95d46d38555e4f48c7a3bf172d87966",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.memory.4.5.4.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.memory/4.5.5/system.memory.4.5.5.nupkg",
     "sha512": "e8c8e536c97b94ac3443c940b30dad43cf6e97dc7a8c3d989371048fe74e168606384f5e0143bdc0d86f7783bf9fdee8417964cb3a8a5d752713e90b125172dc",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.memory.4.5.5.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.memory/4.6.3/system.memory.4.6.3.nupkg",
     "sha512": "35770d6255a85dee5ccfdb1bf07ba8eb1d9d099558921c0ab60134d27fcca08f15e1923feffb7e108e5b3a14059597c58e3a8cf3e53aa6b8d4fda011b7b1ffb4",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.memory.4.6.3.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.objectmodel/4.3.0/system.objectmodel.4.3.0.nupkg",
     "sha512": "409bca3d2139bd1d003c711400ba2db5e576bb54d593aa541ec3576e7b2029b60159ab1c5b2c4e7389267b1b95ebcd8c2f064dc6e1f53e693aacb1737f066123",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.objectmodel.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.private.uri/4.3.0/system.private.uri.4.3.0.nupkg",
     "sha512": "5989a57ef273b689a663e961a0fe09d9b1d88438e5478358efc4b165de3b2674fa9579c301ce12d2d2fa5f33295f2acb42eceea2ebebf70c733da6364ceaf94d",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.private.uri.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.reflection/4.3.0/system.reflection.4.3.0.nupkg",
     "sha512": "2325b67ed60dce0302807064f25422cbe1b7fb275b539b44fba3c4a8ce4926f21d78529a5c34b31c03d80d110f7bace9af9589d457266beac014220057af8333",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.reflection.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.reflection.extensions/4.3.0/system.reflection.extensions.4.3.0.nupkg",
     "sha512": "06cfd992c8d7fd9ab6432ab02be981a01b6558285a6e26a7825a064d4efcce08d9e7344f03fa19b033a2459d42b0b80e8c1400ce39b47a1752869ab8825b0475",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.reflection.extensions.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.reflection.primitives/4.3.0/system.reflection.primitives.4.3.0.nupkg",
     "sha512": "d4b9cc905f5a5cab900206338e889068bf66c18ee863a29d68eff3cde2ccca734112a2a851f2e2e5388a21ec28005fa19317c64d9b23923b05d6344be2e49eaa",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.reflection.primitives.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.resources.resourcemanager/4.3.0/system.resources.resourcemanager.4.3.0.nupkg",
     "sha512": "9067db28f1c48d08fc52ad40a608f88c14ad9112646741ddaf426fdfe68bed61ab01954b179461e61d187371600c1e6e5c36c788993f5a105a64f5702a6b81d4",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.resources.resourcemanager.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.runtime/4.3.0/system.runtime.4.3.0.nupkg",
     "sha512": "92ab2249f08073cfafdc4cfbd7db36d651ad871b8d8ba961006982187de374bf4a30af93f15f73b05af343f7a70cbd484b04d646570587636ae72171eb0714fb",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.runtime.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.runtime.handles/4.3.0/system.runtime.handles.4.3.0.nupkg",
     "sha512": "0a5baf1dd554bf9e01bcb4ce082cb26ee82b783364feb47cba730faeecd70edc528efad0394dcce11f37d7f9507f8608f15629ebaf051906bfd3513e46af0f11",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.runtime.handles.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.runtime.interopservices/4.3.0/system.runtime.interopservices.4.3.0.nupkg",
     "sha512": "650799c3e654efbb9ad67157c9c60ce46f288a81597be37ce2a0bf5d4835044065ef3f65b997328cbbbbfb81f4c89b8d7e7d61380880019deee6eb3f963f70d9",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.runtime.interopservices.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.runtime.interopservices.runtimeinformation/4.3.0/system.runtime.interopservices.runtimeinformation.4.3.0.nupkg",
     "sha512": "6f4905329a3cc9e62d274c885f275ee31c5af57a6c9fd1a5080d039cb748e0277bef3dc8ce42863cac78365084e00a032279bf3d2b7254a49f3fb1566a29ad1b",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.runtime.interopservices.runtimeinformation.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.text.encoding/4.3.0/system.text.encoding.4.3.0.nupkg",
     "sha512": "6ff7feec7313a7121f795ec7d376e4b8728c17294219fafdfd4ea078f9df1455b4685f0b3962c3810098e95d68594a8392c0b799d36ec8284cd6fcbd4cfe2c67",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.text.encoding.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.text.encodings.web/10.0.0/system.text.encodings.web.10.0.0.nupkg",
     "sha512": "e80f4f1f91445d5c3b489d0aa4e913258c600b400f12cbaacb2f4cc299f309e19bcee3ba7dc14a89c119c98508dcbcd837e0c3ed73f162b16d57e18c43c1648f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.text.encodings.web.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.text.json/10.0.0/system.text.json.10.0.0.nupkg",
     "sha512": "e56a6764797064cef67b9faee29c750c12af0ef9a177c5fc475ed2755202934861543df7e2752b33db3f6259a2d60efe988a3983dae23aa148abc64794687438",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.text.json.10.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.text.json/9.0.0/system.text.json.9.0.0.nupkg",
     "sha512": "e8b783221e66105d12cb0049a07abb4ede34e4829bedd3a7d7b09eefea2ee4ab7284450770c569ac5cc185aeff36b47518fe57d376cd5c32b68dca7c3d031345",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.text.json.9.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.threading/4.3.0/system.threading.4.3.0.nupkg",
     "sha512": "97a2751bdce69faaf9c54f834a9fd5c60c7a786faa52f420769828dbc9b5804c1f3721ba1ea945ea1d844835d909810f9e782c9a44d0faaecccb230c4cd95a88",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.threading.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.threading.channels/8.0.0/system.threading.channels.8.0.0.nupkg",
     "sha512": "335b37eb97f594e73ab36e7ce7f0135be291445167688e89bd249d135e27f592a0bd69d91e8246a1c72a578d57bed443ac7302311365c16160b7dc974eedf141",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.threading.channels.8.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.threading.ratelimiting/8.0.0/system.threading.ratelimiting.8.0.0.nupkg",
     "sha512": "8b1870cfc2509b59feeaa7fc5b36cc31f841013e752aad14ffbd581a14766c6c839c31117466e6405e80f070f0a64a7e9ed5627bcdf6622cfdc663eceb738f28",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.threading.ratelimiting.8.0.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.threading.tasks/4.3.0/system.threading.tasks.4.3.0.nupkg",
     "sha512": "7d488ff82cb20a3b3cef6380f2dae5ea9f7baa66bf75ad711aade1e3301b25993ccf2694e33c847ea5b9bdb90ff34c46fcd8a6ba7d6f95605ba0c124ed7c5d13",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.threading.tasks.4.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.threading.tasks.extensions/4.5.4/system.threading.tasks.extensions.4.5.4.nupkg",
     "sha512": "68052086e77d3c7198737a3da163d67740b7c44f93250c39659b3bf21b6547a9abf64cbf40481f5c78f24361af3aaf47d52d188b371554a0928a7f7665c1fc14",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.threading.tasks.extensions.4.5.4.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/system.valuetuple/4.5.0/system.valuetuple.4.5.0.nupkg",
     "sha512": "fa00ebb5045d12c51274f64411c551981beceb1266a8606a4731063109b95ea1f15939197bf3d2ba899db61e593dc39bfce876908bba34286823525093ae3d8e",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "system.valuetuple.4.5.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/tmds.dbus.protocol/0.21.2/tmds.dbus.protocol.0.21.2.nupkg",
     "sha512": "01e55dad6b1b3060cf3022727231db50ae1272f8d71112783f9213fe1adc930cd8ee60227f7b5569711287858086a9e882beda137ebd08c279fda23c89af25f2",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "tmds.dbus.protocol.0.21.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/xdg.directories/0.1.2/xdg.directories.0.1.2.nupkg",
     "sha512": "716ca503f383cdb963b6f132c08ea2398c7b17800f82066a9a5e87fa5b6fbcc868fc49b9fcefa77aba29c24e677e8ff42c9f4a2ed83bd91cbad2534186861b4c",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "xdg.directories.0.1.2.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/yamldotnet/16.3.0/yamldotnet.16.3.0.nupkg",
     "sha512": "f102fb418c3afe5ec0cc5d0336b9ac6517af6f30603ab5f925a7b3622544c419bb935d1e55901147fff5a113874e55491534d5553411fb4ea198e6550c0421df",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "yamldotnet.16.3.0.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/zxing.net/0.16.11/zxing.net.0.16.11.nupkg",
     "sha512": "907041307d5928de18e48658f02aba8844d73abee4d3466b27c35bb28c3d4254dc259bc9551dba6d7ed5311fe86355ce26e3f32f232eefd58a770f9b2a179c86",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "zxing.net.0.16.11.nupkg"
   },
   {
     "type": "file",
     "url": "https://api.nuget.org/v3-flatcontainer/zxing.net.bindings.imagesharp.v3/0.16.18/zxing.net.bindings.imagesharp.v3.0.16.18.nupkg",
     "sha512": "69545e2b10185530dfbfacdb7e4bba98bf539f7d567b10af49c08b36fa45b74d9abcf79992adb718cd6e2e799e564b131bd254ce066a6f97a248e8315080d12f",
-    "dest": "/home/romvnly/Documents/Coding/SnapX/packaging/flathub",
+    "dest": "vendor",
     "dest-filename": "zxing.net.bindings.imagesharp.v3.0.16.18.nupkg"
   }
 ]
