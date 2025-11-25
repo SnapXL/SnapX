@@ -435,10 +435,7 @@ jobs:
 #          dotnet format --verify-no-changes -v diagnostic SnapX.slnx \
 #            --include $(find . -type f -name '*.cs' ! -path './build/*' ! -path './SnapX.Core/Upload/APIKeysLocal.cs')
       - name: Publish
-        if: runner.os == 'Windows'
-        run: ./build.ps1 --configuration ${{ matrix.configuration }}
-      - name: Publish
-        if: runner.os != 'Windows'
+        shell: bash
         run: ./build.sh --configuration ${{ matrix.configuration }}
       - name: Assemble SnapX UI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
