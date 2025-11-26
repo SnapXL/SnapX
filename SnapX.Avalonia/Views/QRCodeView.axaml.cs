@@ -2,7 +2,6 @@ using Avalonia.Controls;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
-using Avalonia.Threading;
 using DotNext.Threading;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp.Formats.Png;
@@ -87,8 +86,12 @@ public partial class QRCodeView : AppWindow
             DebugHelper.WriteLine($"Size : {size}");
             DebugHelper.WriteLine($"Text: {QRText.Text}");
             var text = QRText.Text;
-            var generatedImg = await Task.Run(() =>
-                TaskHelpers.GenerateQRCode(text ?? Links.GitHub, size), ct);
+            var generatedImg = await Task.Factory.StartNew(
+                () => TaskHelpers.GenerateQRCode(text ?? Links.GitHub, size),
+                ct,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default
+            );
             if (generatedImg is null) return;
 
             var stream = new MemoryStream();
@@ -97,11 +100,8 @@ public partial class QRCodeView : AppWindow
 
             DebugHelper.WriteLine($"Generated QR Code: {generatedImg}");
             DebugHelper.WriteLine($"Stream bytes: {stream.Length}");
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                image = new Bitmap(stream);
-                QRImage.Source = image;
-            });
+            image = new Bitmap(stream);
+            QRImage.Source = image;
         }
     }
 }
