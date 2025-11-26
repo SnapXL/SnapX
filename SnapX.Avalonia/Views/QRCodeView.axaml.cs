@@ -101,7 +101,8 @@ public partial class QRCodeView : AppWindow
             DebugHelper.WriteLine($"Generated QR Code: {generatedImg}");
             DebugHelper.WriteLine($"Stream bytes: {stream.Length}");
             image = new Bitmap(stream);
-            QRImage.Source = image;
+            var qrImg = this.FindControl<Image>("QRImage")!;
+            qrImg.Source = image;
         }
     }
 }
