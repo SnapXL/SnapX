@@ -24,56 +24,73 @@
         OpenPaneLength="220"
         PaneDisplayMode="Left"
         PaneTitle="SnapX"
-        UseLayoutRounding="True">
+        UseLayoutRounding="True"
+        Name="MainNavView">
 
         <controls:NavigationView.MenuItems>
-            <controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Region" x:Name="CaptureSplitButton">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="Camera"
                         IconSize="Size32"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
-                <SplitButton x:Name="CaptureSplitButton">
-                    <Label Content="Region" Name="RegionCaptureLabel" />
-                    <SplitButton.Flyout>
-                        <controls:FAMenuFlyout>
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Capture_Fullscreen}" />
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Window}" />
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Monitor}" />
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_Region}" />
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_RegionLight}" />
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" />
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_ScreenRecording}" />
-                            <controls:ToggleMenuFlyoutItem IconSource="Camera" Text="{x:Static utils:Lang.UI_Dropdown_ScreenRecordingGIF}" />
-                            <controls:MenuFlyoutSubItem IconSource="Clock" Text="Delay">
-                                <controls:RadioMenuFlyoutItem
-                                    Click="DelayOption_Checked"
-                                    GroupName="DelayGroup"
-                                    Tag="1"
-                                    Text="1 second" />
-                                <controls:RadioMenuFlyoutItem
-                                    Click="DelayOption_Checked"
-                                    GroupName="DelayGroup"
-                                    Tag="5"
-                                    Text="5 seconds" />
-                                <controls:RadioMenuFlyoutItem
-                                    Click="DelayOption_Checked"
-                                    GroupName="DelayGroup"
-                                    Tag="10"
-                                    Text="10 seconds" />
-                                <controls:RadioMenuFlyoutItem
-                                    Click="DelayOption_Checked"
-                                    GroupName="DelayGroup"
-                                    Tag="30"
-                                    Text="30 seconds" />
 
-                            </controls:MenuFlyoutSubItem>
+                <controls:NavigationViewItem.MenuItems>
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Capture_Fullscreen}" IconSource="Camera" />
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_Window}" IconSource="Camera" />
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_Monitor}" IconSource="Camera" />
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_Region}" IconSource="Camera" />
+                    <!-- <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_RegionLight}" IconSource="Camera" />
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" IconSource="Camera" /> -->
+                    <!-- <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_ScreenRecording}" IconSource="Camera" />
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_ScreenRecordingGIF}" IconSource="Camera" /> -->
 
-                        </controls:FAMenuFlyout>
-                    </SplitButton.Flyout>
-                </SplitButton>
+                    <!--  Delay submenu  -->
+                    <controls:NavigationViewItem Content="Delay" IconSource="Clock" Name="DelayMenuItem">
+                        <controls:NavigationViewItem.MenuItems>
+
+                            <controls:NavigationViewItem
+                                Content="1 second"
+                                Tag="1"
+                                Tapped="DelayOption_Checked"
+                                PointerPressed="DelayOption_Checked" />
+                            <controls:NavigationViewItem
+                                Content="5 seconds"
+                                Tag="5"
+                                Tapped="DelayOption_Checked" />
+                            <controls:NavigationViewItem
+                                Content="10 seconds"
+                                Tag="10"
+                                Tapped="DelayOption_Checked" />
+                            <controls:NavigationViewItem
+                                Content="30 seconds"
+                                Tag="30"
+                                Tapped="DelayOption_Checked" />
+                        </controls:NavigationViewItem.MenuItems>
+                    </controls:NavigationViewItem>
+                </controls:NavigationViewItem.MenuItems>
             </controls:NavigationViewItem>
+
+            <controls:NavigationViewItem Content="Tools">
+                <controls:NavigationViewItem.IconSource>
+                    <fluent:FluentIconSource
+                        Icon="Toolbox"
+                        IconSize="Size32"
+                        IconVariant="Regular" />
+                </controls:NavigationViewItem.IconSource>
+                <controls:NavigationViewItem.MenuItems>
+                    <controls:NavigationViewItem Content="QR Code" PointerPressed="ToolClicked">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="QrCode"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                </controls:NavigationViewItem.MenuItems>
+            </controls:NavigationViewItem>
+
             <controls:NavigationViewItem
                 Content="Screenshot Folder"
                 PointerPressed="DynamicURL_OnPointerPressed"

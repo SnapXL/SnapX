@@ -8,6 +8,7 @@ using SnapX.Avalonia.ViewModels;
 using SnapX.Avalonia.Views.Controls;
 using SnapX.Core;
 using SnapX.Core.Job;
+using SnapX.Core.ScreenCapture;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
@@ -18,49 +19,49 @@ namespace SnapX.Avalonia.Views;
 
 public partial class MainView : UserControl
 {
-    private readonly FAMenuFlyout _flyout;
-    private readonly SplitButton _splitButton;
-    private readonly Label _captureRegionLabel;
     private string? selectedAction;
+    private TimeSpan? delay;
 
     public MainView()
     {
         InitializeComponent();
-        _splitButton = this.FindControl<SplitButton>("CaptureSplitButton");
-        _captureRegionLabel = this.FindControl<Label>("RegionCaptureLabel");
-        _splitButton.Command = ExecuteSelectedCaptureActionCommand;
-        selectedAction = _captureRegionLabel?.Content as string;
-        _flyout = _splitButton.Flyout as FAMenuFlyout;
+        var _flyout = CaptureSplitButton;
         if (_flyout != null)
         {
-            foreach (var item in _flyout.Items)
+            foreach (var item in _flyout.MenuItems)
             {
-                if (item is ToggleMenuFlyoutItem menuItem)
+                if (item is NavigationViewItem menuItem)
                 {
-                    menuItem.Command = SelectCaptureActionCommand;
-                    menuItem.CommandParameter = menuItem.Text;
+                    if (menuItem.Tag != null)
+                        return;
+                    if (menuItem.Name == "DelayMenuItem")
+                        continue;
+                    menuItem.PointerPressed += (Sender, Args) =>
+                        SelectCaptureActionCommand.Execute(menuItem.Content as string);
                 }
             }
         }
     }
 
     [RelayCommand]
-    private async Task ExecuteSelectedCaptureAction()
+    private async Task ExecuteSelectedCaptureAction(string? theAction = null)
     {
-        var action = selectedAction ?? _captureRegionLabel.Content as string;
+        var action = selectedAction ?? theAction;
         DebugHelper.WriteLine($"Executing: {action}");
         Image? img = null;
         var actionMap = new Dictionary<string, Func<Task>>
         {
             [Lang.UI_Capture_Fullscreen] = async () =>
             {
-                img = await Task.Run(() =>
-                    TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureFullscreen()
+                img = await Task.Run(
+                    () =>
+                        TaskHelpers
+                            .GetScreenshot(TaskSettings.GetDefaultTaskSettings())
+                            .CaptureFullscreen()
                 );
             },
             [Lang.UI_Dropdown_Region] = async () =>
             {
-                await Task.Delay(5000);
                 new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
             },
             [Lang.UI_Dropdown_RegionLight] = async () =>
@@ -73,19 +74,36 @@ public partial class MainView : UserControl
             },
             [Lang.UI_Dropdown_Window] = async () =>
             {
-                img = await Task.Run(() =>
-                    TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveWindow()
+                img = await Task.Run(
+                    () =>
+                        TaskHelpers
+                            .GetScreenshot(TaskSettings.GetDefaultTaskSettings())
+                            .CaptureActiveWindow()
                 );
             },
             [Lang.UI_Dropdown_Monitor] = async () =>
             {
-                img = await Task.Run(() =>
-                    TaskHelpers.GetScreenshot(TaskSettings.GetDefaultTaskSettings()).CaptureActiveMonitor()
+                img = await Task.Run(
+                    () =>
+                        TaskHelpers
+                            .GetScreenshot(TaskSettings.GetDefaultTaskSettings())
+                            .CaptureActiveMonitor()
                 );
-            }
+            },
+            [Lang.UI_Dropdown_ScreenRecording] = async () =>
+            {
+                // var rect = new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
+                // var
+                TaskHelpers.StartScreenRecording(
+                    ScreenRecordOutput.FFmpeg,
+                    ScreenRecordStartMethod.Region
+                );
+            },
         };
         if (action != null && actionMap.TryGetValue(action, out var func))
         {
+            if (delay != null && delay.HasValue)
+                await Task.Delay((int)delay.Value.TotalMilliseconds);
             await func();
         }
         else
@@ -93,31 +111,79 @@ public partial class MainView : UserControl
             DebugHelper.WriteLine("No matching action found.");
         }
 
-        if (img != null) UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
+        if (img != null)
+            UploadManager.RunImageTask(img, TaskSettings.GetDefaultTaskSettings());
+    }
+
+    [RelayCommand]
+    private async Task ExecuteSelectedTool(string action)
+    {
+        var actionMap = new Dictionary<string, Func<Task>>
+        {
+            ["QR Code"] = async () =>
+            {
+                var qrWindow = new QRCodeView();
+                qrWindow.Show();
+            },
+        };
+
+        if (action != null && actionMap.TryGetValue(action, out var func))
+        {
+            await func();
+        }
+        else
+        {
+            DebugHelper.WriteLine("No matching tool found.");
+        }
     }
 
     private void DelayOption_Checked(object? sender, RoutedEventArgs e)
     {
         DebugHelper.WriteLine("DelayOption_Checked");
+        if (sender is not NavigationViewItem item)
+            return;
+        if (item.Tag is null)
+            return;
+
+        delay = TimeSpan.FromSeconds(long.Parse(item.Tag as string));
+        Core.SnapX.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay = (decimal)
+            delay.Value.TotalSeconds;
+        var DelayMenuItem = this.FindControl<NavigationViewItem>("DelayMenuItem");
+        if (DelayMenuItem == null || DelayMenuItem.MenuItems == null)
+            return;
+
+        long targetSeconds = (long)delay.Value.TotalSeconds;
+
+        foreach (var menuItem in DelayMenuItem.MenuItems.Cast<NavigationViewItem>())
+        {
+            if (menuItem.Tag is string tag && long.TryParse(tag, out long tagValue))
+            {
+                if (tagValue == targetSeconds)
+                {
+                    // menuItem.IsSelected = true;
+                    var content = menuItem.Content as string;
+                    if (!content.StartsWith("✓ "))
+                        menuItem.Content = "✓ " + content;
+                }
+                else
+                {
+                    if (menuItem.Content is string content && content.StartsWith("✓ "))
+                    {
+                        menuItem.Content = content.Substring(2);
+                    }
+                }
+            }
+        }
+        Core.SnapX.Settings.SaveAsync();
     }
+
     [RelayCommand]
     private void SelectCaptureAction(string action)
     {
         DebugHelper.WriteLine($"Selecting: {action}");
         selectedAction = action;
-        _captureRegionLabel.Content = action;
-        if (_flyout != null)
-        {
-            foreach (var item in _flyout.Items)
-            {
-                if (item is ToggleMenuFlyoutItem menuItem)
-                {
-                    menuItem.IsChecked = menuItem.Text == action;
-                }
-            }
-        }
 
-        ExecuteSelectedCaptureActionCommand.ExecuteAsync(this);
+        ExecuteSelectedCaptureActionCommand.ExecuteAsync(action);
     }
 
     private void AboutItem_Pressed(object? Sender, PointerPressedEventArgs E)
@@ -129,6 +195,7 @@ public partial class MainView : UserControl
     {
         App.CreateOrOpenSettingsWindowStatic();
     }
+
     private void FindURLOnDescendant(ILogical control)
     {
         foreach (var child in control.GetLogicalChildren())
@@ -140,7 +207,8 @@ public partial class MainView : UserControl
             }
 
             var url = toolTip?.Content as string ?? string.Empty;
-            if (!string.IsNullOrEmpty(url)) URLHelpers.OpenURL(url);
+            if (!string.IsNullOrEmpty(url))
+                URLHelpers.OpenURL(url);
         }
     }
 
@@ -162,7 +230,8 @@ public partial class MainView : UserControl
         else
         {
             DebugHelper.WriteLine(
-                $"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!");
+                $"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!"
+            );
         }
     }
 
@@ -174,6 +243,44 @@ public partial class MainView : UserControl
 
     private void MainView_OnInit(object? Sender, EventArgs E)
     {
+        delay = TimeSpan.FromSeconds(
+            (long)Core.SnapX.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay
+        );
+
+        var MainNavView = this.FindControl<NavigationView>("MainNavView");
+        if (MainNavView != null)
+        {
+            MainNavView.Loaded -= MainNavView_Loaded_SetSelection;
+            MainNavView.Loaded += MainNavView_Loaded_SetSelection;
+        }
+    }
+
+    private void MainNavView_Loaded_SetSelection(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not NavigationView MainNavView)
+            return;
+
+        MainNavView.Loaded -= MainNavView_Loaded_SetSelection;
+
+        var DelayMenuItem = MainNavView.FindControl<NavigationViewItem>("DelayMenuItem");
+        if (DelayMenuItem == null || DelayMenuItem.MenuItems == null)
+            return;
+
+        long targetSeconds = (long)delay.Value.TotalSeconds;
+
+        foreach (var item in DelayMenuItem.MenuItems.Cast<NavigationViewItem>())
+        {
+            if (item.Tag is string tag && long.TryParse(tag, out long tagValue))
+            {
+                if (tagValue == targetSeconds)
+                {
+                    item.IsSelected = true;
+                    var content = item.Content as string;
+                    item.Content = "✓ " + content;
+                    return;
+                }
+            }
+        }
     }
 
     private void DonateButtonPressed(object? sender, PointerPressedEventArgs e)
@@ -189,33 +296,45 @@ public partial class MainView : UserControl
             SecondaryButtonText = Lang.MaybeLater,
             DefaultButton = ContentDialogButton.Primary,
             PrimaryButtonCommand = donationMenu.PrimaryClickCommand,
-            FullSizeDesired = true
+            FullSizeDesired = true,
         };
-        if (App.MyMainWindow != null) dialog.ShowAsync(App.MyMainWindow);
-        else dialog.ShowAsync();
+        if (App.MyMainWindow != null)
+            dialog.ShowAsync(App.MyMainWindow);
+        else
+            dialog.ShowAsync();
     }
 
     private async void DynamicDebugPressed(object? Sender, PointerPressedEventArgs E)
     {
         try
         {
-            if (Sender is not NavigationViewItem navigationViewItem) return;
+            if (Sender is not NavigationViewItem navigationViewItem)
+                return;
             var target = navigationViewItem.Content as string;
-            if (string.IsNullOrEmpty(target)) return;
+            if (string.IsNullOrEmpty(target))
+                return;
             DebugHelper.WriteLine($"{nameof(DynamicDebugPressed)}: {target}");
             var actionMap = new Dictionary<string, Func<Task>>
             {
                 [Lang.UI_Debug_TestImageUpload] = async () =>
                 {
-                    UploadManager.UploadImage(await WebHelpers.DownloadImageAsync("https://github.com/SnapXL/SnapX/blob/v0.3.0/.github/Linux.png?raw=true"));
+                    UploadManager.UploadImage(
+                        await WebHelpers.DownloadImageAsync(
+                            "https://github.com/SnapXL/SnapX/blob/v0.3.0/.github/Linux.png?raw=true"
+                        )
+                    );
                 },
                 [Lang.UI_Debug_TestTextUpload] = async () =>
                 {
-                    UploadManager.UploadText("This is a test text upload from SnapX, a fork of ShareX");
+                    UploadManager.UploadText(
+                        "This is a test text upload from SnapX, a fork of ShareX"
+                    );
                 },
                 [Lang.UI_Debug_TestFileUpload] = async () =>
                 {
-                    UploadManager.DownloadAndUploadFile("https://raw.githubusercontent.com/SnapXL/SnapX/830fc50125e7af3e760b2ff908635d97e2464695/.github/Progress.md");
+                    UploadManager.DownloadAndUploadFile(
+                        "https://raw.githubusercontent.com/SnapXL/SnapX/830fc50125e7af3e760b2ff908635d97e2464695/.github/Progress.md"
+                    );
                 },
                 [Lang.UI_Debug_TestURLShortener] = async () =>
                 {
@@ -239,5 +358,10 @@ public partial class MainView : UserControl
         {
             e.ShowError();
         }
+    }
+
+    private void ToolClicked(object? Sender, PointerPressedEventArgs E)
+    {
+        ExecuteSelectedToolCommand.Execute((Sender as NavigationViewItem).Content);
     }
 }

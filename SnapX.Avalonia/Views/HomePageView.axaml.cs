@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
-using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.Models;
 using SnapX.Avalonia.ViewModels;
@@ -26,35 +25,18 @@ public partial class HomePageView : UserControl
         AddHandler(DragDrop.DragOverEvent, DragOver);
         AddHandler(DragDrop.DragEnterEvent, DragEnter);
         AddHandler(DragDrop.DropEvent, Drop);
-        AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader(HttpClientFactory.Get(), false, Path.Combine(Core.SnapX.CacheFolder, "Images"));
+        AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader(
+            HttpClientFactory.Get(),
+            false,
+            Path.Combine(Core.SnapX.CacheFolder, "Images")
+        );
     }
 
-    private void SetupAllDraggables(TopLevel topLevel)
-    {
-        foreach (var element in topLevel.GetVisualDescendants().OfType<Control>())
-        {
-            if (element.Classes.Contains("draggable"))
-            {
-                SetupDnd(element, d =>
-                    {
-                        if (element.DataContext is ListTaskTemplate task && !string.IsNullOrEmpty(task.task.FilePath))
-                        {
-                            d.Set(DataFormats.Files, new[] { task.task.FilePath });
-                        }
-                        else
-                        {
-                            DebugHelper.WriteLine($"Element that has draggable class doesn't have a DataContext of ListTaskTemplate");
-                        }
-                    },
-                    DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link);
-            }
-        }
-    }
-    private void SetupDnd(IInputElement draggable, Action<DataObject> factory, DragDropEffects effects)
-    {
-        draggable.PointerPressed += (_, e) => DoDrag(factory, e, effects);
-    }
-    private async void DoDrag(Action<DataObject> factory, PointerEventArgs e, DragDropEffects effects)
+    private async void DoDrag(
+        Action<DataObject> factory,
+        PointerEventArgs e,
+        DragDropEffects effects
+    )
     {
         var dragData = new DataObject();
         factory(dragData);
@@ -106,14 +88,13 @@ public partial class HomePageView : UserControl
                         break;
                 }
             }
-
         }
 
         DebugHelper.WriteLine($"{string.Join(", ", e.Data.GetDataFormats())}");
     }
-    public HomePageView() : this(new HomePageViewModel())
-    {
-    }
+
+    public HomePageView()
+        : this(new HomePageViewModel()) { }
 
     private void PopupFlyoutBase_OnOpening(object? Sender, EventArgs E)
     {
@@ -123,12 +104,16 @@ public partial class HomePageView : UserControl
     private void Control_OnLoaded(object? Sender, RoutedEventArgs E)
     {
         Task.Run(() => ViewModel.Initialize()).ConfigureAwait(false);
-        // SetupAllDraggables(TopLevel.GetTopLevel(this)!);
+    }
+    private void Control_OnInitialized(object? Sender, EventArgs E)
+    {
+
     }
 
     private void DeleteLocallyButton_OnClick(object? Sender, RoutedEventArgs E)
     {
-        if (Sender is not MenuFlyoutItem menuFlyoutItem) return;
+        if (Sender is not MenuFlyoutItem menuFlyoutItem)
+            return;
         ViewModel.DeleteHistoryItemLocallyCommand.Execute(menuFlyoutItem.DataContext);
         ViewModel.InvalidateCache();
         ViewModel.StopTimer();
@@ -138,7 +123,8 @@ public partial class HomePageView : UserControl
 
     private void RemoveHistoryItem_OnClick(object? Sender, RoutedEventArgs E)
     {
-        if (Sender is not MenuFlyoutItem menuFlyoutItem) return;
+        if (Sender is not MenuFlyoutItem menuFlyoutItem)
+            return;
         ViewModel.RemoveHistoryItemCommand.Execute(menuFlyoutItem.DataContext);
         ViewModel.InvalidateCache();
         ViewModel.StopTimer();
@@ -152,21 +138,18 @@ public partial class HomePageView : UserControl
         _ = ViewModel.HaltActiveTasks();
     }
 
-    private void Button_OnClick(object? Sender, RoutedEventArgs E)
-    {
-        ViewModel.StopTimer();
-    }
-
     private void OCRImageClick(object? Sender, RoutedEventArgs E)
     {
-        if (Sender is not MenuFlyoutItem menuFlyoutItem) return;
+        if (Sender is not MenuFlyoutItem menuFlyoutItem)
+            return;
 
         ViewModel.OCRImageCommand.Execute(menuFlyoutItem.DataContext);
     }
 
     private void DownloadButton_OnClick(object? Sender, RoutedEventArgs E)
     {
-        if (Sender is not MenuFlyoutItem menuFlyoutItem) return;
+        if (Sender is not MenuFlyoutItem menuFlyoutItem)
+            return;
         ViewModel.DownloadButtonCommand.Execute(menuFlyoutItem.DataContext);
         ViewModel.StopTimer();
         ViewModel.RefreshTasks();
@@ -175,9 +158,11 @@ public partial class HomePageView : UserControl
 
     private void UploadButton_OnClick(object? Sender, RoutedEventArgs E)
     {
-        if (Sender is not MenuFlyoutItem menuFlyoutItem) return;
+        if (Sender is not MenuFlyoutItem menuFlyoutItem)
+            return;
         ViewModel.UploadButtonCommand.Execute(menuFlyoutItem.DataContext);
     }
+
     private void DynamicOpenURL(object? sender, RoutedEventArgs e)
     {
         if (sender is not MenuFlyoutItem menuFlyoutItem)
@@ -189,12 +174,15 @@ public partial class HomePageView : UserControl
         var path = menuFlyoutItem.Tag as string;
         ViewModel.OpenURLCommand.Execute(path);
     }
+
     private void OpenFolder_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is not MenuFlyoutItem menuItem) return;
+        if (sender is not MenuFlyoutItem menuItem)
+            return;
 
         var filePath = menuItem.Tag as string;
-        if (string.IsNullOrEmpty(filePath)) return;
+        if (string.IsNullOrEmpty(filePath))
+            return;
 
         var folderPath = Path.GetDirectoryName(filePath);
         if (!string.IsNullOrEmpty(folderPath))
@@ -205,8 +193,10 @@ public partial class HomePageView : UserControl
 
     private void DynamicCopy(object? sender, RoutedEventArgs e)
     {
-        if (sender is not MenuFlyoutItem menuItem) return;
-        if (menuItem.Tag is not string text) return;
+        if (sender is not MenuFlyoutItem menuItem)
+            return;
+        if (menuItem.Tag is not string text)
+            return;
         var topLevel = TopLevel.GetTopLevel(menuItem);
         if (topLevel is null)
         {

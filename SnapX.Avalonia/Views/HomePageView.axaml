@@ -1,4 +1,5 @@
 ﻿<UserControl
+    Initialized="Control_OnInitialized"
     Loaded="Control_OnLoaded"
     Unloaded="Control_OnUnloaded"
     d:DesignHeight="450"
@@ -26,7 +27,8 @@
             <controls:ItemsRepeater
                 DragDrop.AllowDrop="True"
                 IsVisible="{Binding recentTasks.Count, Converter={StaticResource CountToBoolean}}"
-                ItemsSource="{Binding recentTasks}">
+                ItemsSource="{Binding recentTasks}"
+                Name="RecentTasksItemsRepeater">
                 <controls:ItemsRepeater.Layout>
                     <controls:UniformGridLayout
                         ItemsJustification="Start"
@@ -162,10 +164,6 @@
                                         <controls:MenuFlyoutItem
                                             IconSource="Copy"
                                             IsEnabled="False"
-                                            Text="{x:Static core:Lang.UI_ImageDimensions}" />
-                                        <controls:MenuFlyoutItem
-                                            IconSource="Copy"
-                                            IsEnabled="False"
                                             Text="{x:Static core:Lang.UI_Text}" />
                                         <controls:MenuFlyoutItem
                                             IconSource="Copy"
@@ -297,7 +295,8 @@
                                         Height="150"
                                         Stretch="Uniform"
                                         Width="200"
-                                        asyncImageLoader:ImageLoader.Source="{Binding task.BestImageSource}" />
+                                        asyncImageLoader:ImageLoader.Source="{Binding task.BestImageSource}"
+                                        x:Name="PreviewImage" />
                                     <SelectableTextBlock
                                         FontWeight="SemiBold"
                                         HorizontalAlignment="Center"

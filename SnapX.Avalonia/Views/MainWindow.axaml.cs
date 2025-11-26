@@ -18,7 +18,6 @@ using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using Color = Avalonia.Media.Color;
 using Size = SixLabors.ImageSharp.Size;
-
 namespace SnapX.Avalonia.Views;
 
 public partial class MainWindow : AppWindow

@@ -1124,7 +1124,7 @@ public static class TaskHelpers
             }
         }
     }
-    public static Image GenerateQRCode(string text, int size)
+    public static Image? GenerateQRCode(string text, int size)
     {
         if (!CheckQRCodeContent(text)) return null;
         try

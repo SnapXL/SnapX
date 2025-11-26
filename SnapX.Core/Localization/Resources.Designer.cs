@@ -9,6 +9,7 @@
 
 using System.Reflection;
 using System.Text;
+using SixLabors.ImageSharp;
 
 namespace SnapX.Core.Resources {
     using System;
@@ -17,7 +18,7 @@ namespace SnapX.Core.Resources {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
 
         private static System.Resources.ResourceManager resourceMan;
 
@@ -77,11 +78,25 @@ namespace SnapX.Core.Resources {
             }
         }
 
+        public static Image Play
+        {
+            get
+            {
+                return GetImage("Play.png");
+            }
+        }
+
         private static Stream GetSoundStream(string soundName)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var name = assembly.GetName().Name;
             return assembly.GetManifestResourceStream($"{name}.Resources.{soundName}.flac");
+        }
+        private static Image GetImage(string imageName)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var name = assembly.GetName().Name;
+            return Image.Load(assembly.GetManifestResourceStream($"{name}.Resources.{imageName}"));
         }
     }
 }
