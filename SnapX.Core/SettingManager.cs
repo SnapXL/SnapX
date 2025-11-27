@@ -35,6 +35,12 @@ namespace SnapX.Core;
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(uint))]
 [JsonSerializable(typeof(bool))]
+// [JsonSerializable(typeof(Keys))]
+// [JsonSerializable(typeof(SafeEnumConverter<Keys>))]
+// [JsonSerializable(typeof(SafeEnumConverter<Modifiers>))]
+// [JsonSerializable(typeof(SafeEnumConverter<HotkeyType>))]
+// [JsonSerializable(typeof(SafeEnumConverter<HotkeyStatus>))]
+
 internal partial class SettingsContext : JsonSerializerContext;
 internal static class SettingManager
 {
@@ -161,9 +167,9 @@ internal static class SettingManager
         Settings.CreateBackup = true;
         Settings.CreateWeeklyBackup = true;
         Settings.SettingsSaveFailed += Settings_SettingsSaveFailed;
-        ApplicationConfigBackwardCompatibilityTasks();
         SnapX.Configuration.Bind(Settings, Options => Options.BindNonPublicProperties = true);
         DefaultTaskSettings = Settings.DefaultTaskSettings;
+        ApplicationConfigBackwardCompatibilityTasks();
 
         if (string.IsNullOrWhiteSpace(Settings.SQLitePath))
             Settings.SQLitePath = Path.Combine(SnapX.DefaultPersonalFolder, "SnapX.db");

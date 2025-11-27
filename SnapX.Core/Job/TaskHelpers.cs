@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using NeoSolve.ImageSharp.AVIF;
 using OpenCvSharp;
 using Sdcb.PaddleInference;
 using Sdcb.PaddleOCR;
@@ -19,8 +20,10 @@ using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tiff;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SnapX.Core.Capture;
 using SnapX.Core.CLI;
 using SnapX.Core.ImageEffects;
@@ -31,11 +34,14 @@ using SnapX.Core.Upload.Custom;
 using SnapX.Core.Upload.SharingServices;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
 using ZXing;
 using ZXing.Common;
 using ZXing.ImageSharp.Rendering;
 using ZXing.QrCode;
+using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode;
+using Size = SixLabors.ImageSharp.Size;
 
 namespace SnapX.Core.Job;
 
@@ -347,29 +353,31 @@ public static class TaskHelpers
         return imageData;
     }
 
-    // public static string CreateThumbnail(Bitmap bmp, string folder, string fileName, TaskSettings taskSettings)
-    // {
-    //     if ((taskSettings.ImageSettings.ThumbnailWidth > 0 || taskSettings.ImageSettings.ThumbnailHeight > 0) && (!taskSettings.ImageSettings.ThumbnailCheckSize ||
-    //         (bmp.Width > taskSettings.ImageSettings.ThumbnailWidth && bmp.Height > taskSettings.ImageSettings.ThumbnailHeight)))
-    //     {
-    //         string thumbnailFileName = Path.GetFileNameWithoutExtension(fileName) + taskSettings.ImageSettings.ThumbnailName + ".jpg";
-    //         string thumbnailFilePath = HandleExistsFile(folder, thumbnailFileName, taskSettings);
-    //
-    //         if (!string.IsNullOrEmpty(thumbnailFilePath))
-    //         {
-    //             using (Bitmap thumbnail = (Bitmap)bmp.Clone())
-    //             using (Bitmap resizedImage = new Resize(taskSettings.ImageSettings.ThumbnailWidth, taskSettings.ImageSettings.ThumbnailHeight).Apply(thumbnail))
-    //             using (Bitmap newImage = MediaTypeNames.Image.FillBackground(resizedImage, Color.White))
-    //             {
-    //                 MediaTypeNames.Image.SaveJPEG(newImage, thumbnailFilePath, 90);
-    //                 return thumbnailFilePath;
-    //             }
-    //         }
-    //     }
-    //
-    //     return null;
-    // }
+    public static string? CreateThumbnail(Image image, string folder, string fileName, TaskSettings taskSettings)
+    {
+        var settings = taskSettings.ImageSettings;
 
+        if (settings is { ThumbnailWidth: <= 0, ThumbnailHeight: <= 0 } ||
+            (settings.ThumbnailCheckSize &&
+             (image.Width <= settings.ThumbnailWidth || image.Height <= settings.ThumbnailHeight))) return null;
+        var baseName = Path.GetFileNameWithoutExtension(fileName);
+        var thumbnailFileName = Path.ChangeExtension($"{baseName}{settings.ThumbnailName}", ".webp");
+        var thumbnailFilePath = HandleExistsFile(folder, thumbnailFileName, taskSettings);
+
+        if (string.IsNullOrEmpty(thumbnailFilePath)) return null;
+        using var clone = image.Clone(ctx =>
+        {
+            ctx.Resize(new ResizeOptions
+            {
+                Mode = ResizeMode.Max,
+                Size = new Size(settings.ThumbnailWidth, settings.ThumbnailHeight)
+            });
+        });
+        var encoder = new WebpEncoder { Quality = 90 };
+        clone.Save(thumbnailFilePath, encoder);
+        return thumbnailFilePath;
+
+    }
     public static MemoryStream SaveImageAsStream(Image img, EImageFormat imageFormat, TaskSettings taskSettings)
     {
         return SaveImageAsStream(img, imageFormat, taskSettings.ImageSettings.ImagePNGBitDepth,
@@ -392,9 +400,20 @@ public static class TaskHelpers
                 {
                     Quality = jpegQuality
                 },
-                EImageFormat.GIF => new GifEncoder(),
+                EImageFormat.GIF => new GifEncoder()
+                {
+                    Quantizer = GetGifQuantizer(gifQuality)
+                },
                 EImageFormat.BMP => new BmpEncoder(),
                 EImageFormat.TIFF => new TiffEncoder(),
+                EImageFormat.WEBP => new WebpEncoder()
+                {
+                    Quality = jpegQuality,
+                },
+                EImageFormat.AVIF => new AVIFEncoder()
+                {
+                    CQLevel = 10
+                },
                 _ => throw new NotSupportedException($"Unsupported image format: {imageFormat} {typeof(EImageFormat)}")
             };
             if (SnapX.Settings.PNGStripColorSpaceInformation)
@@ -403,55 +422,93 @@ public static class TaskHelpers
             }
 
             image.Save(ms, encoder);
-            DebugHelper.WriteLine(image.Width + " x " + image);
+            DebugHelper.WriteLine(image.ToString());
             ms.Position = 0;
-            DebugHelper.WriteLine(ms.CanRead.ToString());
         }
         catch (Exception e)
         {
-            DebugHelper.WriteException(e);
             e.ShowError();
         }
 
         return ms;
     }
+    public static IQuantizer? GetGifQuantizer(GIFQuality quality)
+    {
+        QuantizerOptions options = new QuantizerOptions();
+        // The default GIF quantizer is Octree for ImageSharp.
+        // The same one ShareX uses! UNACCEPTABLE!!!
+        // This one is higher quality.
+        IQuantizer quantizer = new WuQuantizer(options);
+        switch (quality)
+        {
+            case GIFQuality.Bit8:
+            case GIFQuality.Default:
+                break;
 
+            case GIFQuality.Bit4:
+                options.MaxColors = 16;
+                quantizer = new WuQuantizer(options);
+                break;
+
+            case GIFQuality.Grayscale:
+                var grayPalette = CreateGrayscalePalette(256);
+
+                quantizer = new PaletteQuantizer(grayPalette);
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(quality), quality, null);
+        }
+
+        return quantizer;
+    }
+    private static ReadOnlyMemory<Color> CreateGrayscalePalette(int maxGrayLevels)
+    {
+        // Create a list of grayscale colors (from black to white)
+        var grayscaleColors = new Color[maxGrayLevels];
+
+        for (var i = 0; i < maxGrayLevels; i++)
+        {
+            var grayValue = i * 255 / (maxGrayLevels - 1);
+            grayscaleColors[i] = new Color(new Rgba32(grayValue, grayValue, grayValue, 255));
+        }
+
+        return new ReadOnlyMemory<Color>(grayscaleColors);
+    }
     public static void SaveImageAsFile(Image img, TaskSettings taskSettings, bool overwriteFile = false)
     {
-        using (ImageData imageData = PrepareImage(img, taskSettings))
+        using var imageData = PrepareImage(img, taskSettings);
+        var screenshotsFolder = GetScreenshotsFolder(taskSettings);
+        var fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), img);
+        var filePath = Path.Combine(screenshotsFolder, fileName);
+
+        if (!overwriteFile)
         {
-            string? screenshotsFolder = GetScreenshotsFolder(taskSettings);
-            string? fileName = GetFileName(taskSettings, imageData.ImageFormat.GetDescription(), img);
-            string? filePath = Path.Combine(screenshotsFolder, fileName);
-
-            if (!overwriteFile)
-            {
-                filePath = HandleExistsFile(filePath, taskSettings);
-            }
-
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                imageData.Write(filePath);
-                DebugHelper.WriteLine("Image saved to file: " + filePath);
-            }
+            filePath = HandleExistsFile(filePath, taskSettings);
         }
+
+        if (string.IsNullOrEmpty(filePath)) return;
+        imageData.Write(filePath);
+        DebugHelper.WriteLine("Image saved to file: " + filePath);
     }
     public static string? HandleExistsFile(string? filePath, TaskSettings taskSettings)
     {
-        if (File.Exists(filePath))
+        if (!File.Exists(filePath)) return filePath;
+        switch (taskSettings.ImageSettings.FileExistAction)
         {
-            switch (taskSettings.ImageSettings.FileExistAction)
-            {
-                case FileExistAction.Ask:
-                    throw new NotImplementedException("FileExistAction.Ask not implemented");
-                    break;
-                case FileExistAction.UniqueName:
-                    filePath = FileHelpers.GetUniqueFilePath(filePath);
-                    break;
-                case FileExistAction.Cancel:
-                    filePath = "";
-                    break;
-            }
+            case FileExistAction.Ask:
+                new NotImplementedException("FileExistAction.Ask not implemented").ShowError();
+                break;
+            case FileExistAction.UniqueName:
+                filePath = FileHelpers.GetUniqueFilePath(filePath);
+                break;
+            case FileExistAction.Cancel:
+                filePath = "";
+                break;
+            case FileExistAction.Overwrite:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         return filePath;
@@ -589,16 +646,16 @@ public static class TaskHelpers
         // }
     }
 
-    // public static void StartScreenRecording(ScreenRecordOutput outputType, ScreenRecordStartMethod startMethod, TaskSettings taskSettings = null)
-    // {
-    //     if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
-    //
-    //     ScreenRecordManager.StartStopRecording(outputType, startMethod, taskSettings);
-    // }
+    public static void StartScreenRecording(ScreenRecordOutput outputType, ScreenRecordStartMethod startMethod, TaskSettings taskSettings = null)
+    {
+        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
+
+        ScreenRecordManager.StartStopRecording(outputType, startMethod, taskSettings);
+    }
 
     public static void StopScreenRecording()
     {
-        // ScreenRecordManager.StopRecording();
+        ScreenRecordManager.StopRecording();
     }
 
     public static void PauseScreenRecording()
@@ -630,24 +687,72 @@ public static class TaskHelpers
     {
         try
         {
-            using (Process process = new Process())
+            using var process = new Process();
+            var exePath = Assembly.GetExecutingAssembly().Location;
+            var isWindows = OperatingSystem.IsWindows();
+            var isLinux = OperatingSystem.IsLinux();
+            var isMacOS = OperatingSystem.IsMacOS();
+            var isFreeBSD = OperatingSystem.IsFreeBSD();
+
+            ProcessStartInfo psi;
+
+            if (isWindows)
             {
-                ProcessStartInfo psi = new ProcessStartInfo()
+                psi = new ProcessStartInfo()
                 {
-                    FileName = Assembly.GetExecutingAssembly().Location,
+                    FileName = exePath,
                     Arguments = arguments,
                     UseShellExecute = true,
                     Verb = "runas"
                 };
-
-                process.StartInfo = psi;
-                process.Start();
             }
+            else if (isLinux)
+            {
+                psi = new ProcessStartInfo()
+                {
+                    FileName = "pkexec",
+                    ArgumentList = { exePath },
+                    UseShellExecute = false
+                };
+                if (!string.IsNullOrEmpty(arguments))
+                    psi.ArgumentList.Add(arguments);
+            }
+            else if (isMacOS)
+            {
+                psi = new ProcessStartInfo()
+                {
+                    FileName = "osascript",
+                    ArgumentList =
+                    {
+                        "-e", $"do shell script \"'{exePath}' {(arguments ?? "")}\" with administrator privileges"
+                    },
+                    UseShellExecute = false
+                };
+            }
+            else if (isFreeBSD)
+            {
+                psi = new ProcessStartInfo()
+                {
+                    FileName = "doas",
+                    ArgumentList = { exePath },
+                    UseShellExecute = false
+                };
+                if (!string.IsNullOrEmpty(arguments))
+                    psi.ArgumentList.Add(arguments);
+            }
+            else
+            {
+                return;
+            }
+
+            process.StartInfo = psi;
+            process.Start();
         }
         catch
         {
         }
     }
+
 
     public static void SearchImageUsingGoogleLens(string? url)
     {
@@ -720,18 +825,34 @@ public static class TaskHelpers
 #endif
         var model = GetModelForLanguage(languageCode ?? "eng");
         using var ms = new MemoryStream();
+
+        var imageConfig = Configuration.Default;
+        imageConfig.ImageFormatsManager.SetEncoder(AVIFFormat.Instance, AVIFEncoder.Instance);
+        imageConfig.ImageFormatsManager.SetDecoder(AVIFFormat.Instance, AVIFDecoder.Instance);
+        imageConfig.ImageFormatsManager.AddImageFormatDetector(new PatchedAVIFImageFormatDetector());
+
         try
         {
             if (filePath is not null && image is null)
+            {
                 image = await Image.LoadAsync(filePath);
+            }
         }
         catch (Exception ex)
         {
-            DebugHelper.Logger.Warning("Failed to load image for OCR");
+            var issue = "Failed to load image for OCR";
+            DebugHelper.Logger.Warning(issue);
             DebugHelper.WriteException(ex);
+            return issue + Environment.NewLine + ex.Message;
         }
-        if (image is null) return string.Empty;
-        await image.SaveAsPngAsync(ms);
+        if (image is null) return "SNAPX ERROR: PASSED NULL IMAGE AND NULL FILEPATH.";
+        using (image)
+        {
+            await image.SaveAsWebpAsync(ms, new WebpEncoder()
+            {
+                Method = 0
+            });
+        }
         DebugHelper.WriteLine(filePath);
 
         // macOS ARM64 does not support ONNX yet.
@@ -750,6 +871,7 @@ public static class TaskHelpers
         DebugHelper.WriteLine($"OCR image bytes: {ms.Length}");
         using var src = Cv2.ImDecode(ms.ToArray(), ImreadModes.Color);
         var result = all.Run(src);
+
         DebugHelper.WriteLine("Detected all texts: \n" + result.Text);
         foreach (var region in result.Regions)
         {
@@ -889,7 +1011,6 @@ public static class TaskHelpers
             }
             catch (Exception e)
             {
-                DebugHelper.WriteException(e);
                 e.ShowError();
             }
         }
@@ -906,7 +1027,6 @@ public static class TaskHelpers
         }
         catch (Exception e)
         {
-            DebugHelper.WriteException(e);
             e.ShowError();
         }
 
@@ -1004,33 +1124,31 @@ public static class TaskHelpers
             }
         }
     }
-    public static Image GenerateQRCode(string text, int size)
+    public static Image? GenerateQRCode(string text, int size)
     {
-        if (CheckQRCodeContent(text))
+        if (!CheckQRCodeContent(text)) return null;
+        try
         {
-            try
+            var writer = new ZXing.ImageSharp.BarcodeWriter<Rgba32>
             {
-                var writer = new ZXing.ImageSharp.BarcodeWriter<Rgba32>
+                Format = BarcodeFormat.QR_CODE,
+                Options = new QrCodeEncodingOptions
                 {
-                    Format = BarcodeFormat.QR_CODE,
-                    Options = new QrCodeEncodingOptions
-                    {
-                        Width = size,
-                        Height = size,
-                        CharacterSet = "UTF-8",
-                        PureBarcode = true,
-                        NoPadding = false,
-                        Margin = 1
-                    },
-                    Renderer = new ImageSharpRenderer<Rgba32>()
-                };
+                    Width = size,
+                    Height = size,
+                    CharacterSet = "UTF-8",
+                    PureBarcode = true,
+                    NoPadding = false,
+                    Margin = 1
+                },
+                Renderer = new ImageSharpRenderer<Rgba32>()
+            };
 
-                return writer.Write(text);
-            }
-            catch (Exception e)
-            {
-                e.ShowError();
-            }
+            return writer.Write(text);
+        }
+        catch (Exception e)
+        {
+            e.ShowError();
         }
 
         return null;

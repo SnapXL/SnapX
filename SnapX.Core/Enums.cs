@@ -440,6 +440,10 @@ public enum EImageFormat
     PNG,
     [Description("jpg")]
     JPEG,
+    [Description("webp")]
+    WEBP,
+    [Description("avif")]
+    AVIF,
     [Description("gif")]
     GIF,
     [Description("bmp")]

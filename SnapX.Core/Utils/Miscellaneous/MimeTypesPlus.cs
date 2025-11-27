@@ -15,6 +15,7 @@ public static class MimeTypesPlus
             mimeType.Equals(Mappings["gif"], StringComparison.OrdinalIgnoreCase) ||
              mimeType.Equals(Mappings["bmp"], StringComparison.OrdinalIgnoreCase) ||
             mimeType.Equals(Mappings["webp"], StringComparison.OrdinalIgnoreCase) ||
+             mimeType.Equals(Mappings["avif"], StringComparison.OrdinalIgnoreCase) ||
             mimeType.Equals(Mappings["tiff"], StringComparison.OrdinalIgnoreCase));
     }
 
@@ -67,6 +68,7 @@ public static class MimeTypesPlus
         { "atx", "application/vnd.antix.game-component" },
         { "au", "audio/basic" },
         { "avi", "video/x-msvideo" },
+        { "avif", "image/avif" },
         { "aw", "application/applixware" },
         { "azf", "application/vnd.airzip.filesecure.azf" },
         { "azs", "application/vnd.airzip.filesecure.azs" },

@@ -7,9 +7,9 @@
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Dapper.AOT</InterceptorsPreviewNamespaces>
     <PaddleOCRVersion>3.0.1</PaddleOCRVersion>
     <PaddleInferenceVersion>3.1.0.54</PaddleInferenceVersion>
-    <OpenCvSharp4Version>4.11.0.34</OpenCvSharp4Version>
+    <OpenCvSharp4Version>4.11.0.35</OpenCvSharp4Version>
     <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
-    <MSExtensionsVersion>9.0.8</MSExtensionsVersion>
+    <MSExtensionsVersion>10.0.0</MSExtensionsVersion>
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
 
@@ -33,12 +33,7 @@
     <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
   </PropertyGroup>
   <!-- Windows 11 ARM64, Musl based distributions, and FreeBSD are not supported for OCR -->
-  <PropertyGroup Condition="'$(DisableOCR)' == '1'
-  OR $(RuntimeIdentifier.Contains('freebsd'))
-  OR $(RuntimeIdentifier.Contains('browser'))
-  OR $(RuntimeIdentifier.Contains('alpine'))
-  OR $(RuntimeIdentifier.Contains('musl'))
-  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')">
+  <PropertyGroup Condition="'$(DisableOCR)' == '1'&#xA;  OR $(RuntimeIdentifier.Contains('freebsd'))&#xA;  OR $(RuntimeIdentifier.Contains('browser'))&#xA;  OR $(RuntimeIdentifier.Contains('alpine'))&#xA;  OR $(RuntimeIdentifier.Contains('musl'))&#xA;  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')">
     <DefineConstants>$(DefineConstants);DISABLE_OCR</DefineConstants>
   </PropertyGroup>
 
@@ -51,12 +46,13 @@
     <!-- Google Photos Library from Microsoft employee -->
     <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
     <!-- Privacy friendly user/feature analytics -->
-    <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.4" />
+    <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.5" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Dapper.AOT" Version="1.0.48" />
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
     <PackageReference Include="JsonPath.Net" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
     <PackageReference Include="Microsoft.Data.Sqlite" Version="$(MSExtensionsVersion)" />
     <!-- Builds are notably not provided for FreeBSD. Dynamic loading of normal system sqlite3 supported. -->
@@ -75,29 +71,34 @@
     <PackageReference Include="Sdcb.PaddleOCR" Version="$(PaddleOCRVersion)" />
     <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="$(PaddleOCRVersion)" />
     <!-- Crash forensics & performance analytics -->
-    <PackageReference Include="Sentry.Profiling" Version="5.15.0" />
+    <PackageReference Include="Sentry.Profiling" Version="5.16.2" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.InMemory" Version="2.0.0" />
     <!-- Cross platform image library -->
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="BrycensRanch.NeoSolve.ImageSharp.AVIF" Version="1.3.2" />
     <!-- Helpers for drawing -->
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
     <!-- Wayland support,
     while these are only useful for Linux,
     hiding them behind a compiler conditional makes debugging more difficult. -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
+<!--    <PackageReference Include="WaylandSharper" Version="0.1.3">-->
+<!--      <IncludeAssets>build; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
+<!--      <PrivateAssets>all</PrivateAssets>-->
+<!--    </PackageReference>-->
     <!-- As a Linux package, you should comply with XDG. This nuget package helps with that. -->
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->
-    <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.17" />
-    <PackageReference Include="FluentFTP" Version="53.0.1" />
+    <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.18" />
+    <PackageReference Include="FluentFTP" Version="53.0.2" />
     <PackageReference Include="BrycensRanch.MegaApiClient" Version="1.0.0" />
-    <PackageReference Include="SSH.NET" Version="2025.0.0" />
+    <PackageReference Include="SSH.NET" Version="2025.1.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Resources\host-manifest-chrome.json">
@@ -137,10 +138,7 @@
     <Compile Remove="SharpCapture/Windows/*.cs" />
     <Compile Remove="Utils/Native/WindowsAPI.cs" />
   </ItemGroup>
-  <Import Project="./Linux.props"
-          Condition="'$(TargetLinux)' == 'true' or '$(TargetFreeBSD)' == 'true'" />
-  <Import Project="./OSX.props"
-          Condition="'$(TargetMacOS)' == 'true'" />
-  <Import Project="./Windows.props"
-          Condition="'$(TargetWindows)' == 'true'" />
+  <Import Project="./Linux.props" Condition="'$(TargetLinux)' == 'true' or '$(TargetFreeBSD)' == 'true'" />
+  <Import Project="./OSX.props" Condition="'$(TargetMacOS)' == 'true'" />
+  <Import Project="./Windows.props" Condition="'$(TargetWindows)' == 'true'" />
 </Project>

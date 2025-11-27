@@ -25,6 +25,10 @@
             "matchDepNames": [".*[Dd]otnet.*", "*dotnet*", "Microsoft.Extensions*", "Microsoft.Data*"],
             "minimumReleaseAge": "4 days"
           },
+		  {
+			  "matchDepNames": ["dotnet-sdk"],
+			  "enabled": false
+		  },
           {
             "description": "Merge Brycen's amazing packages soon as possible",
             "matchDepNames": ["*BrycensRanch*", "WaylandSharper"],

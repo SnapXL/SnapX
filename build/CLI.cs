@@ -203,12 +203,10 @@ public class CLI
             if (libDir is not null) config.LibDir = libDir;
             if (docDir is not null) config.Docdir = docDir;
 
-            // Set skipped steps based on parsed options
             config.SetSkippedSteps(config.SkippedStepsRaw);
 
             await handler(config);
-            // await parseResult.InvokeAsync();
         });
-        return await new CommandLineConfiguration(rootCommand).InvokeAsync(args);
+        return await rootCommand.Parse(args).InvokeAsync();
     }
 }

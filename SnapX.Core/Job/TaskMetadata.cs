@@ -3,6 +3,7 @@
 
 
 using SixLabors.ImageSharp;
+using SnapX.Core.Media;
 using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Job;
@@ -49,17 +50,12 @@ public class TaskMetadata : IDisposable
     {
         Image = image;
     }
-    // This code should be removed after SnapX.Core compiles
-    public void UpdateInfo<T>(T windowInfo)
+    public void UpdateInfo(WindowInfo? windowInfo)
     {
-        // TODO: Migrate API consumers to SnapX.CommonUI
-        // if (windowInfo != null)
-        // {
-        //     WindowTitle = windowInfo.Text;
-        //     ProcessName = windowInfo.ProcessName;
-        // }
+        if (windowInfo == null) return;
+        WindowTitle = windowInfo.Title;
+        ProcessName = windowInfo.ProcessName;
     }
-
     public void Dispose()
     {
         Image?.Dispose();

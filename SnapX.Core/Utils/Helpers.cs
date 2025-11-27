@@ -109,9 +109,60 @@ public static class Helpers
     {
         try
         {
-            // Format the title and body for the issue
             var title = StripPII(ex.Message);
-            var body = StripPII($"### Exception Details:\n\n{ex.Message}\n\n### Stack Trace:\n\n```\n{ex.StackTrace}\n```\n\nInner Exception: {ex.InnerException?.Message}\n\n## Stack Trace:\n\n```\n{ex.InnerException?.StackTrace}\n```\n\nAssembly: {Assembly.GetEntryAssembly()}\n\nOperating System: {OsInfo.GetFancyOSNameAndVersion()}");
+            var innerExceptionBlock = ex.InnerException is not null ? StripPII($@"### Inner Exception: {ex.InnerException?.Message}
+
+### Stack Trace:
+
+```csharp
+{ex.InnerException?.StackTrace}
+```") : string.Empty;
+            var body = StripPII(
+                $@"### Is there an existing issue for this?
+
+- [ ] I have searched the [existing issues]({Links.GitHubIssues})
+
+### What happened?
+
+<!-- Please describe what you were doing when the error occurred -->
+
+### What did you expect?
+
+<!-- Please describe what you expected to happen instead -->
+
+### Relevant log output
+
+<!--
+LOG OUTPUT IS NOT INCLUDED BY DEFAULT FOR PRIVACY REASONS
+
+Since SnapX is in development, logs may contain sensitive information
+such as API keys, file paths, or other personally identifiable information (PII).
+
+It is your responsibility to review and strip any PII before sharing log content.
+
+If you need to include log output to help diagnose the issue, please:
+1. Check the logs in your SnapX configuration folder
+2. Carefully review and remove any sensitive information
+3. Paste the relevant portions below
+-->
+
+```shell
+
+```
+
+### Exception Details: {ex.Message}
+
+### Stack Trace:
+
+```csharp
+{ex.StackTrace}
+```
+
+{innerExceptionBlock}
+
+Assembly: {Assembly.GetEntryAssembly()}
+.NET Version: {SnapXResources.Dotnet}
+Operating System: {OsInfo.GetFancyOSNameAndVersion()}");
 
             var encodedTitle = HttpUtility.UrlEncode(title);
             var encodedBody = HttpUtility.UrlEncode(body);

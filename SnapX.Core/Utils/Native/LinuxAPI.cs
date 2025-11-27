@@ -1,5 +1,5 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
@@ -11,6 +11,7 @@ public partial class LinuxAPI : NativeAPI
 {
     private const string LibX11 = "libX11.so.6";
     const string XRandR = "libXrandr.so.2";
+    public static readonly IntPtr XA_CARDINAL = 6;
     internal static bool IsWayland()
     {
         var display = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
@@ -71,22 +72,22 @@ public partial class LinuxAPI : NativeAPI
                     if (atomNamePtr != IntPtr.Zero)
                     {
                         monitorName = Marshal.PtrToStringAnsi(atomNamePtr) ?? "Unnamed";
+#pragma warning disable CA1806
+                        XFree(atomNamePtr);
+#pragma warning restore CA1806
                     }
-
                     var name = $"Monitor_{i} ({monitorName})";
                     DebugHelper.WriteLine($"{name}: {bounds}");
 
-                    if (pos.X < bounds.X || pos.X >= bounds.X + bounds.Width ||
-                        pos.Y < bounds.Y || pos.Y >= bounds.Y + bounds.Height) continue;
-                    DebugHelper.Logger?.Debug("Point {Pos} is within monitor bounds", pos);
+                    if (!bounds.Contains(pos))
+                        continue;
+                    DebugHelper.Logger?.Debug("Point {Pos} is within monitor bounds {MonitorName}", pos, monitorName);
                     var width = monitorInfo.width;
                     var height = monitorInfo.height;
-                    var x = monitorInfo.x;
-                    var y = monitorInfo.y;
                     var mwidth = monitorInfo.mwidth;
                     var mheight = monitorInfo.mheight;
 
-                    double dpi = 0;
+                    var dpi = 96.0;
                     double diagonalInches = 0;
                     if (mwidth > 0 && mheight > 0)
                     {
@@ -94,6 +95,7 @@ public partial class LinuxAPI : NativeAPI
                         var resolutionDiagonal = Math.Sqrt(width * width + height * height);
                         dpi = resolutionDiagonal / diagonalInches;
                     }
+                    if (dpi == 0) dpi = 96.0; // X server is lying
 
                     var orientation = width >= height ? ScreenOrientation.Landscape : ScreenOrientation.Portrait;
 
@@ -102,7 +104,7 @@ public partial class LinuxAPI : NativeAPI
                         Id = $"X11_{i}",
                         Index = i,
                         Name = monitorName,
-                        Bounds = new Rectangle(x, y, width, height),
+                        Bounds = bounds,
                         DPI = dpi,
                         DiagonalSizeInches = diagonalInches,
                         Orientation = orientation,
@@ -181,10 +183,8 @@ public partial class LinuxAPI : NativeAPI
             for (uint i = 0; i < nchildren; i++)
             {
                 var window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
-                DebugHelper.Logger?.Debug("Window ptr: {Window:X0}", window);
 
                 var title = GetWindowTitle(display, window);
-                DebugHelper.Logger?.Debug("Window title: {Title}", title);
                 // if (title == string.Empty || title == "Untitled")
                 // {
                 //     DebugHelper.Logger?.Debug("Window is untitled, skipping");
@@ -194,14 +194,31 @@ public partial class LinuxAPI : NativeAPI
                 XGetWindowAttributes(display, window, out var attributes);
                 if (attributes.map_state != MapState.IsViewable)
                 {
-                    DebugHelper.Logger?.Debug("Window is not viewable, skipping: " + title);
                     continue;
                 }
 
                 if (attributes.width <= 1 || attributes.height <= 1)
                 {
-                    DebugHelper.Logger?.Debug("Window too small, skipping: " + title);
                     continue;
+                }
+                int pid = 0;
+                if (TryGetWindowPid(display, window, out int windowPid))
+                {
+                    pid = windowPid;
+                }
+
+                string processName = string.Empty;
+                if (pid > 0)
+                {
+                    try
+                    {
+                        var proc = Process.GetProcessById(pid);
+                        processName = proc.ProcessName;
+                    }
+                    catch
+                    {
+                        processName = string.Empty;
+                    }
                 }
 
                 // Active window
@@ -216,6 +233,8 @@ public partial class LinuxAPI : NativeAPI
                         IsVisible = true,
                         Rectangle = rect,
                         // IsMinimized = IsWindowMinimized(display, window),
+                        ProcessId = pid,
+                        ProcessName = processName,
                         IsActive = isActive,
                     }
                 );
@@ -226,7 +245,74 @@ public partial class LinuxAPI : NativeAPI
 
         return windows;
     }
+    /// <summary>
+    /// Attempts to read the _NET_WM_PID property of a window.
+    /// </summary>
+    private bool TryGetWindowPid(IntPtr display, IntPtr window, out int pid)
+    {
+        pid = 0;
 
+        var atomNetWmPid = XInternAtom(display, "_NET_WM_PID", false);
+
+        IntPtr prop = IntPtr.Zero;
+        IntPtr actualType;
+        int actualFormat;
+        IntPtr nItems;
+        IntPtr bytesAfter;
+
+        // The property should be XA_CARDINAL (a 32-bit unsigned integer).
+        // long_length is 1 because we expect one 32-bit value (the PID).
+        int result = XGetWindowProperty(
+            display,
+            window,
+            atomNetWmPid,
+            0,            // long_offset
+            1,            // long_length (1 CARDINAL = 4 bytes)
+            false,        // delete
+            XA_CARDINAL,  // req_type
+            out actualType,
+            out actualFormat,
+            out nItems,
+            out bytesAfter,
+            out prop);
+
+        if (result != 0)
+        {
+            DebugHelper.WriteLine("Failed to get window process id. XGetWindowProperty returned error code: {0}", result);
+            return false;
+        }
+
+        bool success = false;
+        int itemCount = (int)nItems.ToInt64();
+
+        if (itemCount > 0 && prop != IntPtr.Zero)
+        {
+
+            if (actualType == XA_CARDINAL && actualFormat == 32)
+            {
+                pid = Marshal.ReadInt32(prop);
+                DebugHelper.WriteLine("Got process id {0} for window 0x{1:X}", pid, window.ToInt64());
+                success = true;
+            }
+            else
+            {
+                DebugHelper.WriteLine("Property type or format mismatch. Expected type 0x{0:X} (XA_CARDINAL) and format 32. Got type 0x{1:X} and format {2}.",
+                                      XA_CARDINAL.ToInt64(), actualType.ToInt64(), actualFormat);
+            }
+        }
+        else
+        {
+            DebugHelper.WriteLine("XGetWindowProperty succeeded but returned no items (nItems = {0}).", itemCount);
+        }
+
+        if (prop != IntPtr.Zero)
+        {
+            XFree(prop);
+        }
+
+        DebugHelper.WriteLine("TryGetWindowPid finished. Success: {0}, PID: {1}", success, pid);
+        return success;
+    }
     [LibraryImport(LibX11, StringMarshalling = StringMarshalling.Utf16)]
     internal static partial IntPtr XOpenDisplay(string? display);
 
@@ -521,7 +607,7 @@ public partial class LinuxAPI : NativeAPI
         for (var y = 0; y < height; y++)
         {
             if (y % 100 == 0)
-                DebugHelper.Logger?.Debug($"Processing row {y}/{height}");
+                DebugHelper.Logger?.Debug("Processing row {Y}/{Height}", y, height);
 
             for (var x = 0; x < width; x++)
             {
@@ -540,7 +626,7 @@ public partial class LinuxAPI : NativeAPI
                 if ((x == 0 && y == 0) || (x == width / 2 && y == height / 2))
                 {
                     DebugHelper.Logger?.Debug(
-                        "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {BPP}",
+                        "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {Bpp}",
                         x, y,
                         BitConverter.ToString(rawPixelBytes),
                         pixel,
@@ -804,64 +890,20 @@ public partial class LinuxAPI : NativeAPI
 
     public override void CopyText(string text)
     {
-        if (IsWayland())
-        {
-            // call dbus to copy text to clipboard
-            DebugHelper.WriteLine("This code will crash SnapX on Wayland.");
-            return;
-        }
-        var display = XOpenDisplay(null);
-        if (display == IntPtr.Zero)
-        {
-            DebugHelper.Logger?.Debug("Unable to open X11 display");
-            return;
-        }
-        var root = XDefaultRootWindow(display);
-        var window = XCreateSimpleWindow(display, root, 0, 0, 1, 1, 0, 0, 0);
-        var clipboard = XInternAtom(display, "CLIPBOARD", false);
-        XSetSelectionOwner(display, clipboard, window, CurrentTime);
-        if (XGetSelectionOwner(display, clipboard) != window)
-        {
-            DebugHelper.WriteLine($"Failed to set X11 selection owner... :(");
-            return;
-        }
-        var textBytes = Encoding.UTF8.GetBytes(text);
-        var utf8 = XInternAtom(display, "UTF8_STRING", false);
-        while (true)
-        {
-            XNextEvent(display, out var ev);
-            if (ev.type != SelectionRequest)
-                continue;
-            var req = ev.xselectionrequest;
-            var response = new XEvent
-            {
-                type = SelectionNotify
-            };
-            response.xselectionrequest.display = req.display;
-            response.xselectionrequest.requestor = req.requestor;
-            response.xselectionrequest.selection = req.selection;
-            response.xselectionrequest.target = req.target;
-            response.xselectionrequest.property = req.property;
-            if (req.target == utf8 || req.target == XA_STRING)
-            {
-                XChangeProperty(
-                    display,
-                    req.requestor,
-                    req.property,
-                    req.target,
-                    8,
-                    PropModeReplace,
-                    textBytes,
-                    textBytes.Length
-                );
-            }
-            else
-            {
-                response.xselectionrequest.property = IntPtr.Zero;
-            }
-            XSendEvent(display, req.requestor, false, 0, ref response);
-            XFlush(display);
-        }
+        // if (IsWayland())
+        // {
+        //     // using var wlDisplay = WlDisplay.Connect();
+        //     // using var wlRegistry = wlDisplay.GetRegistry();
+        //     //
+        //     // wlRegistry.Global += (_, e) =>
+        //     // {
+        //     //     // DebugHelper.Logger.Debug($"{e.Name}:{e.Interface}:{e.Version}");
+        //     // };
+        //
+        //     // wlDisplay.Roundtrip();
+        //     return;
+        // }
+        X11ClipboardHandler.Instance.SetText(text);
     }
 
     public Rectangle GetScreenBounds()
@@ -959,6 +1001,10 @@ public partial class LinuxAPI : NativeAPI
     public override Point GetCursorPosition()
     {
         DebugHelper.Logger?.Debug("Get cursor position");
+        if (IsWayland())
+        {
+
+        }
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
         {
@@ -1008,12 +1054,16 @@ public partial class LinuxAPI : NativeAPI
     }
 
 
-    [DllImport(LibX11)]
-    private static extern int XGetWindowAttributes(
+    [LibraryImport(LibX11)]
+    private static partial int XGetWindowAttributes(
         IntPtr display,
         IntPtr window,
         out XWindowAttributes attributes
     );
+    [LibraryImport(LibX11)]
+    internal static partial int XPending(IntPtr display);
+    [LibraryImport(LibX11)]
+    internal static partial void XMapWindow(IntPtr display, IntPtr window);
 
     internal enum MapState
     {

@@ -51,7 +51,7 @@ public class BuildConfig
                 }
             }
             if (edition == "snapx") edition = "CLI";
-            return edition;
+            return edition ?? string.Empty;
         }
     }
 

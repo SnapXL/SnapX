@@ -1,24 +1,30 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>snapx-ui</AssemblyName>
     <AssemblyTitle>SnapX UI</AssemblyTitle>
-    <ApplicationIcon>Assets\SnapX_Icon.ico</ApplicationIcon>
-    <InvariantGlobalization>false</InvariantGlobalization>
+    <InvariantGlobalization>true</InvariantGlobalization>
     <!-- Recommended Avalonia trimming settings for Native AOT -->
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AvaloniaVersion>11.3.6</AvaloniaVersion>
-    <SkiaSharpVersion>3.119.0</SkiaSharpVersion>
-    <HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
+    <AvaloniaVersion>11.3.9</AvaloniaVersion>
+    <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
+    <HarfBuzzSharpVersion>8.3.1.2</HarfBuzzSharpVersion>
+    <VelloSharpVersion>0.5.0-alpha.3</VelloSharpVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- Packagers: Do not modify the AssemblyName, it will break the compilation of XAML that depends on it being called snapx-ui. Instead create a executable shell script that calls snapx-ui -->
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFreeBSD)' != 'true'">
+    <ApplicationIcon>Assets\SnapX_Icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetWindows)' == 'true'">
     <AvaloniaVersion>11.3.4</AvaloniaVersion>
+  </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFreeBSD)' == 'true'">
+    <AvaloniaVersion>11.3.8</AvaloniaVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetDesktop)' == 'true'">
     <PublishSingleFile>true</PublishSingleFile>
@@ -46,14 +52,13 @@
     </AvaloniaResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
+    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.4.3" />
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
     <PackageReference Condition="'$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('browser'))" Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
-
     <PackageReference Condition="!$(RuntimeIdentifier.Contains('browser'))" Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="FluentAvaloniaUI" Version="2.4.0" />
-    <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="1.1.308" />
+    <PackageReference Include="FluentAvaloniaUI" Version="2.4.1" />
+    <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="1.2.315" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
     <PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
@@ -69,9 +74,24 @@
     <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
     <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFreeBSD)' == 'true'">
+    <!-- Fork with patched X11 threading semantics -->
+    <PackageReference Remove="Avalonia.Desktop" />
+    <PackageReference Remove="Avalonia.X11" />
+    <PackageReference Include="BrycensRanch.Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="BrycensRanch.Avalonia.X11" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="VelloSharp.Avalonia.Vello" Version="$(VelloSharpVersion)" />
+    <PackageReference Include="VelloSharp.HarfBuzzSharp" Version="$(VelloSharpVersion)" />
+    <PackageReference Remove="HarfBuzzSharp" />
+    <PackageReference Remove="HarfBuzzSharp.NativeAssets.Linux" />
+    <PackageReference Remove="HarfBuzzSharp.NativeAssets.macOS" />
+    <PackageReference Remove="HarfBuzzSharp.NativeAssets.Win32" />
+    <PackageReference Remove="HarfBuzzSharp.NativeAssets.WebAssembly" />
+    <PackageReference Include="VelloSharp.Native.Vello" Version="$(VelloSharpVersion)" />
+    <PackageReference Include="BrycensRanch.VelloSharp.Native.Vello.freebsd-x64" Version="$(VelloSharpVersion)" />
+  </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\" />
     <Folder Include="Services\" />
-
   </ItemGroup>
 </Project>

@@ -39,13 +39,13 @@ public class TaskSettings
     public AfterUploadTasks AfterUploadJob { get; set; } = AfterUploadTasks.CopyURLToClipboard;
 
     public bool UseDefaultDestinations { get; set; } = true;
-    public ImageDestination ImageDestination { get; set; } = ImageDestination.CustomImageUploader;
-    public FileDestination ImageFileDestination { get; set; } = FileDestination.Dropbox;
-    public TextDestination TextDestination { get; set; } = TextDestination.Pastebin;
-    public FileDestination TextFileDestination { get; set; } = FileDestination.Dropbox;
-    public FileDestination FileDestination { get; set; } = FileDestination.Dropbox;
-    public UrlShortenerType URLShortenerDestination { get; set; } = UrlShortenerType.BITLY;
-    public URLSharingServices URLSharingServiceDestination { get; set; } = URLSharingServices.Twitter;
+    public ImageDestination ImageDestination { get; set; } = ImageDestination.Imgur;
+    public FileDestination ImageFileDestination { get; set; } = FileDestination.Mega;
+    public TextDestination TextDestination { get; set; } = TextDestination.Hastebin;
+    public FileDestination TextFileDestination { get; set; } = FileDestination.Mega;
+    public FileDestination FileDestination { get; set; } = FileDestination.Mega;
+    public UrlShortenerType URLShortenerDestination { get; set; } = UrlShortenerType.YOURLS;
+    public URLSharingServices URLSharingServiceDestination { get; set; } = URLSharingServices.Reddit;
 
     public bool OverrideFTP { get; set; } = false;
     public int FTPIndex { get; set; } = 0;

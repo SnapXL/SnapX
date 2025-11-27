@@ -15,8 +15,6 @@ public enum ImageDestination
     Photobucket,
     [Description("Google Photos")]
     Picasa,
-    [Description("X")]
-    Twitter,
     [Description("Chevereto")]
     Chevereto,
     [Description("vgy.me")]
@@ -25,21 +23,17 @@ public enum ImageDestination
     FileUploader // Localized
 }
 
-[Description("Text uploaders"), DefaultValue(Pastebin)]
+[Description("Text uploaders"), DefaultValue(Hastebin)]
 public enum TextDestination
 {
     [Description("Pastebin")]
     Pastebin,
     [Description("Paste2")]
     Paste2,
-    [Description("Slexy")]
-    Slexy,
     [Description("Paste.ee")]
     Paste_ee,
     [Description("GitHub Gist")]
     Gist,
-    [Description("uPaste")]
-    Upaste,
     [Description("Hastebin")]
     Hastebin,
     [Description("OneTimeSecret")]
@@ -50,7 +44,7 @@ public enum TextDestination
     FileUploader // Localized
 }
 
-[Description("File uploaders"), DefaultValue(Dropbox)]
+[Description("File uploaders"), DefaultValue(Mega)]
 public enum FileDestination
 {
     [Description("Dropbox")]
@@ -87,8 +81,6 @@ public enum FileDestination
     Localhostr,
     [Description("JIRA")]
     Jira,
-    [Description("Lambda")]
-    Lambda,
     [Description("Pomf")]
     Pomf,
     [Description("Uguu")]
@@ -101,8 +93,6 @@ public enum FileDestination
     Sul,
     [Description("LobFile")]
     Lithiio,
-    [Description("transfer.sh")]
-    Transfersh,
     [Description("Plik")]
     Plik,
     [Description("YouTube")]
@@ -114,19 +104,15 @@ public enum FileDestination
     CustomFileUploader // Localized
 }
 
-[Description("URL shorteners"), DefaultValue(BITLY)]
+[Description("URL shorteners"), DefaultValue(YOURLS)]
 public enum UrlShortenerType
 {
-    [Description("bit.ly")]
-    BITLY,
     [Description("is.gd")]
     ISGD,
     [Description("v.gd")]
     VGD,
     [Description("tinyurl.com")]
     TINYURL,
-    [Description("turl.ca")]
-    TURL,
     [Description("yourls.org")]
     YOURLS,
     [Description("qr.net")]
@@ -146,12 +132,10 @@ public enum UrlShortenerType
     CustomURLShortener // Localized
 }
 
-[Description("URL sharing services"), DefaultValue(Twitter)]
+[Description("URL sharing services"), DefaultValue(Reddit)]
 public enum URLSharingServices
 {
     Email, // Localized
-    [Description("X")]
-    Twitter,
     [Description("Facebook")]
     Facebook,
     [Description("Reddit")]

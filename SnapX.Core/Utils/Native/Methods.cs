@@ -85,13 +85,17 @@ public static class Methods
     public static Rectangle GetWindowRectangle(IntPtr windowHandle = 0) =>
         NativeAPI.GetWindowRectangle(windowHandle);
 
-    public static WindowInfo GetForegroundWindow()
+    public static WindowInfo? GetForegroundWindow()
     {
-        // TODO: Reimplement GetForegroundWindow
-        return new WindowInfo();
+        var windows = NativeAPI.GetWindowList();
+
+        // Find the window marked as active/foreground
+        var activeWindow = windows.FirstOrDefault(w => w.IsActive);
+
+        return activeWindow;
     }
 
-    // Linux (Wayland): Use DBus to interact with the Wayland compositor
+    // TODO: Linux (Wayland): Use DBus to interact with the Wayland compositor
     private static Rectangle GetWindowRectangleWayland(IntPtr windowHandle)
     {
         // In practice, Wayland doesn't expose direct window information as X11 does.
@@ -100,7 +104,7 @@ public static class Methods
         // For this example, we leave it unimplemented or you could integrate with dbus library.
         throw new NotImplementedException("Wayland window retrieval is not implemented.");
     }
-
+    // TODO: Implement GetWindowRectangleMacOS
     private static Rectangle GetWindowRectangleMacOS(IntPtr windowHandle)
     {
         throw new NotImplementedException("MacOS window retrieval is not implemented.");

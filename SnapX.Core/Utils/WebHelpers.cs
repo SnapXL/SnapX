@@ -98,30 +98,35 @@ public static class WebHelpers
     public static async Task<Image?> DownloadImageAsync(string? url)
     {
         if (string.IsNullOrEmpty(url)) return null;
-
-        var client = HttpClientFactory.Get();
-
-        using var responseMessage = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-
-        if (!responseMessage.IsSuccessStatusCode)
-        {
-            DebugHelper.Logger.Error("{url}: {responseMessage.ReasonPhrase}", url, responseMessage);
-            return null;
-        }
-
-        var mediaType = responseMessage.Content.Headers.ContentType?.MediaType;
-        if (mediaType == null)
-        {
-            DebugHelper.Logger.Error("{url}: mediaType is null.", url);
-            return null;
-        }
-        if (!MimeTypesPlus.IsImageMimeType(mediaType))
-            return null;
-
-        var data = await responseMessage.Content.ReadAsByteArrayAsync();
-
         try
         {
+
+            var client = HttpClientFactory.Get();
+
+            using var responseMessage = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                DebugHelper.Logger.Error("{url}: {responseMessage.ReasonPhrase}", url, responseMessage);
+                return null;
+            }
+
+
+            var mediaType = responseMessage.Content.Headers.ContentType?.MediaType;
+            if (mediaType == null)
+            {
+                DebugHelper.Logger.Error("{url}: mediaType is null.", url);
+                return null;
+            }
+
+            if (!MimeTypesPlus.IsImageMimeType(mediaType))
+            {
+                DebugHelper.Logger.Error("{url}: mediaType/Mimetype is not a known image type.", url);
+                return null;
+            }
+
+            var data = await responseMessage.Content.ReadAsByteArrayAsync();
+
             using var memoryStream = new MemoryStream(data);
             return await Image.LoadAsync(memoryStream);
         }

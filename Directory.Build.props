@@ -1,6 +1,6 @@
 ﻿<Project>
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Condition="!Exists('packages.config')" Version="6.4.0" PrivateAssets="all"/>
+    <PackageReference Include="GitVersion.MsBuild" Condition="!Exists('packages.config')" Version="6.5.0" PrivateAssets="all"/>
   </ItemGroup>
   <PropertyGroup>
     <Company>BrycensRanch and ShareX Team</Company>
@@ -43,6 +43,7 @@
             or $(RuntimeIdentifier.Contains('debian'))
             or $(RuntimeIdentifier.Contains('fedora'))
             or $(RuntimeIdentifier.Contains('alpine'))
+            or $(RuntimeIdentifier.Contains('arch'))
             or $(RuntimeIdentifier.Contains('rhel'))
             or $(RuntimeIdentifier.Contains('centos'))
             or $(RuntimeIdentifier.Contains('opensuse'))
@@ -79,13 +80,18 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="
-    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'false' and
-        $([System.String]::Copy($(RuntimeIdentifier)).StartsWith('freebsd')))
-    or
-    ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'true' and
-        $([MSBuild]::IsOSPlatform('FreeBSD')))
+    (
+        ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'false' and
+            $([System.String]::Copy($(RuntimeIdentifier)).StartsWith('freebsd')))
+        or
+        ('$([System.String]::IsNullOrEmpty($(RuntimeIdentifier)))' == 'true' and
+            $([MSBuild]::IsOSPlatform('FreeBSD')))
+        or
+        ('$(SNAPX_PRETEND_FREEBSD)' == '1')
+    )
 ">
     <TargetFreeBSD>true</TargetFreeBSD>
+    <DefineConstants>$(DefineConstants);FREEBSD</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetWindows)' == 'true' and ( '$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe' )">
     <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>

@@ -1,58 +1,98 @@
 id: io.github.SnapXL.SnapX
 runtime: org.freedesktop.Platform
-runtime-version: "24.08"
+runtime-version: "25.08"
 sdk: org.freedesktop.Sdk
 command: snapx-ui
 
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.dotnet9
-  - org.freedesktop.Sdk.Extension.llvm20
-build-options:
+  - org.freedesktop.Sdk.Extension.llvm21
 
-  build-args:
-
-    - --share=network
 finish-args:
-#  - --socket=wayland # Avalonia Wayland support is coming within few months
-  - --socket=x11 # should turn into fallback-x11 when Avalonia wayland comes
+  - --socket=wayland # Avalonia Wayland support is coming within a few months, without this socket, screenshotting on Wayland fails even though the app runs in X11.
+  - --socket=x11
   - --socket=pulseaudio # SnapX plays sounds on upload
-  - --socket=session-bus # TODO: Despite giving Avalonia it's needed access to create a tray item, it crashes on launch without this.
   - --device=dri # GPU support
   - --share=ipc
   - --share=network
   - --talk-name=com.canonical.AppMenu
   - --talk-name=com.canonical.dbusmenu
   - --talk-name=org.freedesktop.Notifications # Native notfications support
-  - --talk-name=org.freedesktop.secrets
-  - --talk-name=org.kde.kwalletd5 # OS Secret support
+#  - --talk-name=org.freedesktop.secrets
+  - --talk-name=org.freedesktop.portal.Desktop
+#  - --talk-name=org.kde.kwalletd5 # OS Secret support
   - --talk-name=org.kde.StatusNotifierWatcher
+  - --own-name=org.kde.* # Avalonia's Tray implementation is old, it seems? Without this, the app immediately crashes!
   - --talk-name=org.kde.StatusNotifierItem
-  - --filesystem=xdg-run/keyring # OS Secret support
-
+#  - --filesystem=xdg-run/keyring # OS Secret support
 modules:
   - name: snapx-ui
     buildsystem: simple
     build-options:
-      append-path: /usr/lib/sdk/dotnet9/bin:/usr/lib/sdk/llvm20/bin
+      append-path: /usr/lib/sdk/dotnet9/bin:/usr/lib/sdk/llvm21/bin
       append-ld-library-path: /usr/lib/sdk/dotnet9/lib
-      prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
+      prepend-ld-library-path: /usr/lib/sdk/llvm21/lib
       prepend-pkg-config-path: /usr/lib/sdk/dotnet9/lib/pkgconfig
-      arch:
-        aarch64:
-          env:
-            RUNTIME: linux-arm64
-        x86_64:
-          env:
-            RUNTIME: linux-x64
       env:
         PKGTYPE: FLATPAK
     build-commands:
-      - ./build.sh install --no-color --no-extended-chars --prefix /app
+      - rm global.json || true
+      - dotnet restore build -p:RestorePackagesPath=vendor --ignore-failed-sources --source vendor
+      - dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="--source vendor --ignore-failed-sources"
+      - rm ${FLATPAK_DEST}/bin/snapx ${FLATPAK_DEST}/lib/snapx/snapx # Remove duplicate CLI, available in snapx-ui binary already.
     sources:
-#      - type: archive
-#        url: https://nightly.link/SnapXL/SnapX/actions/runs/16850790271/SnapX-Vendored-Source-X64.zip
-#        sha256: 6b17ec11350bb09e609485a537fa71e8de08f2643f9c3757f9aef18f41845e0a
-#        strip-components: 0
+      - type: dir
+        path: ../..
+      - sources.json
+      - build-sources.json
+  # XRandr is a required dependency.
+  - name: xrandr
+    sources:
+      - type: archive
+        sha256: 980befa14b48de2fa74dc07bbb22f746acfd12e1f9dbd539eab9a3c9b434d667
+        url: https://www.x.org/archive/individual/app/xrandr-1.5.3.tar.gz
+  - name: glxinfo
+    buildsystem: meson
+    config-opts:
+      - --bindir=/app/mesa-demos
+      - -Degl=disabled
+      - -Dglut=disabled
+      - -Dosmesa=disabled
+      - -Dvulkan=disabled
+      - -Dwayland=disabled
+    post-install:
+      - mv -v /app/mesa-demos/glxinfo /app/bin
+    sources:
+      - type: archive
+        url: https://archive.mesa3d.org/demos/mesa-demos-9.0.0.tar.xz
+        sha256: 3046a3d26a7b051af7ebdd257a5f23bfeb160cad6ed952329cdff1e9f1ed496b
+        x-checker-data:
+          type: anitya
+          project-id: 16781
+          stable-only: true
+          url-template: https://archive.mesa3d.org/demos/mesa-demos-$version.tar.xz
+    cleanup:
+      - /include
+      - /mesa-demos
+      - /share
+    modules:
+      - name: glu
+        buildsystem: meson
+        sources:
+          - type: archive
+            url: https://archive.mesa3d.org/glu/glu-9.0.3.tar.xz
+            sha256: bd43fe12f374b1192eb15fe21e45ff456b9bc26ab57f0eee919f96ca0f8a330f
+        cleanup:
+          - "/include"
+          - "/lib/*.a"
+          - "/lib/*.la"
+          - "/lib/pkgconfig"
+
+  # TLS 1.3 support
+  - name: msquic
+    buildsystem: cmake
+    builddir: true
+    sources:
       - type: git
-        url: https://github.com/SnapXL/SnapX.git
-        branch: develop
+        url: https://github.com/microsoft/msquic.git
+        tag: v2.5.5

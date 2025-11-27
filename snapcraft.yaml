@@ -1,5 +1,8 @@
 title: SnapX
-name: snapx-ui
+# Snapcraft forced me to change the name of the package because they believe they own the word snap.
+# More specifically, when a package starts with those four letters.
+# I surely hope this package rename won't confuse users.
+name: ui-snapx
 summary: Screenshot tool that handles images, text, and video (fork of ShareX)
 description: |
   SnapX is a free, open-source, cross-platform tool that lets you capture or record any area of your screen and instantly share it with a single keypress.
@@ -12,7 +15,7 @@ description: |
 version: '0.4.0'
 license: GPL-3.0-or-later
 source-code: "https://github.com/SnapXL/SnapX"
-adopt-info: snapx-ui
+adopt-info: ui-snapx
 grade: devel
 base: core24
 confinement: strict
@@ -21,11 +24,11 @@ contact: "brycengranville+snapcraft.snapx@outlook.com"
 issues: "https://github.com/SnapXL/SnapX/issues"
 icon: "./packaging/usr/share/icons/256x256/apps/io.github.SnapXL.SnapX.png"
 donation:
-  - https://ko-fi.com/BrycensRanch
   - https://liberapay.com/BrycensRanch
+  - https://ko-fi.com/BrycensRanch
   - https://github.com/sponsors/BrycensRanch
 # By default, snaps have an epoch of ‘0’. When a new version breaks data compatibility with this old version, incrementing the epoch in the new release stops those old users automatically refreshing to the new version.
-epoch: 0
+epoch: "0"
 
 assumes:
   - snapd2.39
@@ -43,20 +46,23 @@ platforms:
     build-on: [armhf]
     build-for: [armhf]
 
+# for screen capture & sounds
+plugs:
+  ffmpeg-2404:
+    interface: content
+    target: ffmpeg-platform
+    default-provider: ffmpeg-2404
 
 apps:
-  snapx:
-    extensions: [gnome]
-    command: usr/lib/snapx/snapx
-    plugs:
-      - network
-      - browser-native-messaging
-  snapx-ui:
+  ui-snapx:
     # Avalonia uses GNOME for some of its stuff. We just really need the base libraries.
     extensions: [gnome]
     command: usr/lib/snapx/snapx-ui
     # Snap has a issue detecting our icons and thus produces an error. Working on it.
     desktop: usr/share/applications/io.github.SnapXL.SnapX.desktop
+    environment:
+      LD_LIBRARY_PATH: $SNAP/ffmpeg-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$LD_LIBRARY_PATH
+      PATH: $SNAP/ffmpeg-platform/usr/bin:$SNAP/bin:$PATH
     plugs:
       - network
       - alsa
@@ -66,45 +72,40 @@ apps:
       - audio-record # FFmpeg Screen Capture is coming soon
       - desktop
       - media-control # FFmpeg Screen Capture
-      - browser-native-messaging
-plugs:
-  browser-native-messaging:
-    interface: personal-files
-    write:
-      - $HOME/.mozilla/native-messaging-hosts/host-manifest-firefox.json
-      - $HOME/.config/chromium/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.config/google-chrome/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.config/microsoft-edge/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.config/vivaldi/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/host-manifest-chrome.json
-      - $HOME/.local/share/torbrowser/tbb/x86_64/tor-browser_en-US/Browser/TorBrowser/Data/Browser/.mozilla/native-messaging-hosts/host-manifest-firefox.json
-
-package-repositories:
-  - type: apt
-    ppa: ubuntuhandbook1/ffmpeg7
+#      - browser-native-messaging Super privileged interface
+#plugs:
+#  browser-native-messaging:
+#    interface: personal-files
+#    write:
+#      - $HOME/.mozilla/native-messaging-hosts/host-manifest-firefox.json
+#      - $HOME/.config/chromium/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.config/google-chrome/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.config/microsoft-edge/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.config/vivaldi/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/host-manifest-chrome.json
+#      - $HOME/.local/share/torbrowser/tbb/x86_64/tor-browser_en-US/Browser/TorBrowser/Data/Browser/.mozilla/native-messaging-hosts/host-manifest-firefox.json
 
 parts:
-  snapx-ui:
+  ui-snapx:
     parse-info: [usr/share/metainfo/io.github.SnapXL.SnapX.metainfo.xml]
     plugin: nil
     override-build: |
       ./build.sh install --no-color --no-extended-chars --prefix /usr --dest-dir $SNAPCRAFT_PART_INSTALL
-    build-snaps: [dotnet-sdk-90/latest/stable]
+      rm $SNAPCRAFT_PART_INSTALL/usr/bin/snapx $SNAPCRAFT_PART_INSTALL/usr/lib/snapx/snapx
     build-packages:
       - git
       - clang
       - zlib1g-dev
       - libsm6
+      - ca-certificates
+      - libicu74
     build-environment:
       - PKGTYPE: SNAP
     stage-packages:
       - x11-xserver-utils  # for `xrandr`
       - pciutils           # for `lspci`
-      - mesa-utils         # for `glxinfo`
-      - ffmpeg             # for screen capture & sounds
-                           # I acknowledge ffplay probably is broken, it has a million and one dependencies.
-    source: https://github.com/SnapXL/SnapX
-    source-type: git
+      - mesa-utils         # for `glxinfo
+    source: .
     override-pull: |
       craftctl default
       version=$(./build.sh --version | tail -n1)
@@ -114,6 +115,13 @@ parts:
 
       # Set the version with truncation. Good luck everyone else! :)
       snapcraftctl set-version "$truncated_version"
+  # TLS 1.3 support
+  msquic:
+    plugin: cmake
+    source-type: git
+    source: https://github.com/microsoft/msquic.git
+    source-tag: v2.5.5
+    cmake-parameters: [-DCMAKE_INSTALL_PREFIX=/usr]
 lint:
   ignore:
     - library:
@@ -124,4 +132,4 @@ lint:
         - usr/lib/*/libicutu.so.*
         - usr/lib/*/libxcb-glx.so.*
         - usr/lib/*/libxcb-shm.so.*
-        - usr/lib/*libicui18n.so.*
+        - usr/lib/*/libmsquic.so.*

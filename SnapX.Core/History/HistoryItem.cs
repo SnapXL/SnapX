@@ -75,7 +75,7 @@ public class HistoryItem
             if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
                 return FilePath;
 
-            return URL ?? ThumbnailURL;
+            return ThumbnailURL ?? URL;
         }
     }
 

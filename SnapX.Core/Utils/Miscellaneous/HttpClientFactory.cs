@@ -3,6 +3,7 @@
 
 
 using System.Net;
+using System.Net.Http.Handlers;
 using System.Net.Http.Headers;
 using System.Security.Authentication;
 
@@ -26,13 +27,15 @@ public static class HttpClientFactory
             Proxy = HelpersOptions.CurrentProxy.GetWebProxy(),
         };
 
-        if (SnapX.Settings.AcceptInvalidSSLCertificates)
+        if (SnapX.Settings?.AcceptInvalidSSLCertificates ?? false)
         {
             clientHandler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => true;
         }
 
         return clientHandler;
     }
+
+    public static ProgressMessageHandler? _ph = null;
     // Using Lazy<T> to handle thread-safe initialization of the HttpClient
     private static Lazy<HttpClient> _lazyClient = new(() =>
     {
@@ -43,7 +46,9 @@ public static class HttpClientFactory
         var loggingHandler = new LoggingHttpMessageHandler(Handler, DebugHelper.Logger);
         handler = loggingHandler;
 #endif
-        var httpClient = new HttpClient(handler);
+        var ph = new ProgressMessageHandler(handler);
+        _ph = ph;
+        var httpClient = new HttpClient(ph);
         httpClient.DefaultRequestVersion = HttpVersion.Version30;
         httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(SnapXResources.UserAgent);

@@ -73,7 +73,6 @@ public partial class App : Application
 
     private void ShowErrorDialog(string? title, Exception ex)
     {
-        // Create the dialog content with a button
         var stackPanel = new StackPanel
         {
             Orientation = Orientation.Vertical,
@@ -139,7 +138,7 @@ public partial class App : Application
             FontWeight = FontWeight.Bold,
             CornerRadius = new CornerRadius(5)
         };
-        reportButton.Click += (sender, e) => OnReportErrorClicked();
+        reportButton.Click += (sender, e) => OnReportErrorClicked(reportButton, ex);
 
         var githubButton = new Button
         {
@@ -173,8 +172,7 @@ public partial class App : Application
             CornerRadius = new CornerRadius(5)
         };
 
-        // Copy error to clipboard when clicked
-        copyButton.Click += (sender, e) => CopyErrorToClipboard(ex.ToString());
+        copyButton.Click += (sender, e) => CopyErrorToClipboard(copyButton, ex.ToString());
 
 
         buttonPanel.Children.Add(reportButton);
@@ -208,18 +206,61 @@ public partial class App : Application
         URLHelpers.OpenURL(newIssueURL);
     }
 
-    private void CopyErrorToClipboard(string? errorMessage)
+    private void CopyErrorToClipboard(Control Sender, string? errorMessage)
     {
-        Clipboard.CopyText(errorMessage);
+        var topLevel = TopLevel.GetTopLevel(Sender);
+        if (topLevel is null)
+        {
+            DebugHelper.WriteLine("TopLevel is null");
+            return;
+        }
+        topLevel.Clipboard?.SetTextAsync(errorMessage);
     }
 
-    private void OnReportErrorClicked()
+    private async void OnReportErrorClicked(Button button, Exception ex)
     {
-        // For now, do nothing when the button is clicked
-        // This is where Sentry comes in
-        Console.WriteLine("Report Error button clicked. No action yet. If you have telemetry enabled, (it is by default) it will have already been sent to Sentry.");
-    }
+        var originalButtonContent = CreateContentCopy(button.Content!);
 
+        try
+        {
+            if (!FeatureFlags.DisableTelemetry && Core.SnapX.TelemetryHandler is null)
+            {
+                Core.SnapX.InitTelemetryServices();
+                SentrySdk.CaptureException(ex);
+
+                DebugHelper.WriteLine("Error reported to Sentry successfully.");
+            }
+            else
+            {
+                DebugHelper.WriteLine("Error has likely already been sent to Sentry as telemetry is not disabled! :heart:");
+            }
+
+            button.Content = "✓ Reported";
+            button.IsEnabled = false;
+
+            await Task.Delay(TimeSpan.FromSeconds(3));
+        }
+        catch (Exception taskEx)
+        {
+            DebugHelper.WriteLine($"Error during exception reporting: {taskEx.Message}");
+        }
+        finally
+        {
+            button.Content = originalButtonContent;
+        }
+    }
+    private object CreateContentCopy(object content)
+    {
+        if (content == null)
+            return null;
+
+        return content switch
+        {
+            string str => new string(str.ToCharArray()),
+            ICloneable cloneable => cloneable.Clone(),
+            _ => content // For other types, we have to hope they're immutable
+        };
+    }
     private void Shutdown()
     {
         try
@@ -316,7 +357,7 @@ public partial class App : Application
                     DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
 
                     var logoBitmap = new Bitmap(AssetLoader.Open(new Uri("avares://snapx-ui/SnapX_Logo.png")));
-                    if (SnapX.GetConfiguration().ShowTray)
+                    if (!OperatingSystem.IsFreeBSD() && SnapX.GetConfiguration().ShowTray)
                     {
                         var trayIcon = new TrayIcon
                         {
@@ -401,17 +442,19 @@ public partial class App : Application
 
                             foreach (var (screen, i) in screens!.Select((s, idx) => (s, idx)))
                             {
-                                var item = new NativeMenuItem($"{i}: {screen.Name} {screen.Resolution} ({screen.Position})");
+                                var item = new NativeMenuItem($"{i}: {screen.Name} {screen.Resolution} (X: {screen.Position?.X ?? 0}, Y: {screen.Position?.Y ?? 0})");
                                 item.Click += (s, ev) =>
                                 {
                                     Task.Factory.StartNew(() =>
                                     {
-                                        var capturedImage = Methods.CaptureScreen(ParsePosition(screen.Position))
+                                        var capturedImage = Methods.CaptureScreen(screen.Position ?? Point.Empty)
                                             .ConfigureAwait(false)
                                             .GetAwaiter()
                                             .GetResult();
 
-                                        UploadManager.RunImageTask(capturedImage, TaskSettings.GetDefaultTaskSettings());
+                                        if (capturedImage != null)
+                                            UploadManager.RunImageTask(capturedImage,
+                                                TaskSettings.GetDefaultTaskSettings());
                                     }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
                                 };
                                 menu.Items.Add(item);
@@ -429,18 +472,65 @@ public partial class App : Application
                         // capture.Menu.Items.Add(new NativeMenuItem("Region (Light)"));
                         // capture.Menu.Items.Add(new NativeMenuItem("Region (Transparent)"));
                         menu.Items.Add(capture);
+                        var uploadFile = new NativeMenuItem("Upload File...");
+                        uploadFile.Click += (_, _) =>
+                        {
+                            Core.SnapX.EventAggregator.Publish(new NeedFileOpenerEvent()
+                            {
+                                Title = "SnapX | Upload File",
+                                Multiselect = true
+                            });
+                        };
+                        var uploadFolder = new NativeMenuItem("Upload Folder...");
+                        uploadFolder.Click += (_, _) =>
+                        {
+                            Core.SnapX.EventAggregator.Publish(new NeedFileOpenerEvent()
+                            {
+                                Title = "SnapX | Upload Folder",
+                                Multiselect = false,
+                                FolderPicker = true
+                            });
+                        };
+                        var uploadText = new NativeMenuItem("Upload text...");
+                        uploadText.Click += (_, _) =>
+                        {
+                            var textBoxWindow = new Window();
+                            textBoxWindow.Title = "SnapX | Upload Text";
+                            var stackPanel = new StackPanel();
+                            stackPanel.Margin = new Thickness(10);
+                            textBoxWindow.Content = stackPanel;
+                            var textBox = new TextBox();
+                            textBox.MaxWidth = 450;
+                            textBox.TextWrapping = TextWrapping.Wrap;
+                            textBox.MinHeight = 150;
+                            stackPanel.Children.Add(textBox);
+                            var uploadButton = new Button();
+                            uploadButton.Content = "Upload";
+                            uploadButton.VerticalAlignment = VerticalAlignment.Bottom;
 
+                            uploadButton.Click += (_, _) =>
+                            {
+                                UploadManager.UploadText(textBox.Text);
+                                textBoxWindow.Close();
+                            };
+                            stackPanel.Children.Add(uploadButton);
+                            var cancelButton = new Button();
+                            cancelButton.Content = "Cancel";
+                            cancelButton.VerticalAlignment = VerticalAlignment.Bottom;
+                            cancelButton.Click += (_, _) => textBoxWindow.Close();
+                            stackPanel.Children.Add(cancelButton);
+
+                            textBoxWindow.Width = 500;
+                            textBoxWindow.Height = 800;
+                            textBoxWindow.Show();
+                        };
+                        // new NativeMenuItem("Upload from clipboard..."),
+                        var shortenURL = new NativeMenuItem("Shorten URL...");
                         menu.Items.Add(new NativeMenuItem("Upload")
                         {
                             Menu = new NativeMenu
                             {
-                                new NativeMenuItem("Upload File..."),
-                                new NativeMenuItem("Upload Folder..."),
-                                new NativeMenuItem("Upload from clipboard..."),
-                                new NativeMenuItem("Upload text..."),
-                                new NativeMenuItem("Drag and drop upload..."),
-                                new NativeMenuItem("Shorten URL..."),
-                                new NativeMenuItem("Tweet message...")
+                                uploadFile,uploadFolder,uploadText,shortenURL
                             }
                         });
                         var captureFullscreenMenuItem = new NativeMenuItem(Lang.UI_Capture_Fullscreen);
@@ -605,52 +695,12 @@ public partial class App : Application
     {
         NativeMenuAboutSnapXClick(Sender, E);
     }
-    public static Point ParsePosition(string position)
-    {
-        if (string.IsNullOrWhiteSpace(position))
-            return new Point(0, 0);
-
-        try
-        {
-            // Expected format: "X: 0, Y: 0"
-            var parts = position.Split(',');
-            int x = 0, y = 0;
-
-            foreach (var part in parts)
-            {
-                var kv = part.Split(':');
-                if (kv.Length != 2) continue;
-
-                var key = kv[0].Trim().ToUpperInvariant();
-                var value = int.Parse(kv[1].Trim());
-
-                switch (key)
-                {
-                    case "X":
-                        x = value;
-                        break;
-                    case "Y":
-                        y = value;
-                        break;
-                }
-            }
-
-            return new Point(x, y);
-        }
-        catch
-        {
-            return new Point(0, 0); // fallback if parsing fails
-        }
-    }
     private async void NativeMenuItem_Capture_Fullscreen_OnClick(object? Sender, EventArgs E)
     {
         await Task.Factory.StartNew(
             () =>
             {
-                UploadManager.RunImageTask(
-                    TaskHelpers.GetScreenshot().CaptureFullscreen(),
-                    TaskSettings.GetDefaultTaskSettings()
-                );
+                new CaptureFullscreen().Capture();
             },
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
@@ -663,7 +713,7 @@ public partial class App : Application
         await Task.Factory.StartNew(
             () =>
             {
-                new CaptureActiveMonitor().Capture(TaskSettings.GetDefaultTaskSettings());
+                new CaptureActiveMonitor().Capture();
             },
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
@@ -676,7 +726,7 @@ public partial class App : Application
         await Task.Factory.StartNew(
             () =>
             {
-                new CaptureActiveWindow().Capture(TaskSettings.GetDefaultTaskSettings());
+                new CaptureActiveWindow().Capture();
             },
             CancellationToken.None,
             TaskCreationOptions.LongRunning,

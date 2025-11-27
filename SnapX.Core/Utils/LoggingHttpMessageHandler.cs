@@ -10,17 +10,64 @@ public class LoggingHttpMessageHandler(HttpMessageHandler InnerHandler, ILogger 
     {
         try
         {
-            var requestHeaderString = "{\n" + string.Join(",\n", request.Headers.Select(h =>
-                $"  \"{h.Key}\": \"{string.Join("; ", h.Value)}\"")) + "\n}";
+            var requestHeaderString = "{" + Environment.NewLine
+                                          + string.Join(Environment.NewLine,
+                                              request.Headers.Select(h =>
+                                                  $"  {h.Key}: {string.Join("; ", h.Value)}"))
+                                          + Environment.NewLine + "}";
 
             Logger.Debug("Sending HTTP Request: {Method} {Uri} {Headers}",
                 request.Method, request.RequestUri, requestHeaderString);
+            if (request.Content != null)
+            {
+                if (request.Content is MultipartFormDataContent multipart)
+                {
+                    Logger.Debug("Request Content is multipart/form-data with {Count} parts", multipart.Count());
+
+                    foreach (var part in multipart)
+                    {
+                        var partHeaders = string.Join(", ", part.Headers.Select(h => $"{h.Key}: {string.Join("; ", h.Value)}"));
+                        var partDescription = $"Headers: {partHeaders}";
+
+                        switch (part)
+                        {
+                            case StringContent:
+                                partDescription += ", Type: StringContent";
+                                break;
+                            case ByteArrayContent:
+                            case StreamContent:
+                                {
+                                    var fileName = part.Headers.ContentDisposition?.FileName?.Trim('"') ?? "[unknown]";
+                                    var name = part.Headers.ContentDisposition?.Name?.Trim('"') ?? "[unknown]";
+                                    var mediaType = part.Headers.ContentType?.MediaType ?? "[unknown]";
+                                    partDescription += $", Name: {name}, FileName: {fileName}, MediaType: {mediaType}";
+                                    break;
+                                }
+                        }
+
+                        Logger.Debug("Multipart part: {Description}", partDescription);
+                    }
+                }
+                else
+                {
+                    var requestContentType = request.Content.Headers.ContentType?.MediaType;
+                    var requestContentLength = request.Content.Headers.ContentLength ?? 0;
+                    Logger.Debug("Request Content: Type={ContentType}, Size={Size:N2} KiB", requestContentType, requestContentLength / 1024.0);
+                }
+            }
+            else
+            {
+                Logger.Debug("Request has no content");
+            }
             var response = await base.SendAsync(request, cancellationToken);
 
             Logger.Debug("Received HTTP Response: {StatusCode} for {Method} {Uri} (HTTP {Version})",
                 response.StatusCode, request.Method, request.RequestUri, response.Version);
-            var headerString = "{\n" + string.Join(",\n", response.Headers.Select(h =>
-                $"  \"{h.Key}\": \"{string.Join("; ", h.Value)}\"")) + "\n}";
+            var headerString = "{" + Environment.NewLine
+                                   + string.Join(Environment.NewLine,
+                                       response.Headers.Select(h =>
+                                           $"  {h.Key}: {string.Join("; ", h.Value)}"))
+                                   + Environment.NewLine + "}";
             Logger.Debug("Response Headers: {Headers}", headerString);
 
             var contentType = response.Content.Headers.ContentType?.MediaType;
@@ -38,7 +85,7 @@ public class LoggingHttpMessageHandler(HttpMessageHandler InnerHandler, ILogger 
             {
                 var contentLength = response.Content.Headers.ContentLength;
                 var sizeMiB = (contentLength ?? 0) / (1024.0 * 1024.0);
-                Logger.Debug("Response body is binary (Content-Type: {ContentType}, Size: {Size:N2} MiB), skipping body logging.",
+                Logger.Debug("Response body is binary (Content-Type: {ContentType}, Size: {Size:N2} MiB), skipping body logging",
                     contentType,
                     sizeMiB);
             }

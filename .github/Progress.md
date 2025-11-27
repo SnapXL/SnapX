@@ -10,7 +10,7 @@
 - [x] Package PaddleOCR for Linux properly.
 - [ ] Add charts for statistics like uploading, avg image size, most used image extension, and error rate for uploading
 - [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation.
-- [ ] Package for all major distributions besides NixOS. This means: Fedora, Ubuntu, Snap, AppImages, .run, Arch Linux, and Debian if they're lucky...
+- [ ] Package for popular technologies (Flatpak, RPM (Fedora/OpenSUSE), Snap, Homebrew)
 - [ ] Expose the entire Core in UI (Avalonia) (Missing direct upload function & drag and drop)
 - [x] Add telemetry & Aptabase is a work in progress, PR pending https://github.com/aptabase/aptabase-maui/pull/12
 - [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp)
@@ -18,18 +18,18 @@
 - [ ] Integrate with Windows Share https://discussions.unity.com/t/calling-windows-shareui-dialog-from-unity-on-windows-10-11-on-non-uwp-build-target/1586504
 - [ ] Add to Microsoft Store
 - [ ] Add to Winget, Chocolately, and Scoop
-- [X] [Add to COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
 - [x] [Add to Homebrew](https://github.com/BrycensRanch/homebrew-repo)
 - [ ] Make a v1.0.0 release date ETA that aligns with a ShareX release date ie (a day after a new major version)
 - [ ] Add to Itch.io
 - [x] [Add to AUR (see PR #56 for the initial PKGBUILD)](https://aur.archlinux.org/packages/snapx-ui)
+- [ ] Ensure RPM uses correct source tarball when building on GitHub Actions. Currently, it always uses the latest develop branch.
 - [ ] Add to FOSS Torrents
 - [ ] Add to PortableApps.com
-- [ ] Add to AppImageHub
 - [ ] Add [Jump list](https://github.com/ShareX/ShareX/issues/1106#issuecomment-596048694)
 - [ ] Rework settings. Making it fit in with the WinUI style.
 - [ ] Add database viewer as an built in SQLite database viewer that is able to complete operations like mass path replacement ie `C:\Users/Brycen` -> `/home/brycen`
 - [ ] Make CLI UNIX friendly while keeping ShareX's CLI valid. The CLI should be able to print its usage and autocomplete.
+- [ ] Add first tool, the FFMPEG 100MB video transcoder
 - [ ] Port `go-keyring` to C# (Needed for not saving auth creds in plaintext, big no no )
 - [ ] Search for missing files button in main window and locate missing file to allow users to fix broken entries.
 - [x] Bring in XCap library in .NET and other cross-platform screen capture libraries. (This will make the port take much longer)
@@ -39,7 +39,7 @@
 - [ ] Add first-class support for [ImgBB](https://imgbb.com/), [Mastodon](https://mastodon.social/explore), [Bluesky](https://bsky.app/), [Pcloud](https://www.pcloud.com/), [SourceBin](https://sourceb.in/), [PrivateBin](https://github.com/PrivateBin/PrivateBin/wiki/API), [LimeWire](https://limewire.com/),   and [Pixeldrain](https://pixeldrain.com/)
 - [ ] Add Custom Uploader List to SnapX via a build-time HTTP Fetch, or if the file is there already, use that. Can be disabled by packagers as they need offline builds. Or they could fetch the list, or rather, JSON, as part of their build script that isn't done during packaging time. That list is then embedded into the binary, and then at runtime it is checked *again* for any new entries to said list. Thus, the functionality keeps working even in an environment where SnapX cannot access the internet.
 - [ ] ~~Add automatic region detection that suggests to users in Egypt, Russia, Ukraine, and possibly more to switch their default image uploader from Imgur to ImgBB. According to my tests, ImgBB doesn't have such region blocks for Ukraine & Egypt. Russia is untested because PIA doesn't have any servers there.~~ Imgur continually gets less reliable. I am investigating making ImgBB the default uploader for now until a more suitable alternative is found.
-
+- [ ] Add instructions to generate API keys for those interested
 ## Studying ShareX's behavior on Windows 11 24H2
 
 It's important to know how the program *should* behave per user expectations. As such, I've done a little recording of it.
@@ -85,6 +85,8 @@ Allowing for the automatic collection of crash reports and other useful data for
 It is opt-out and can be disabled in the settings. Additionally, the `ShareNoSnap` variant will not include telemetry, as you'd expect. Nor will the code even exist for it to do so.
 
 Telemetry is best when it represents the majority of the user base. I kindly ask you to not disable it. It's for the greater good. I know companies continue to abuse "telemetry" for their own gain, but this is not the case here. This is for the betterment of the application and the user experience. I'm not selling your data to advertisers. I'm not selling your data to anyone.
+
+If you're concerned, view our [Privacy Policy](../packaging/PRIVACY.md)
 
 #### Why are you doing this?
 

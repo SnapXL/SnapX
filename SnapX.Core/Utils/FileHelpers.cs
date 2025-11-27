@@ -15,7 +15,7 @@ namespace SnapX.Core.Utils;
 
 public static class FileHelpers
 {
-    public static readonly string[] ImageFileExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "ico", "tif", "tiff"];
+    public static readonly string[] ImageFileExtensions = ["jpg", "jpeg", "png", "webp", "avif", "gif", "bmp", "ico", "tif", "tiff"];
     public static readonly string[] TextFileExtensions = [ "txt", "log", "nfo", "c", "cpp", "cc", "cxx", "h", "hpp", "hxx", "cs", "vb",
         "html", "htm", "xhtml", "xht", "xml", "css", "js", "php", "bat", "java", "lua", "py", "pl", "cfg", "ini", "dart", "go", "gohtml" ];
     public static readonly string[] VideoFileExtensions = [ "mp4", "webm", "mkv", "avi", "vob", "ogv", "ogg", "mov", "qt", "wmv", "m4p",

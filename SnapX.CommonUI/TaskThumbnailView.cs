@@ -52,13 +52,30 @@ public class TaskThumbnailView : INotifyPropertyChanged
             }
         }
     }
-    private Image CreateThumbnail(string? filePath = null, Image? img = null)
+    private Image? CreateThumbnail(string? filePath, Image? img = null)
     {
-        if (img != null) return ImageHelpers.ResizeImage(img, ThumbnailSize, false);
-        if (string.IsNullOrWhiteSpace(filePath)) filePath = Task.Info.FileName;
-        else if (File.Exists(filePath)) return ImageHelpers.ResizeImage(Image.Load(filePath), ThumbnailSize, true);
-        if (string.IsNullOrEmpty(filePath)) return null; // TODO: Embed error image
-        var icon = Methods.GetJumboFileIcon(filePath, false);
+        if (img is not null)
+            return ImageHelpers.ResizeImage(img, ThumbnailSize, false);
+
+        filePath ??= Task.Info.FileName;
+        if (string.IsNullOrWhiteSpace(filePath))
+            return null;
+
+        if (File.Exists(filePath))
+        {
+            if (!FileHelpers.IsVideoFile(filePath))
+                return ImageHelpers.ResizeImage(Image.Load(filePath), ThumbnailSize, false);
+            // var videoThumb = Methods.GetFileThumbnail(filePath, ThumbnailSize);
+            // if (videoThumb is not null)
+            // {
+            //     if (videoThumb.Width > 64 && videoThumb.Height > 64)
+            //         ImageHelpers.DrawImageCentered(videoThumb, Resources.Play);
+            //     return videoThumb;
+            // }
+            return ImageHelpers.ResizeImage(Image.Load(filePath), ThumbnailSize, false);
+        }
+
+        using var icon = Methods.GetJumboFileIcon(filePath);
         return ImageHelpers.ResizeImage(icon, ThumbnailSize, false, true);
     }
 }

@@ -1,4 +1,4 @@
-
+using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
@@ -81,14 +81,16 @@ public partial class LogViewer : AppWindow
                 Foreground = GetBrushForLevel(logEvent.Level)
             });
 
-            _logTextBlock.Inlines.Add(new Run($"{message}\n"));
+            _logTextBlock.Inlines.Add(new Run(Regex.Unescape(message)));
+            _logTextBlock.Inlines.Add(new LineBreak());
 
             if (logEvent.Exception != null)
             {
-                _logTextBlock.Inlines.Add(new Run(logEvent.Exception + "\n")
+                _logTextBlock.Inlines.Add(new Run(logEvent.Exception.ToString())
                 {
                     Foreground = Brushes.DarkRed
                 });
+                _logTextBlock.Inlines.Add(new LineBreak());
             }
             _lastDisplayedLogCount = DebugHelper.LogEvents.Count();
         }

@@ -3,6 +3,10 @@
 using System.Reflection;
 using Avalonia;
 using SnapX.Avalonia;
+#if FREEBSD
+using VelloSharp;
+using VelloSharp.Avalonia.Vello;
+#endif
 #if BROWSER
 using Avalonia.Browser;
 #else
@@ -49,10 +53,10 @@ internal static class Program
                     new() { FontFamily = "Noto Sans" },
                     new() { FontFamily = "Roboto" },
                     new() { FontFamily = "Adwaita Sans" },
-                    new() { FontFamily = "Helvetica Neue" },
                     new() { FontFamily = "Open Sans" },
                     new() { FontFamily = "Segoe UI" },
-                    new() { FontFamily = "Inter" } // kept for compatibility
+                    new() { FontFamily = "Inter" }, // kept for compatibility
+                    new() { FontFamily = "Helvetica Neue" },
                 }
             });
         }
@@ -68,10 +72,15 @@ internal static class Program
 
         if (OperatingSystem.IsFreeBSD() || Environment.GetEnvironmentVariable("SNAPX_PRETEND_FREEBSD") is not null)
         {
+#if FREEBSD
+            // Region selector yields a black screen if not using software. Still ULTRA GPU ACCELERATED!
+            x11Options.RenderingMode = [X11RenderingMode.Software];
             builder = builder
                 .UseSkia()
                 .UseX11()
+                .UseVello(new VelloPlatformOptions { FramesPerSecond = 240, PresentMode = PresentMode.Fifo, Antialiasing = AntialiasingMode.Msaa16})
                 .With(x11Options);
+#endif
         }
         else
         {

@@ -25,6 +25,7 @@ public class WindowInfo
 
     public bool IsMinimized { get; set; } = false;
     public string ProcessName { get; set; } = string.Empty;
+    public int ProcessId { get; set; } = 0;
 
     public bool IsActive { get; set; } = false;
     public virtual void Restore()

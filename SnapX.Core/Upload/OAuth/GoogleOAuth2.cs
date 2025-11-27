@@ -7,12 +7,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseUploaders;
+using SnapX.Core.Upload.File;
 using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.OAuth;
 
 [JsonSerializable(typeof(OAuth2Token))]
 [JsonSerializable(typeof(OAuthUserInfo))]
+[JsonSerializable(typeof(GoogleCloudStorage.GoogleCloudStorageAcl))]
+[JsonSerializable(typeof(GoogleCloudStorage.GoogleCloudStorageMetadata))]
+[JsonSerializable(typeof(GoogleCloudStorage.GoogleCloudStorageResponse))]
 internal partial class GoogleContext : JsonSerializerContext
 { }
 

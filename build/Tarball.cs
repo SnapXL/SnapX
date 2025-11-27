@@ -141,7 +141,14 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             var snapxfiles = Directory.EnumerateFiles(config.LibDir, "*snapx*", SearchOption.AllDirectories);
             foreach (var file in snapxfiles)
             {
-                await CommandRunner.RunAsync("patchelf", $"--set-rpath \"$ORIGIN\" {file}");
+                try
+                {
+                    await CommandRunner.RunAsync("patchelf", $"--set-rpath \"$ORIGIN\" {file}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Error patching {file}: {ex.Message}");
+                }
             }
         }
 
@@ -154,9 +161,12 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
 
             var tarballName = Path.Combine(
                 config.RootDirectory,
-                $"SnapX{suffix}-{config.Configuration}-{uname}-{version}-{arch}.tar.xz"
+                $"SnapX{suffix}-{config.Configuration}-{uname}-{version}-{arch}.tar.zst"
             );
-            await CommandRunner.RunInstallCommand($"-cJf {tarballName} -C {config.Tarballdir} .", "tar");
+            await CommandRunner.RunInstallCommand(
+                $"--zstd -cf {tarballName} -C {config.Tarballdir} .",
+                "tar"
+            );
         }
     }
 

@@ -15,7 +15,6 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
-using SnapX.Core.Utils.Miscellaneous;
 #if WINDOWS
 using SnapX.Core.Utils.Native;
 #endif
@@ -308,6 +307,7 @@ public class SnapX
     public EventAggregator getEventAggregator() => EventAggregator;
     public bool isSilent() => SilentRun;
     public static AptabaseClient? aptabaseClient;
+    public static Telemetry? TelemetryHandler { get; set; }
 
     // Supports the failed standard https://consoledonottrack.com/
     public static bool TelemetryEnabled() => !FeatureFlags.DisableTelemetry && !Settings.DisableTelemetry &&
@@ -333,29 +333,20 @@ public class SnapX
         }
         DebugHelper.WriteLine("Operating system: " + SnapXResources.fancyOsName);
 
-        var sessionType = "";
-        var desktopEnvironment = "";
-        var kdePlasmaMajorVersion = "";
-
         if (OperatingSystem.IsLinux())
         {
-            sessionType = Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") ?? "Unknown";
-            desktopEnvironment = Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? "Unknown";
-            kdePlasmaMajorVersion = Environment.GetEnvironmentVariable("KDE_SESSION_VERSION");
 
-            DebugHelper.WriteLine($"Session Type: {sessionType}");
-            DebugHelper.WriteLine($"Desktop Environment: {desktopEnvironment}{(desktopEnvironment == "KDE" ? $" {kdePlasmaMajorVersion}" : "")}");
+            DebugHelper.WriteLine($"Session Type: {SnapXResources.SessionType}");
+            DebugHelper.WriteLine($"Desktop Environment: {SnapXResources.DesktopEnvironment}{(SnapXResources.DesktopEnvironment == "KDE" ? $" {SnapXResources.KdePlasmaMajorVersion}" : "")}");
         }
         DebugHelper.WriteLine($"Platform: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
-        if (OperatingSystem.IsLinux() && OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
+        if (OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
         DebugHelper.WriteLine(".NET: " + SnapXResources.Dotnet);
         if (Settings is not null) Settings.ApplicationVersion = Helpers.GetApplicationVersion();
-        long totalMemory = 0;
-        long usedMemory = 0;
         _ = Task.Run(() =>
         {
             DebugHelper.WriteLine($"CPU: {SnapXResources.CPU} ({SnapXResources.CPUCount})");
-            (totalMemory, usedMemory) = OsInfo.GetMemoryInfo();
+            var (totalMemory, usedMemory) = SnapXResources.MemoryInfo;
             DebugHelper.WriteLine($"Total Memory: {totalMemory} MiB");
             DebugHelper.WriteLine($"Used Memory: {usedMemory} MiB");
             PrintGraphicsInfo();
@@ -413,109 +404,7 @@ public class SnapX
             DebugHelper.WriteLine($"DB: {Args.CurrentState}");
         };
         SettingManager.LoadInitialSettings();
-        if (TelemetryEnabled())
-        {
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.ClearProviders();
-                builder.AddSerilog();
-            });
-            var logger = loggerFactory.CreateLogger<AptabaseClient>();
-
-            var aptabaseClient = new AptabaseClient("A-US-4105716286", new AptabaseOptions
-            {
-                EnablePersistence = true,
-#if DEBUG
-                IsDebugMode = true
-#else
-                IsDebugMode = false
-#endif
-            }, logger);
-            var telemetry = new Telemetry(DbConnection, aptabaseClient);
-            SnapX.aptabaseClient = aptabaseClient;
-            telemetry.TrackEvent("app_started", new Dictionary<string, object>
-            {
-                { "CPU", SnapXResources.CPU },
-                { "CPUCount", SnapXResources.CPUCount},
-                { "Build", $"{Build}" },
-                {
-                    "GPUS",
-                    SnapXResources.graphicsInfo.Gpus is { Count: > 0 } gpus
-                        ? string.Join(", ", gpus.Select(gpu => $"{gpu.Description} ({gpu.DriverVersion})"))
-                        : string.Empty
-                },
-                { "Monitors", string.Join(", ", SnapXResources.graphicsInfo?.Monitors ?? []) },
-                { "totalMemory", totalMemory },
-                { "usedMemory", usedMemory },
-                { "Dotnet", SnapXResources.Dotnet },
-                { "fancyOsName", SnapXResources.fancyOsName},
-                { "DbVersion", DbConnection.ServerVersion },
-                { "DesktopEnvironment", $"{desktopEnvironment}{(desktopEnvironment == "KDE" ? $" {kdePlasmaMajorVersion}" : "")}"},
-                { "SessionType", sessionType },
-                { "Flags", string.Join(",", Flags)}
-            });
-            SentrySdk.Init(options =>
-            {
-                // This allows end users to test themselves what data is sent to Sentry
-                var sentryDsnEnv = Environment.GetEnvironmentVariable("SENTRY_DSN");
-                options.Dsn = !string.IsNullOrWhiteSpace(sentryDsnEnv) ? sentryDsnEnv : "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
-
-                // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
-                options.Debug = Environment.GetEnvironmentVariable("SENTRY_DEBUG") == "1";
-
-#if DEBUG
-                options.Environment = "development";
-                options.CreateHttpMessageHandler = () => new LoggingHttpMessageHandler(new SentryHttpMessageHandler(HttpClientFactory.Handler), DebugHelper.Logger);
-                options.DisableSentryHttpMessageHandler = true;
-#else
-                options.Environment = "production";
-                options.CreateHttpMessageHandler = () => HttpClientFactory.Handler;
-#endif
-                options.ConfigureClient = client =>
-                {
-                    var snapXHttpClient = HttpClientFactory.Get();
-
-                    foreach (var header in snapXHttpClient.DefaultRequestHeaders)
-                    {
-                        client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-                    }
-
-                    client.DefaultRequestVersion = snapXHttpClient.DefaultRequestVersion;
-                    client.DefaultVersionPolicy = snapXHttpClient.DefaultVersionPolicy;
-                };
-                // VLCException includes multiple paths with username
-                // For full transparency, I discovered this issue on my computer.
-                // No other users are effected to my knowledge.
-                options.SetBeforeSend((sentryEvent, _) =>
-                {
-                    if (sentryEvent.Exception != null
-                        && !string.IsNullOrEmpty(sentryEvent.Exception.Message))
-                    {
-                        if (sentryEvent.Exception.Message.Contains(Environment.UserName)) return null;
-                    }
-                    Task.Run(() => LogTelemetry(sentryEvent, telemetry));
-                    return sentryEvent;
-                });
-
-                // Enabling this option is recommended for client applications only. It ensures all threads use the same global scope.
-                options.IsGlobalModeEnabled = true;
-                // This option is recommended. It enables Sentry's "Release Health" feature.
-                options.AutoSessionTracking = true;
-
-                // Set TracesSampleRate to 1.0 to capture 100%
-                // of transactions for tracing.
-                options.TracesSampleRate = 0.2;
-
-                // Sample rate for profiling, applied on top of the TracesSampleRate,
-                // e.g. 0.2 means we want to profile 20 % of the captured transactions.
-                // We recommend adjusting this value in production.
-                options.ProfilesSampleRate = 0.2;
-                options.AddIntegration(new ProfilingIntegration());
-
-                // This saves events for later when internet connectivity is poor/not working.
-                options.CacheDirectoryPath = Path.Combine(BaseDirectory.CacheHome, AppName);
-            });
-        }
+        if (TelemetryEnabled()) InitTelemetryServices();
         if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
         // CleanupManager.CleanupAsync();
     }
@@ -531,6 +420,115 @@ public class SnapX
             throw new TimeoutException($"{description} timed out after {timeoutSeconds} seconds.");
 
         task.GetAwaiter().GetResult(); // propagate exceptions
+    }
+
+    public static void InitTelemetryServices()
+    {
+        var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.ClearProviders();
+            builder.AddSerilog();
+        });
+        var logger = loggerFactory.CreateLogger<AptabaseClient>();
+
+        var aptabaseClient = new AptabaseClient("A-US-4105716286", new AptabaseOptions
+        {
+            EnablePersistence = true,
+#if DEBUG
+            IsDebugMode = true
+#else
+            IsDebugMode = false
+#endif
+        }, logger);
+        TelemetryHandler = new Telemetry(DbConnection, aptabaseClient);
+        SnapX.aptabaseClient = aptabaseClient;
+        var (totalMemory, usedMemory) = SnapXResources.MemoryInfo;
+        TelemetryHandler.TrackEvent("app_started", new Dictionary<string, object>
+        {
+            { "CPU", SnapXResources.CPU },
+            { "CPUCount", SnapXResources.CPUCount},
+            { "Build", $"{Build}" },
+            {
+                "GPUS",
+                SnapXResources.graphicsInfo.Gpus is { Count: > 0 } gpus
+                    ? string.Join(", ", gpus.Select(gpu => $"{gpu.Description} ({gpu.DriverVersion})"))
+                    : string.Empty
+            },
+            { "Monitors", string.Join(", ", SnapXResources.graphicsInfo?.Monitors ?? []) },
+            { "totalMemory", totalMemory },
+            { "usedMemory", usedMemory },
+            { "Dotnet", SnapXResources.Dotnet },
+            { "fancyOsName", SnapXResources.fancyOsName},
+            { "DbVersion", DbConnection.ServerVersion },
+            { "DesktopEnvironment", $"{SnapXResources.DesktopEnvironment}{(SnapXResources.DesktopEnvironment == "KDE" ? $" {SnapXResources.KdePlasmaMajorVersion}" : "")}"},
+            { "SessionType", SnapXResources.SessionType },
+            { "Flags", string.Join(",", Flags)}
+        });
+        InitSentry(TelemetryHandler);
+    }
+    public static void InitSentry(Telemetry telemetry)
+    {
+        SentrySdk.Init(options =>
+              {
+                  // This allows end users to test themselves what data is sent to Sentry
+                  var sentryDsnEnv = Environment.GetEnvironmentVariable("SENTRY_DSN");
+                  options.Dsn = !string.IsNullOrWhiteSpace(sentryDsnEnv) ? sentryDsnEnv : "https://e0a07df30c8b96560f93b10cf4338eba@o4504136997928960.ingest.us.sentry.io/4508785180737536";
+
+                  // When debug is enabled, the Sentry client will emit detailed debugging information to the console.
+                  options.Debug = Environment.GetEnvironmentVariable("SENTRY_DEBUG") == "1";
+
+#if DEBUG
+                  options.Environment = "development";
+                  options.CreateHttpMessageHandler = () => new LoggingHttpMessageHandler(new SentryHttpMessageHandler(HttpClientFactory.Handler), DebugHelper.Logger);
+                  options.DisableSentryHttpMessageHandler = true;
+#else
+                options.Environment = "production";
+                options.CreateHttpMessageHandler = () => HttpClientFactory.Handler;
+#endif
+                  options.ConfigureClient = client =>
+                  {
+                      var snapXHttpClient = HttpClientFactory.Get();
+
+                      foreach (var header in snapXHttpClient.DefaultRequestHeaders)
+                      {
+                          client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+                      }
+
+                      client.DefaultRequestVersion = snapXHttpClient.DefaultRequestVersion;
+                      client.DefaultVersionPolicy = snapXHttpClient.DefaultVersionPolicy;
+                  };
+                  // VLCException includes multiple paths with username
+                  // For full transparency, I discovered this issue on my computer.
+                  // No other users are effected to my knowledge.
+                  options.SetBeforeSend((sentryEvent, _) =>
+                  {
+                      if (sentryEvent.Exception != null
+                          && !string.IsNullOrEmpty(sentryEvent.Exception.Message))
+                      {
+                          if (sentryEvent.Exception.Message.Contains(Environment.UserName)) return null;
+                      }
+                      Task.Run(() => LogTelemetry(sentryEvent, telemetry));
+                      return sentryEvent;
+                  });
+
+                  // Enabling this option is recommended for client applications only. It ensures all threads use the same global scope.
+                  options.IsGlobalModeEnabled = true;
+                  // This option is recommended. It enables Sentry's "Release Health" feature.
+                  options.AutoSessionTracking = true;
+
+                  // Set TracesSampleRate to 1.0 to capture 100%
+                  // of transactions for tracing.
+                  options.TracesSampleRate = 0.2;
+
+                  // Sample rate for profiling, applied on top of the TracesSampleRate,
+                  // e.g. 0.2 means we want to profile 20 % of the captured transactions.
+                  // We recommend adjusting this value in production.
+                  options.ProfilesSampleRate = 0.2;
+                  options.AddIntegration(new ProfilingIntegration());
+
+                  // This saves events for later when internet connectivity is poor/not working.
+                  options.CacheDirectoryPath = Path.Combine(BaseDirectory.CacheHome, AppName);
+              });
     }
     public static void PrintGraphicsInfo()
     {

@@ -653,12 +653,12 @@ public class WorkerTask : IDisposable
                     thumbnailFolder = TaskHelpers.GetScreenshotsFolder(Info.TaskSettings, Info.Metadata);
                 }
 
-                // Info.ThumbnailFilePath = TaskHelpers.CreateThumbnail(Image, thumbnailFolder, thumbnailFileName, Info.TaskSettings);
-                //
-                // if (!string.IsNullOrEmpty(Info.ThumbnailFilePath))
-                // {
-                //     DebugHelper.WriteLine("Thumbnail saved to file: " + Info.ThumbnailFilePath);
-                // }
+                Info.ThumbnailFilePath = TaskHelpers.CreateThumbnail(Image, thumbnailFolder, thumbnailFileName, Info.TaskSettings);
+
+                if (!string.IsNullOrEmpty(Info.ThumbnailFilePath))
+                {
+                    DebugHelper.WriteLine("Thumbnail saved to file: " + Info.ThumbnailFilePath);
+                }
             }
         }
 

@@ -25,7 +25,6 @@ CloseClipboard
 EmptyClipboard
 GetWindowInfo
 EnumWindows
-SHGetFileInfo
 SHOpenFolderAndSelectItems
 SHChangeNotify
 SHGetImageList

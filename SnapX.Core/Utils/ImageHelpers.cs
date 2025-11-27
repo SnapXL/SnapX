@@ -521,6 +521,12 @@ public static class ImageHelpers
 
         return resultImage;
     }
+    public static void DrawImageCentered(Image image1, Image image2)
+    {
+        var x = (image1.Width - image2.Width) / 2;
+        var y = (image1.Height - image2.Height) / 2;
+        image1.Mutate(ctx => ctx.DrawImage(image2, new Point(x, y), 1f));
+    }
     public static Image DrawBackgroundImage(
         Image img,
         string? imageFilePath,

@@ -4,12 +4,12 @@
 
 using System.Collections.Specialized;
 using System.Net;
+using System.Net.Http.Handlers;
 using System.Text;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
-using SnapX.Core.Utils.Miscellaneous;
 using Math = System.Math;
 
 namespace SnapX.Core.Upload.BaseUploaders;
@@ -22,7 +22,7 @@ public class Uploader
 
     public bool IsUploading { get; protected set; }
     public UploaderErrorManager Errors { get; private set; } = new UploaderErrorManager();
-    public bool IsError => !StopUploadRequested && Errors != null && Errors.Count > 0;
+    public bool IsError => !StopUploadRequested && Errors is { Count: > 0 };
     public int BufferSize { get; set; } = 8192;
 
     protected bool StopUploadRequested { get; set; }
@@ -31,7 +31,6 @@ public class Uploader
 
     protected ResponseInfo LastResponseInfo { get; set; }
 
-    private HttpWebRequest currentWebRequest;
 
     protected void OnProgressChanged(ProgressManager progress)
     {
@@ -61,18 +60,7 @@ public class Uploader
         if (IsUploading)
         {
             StopUploadRequested = true;
-
-            if (currentWebRequest != null)
-            {
-                try
-                {
-                    currentWebRequest.Abort();
-                }
-                catch (Exception e)
-                {
-                    DebugHelper.WriteException(e);
-                }
-            }
+            DebugHelper.WriteLine("StopUpload called, but, SnapX does not support cancelling HTTP requests!");
         }
     }
 
@@ -92,14 +80,12 @@ public class Uploader
     protected string? SendRequest(HttpMethod method, string? url, string? content, string contentType = null, Dictionary<string, string?> args = null, NameValueCollection headers = null,
         CookieCollection cookies = null)
     {
-        byte[] data = Encoding.UTF8.GetBytes(content);
+        var data = Encoding.UTF8.GetBytes(content);
 
-        using (MemoryStream ms = new MemoryStream())
-        {
-            ms.Write(data, 0, data.Length);
+        using var ms = new MemoryStream();
+        ms.Write(data, 0, data.Length);
 
-            return SendRequest(method, url, ms, contentType, args, headers, cookies);
-        }
+        return SendRequest(method, url, ms, contentType, args, headers, cookies);
     }
 
     internal string? SendRequestURLEncoded(HttpMethod method, string? url, Dictionary<string, string?> args, NameValueCollection headers = null, CookieCollection cookies = null)
@@ -126,80 +112,113 @@ public class Uploader
     {
         if (method == null) method = HttpMethod.Post;
 
-        string boundary = RequestHelpers.CreateBoundary();
-        string contentType = RequestHelpers.ContentTypeMultipartFormData + "; boundary=" + boundary;
 
-        // Create multipart/form-data body
-        byte[] data = RequestHelpers.MakeInputContent(boundary, args);
+        var multipartContent = GetMultipartFormDataContent(args, null, null, null, null);
 
-        using var stream = new MemoryStream(data);
+        var requestMessage = new HttpRequestMessage(method, url)
+        {
+            Content = multipartContent
+        };
 
-        using var response = GetResponse(method, url, stream, contentType, null, headers, cookies);
+        if (headers != null)
+        {
+            foreach (var key in headers.AllKeys)
+            {
+                requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
+            }
+        }
+
+        if (cookies != null)
+        {
+            var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
+            requestMessage.Headers.Add("Cookie", cookieHeader);
+        }
+        var client = HttpClientFactory.Get();
+        var response = client.SendAsync(requestMessage).GetAwaiter().GetResult();
+        response.EnsureSuccessStatusCode();
         return ProcessWebResponseText(response);
     }
 
+    protected MultipartFormDataContent GetMultipartFormDataContent(Dictionary<string, string?>? args, Stream? data, string? fileName, string? fileFormName, string? relatedData = null)
+    {
+        var multipartContent = new MultipartFormDataContent();
+
+        if (args != null)
+        {
+            foreach (var arg in args)
+            {
+                multipartContent.Add(new StringContent(arg.Value), arg.Key);
+            }
+        }
+
+        if (relatedData != null)
+        {
+            multipartContent.Add(
+                new StringContent(relatedData, Encoding.UTF8, "application/json"),
+                "file",
+                fileName
+            );
+        }
+        else if (data is not null)
+        {
+            var fileContent = new StreamContent(data);
+            var mimeType = MimeTypes.GetMimeType(fileName);
+
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType);
+            multipartContent.Add(fileContent, fileFormName, fileName);
+        }
+        return multipartContent;
+    }
     protected UploadResult SendRequestFile(string? url, Stream data, string? fileName, string fileFormName,
         Dictionary<string, string?> args = null, NameValueCollection headers = null, CookieCollection cookies = null,
-        HttpMethod method = null, string contentType = RequestHelpers.ContentTypeMultipartFormData, string relatedData = null)
+        HttpMethod? method = null, string contentType = null, string relatedData = null)
     {
         method ??= HttpMethod.Post;
 
         var result = new UploadResult();
         IsUploading = true;
         StopUploadRequested = false;
+        EventHandler<HttpProgressEventArgs>? handler = null;
 
         try
         {
             var client = HttpClientFactory.Get();
-            var boundary = RequestHelpers.CreateBoundary();
-            contentType += "; boundary=" + boundary;
-
-            var multipartContent = new MultipartFormDataContent(boundary);
-
-            if (args != null)
-            {
-                foreach (var arg in args)
-                {
-                    multipartContent.Add(new StringContent(arg.Value), arg.Key);
-                }
-            }
-
-            // Add related data if provided (this could be JSON or some other related data)
-            if (relatedData != null)
-            {
-                var relatedContent = RequestHelpers.MakeRelatedFileInputContentOpen(boundary, "application/json; charset=UTF-8", relatedData, fileName);
-
-                var byteArrayContent = new ByteArrayContent(relatedContent);
-
-                byteArrayContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-
-                multipartContent.Add(byteArrayContent, "relatedData");
-            }
-
-            var fileContent = new StreamContent(data);
-            fileContent.Headers.Add("Content-Type", contentType);
-            multipartContent.Add(fileContent, fileFormName, fileName);
-
-            if (headers != null)
-            {
-                foreach (var key in headers.AllKeys)
-                {
-                    client.DefaultRequestHeaders.TryAddWithoutValidation(key, headers[key]);
-                }
-            }
-
-            if (cookies != null)
-            {
-                var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
-                client.DefaultRequestHeaders.Add("Cookie", cookieHeader);
-            }
+            var multipartContent = GetMultipartFormDataContent(args, data, fileName, fileFormName, relatedData);
 
             var requestMessage = new HttpRequestMessage(method, url)
             {
                 Content = multipartContent
             };
 
-            var response = client.SendAsync(requestMessage).Result;
+            if (headers != null)
+            {
+                foreach (var key in headers.AllKeys)
+                {
+                    requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
+                }
+            }
+            requestMessage.Headers.TransferEncodingChunked = true;
+            requestMessage.Content.Headers.ContentLength = null;
+            if (cookies != null)
+            {
+                var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
+                requestMessage.Headers.Add("Cookie", cookieHeader);
+            }
+
+            var ph = HttpClientFactory._ph!;
+            var requestLength = data.Length;
+            var progress = new ProgressManager(requestLength);
+
+            handler = (_, args) =>
+            {
+                progress.Length = new[] { requestLength, args.TotalBytes ?? 0, args.BytesTransferred }.Max();
+
+                if (AllowReportProgress && progress.UpdateAbsoluteProgress(args.BytesTransferred))
+                    OnProgressChanged(progress);
+            };
+
+            ph.HttpSendProgress += handler;
+            var response = client.SendAsync(requestMessage).GetAwaiter().GetResult();
 
             if (response.IsSuccessStatusCode)
             {
@@ -229,20 +248,27 @@ public class Uploader
         }
         finally
         {
-            currentWebRequest = null;
             IsUploading = false;
+            HttpClientFactory._ph!.HttpSendProgress -= handler; // prevent dangling event ref
         }
 
         return result;
     }
 
 
-    protected UploadResult SendRequestFileRange(string? url, Stream data, string? fileName, long contentPosition = 0, long contentLength = -1,
-        Dictionary<string, string?> args = null, NameValueCollection headers = null, CookieCollection cookies = null, HttpMethod method = null)
+    protected UploadResult? SendRequestFileRange(
+        string? url,
+        Stream data,
+        string? fileName,
+        long contentPosition = 0,
+        long contentLength = -1,
+        Dictionary<string, string?>? args = null,
+        NameValueCollection? headers = null,
+        CookieCollection? cookies = null,
+        HttpMethod? method = null)
     {
-        if (method == null) method = HttpMethod.Put;
-        UploadResult result = new UploadResult();
-
+        method ??= HttpMethod.Put;
+        var result = new UploadResult();
         IsUploading = true;
         StopUploadRequested = false;
 
@@ -254,58 +280,101 @@ public class Uploader
             {
                 contentLength = data.Length;
             }
+
             contentLength = Math.Min(contentLength, data.Length - contentPosition);
+            var contentType = MimeTypes.GetMimeType(fileName);
 
-            string contentType = MimeTypes.GetMimeType(fileName);
-
-            if (headers == null)
-            {
-                headers = [];
-            }
-            long startByte = contentPosition;
-            long endByte = startByte + contentLength - 1;
-            long dataLength = data.Length;
+            headers ??= new NameValueCollection();
+            var startByte = contentPosition;
+            var endByte = startByte + contentLength - 1;
+            var dataLength = data.Length;
             headers.Add("Content-Range", $"bytes {startByte}-{endByte}/{dataLength}");
 
-            // HttpWebRequest request = CreateHttpRequest(method, url, headers, cookies, contentType, contentLength);
-            //
-            // using (Stream requestStream = request.GetRequestStream())
-            // {
-            //     if (!TransferData(data, requestStream, contentPosition, contentLength))
-            //     {
-            //         return null;
-            //     }
-            // }
-            //
-            // using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            // {
-            //     result.ResponseInfo = ProcessWebResponse(response);
-            //     result.Response = result.ResponseInfo?.ResponseText;
-            // }
+            var client = HttpClientFactory.Get();
+            var requestMessage = new HttpRequestMessage(method, url);
 
-            result.IsSuccess = true;
+            if (data.CanSeek)
+            {
+                data.Seek(contentPosition, SeekOrigin.Begin);
+            }
+
+            var partialStream = new LimitedStream(data, contentLength);
+            var streamContent = new StreamContent(partialStream);
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+            streamContent.Headers.ContentLength = contentLength;
+
+            requestMessage.Content = streamContent;
+
+            foreach (var key in headers.AllKeys)
+            {
+                requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
+            }
+
+            if (cookies is { Count: > 0 })
+            {
+                var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
+                requestMessage.Headers.TryAddWithoutValidation("Cookie", cookieHeader);
+            }
+
+            var response = client.SendAsync(requestMessage).GetAwaiter().GetResult();
+
+            if (response.IsSuccessStatusCode)
+            {
+                result.ResponseInfo = ProcessWebResponse(response);
+                result.Response = result.ResponseInfo?.ResponseText;
+                result.IsSuccess = true;
+            }
+            else
+            {
+                result.IsSuccess = false;
+                result.Response = $"Error: {response.StatusCode}";
+            }
         }
         catch (Exception e)
         {
             if (!StopUploadRequested)
             {
-                string? response = ProcessError(e, url);
+                var response = ProcessError(e, url);
 
-                if (ReturnResponseOnError && e is WebException)
+                if (ReturnResponseOnError && e is HttpRequestException)
                 {
                     result.Response = response;
                 }
+
+                result.IsSuccess = false;
             }
         }
         finally
         {
-            currentWebRequest = null;
             IsUploading = false;
         }
 
         return result;
     }
 
+    class LimitedStream(Stream BaseStream, long Length1) : Stream
+    {
+        private long _read;
+        public override bool CanRead => BaseStream.CanRead;
+        public override bool CanSeek => BaseStream.CanSeek;
+        public override bool CanWrite => BaseStream.CanWrite;
+        public override long Length => Length1;
+        public override long Position { get => BaseStream.Position; set => BaseStream.Position = value; }
+        public override void Flush() => throw new NotSupportedException();
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            var remaining = Length1 - _read;
+            if (remaining <= 0) return 0;
+            var toRead = (int)Math.Min(remaining, count);
+            var read = BaseStream.Read(buffer, offset, toRead);
+            _read += read;
+            return read;
+        }
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    }
     protected HttpResponseMessage? GetResponse(HttpMethod method, string? url, Stream data = null, string contentType = null, Dictionary<string, string?> args = null,
         NameValueCollection headers = null, CookieCollection cookies = null, bool allowNon2xxResponses = false)
     {
@@ -320,25 +389,40 @@ public class Uploader
             {
                 contentLength = data.Length;
             }
-            var request = RequestHelpers.CreateHttpRequest(method, url, headers, cookies, contentType, contentLength).ConfigureAwait(false).GetAwaiter().GetResult();
-            currentWebRequest = null;
+
+            StreamContent? requestContent = null;
 
             if (data != null && (method == HttpMethod.Post || method == HttpMethod.Put))
             {
-                using var requestStream = request.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
-                data.CopyTo(requestStream);
+                requestContent = new StreamContent(data);
+            }
+            var requestMessage = new HttpRequestMessage(method, url)
+            {
+                Content = requestContent
+            };
+
+            if (headers != null)
+            {
+                foreach (var key in headers.AllKeys)
+                {
+                    requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
+                }
+            }
+
+            if (cookies != null)
+            {
+                var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
+                requestMessage.Headers.Add("Cookie", cookieHeader);
             }
 
             var client = HttpClientFactory.Get();
-            var response = client.SendAsync(request).ConfigureAwait(false).GetAwaiter().GetResult();
+            var response = client.SendAsync(requestMessage).ConfigureAwait(false).GetAwaiter().GetResult();
+            if (!response.IsSuccessStatusCode && !allowNon2xxResponses)
+            {
+                response.EnsureSuccessStatusCode();
+            }
 
             return response;
-        }
-        catch (WebException we) when (we.Response != null && allowNon2xxResponses)
-        {
-            // if we.Response != null, then the request was successful, but
-            // returned a non-200 status code
-            return null;
         }
         catch (Exception e)
         {
@@ -349,7 +433,6 @@ public class Uploader
         }
         finally
         {
-            currentWebRequest = null;
             IsUploading = false;
         }
 
@@ -476,13 +559,6 @@ public class Uploader
         return responseText;
     }
 
-    private HttpRequestMessage CreateHttpRequest(HttpMethod method, string? url, NameValueCollection headers = null, CookieCollection cookies = null,
-        string contentType = null, long contentLength = 0)
-    {
-        LastResponseInfo = null;
-
-        return RequestHelpers.CreateHttpRequest(method, url, headers, cookies, contentType, contentLength).GetAwaiter().GetResult();
-    }
     private Dictionary<string, string> ConvertHeadersToDictionary(HttpResponseMessage response)
     {
         var headersDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -506,19 +582,28 @@ public class Uploader
 
     private ResponseInfo ProcessWebResponse(HttpResponseMessage response)
     {
+        if (response == null)
+        {
+            DebugHelper.Logger.Error("HttpResponseMessage was null.");
+            return new ResponseInfo
+            {
+                StatusCode = 0,
+                StatusDescription = "No Response",
+                ResponseURL = string.Empty,
+                Headers = new Dictionary<string, string>()
+            };
+        }
+
         var responseInfo = new ResponseInfo
         {
             StatusCode = response.StatusCode,
-            StatusDescription = response.ReasonPhrase ?? "OK",
+            StatusDescription = response.ReasonPhrase ?? "ERROR",
             ResponseURL = response.RequestMessage?.RequestUri?.OriginalString ?? string.Empty,
-            Headers = ConvertHeadersToDictionary(response)
+            Headers = ConvertHeadersToDictionary(response),
+            ResponseText = response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
         };
 
-        using (var responseStream = response.Content.ReadAsStream())
-        using (var reader = new StreamReader(responseStream, Encoding.UTF8))
-        {
-            responseInfo.ResponseText = reader.ReadToEnd();
-        }
+        // DebugHelper.WriteLine($"ResponseInfo: StatusCode={responseInfo.StatusCode} StatusDescription={responseInfo.StatusDescription} ResponseText={responseInfo.ResponseText} ResponseURL={responseInfo.ResponseURL}");
 
         LastResponseInfo = responseInfo;
         return responseInfo;

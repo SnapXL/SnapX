@@ -3,7 +3,6 @@
 
 
 using System.Diagnostics;
-using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Utils;
 public class FileDownloader

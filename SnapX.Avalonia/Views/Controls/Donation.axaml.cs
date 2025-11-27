@@ -45,7 +45,6 @@ public partial class Donation : UserControl
     private void ProcessDonation(FAComboBox comboBox, bool isCustomInput = false)
     {
         var text = comboBox.Text;
-        DebugHelper.WriteLine($"ProcessDonation, {text}");
         var selectedAmount = donationAmount;
         if (comboBox.SelectedItem is FAComboBoxItem { Tag: not null } selectedItem)
         {

@@ -37,9 +37,9 @@
             SelectedIndex="0"
             SelectionChanged="DonationServiceComboBox"
             Width="200">
+            <controls:FAComboBoxItem Content="Liberapay" Tag="Liberapay" />
 
             <controls:FAComboBoxItem Content="GitHub Sponsors" Tag="GitHub" />
-            <controls:FAComboBoxItem Content="Liberapay" Tag="Liberapay" />
             <controls:FAComboBoxItem Content="Ko-fi" Tag="Ko-fi" />
         </controls:FAComboBox>
 

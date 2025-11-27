@@ -9,7 +9,6 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+"
     paths-ignore:
       - "**/*.md"
-      - "**/*.spec"
       - "**/*.gitignore"
       - "**/*.gitattributes"
 
@@ -17,18 +16,273 @@ permissions:
   contents: read
 
 jobs:
+  freebsd:
+    name: FreeBSD Build
+    runs-on: ${{matrix.os}}
+    # Prevent Ubuntu runner starvation from regular builds. FreeBSD builds are slightly slower than normal builds.
+    # needs: build
+    timeout-minutes: 360
+    env:
+      ALLOW_DOTNET_DOWNLOAD: 1
+      DisableGitVersionTask: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        # I haven't built binaries for FreeBSD ARM64 yet. Sorry.
+        os: [ ubuntu-24.04 ]
+        configuration:
+          - Release
+          - Debug
+    steps:
+      - name: Get relevant env variable names
+        id: envnames
+        run: |
+          envs=$(printenv \
+            | cut -d= -f1 \
+            | grep -E '^(GITHUB|CI|ALLOW|KEY|API|Disable|Git)' \
+            | grep -v '^GITHUB_WORKSPACE$' \
+            | sort \
+            | tr '\n' ' ')
+          echo "envs=$envs" >> "$GITHUB_OUTPUT"
+      - name: Setup FreeBSD VM
+        id: vm
+        uses: vmactions/freebsd-vm@v1
+        with:
+          envs: ${{ steps.envnames.outputs.envs }}
+          # usesh: true
+          sync: sshfs
+          prepare: |
+            pkg install -y curl bash llvm21 sudo dotnet patchelf git flock
+            chsh -s /usr/local/bin/bash
+            pw useradd runner -m -s /usr/local/bin/bash
+            pw groupmod wheel -m runner
+
+            echo 'runner ALL=(ALL) NOPASSWD: ALL' >> /usr/local/etc/sudoers.d/runner
+            chmod 440 /usr/local/etc/sudoers.d/runner
+
+            echo "Runner user created with sudo privileges."
+
+
+            # Ensure bash profile exists
+            install -d -o runner -g runner /home/runner
+      - name: Ready VM
+        shell: freebsd {0}
+        run: |
+          printenv | grep -E '^(GITHUB|CI|ALLOW)' | while IFS= read -r line; do
+            echo "export $line" >> /etc/profile.d/github-envs.sh
+          done
+          workspace="$GITHUB_WORKSPACE"
+          chown -R runner:runner "$workspace"
+
+          # Make runner auto-cd to the workspace
+          echo "cd \"$workspace\"" >> ~/.profile
+          echo "cd \"$workspace\"" >> /home/runner/.bash_profile
+          chown runner:runner /home/runner/.bash_profile
+          # su runner -c /usr/local/bin/bash
+      - name: Checkout repository
+        shell: freebsd {0}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          su runner -c /usr/local/bin/bash
+          mkdir -p /tmp/repo
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory /tmp/repo
+          git clone --branch "$GITHUB_REF_NAME" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" /tmp/repo
+          cp -R /tmp/repo/. "$GITHUB_WORKSPACE"
+          rm -rf /tmp/repo
+
+          git reset --hard "$GITHUB_SHA"
+
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      - name: Download API keys
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+      - name: Remove version requirement
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE;
+          rm global.json
+          mkdir -p build/obj
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+        with:
+          versionSpec: '6.5.x'
+      - name: Run GitVersion
+        uses: gittools/actions/gitversion/command@v4.2.0
+        with:
+          arguments: '/output file /outputfile "build/obj/gitversion.json"'
+      - name: Update project files with GitVersion
+        uses: gittools/actions/gitversion/command@v4.2.0
+        with:
+          arguments: '/updateprojectfiles'
+      - name: Copy GitVersion data
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE;
+          su runner -c /usr/local/bin/bash
+          for dir in SnapX*/; do
+              [ -d "$dir" ] || continue
+              mkdir -p "$dir/obj"
+              cp build/obj/gitversion.json "$dir/obj/"
+          done
+      - name: Publish
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE;
+          su runner -c "bash build.sh --configuration ${{ matrix.configuration }} --extra-args='-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false'"
+
+      - name: Tarball
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE;
+          su runner -c "bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui"
+          sleep 10
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: SnapX-Avalonia-${{ matrix.configuration }}-FreeBSD-${{ runner.arch }}
+          path: "SnapX-UI*"
+          if-no-files-found: error
+  alpine:
+    name: Alpine Build
+    runs-on: ${{matrix.os}}
+    needs: build
+    timeout-minutes: 360
+    env:
+      ALLOW_DOTNET_DOWNLOAD: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+        configuration:
+          - Release
+          - Debug
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Setup Alpine Linux
+        uses: bgilbert/setup-alpine@aarch64
+        with:
+          packages: >
+            clang
+            curl
+            bash
+            build-base
+            sudo
+            git
+            libunwind-dev
+            libunwind-static
+            xz-dev
+            xz-static
+            zlib-dev
+            icu-libs
+            patchelf
+            zstd
+            tar
+            uutils-coreutils
+
+      - name: Download API keys
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != ''
+        shell: alpine.sh {0}
+        run: |
+          set -euo pipefail
+          curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+      - name: Remove version requirement
+        run: rm global.json
+        shell: alpine.sh {0}
+      - name: Publish
+        run: ./build.sh --configuration ${{ matrix.configuration }}
+        shell: alpine.sh {0}
+      - name: Tarball
+        run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
+        shell: alpine.sh {0}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-musl-${{ runner.arch }}
+          path: "SnapX-UI*"
+          if-no-files-found: error
+  rpms:
+    name: RPMs
+    runs-on: ${{matrix.os}}
+    # Building the RPMs causes Ubuntu runner starvation due to it triggering multiple jobs. Normal builds take priority.
+    needs: build
+    timeout-minutes: 360
+    container:
+      image: ${{ matrix.container }}
+    env:
+      ALLOW_DOTNET_DOWNLOAD: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+
+        container: [ fedora:rawhide, fedora:43, fedora:42, fedora:41 ]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Setup environment
+        run: |
+          dnf -y upgrade --refresh
+          dnf -y install git rpmdevtools rpm-build libicu
+      - name: Build RPM
+        id: build_rpm
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        run: |
+          cd packaging
+          dnf builddep -y snapx.spec
+          spectool -g -R snapx.spec
+          rpmdev-setuptree
+          rpmbuild -ba snapx.spec | tee rpmbuild.log
+          # Extract all lines starting with "Wrote:" and get the file paths
+          grep '^Wrote:' rpmbuild.log | awk '{print $2}' > rpm_files.txt
+
+          # Print the paths for debugging
+          cat rpm_files.txt
+
+          # Save the list as an output for the next step
+          echo "rpm_paths=$(paste -sd ' ' rpm_files.txt)" >> $GITHUB_OUTPUT
+      - name: Format Container Name
+        id: format
+        run: |
+          CONTAINER_NAME="${{ matrix.container }}"
+          formattedName=$(echo "${CONTAINER_NAME}" | awk -F: '{
+            printf "%s", toupper(substr($1,1,1)) tolower(substr($1,2)) "-" toupper(substr($2,1,1)) tolower(substr($2,2))
+          }')
+          echo "formattedName=${formattedName}" >> "$GITHUB_OUTPUT"
+      - name: Upload artifact (RPM - Release on Linux)
+        uses: actions/upload-artifact@v5
+        with:
+          name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
+          path: /github/home/rpmbuild/**/*.rpm
+          if-no-files-found: error
   build:
     name: Build
     runs-on: ${{matrix.os}}
     timeout-minutes: 65
-
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-2025, windows-11-arm ]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-26, macos-15-intel, windows-2025, windows-11-arm ]
         configuration:
           - Release
           - Debug
+        exclude:
+          - os: windows-11-arm
+            configuration: Debug
 
     env:
       SOLUTION_FILE_PATH: SnapX.slnx
@@ -36,11 +290,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Free Disk Space (Ubuntu)
-        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
+        if: runner.os == 'Linux'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed,
@@ -49,33 +303,55 @@ jobs:
 
           # all of these default to true, but feel free to set to
           # "false" if necessary for your workflow
-          android: true
+          android: false
           dotnet: false
           haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
       - name: Setup dotnet
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x.x
+          dotnet-version: 10.x.x
       - name: Restore
         run: dotnet restore --packages ./vendor SnapX.slnx
       - name: Restore build project
         run: dotnet restore --packages ./vendor build/build.csproj
       - name: Cache .NET NuGet packages
+        if: runner.os != 'macOS'
         uses: actions/cache@v4
         with:
           path: vendor
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
-            ${{ runner.os }}-nuget-
+            ${{ runner.os }}-${{ runner.arch }}-nuget-
       - name: Install NativeAOT Linux Deps
         if: runner.os == 'Linux'
         run: "sudo apt update && sudo apt install -y clang zlib1g-dev"
       - name: Install Rust toolchain
         if: runner.os == 'macOS'
         run: brew install rust
+      # - name: Add .NET global tools to PATH
+      #   if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
+      #   run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+      # - name: 🔷 Update Flatpak Sources
+      #   if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
+      #   run: |
+      #     sudo apt install -y flatpak flatpak-builder
+      #     flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      #     flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet9//25.08
+      #     dotnet tool install --global Nickvision.FlatpakGenerator
+      #     flatpak-dotnet-generator SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json -d vendor --no-self-contained --user
+      #     flatpak-dotnet-generator build/build.csproj -o packaging/flathub/build-sources.json -d vendor --no-self-contained --user
+      # - name: 📦 Commit Flatpak Sources
+      #   if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
+      #   uses: EndBug/add-and-commit@v9
+      #   continue-on-error: true
+      #   with:
+      #     add: "packaging/flathub/*.json"
+      #     commit: "--no-verify --no-gpg-sign"
+      #     push: "--no-verify --no-signed"
+      #     message: "build(flathub): update nuget vendor sources [skip ci]"
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet
@@ -87,7 +363,6 @@ jobs:
           fallback_version=$(echo "$raw_version" | sed 's/-.*//')
           echo "Fallback version: $fallback_version"
           sed -i "s|<Version>.*</Version>|<Version>${fallback_version}</Version>|" Directory.Build.props
-
       - name: Commit fallback version
         if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && always()
         continue-on-error: true
@@ -100,9 +375,10 @@ jobs:
 
           # Check if there are any changes
           if ! git diff --quiet Directory.Build.props; then
+            git pull --ff-only
             git add Directory.Build.props
-            git commit -m "chore(release): update fallback version to ${fallback_version}"
-            git push
+            git commit -m "chore(release): update fallback version to ${fallback_version}" --no-verify
+            git push --no-verify
           else
             echo "No changes to commit."
           fi
@@ -140,7 +416,7 @@ jobs:
       # I cannot provide them in public source code.
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: SnapX-Vendored-Source-${{ runner.arch }}
           path: .
@@ -148,152 +424,35 @@ jobs:
       - name: Download API keys
         env:
           API_KEYS: ${{ secrets.API_KEYS }}
-        if: env.API_KEYS != '' && runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          try {
-            Invoke-WebRequest -Uri $env:API_KEYS -OutFile "SnapX.Core\Upload\APIKeysLocal.cs" -ErrorAction Stop | Out-Null
-          } catch {
-            throw "Failed to download API keys. Error has been redacted for security reasons."
-          }
-      - name: Download API keys
-        env:
-          API_KEYS: ${{ secrets.API_KEYS }}
-        if: env.API_KEYS != '' && runner.os != 'Windows'
+        if: env.API_KEYS != ''
         shell: bash
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-      - name: Enforce code style using dotnet format
-        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
-        run: |
-          dotnet format --verify-no-changes -v diagnostic SnapX.slnx \
-            --include $(find . -type f -name '*.cs' ! -path './build/*' ! -path './SnapX.Core/Upload/APIKeysLocal.cs')
+#      - name: Enforce code style using dotnet format
+#        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
+#        run: |
+#          dotnet format --verify-no-changes -v diagnostic SnapX.slnx \
+#            --include $(find . -type f -name '*.cs' ! -path './build/*' ! -path './SnapX.Core/Upload/APIKeysLocal.cs')
       - name: Publish
-        if: runner.os == 'Windows'
-        run: ./build.ps1 --configuration ${{ matrix.configuration }}
-      - name: Publish
-        if: runner.os != 'Windows'
+        shell: bash
         run: ./build.sh --configuration ${{ matrix.configuration }}
-      - name: Import GPG key
-        id: import_gpg
-        if: github.event_name != 'pull_request' && matrix.configuration == 'Release' && runner.os == 'Linux'
-        uses: crazy-max/ghaction-import-gpg@v6
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          git_user_signingkey: true
-          git_commit_gpgsign: true
-          git_tag_gpgsign: true
-          git_push_gpgsign: false
       - name: Assemble SnapX UI Tarball
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
         run: "./build.sh tarball --assembly snapx-ui"
-      - name: Assemble SnapX CLI Tarball
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: "./build.sh tarball --assembly snapx"
-      - name: Assemble Runfile
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        run: |
-          ./build.sh runfile --assembly snapx-ui
-      - name: Upload Built Runfile 📦
-        uses: actions/upload-artifact@v4
-        if: always() && matrix.configuration == 'Release' && runner.os == 'Linux'
-        with:
-          name: SnapX-Runfile-${{ runner.arch }}
-          if-no-files-found: error
-          path: "*.run"
-      - name: Upload artifact (CLI - Release on Linux)
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
-        with:
-          name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
-          path: "SnapX-CLI*"
-          compression-level: 9
-          if-no-files-found: error
 
-      - name: Upload artifact (CLI - Non-Release or non-Linux)
-        if: matrix.configuration != 'Release' || runner.os != 'Linux'
-        uses: actions/upload-artifact@v4
-        with:
-          name: SnapX-CLI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
-          path: "Output/snapx"
-          compression-level: 9
-          if-no-files-found: error
       - name: Upload artifact (Avalonia - Release on Linux)
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "SnapX-UI*"
-          compression-level: 9
           if-no-files-found: error
 
       - name: Upload artifact (Avalonia - Non-Release or non-Linux)
         if: matrix.configuration != 'Release' || runner.os != 'Linux'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "Output/snapx-ui"
-          compression-level: 9
           if-no-files-found: error
-  test-artifacts:
-    runs-on: ubuntu-24.04
-    needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu:20.04
-          - mageia:latest
-          - redhat/ubi9
-          - opensuse/leap:latest
-          - debian:bookworm
-          - archlinux:latest
-          - fedora:39
-    container:
-      image: ${{ matrix.os }}
-      options: >-
-        --privileged
-        --cap-add=SYS_ADMIN
-        --cap-add=SYS_PTRACE
-
-    steps:
-      # See https://github.com/actions/download-artifact/issues/343 & https://github.com/actions/download-artifact/issues/339 to see why this is pinned. If you bump this version, you will be FIRED. >:(
-      - uses: actions/download-artifact@v5
-        continue-on-error: true
-        with:
-          merge-multiple: true
-
-      - name: Run binary tests (filename-based arch detection)
-        run: |
-          chmod +x *.run || true
-          chmod +x *.AppImage || true
-
-          is_x86_64_filename() {
-            echo "$1" | grep -iE 'x86[-_]?64|amd64|x64' &>/dev/null
-          }
-
-          if ls ./*.run &>/dev/null; then
-            for BINARY in *.run; do
-              echo "Checking architecture (by filename) of $BINARY"
-              if is_x86_64_filename "$BINARY"; then
-                echo "Running binary: $BINARY"
-                ./"$BINARY" --version || echo "$BINARY failed to run"
-              else
-                echo "Skipping $BINARY (not x86_64 by filename)"
-              fi
-            done
-          fi
-
-          if ls ./*.AppImage &>/dev/null; then
-            for BINARY in *.AppImage; do
-              echo "Checking architecture (by filename) of $BINARY"
-              if is_x86_64_filename "$BINARY"; then
-                echo "Running binary: $BINARY"
-                ./"$BINARY" --version || echo "$BINARY failed to run"
-              else
-                echo "Skipping $BINARY (not x86_64 by filename)"
-              fi
-            done
-          fi

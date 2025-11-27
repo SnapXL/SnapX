@@ -10,7 +10,14 @@ public class NeedFileOpenerEvent
     public List<string>? AcceptedExtensions { get; set; }
     public string? Title { get; set; } = SnapX.AppName;
     public bool Multiselect { get; set; } = false;
+    public bool FolderPicker { get; set; }
     public TaskSettings TaskSettings { get; set; }
+}
+
+public class NeedMainWindowHandle
+{
+    // The subscriber will fill this property
+    public IntPtr ResultHandle { get; set; } = IntPtr.Zero;
 }
 
 public class NeedRegionCaptureEvent

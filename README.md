@@ -10,7 +10,6 @@
   <br>
   <br>
   <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base"/></a>
-  <a href="https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/copr_vector.svg" height="40" alt="COPR"/></a>
   <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap"/></a>
   <br>
   <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord"/></a>
@@ -38,25 +37,24 @@
 
 ## Technical Details
 
-- It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library)
-- The dependency on Newtonsoft.JSON has been dropped and traded out for [more strict yet performant System.Text.Json](https://dev.to/samira_talebi_cca34ce28b8/newtonsoftjson-vs-systemtextjson-in-net-80-which-should-you-choose-26a3)
-- And it *will* use [SQLite](https://www.sqlite.org/about.html) to [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28)
+- It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
+- It uses [SQLite](https://www.sqlite.org/about.html) for [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28).
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
-- UI is GPU accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
-- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS
+- UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU).
+- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS.
 - Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
-- Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
-- Supports 95% of ShareX uploaders (we're a fork!)
+- Supports PNG (including animated variant), WEBP (including animated variant), AVIF, JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
+- Supports 95% of ShareX uploaders (we're a fork!).
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
-- Additionally, all uploaders are now forced to use HTTPS <2.0 & *optionally* use TLS 1.3 out of the box.
-- Keeps compatibility with the custom uploader configuration format (.sxcu)
+- Additionally, all uploaders are now encouraged to use HTTPS <2.0 & *optionally* use TLS 1.3.
+- Keeps compatibility with the custom uploader configuration format (.sxcu).
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
 
 You will *not* receive any support from the ShareX project for this software. \
-If you have any issues with this project or would like us to add any new feature, please **open an issue** in this repository or use the `#development` channel in our [Discord](https://discord.gg/ys3ZCzttVQ).
+If you have any issues with this project or would like us to add any new feature, please **open an issue** in this repository or use the [`#development`](https://discord.com/channels/1267996919922430063/1404876855861051562) channel in our [Discord](https://discord.gg/ys3ZCzttVQ).
 
 ## Supported Linux Distributions
 
@@ -78,17 +76,18 @@ This application relies on XDG portals to handle screenshots in a secure and des
 > [!TIP]
 > Other desktop environments or Wayland compositors—such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal—should also work, but are not officially tested.
 
-## Packages for testers
+## Testing
 
-SnapX is not yet in a usable state. These packages are provided for making testing easier.
+SnapX is not yet in a usable state. Packages are provided for making testing easier.
+
+See our guide here to learn [how to test](https://github.com/SnapXL/SnapX/wiki/Testing).
 
 SnapX is packaged on:
 
 - [AUR](https://aur.archlinux.org/packages/snapx-ui)
-
-- [COPR](https://copr.fedorainfracloud.org/coprs/brycensranch/snapx/)
-
+<!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) [PENDING] -->
 - [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo)
+- [Snapcraft](https://snapcraft.io/ui-snapx)
 
 Additionally, you can download nightly builds from [here](https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview).
 
@@ -96,7 +95,7 @@ Additionally, you can download nightly builds from [here](https://nightly.link/S
 
 - `git`
 - `dotnet-sdk-9.0`
-- `ffmpeg` (7)
+- `ffmpeg` (<7)
 - `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
 - `clang`
 - `zlib-devel`
@@ -125,7 +124,7 @@ sudo dnf in -y git dotnet-sdk-aot-9.0 /usr/bin/ffmpeg
 ```bash
 sudo apt update && sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:dotnet/backports -y # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
-sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
+sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg8 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
 sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang zlib1g-dev libsm6
 ```
 
@@ -133,8 +132,8 @@ sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang zlib1g-dev libsm6
 
 End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and, thus, unsupported.
 
-SnapX now uses the Windows SDK to generate C# Windows API binding code. \
-You need the Windows 11 SDK `10.0.26100.0`. \
+SnapX now uses the Windows SDK to generate C# Windows API binding code.
+You need the Windows 11 SDK `10.0.26100.0`.
 It works on Windows 10, too.
 
 ```shell
@@ -147,40 +146,28 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-### macOS Ventura (13)+ 🍎
+### macOS 14 Sonoma+ 🍎
 
-End of life macOS versions are not supported. For example, macOS Monterey is at its EOL and thus, unsupported.
+End of life macOS versions are not supported. For example, macOS 13 Ventura is at its EOL and thus, unsupported.
 
 > Using the script to install the .NET SDK from the .NET team ensures you don't run into issues of Rider not detecting it.
 
 ```zsh
 xcode-select --install
-brew install ffmpeg@7 rust
+brew install ffmpeg@8 rust
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
+
 > [!TIP]
 > If you're using MacPorts, run this instead of `brew install`:
+>
 > ```zsh
 > sudo port selfupdate
-> sudo port install ffmpeg7 cargo
+> sudo port install ffmpeg8 cargo
 > ```
 
 ## Building from Source
-
-> [!CAUTION]
-> **Only do this if you're a developer**; you should have a backup of all your ShareX/SnapX data. \
-> I do mean it when I say the project isn't ready for use.
-
-> [!IMPORTANT]
-> Additionally, it seems SnapX [hasn't been able to create the configuration file(s) it expects](https://github.com/SnapXL/SnapX/issues/66). \
-> I've been testing with my ShareX configuration. You should place it in the configuration directory that it expects.
->
-> On **Linux**, it's `~/.config/SnapX`
->
-> On **Windows**, it's `%USERPROFILE%\Documents\SnapX`
->
-> On **macOS**, it's `~/Library/Application Support/SnapX`
 
 ### System Requirements for Compiling
 
@@ -209,7 +196,7 @@ Contributions are welcome. The documentation for contributing is a work in progr
 - [Skorlok](https://github.com/Skorlok)
 - [Abdullah16M](https://github.com/Abdullah16M)
 
-**Thank you so much!**
+**Thank you so much!** People like you are the reason why this project is possible. For anyone interested in financially contributing, donate via [Liberapay](https://liberapay.com/BrycensRanch)!
 
 ## Roadmap
 

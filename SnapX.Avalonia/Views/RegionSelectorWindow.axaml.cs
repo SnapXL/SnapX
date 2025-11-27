@@ -43,15 +43,7 @@ public partial class RegionSelectorWindow : Window
         // var workingArea = Screens.All
         //     .Select(screen => screen.Bounds)
         //     .Aggregate((acc, next) => acc.Union(next));
-        var cursorPos = Methods.GetCursorPosition();
-        var workingArea = Screens.ScreenFromPoint(new PixelPoint(cursorPos.X, cursorPos.Y))?.Bounds;
-        if (workingArea == null || !workingArea.HasValue) return;
-        workingArea = workingArea.Value;
-
-        var x = workingArea.Value.X;
-        var y = workingArea.Value.Y;
-        var width = workingArea.Value.Width;
-        var height = workingArea.Value.Height;
+        var (x, y, width, height) = Methods.GetActiveScreen().GetAwaiter().GetResult();
         DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
         Position = new PixelPoint(x, y);
         // Width = width;
@@ -218,7 +210,7 @@ public partial class RegionSelectorWindow : Window
     }
     private readonly Dictionary<Window, WindowBase?> _ownershipMap = new();
 
-    private async void OnOpened(object? Sender, EventArgs EventArgs)
+    private async void OnInit(object? Sender, EventArgs EventArgs)
     {
         foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != this && w.IsVisible) ?? [])
         {
