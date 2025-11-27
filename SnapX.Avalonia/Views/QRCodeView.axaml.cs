@@ -5,6 +5,7 @@ using Avalonia.Media.Imaging;
 using DotNext.Threading;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp.Formats.Png;
+using SnapX.Avalonia.Views.Controls;
 using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
@@ -37,7 +38,7 @@ public partial class QRCodeView : AppWindow
 
     private void UploadImageButtonPressed(object? Sender, RoutedEventArgs RoutedEventArgs)
     {
-        var stream = new MemoryStream();
+        using var stream = new MemoryStream();
         image.Save(stream, 100);
         stream.Position = 0;
         UploadManager.UploadImageStream(stream, "QRCode" + Sender + ".png");
@@ -48,15 +49,15 @@ public partial class QRCodeView : AppWindow
         await _cts.CancelAsync();
 
         _cts = new CancellationTokenSource();
-
+        var qrText = this.FindControl<TextBox>("QRText")?.Text;
+        var qrImgHolder = this.FindControl<SmartImage>("QRImage")!;
         try
         {
             await Task.Delay(200, _cts.Token);
-
-            var qrImg = await RegenerateQRCodeAsync(QRText.Text ?? Links.GitHub, _cts.Token);
+            var qrImg = await RegenerateQRCodeAsync(qrText ?? Links.GitHub, _cts.Token);
             if (qrImg != null)
             {
-                QRImage.Source = qrImg;
+                qrImgHolder.Source = qrImg;
                 image = qrImg;
             }
         }
@@ -103,7 +104,7 @@ public partial class QRCodeView : AppWindow
             DebugHelper.WriteLine($"Text: {text}");
             try
             {
-                var generatedImg = await Task.Factory.StartNew(
+                using var generatedImg = await Task.Factory.StartNew(
                     () => TaskHelpers.GenerateQRCode(text, size),
                     ct,
                     TaskCreationOptions.LongRunning,
@@ -111,7 +112,7 @@ public partial class QRCodeView : AppWindow
                 );
                 if (generatedImg is null)
                     return null;
-                var stream = new MemoryStream();
+                using var stream = new MemoryStream();
                 await generatedImg.SaveAsync(stream, new PngEncoder(), ct);
                 stream.Position = 0;
 

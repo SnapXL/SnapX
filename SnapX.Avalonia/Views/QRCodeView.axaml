@@ -38,7 +38,7 @@
                 <NumericUpDown
                     FormatString="F0"
                     MaxWidth="300"
-                    Maximum="2147483647"
+                    Maximum="200000"
                     Minimum="64"
                     Name="QRSize"
                     Value="64"
