@@ -18,6 +18,7 @@ public partial class QRCodeView : AppWindow
     private readonly AsyncLock _qrCodeLock = new();
     private int size;
     private CancellationTokenSource _cts = new CancellationTokenSource();
+
     public QRCodeView()
     {
         InitializeComponent();
@@ -52,7 +53,12 @@ public partial class QRCodeView : AppWindow
         {
             await Task.Delay(200, _cts.Token);
 
-            await RegenerateQRCodeAsync(_cts.Token);
+            var qrImg = await RegenerateQRCodeAsync(QRText.Text ?? Links.GitHub, _cts.Token);
+            if (qrImg != null)
+            {
+                QRImage.Source = qrImg;
+                image = qrImg;
+            }
         }
         catch (TaskCanceledException)
         {
@@ -60,9 +66,14 @@ public partial class QRCodeView : AppWindow
         }
     }
 
-    private async void NumericUpDown_OnValueChanged(object? Sender, NumericUpDownValueChangedEventArgs E)
+    private async void NumericUpDown_OnValueChanged(
+        object? Sender,
+        NumericUpDownValueChangedEventArgs E
+    )
     {
-        size = (int)E.NewValue;
+        size = (int)(E.NewValue ?? E.OldValue ?? 64);
+        if (size == null || size <= 0)
+            size = 64;
         await _cts.CancelAsync();
 
         _cts = new CancellationTokenSource();
@@ -71,7 +82,12 @@ public partial class QRCodeView : AppWindow
         {
             await Task.Delay(50, _cts.Token);
 
-            await RegenerateQRCodeAsync(_cts.Token);
+            var qrImg = await RegenerateQRCodeAsync(QRText.Text, _cts.Token);
+            if (qrImg != null)
+            {
+                QRImage.Source = qrImg;
+                image = qrImg;
+            }
         }
         catch (TaskCanceledException)
         {
@@ -79,31 +95,35 @@ public partial class QRCodeView : AppWindow
         }
     }
 
-    private async Task RegenerateQRCodeAsync(CancellationToken ct = default)
+    private async Task<Bitmap?> RegenerateQRCodeAsync(string text, CancellationToken ct = default)
     {
         using (await _qrCodeLock.AcquireAsync(ct))
         {
             DebugHelper.WriteLine($"Size : {size}");
-            DebugHelper.WriteLine($"Text: {QRText.Text}");
-            var text = QRText.Text;
-            var generatedImg = await Task.Factory.StartNew(
-                () => TaskHelpers.GenerateQRCode(text ?? Links.GitHub, size),
-                ct,
-                TaskCreationOptions.LongRunning,
-                TaskScheduler.Default
-            );
-            if (generatedImg is null) return;
+            DebugHelper.WriteLine($"Text: {text}");
+            try
+            {
+                var generatedImg = await Task.Factory.StartNew(
+                    () => TaskHelpers.GenerateQRCode(text, size),
+                    ct,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default
+                );
+                if (generatedImg is null)
+                    return null;
+                var stream = new MemoryStream();
+                await generatedImg.SaveAsync(stream, new PngEncoder(), ct);
+                stream.Position = 0;
 
-            var stream = new MemoryStream();
-            await generatedImg.SaveAsync(stream, new PngEncoder(), ct);
-            stream.Position = 0;
-
-            DebugHelper.WriteLine($"Generated QR Code: {generatedImg}");
-            DebugHelper.WriteLine($"Stream bytes: {stream.Length}");
-            image = new Bitmap(stream);
-            var qrImg = this.FindControl<Image>("QRImage")!;
-            qrImg.Source = image;
+                DebugHelper.WriteLine($"Generated QR Code: {generatedImg}");
+                DebugHelper.WriteLine($"Stream bytes: {stream.Length}");
+                return new Bitmap(stream);
+            }
+            catch (Exception ex)
+            {
+                DebugHelper.WriteLine($"Error generating QR Code: {ex}");
+                return null;
+            }
         }
     }
 }
-
