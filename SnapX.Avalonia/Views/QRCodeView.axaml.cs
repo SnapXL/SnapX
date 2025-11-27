@@ -78,15 +78,16 @@ public partial class QRCodeView : AppWindow
         await _cts.CancelAsync();
 
         _cts = new CancellationTokenSource();
-
+        var qrText = this.FindControl<TextBox>("QRText")?.Text;
+        var qrImgHolder = this.FindControl<SmartImage>("QRImage")!;
         try
         {
             await Task.Delay(50, _cts.Token);
 
-            var qrImg = await RegenerateQRCodeAsync(QRText.Text, _cts.Token);
+            var qrImg = await RegenerateQRCodeAsync(qrText, _cts.Token);
             if (qrImg != null)
             {
-                QRImage.Source = qrImg;
+                qrImgHolder.Source = qrImg;
                 image = qrImg;
             }
         }
