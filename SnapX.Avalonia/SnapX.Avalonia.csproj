@@ -20,12 +20,12 @@
   <PropertyGroup Condition="'$(TargetFreeBSD)' != 'true'">
     <ApplicationIcon>Assets\SnapX_Icon.ico</ApplicationIcon>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetWindows)' == 'true'">
-    <AvaloniaVersion>11.3.4</AvaloniaVersion>
-  </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFreeBSD)' == 'true'">
-    <AvaloniaVersion>11.3.8</AvaloniaVersion>
-  </PropertyGroup>
+<!--  <PropertyGroup Condition="'$(TargetWindows)' == 'true'">-->
+<!--    <AvaloniaVersion>11.3.4</AvaloniaVersion>-->
+<!--  </PropertyGroup>-->
+<!--    <PropertyGroup Condition="'$(TargetFreeBSD)' == 'true'">-->
+<!--    <AvaloniaVersion>11.3.8</AvaloniaVersion>-->
+<!--  </PropertyGroup>-->
   <PropertyGroup Condition="'$(TargetDesktop)' == 'true'">
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
