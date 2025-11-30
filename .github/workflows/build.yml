@@ -78,12 +78,12 @@ jobs:
           echo "cd \"$workspace\"" >> ~/.profile
           echo "cd \"$workspace\"" >> /home/runner/.bash_profile
           chown runner:runner /home/runner/.bash_profile
-          # su runner -c /usr/local/bin/bash
+          # sudo -u runner bash
       - name: Checkout repository
         shell: freebsd {0}
         run: |
           cd "$GITHUB_WORKSPACE"
-          su runner -c /usr/local/bin/bash
+          sudo -u runner bash
           mkdir -p /tmp/repo
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global --add safe.directory /tmp/repo
@@ -125,7 +125,7 @@ jobs:
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
-          su runner -c /usr/local/bin/bash
+          sudo -u runner bash
           for dir in SnapX*/; do
               [ -d "$dir" ] || continue
               mkdir -p "$dir/obj"
@@ -135,13 +135,13 @@ jobs:
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
-          su runner -c "bash build.sh --configuration ${{ matrix.configuration }} --extra-args='-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false'"
+          sudo -u runner "bash build.sh --configuration ${{ matrix.configuration }} --extra-args='-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false'"
 
       - name: Tarball
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
-          su runner -c "bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui"
+          sudo -u runner "bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui"
           sleep 10
       - name: Upload artifact
         uses: actions/upload-artifact@v5
