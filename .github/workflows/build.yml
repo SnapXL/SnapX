@@ -19,8 +19,9 @@ jobs:
   freebsd:
     name: FreeBSD Build
     runs-on: ${{matrix.os}}
+    continue-on-error: true # FreeBSD is not a first class citizen yet.
     # Prevent Ubuntu runner starvation from regular builds. FreeBSD builds are slightly slower than normal builds.
-    # needs: build
+    needs: build
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
