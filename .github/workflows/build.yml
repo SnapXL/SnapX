@@ -136,13 +136,13 @@ jobs:
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
-          sudo -u runner "bash build.sh --configuration ${{ matrix.configuration }} --extra-args='-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false'"
+          sudo -u runner bash build.sh --configuration ${{ matrix.configuration }} --extra-args='-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false'
 
       - name: Tarball
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
-          sudo -u runner "bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui"
+          sudo -u runner bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
           sleep 10
       - name: Upload artifact
         uses: actions/upload-artifact@v5
