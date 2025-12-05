@@ -337,6 +337,10 @@ jobs:
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
+            # Start snapd in the background
+            snapd &
+            # HOLD YOUR HORSES
+            while [ ! -S /run/snapd.socket ]; do sleep 1; done
             snap install --classic lxd
             snap install --classic snapcraft
             lxd init --auto
