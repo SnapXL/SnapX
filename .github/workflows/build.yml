@@ -307,19 +307,6 @@ jobs:
         run: |
           . /etc/os-release
           echo "prettyName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
-      - name: Define setup commands
-        id: setup_cmds
-        run: |
-          echo 'commands=\
-            if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi;\
-            $SUDO apt update;\
-            $SUDO apt -y upgrade;\
-            $SUDO apt -y install git debhelper gpg snap;\
-            $SUDO snap install --classic lxd;\
-            $SUDO snap install --classic snapcraft;\
-            $SUDO lxd init --auto;\
-            if ! groups | grep -q lxd; then $SUDO usermod -aG lxd "$USER"; fi;\
-            $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"' >> $GITHUB_OUTPUT
 
       - uses: uraimo/run-on-arch-action@v3
         name: Build in Container
@@ -344,18 +331,36 @@ jobs:
           # publicly in your project's package repository, so it is vital that
           # no secrets are present in the container state or logs.
           install: |
-            ${{ steps.setup_cmds.outputs.commands }}
+            if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi
+            $SUDO apt update
+            $SUDO apt -y upgrade
+            $SUDO apt -y install git debhelper gpg snap
+            $SUDO snap install --classic lxd
+            $SUDO snap install --classic snapcraft
+            $SUDO lxd init --auto
+            if ! groups | grep -q lxd; then $SUDO usermod -aG lxd "$USER"; fi
+            $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
+            EOF
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
             cd /workspace/packaging
-            $BUILD_DEB_COMMANDS
+            ${{env.BUILD_DEB_COMMANDS}}
             cd /workspace
-            $BUILD_SNAP_COMMANDS
+            ${{env.BUILD_SNAP_COMMANDS}}
       - name: Setup environment
         if: matrix.pretty_arch == ''
         run: |
-          ${{ steps.setup_cmds.outputs.commands }}
+            if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi
+            $SUDO apt update
+            $SUDO apt -y upgrade
+            $SUDO apt -y install git debhelper gpg snap
+            $SUDO snap install --classic lxd
+            $SUDO snap install --classic snapcraft
+            $SUDO lxd init --auto
+            if ! groups | grep -q lxd; then $SUDO usermod -aG lxd "$USER"; fi
+            $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
+            EOF
       - name: Build Deb
         if: matrix.pretty_arch == ''
         working-directory: packaging
