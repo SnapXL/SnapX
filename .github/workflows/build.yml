@@ -339,6 +339,7 @@ jobs:
             apt -y install git debhelper gpg software-properties-common
             add-apt-repository -y ppa:dotnet/backports
             apt -y install dotnet-sdk-10.0
+            apt update
             bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
 
           # Produce a binary artifact and place it in the mounted volume
