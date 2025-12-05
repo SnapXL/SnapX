@@ -334,14 +334,14 @@ jobs:
             apt update
             apt -y upgrade
             apt -y install git debhelper gpg snapd
-            snap install --classic lxd
-            snap install --classic snapcraft
-            lxd init --auto
-            if ! groups | grep -q lxd; then usermod -aG lxd "$USER"; fi
             bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
+            snap install --classic lxd
+            snap install --classic snapcraft
+            lxd init --auto
+            if ! groups | grep -q lxd; then usermod -aG lxd "$USER"; fi
             cd /workspace/packaging
             ${{env.BUILD_DEB_COMMANDS}}
             cd /workspace
