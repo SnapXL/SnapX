@@ -289,7 +289,7 @@ jobs:
       BUILD_DEB_COMMANDS: |
         pacstall -B -K -I -P -Q snapx.pacscript
       BUILD_SNAP_COMMANDS: |
-        snapcraft pack --destructive-mode
+        sudo snapcraft pack --destructive-mode
     steps:
       - uses: actions/checkout@v6
         with:
