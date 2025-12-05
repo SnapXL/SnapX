@@ -290,29 +290,6 @@ jobs:
         pacstall -B -K -I -P snapx.pacscript
       BUILD_SNAP_COMMANDS: |
         sg lxd -c 'snapcraft pack --use-lxd'
-      SETUP_COMMANDS: |
-        if command -v sudo >/dev/null 2>&1; then
-          SUDO="sudo"
-        else
-          SUDO=""
-        fi
-
-        $SUDO apt update
-        $SUDO apt -y upgrade
-        $SUDO apt -y install git debhelper gpg snap
-
-        $SUDO snap install --classic lxd
-        $SUDO snap install --classic snapcraft
-
-        $SUDO lxd init --auto
-
-        if groups | grep -q lxd; then
-          :
-        else
-          $SUDO usermod -aG lxd "$USER"
-        fi
-
-        $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
     steps:
       - uses: actions/checkout@v6
         with:
@@ -330,6 +307,20 @@ jobs:
         run: |
           . /etc/os-release
           echo "prettyName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
+      - name: Define setup commands
+        id: setup_cmds
+        run: |
+          echo 'commands=\
+            if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi;\
+            $SUDO apt update;\
+            $SUDO apt -y upgrade;\
+            $SUDO apt -y install git debhelper gpg snap;\
+            $SUDO snap install --classic lxd;\
+            $SUDO snap install --classic snapcraft;\
+            $SUDO lxd init --auto;\
+            if ! groups | grep -q lxd; then $SUDO usermod -aG lxd "$USER"; fi;\
+            $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"' >> $GITHUB_OUTPUT
+
       - uses: uraimo/run-on-arch-action@v3
         name: Build in Container
         if: matrix.pretty_arch != ''
@@ -353,7 +344,7 @@ jobs:
           # publicly in your project's package repository, so it is vital that
           # no secrets are present in the container state or logs.
           install: |
-            $SETUP_COMMANDS
+            ${{ steps.setup_cmds.outputs.commands }}
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
@@ -364,7 +355,7 @@ jobs:
       - name: Setup environment
         if: matrix.pretty_arch == ''
         run: |
-          $SETUP_COMMANDS
+          ${{ steps.setup_cmds.outputs.commands }}
       - name: Build Deb
         if: matrix.pretty_arch == ''
         working-directory: packaging
