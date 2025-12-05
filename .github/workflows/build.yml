@@ -268,6 +268,125 @@ jobs:
           name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
           path: /github/home/rpmbuild/**/*.rpm
           if-no-files-found: error
+  ubuntu:
+    name: DEB/Snap Build
+    runs-on: ${{matrix.os}}
+    needs: build
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        # os: [ ubuntu-latest, ubuntu-24.04-arm ]
+        include:
+          - os: ubuntu-latest
+            arch: X64
+          - os: ubuntu-24.04-arm
+            arch: ARM64
+          - os: ubuntu-latest
+            arch: armv7
+            pretty_arch: ARMHF
+    env:
+      BUILD_DEB_COMMANDS: |
+        pacstall -B -K -I -P snapx.pacscript
+      BUILD_SNAP_COMMANDS: |
+        sg lxd -c 'snapcraft pack --use-lxd'
+      SETUP_COMMANDS: |
+        if command -v sudo >/dev/null 2>&1; then
+          SUDO="sudo"
+        else
+          SUDO=""
+        fi
+
+        $SUDO apt update
+        $SUDO apt -y upgrade
+        $SUDO apt -y install git debhelper gpg snap
+
+        $SUDO snap install --classic lxd
+        $SUDO snap install --classic snapcraft
+
+        $SUDO lxd init --auto
+
+        if groups | grep -q lxd; then
+          :
+        else
+          $SUDO usermod -aG lxd "$USER"
+        fi
+
+        $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Download API keys
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+      - name: Grab pretty OS name
+        id: osname
+        run: |
+          . /etc/os-release
+          echo "prettyName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
+      - uses: uraimo/run-on-arch-action@v3
+        name: Build in Container
+        if: matrix.pretty_arch != ''
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ubuntu24.04
+
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+          dockerRunArgs: |
+            --privileged
+            --volume "${PWD}:/workspace"
+
+          # The shell to run commands with in the container
+          shell: /bin/bash
+
+          # Install some dependencies in the container. This speeds up builds if
+          # you are also using githubToken. Any dependencies installed here will
+          # be part of the container image that gets cached, so subsequent
+          # builds don't have to re-install them. The image layer is cached
+          # publicly in your project's package repository, so it is vital that
+          # no secrets are present in the container state or logs.
+          install: |
+            $SETUP_COMMANDS
+
+          # Produce a binary artifact and place it in the mounted volume
+          run: |
+            cd /workspace/packaging
+            $BUILD_DEB_COMMANDS
+            cd /workspace
+            $BUILD_SNAP_COMMANDS
+      - name: Setup environment
+        if: matrix.pretty_arch == ''
+        run: |
+          $SETUP_COMMANDS
+      - name: Build Deb
+        if: matrix.pretty_arch == ''
+        working-directory: packaging
+        run: |
+          $BUILD_DEB_COMMANDS
+      - name: Build Snap
+        if: matrix.pretty_arch == ''
+        run: |
+          $BUILD_SNAP_COMMANDS
+
+      - name: Upload artifact (DEB)
+        uses: actions/upload-artifact@v5
+        with:
+          name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.pretty_arch || matrix.arch }}
+          path: packaging/*.deb
+          if-no-files-found: error
+      - name: Upload artifact (Snap)
+        uses: actions/upload-artifact@v5
+        with:
+          name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
+          path: "*.snap"
+          if-no-files-found: error
   build:
     name: Build
     runs-on: ${{matrix.os}}
