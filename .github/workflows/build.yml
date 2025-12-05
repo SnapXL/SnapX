@@ -292,7 +292,7 @@ jobs:
       BUILD_DEB_COMMANDS: |
         pacstall -B -K -I -P -Q snapx.pacscript
       BUILD_SNAP_COMMANDS: |
-        snapcraft pack --use-lxd
+        snapcraft pack --destructive-mode
     steps:
       - uses: actions/checkout@v6
         with:
@@ -343,6 +343,7 @@ jobs:
           run: |
             # Start snapd in the background
             # HOLD YOUR HORSES
+            ln -s /var/lib/snapd/snap /snap
             /usr/lib/snapd/snapd &
             timeout=30
             elapsed=0
@@ -354,10 +355,7 @@ jobs:
                     exit 1
                 fi
             done
-            snap install --classic lxd
             snap install --classic snapcraft
-            lxd init --auto
-            if ! groups | grep -q lxd; then usermod -aG lxd "$USER"; fi
             cd /workspace/packaging
             ${{env.BUILD_DEB_COMMANDS}}
             cd /workspace
@@ -367,11 +365,8 @@ jobs:
         run: |
             if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi
             $SUDO apt update
-            $SUDO apt -y install git debhelper gpg snapd
-            $SUDO snap install --classic lxd
+            $SUDO apt -y install git debhelper gpg
             $SUDO snap install --classic snapcraft
-            $SUDO lxd init --auto
-            if ! groups | grep -q lxd; then $SUDO usermod -aG lxd "$USER"; fi
             $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
       - name: Build Deb
         if: matrix.pretty_arch == ''
