@@ -331,16 +331,14 @@ jobs:
           # publicly in your project's package repository, so it is vital that
           # no secrets are present in the container state or logs.
           install: |
-            if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi
-            $SUDO apt update
-            $SUDO apt -y upgrade
-            $SUDO apt -y install git debhelper gpg snap
-            $SUDO snap install --classic lxd
-            $SUDO snap install --classic snapcraft
-            $SUDO lxd init --auto
-            if ! groups | grep -q lxd; then $SUDO usermod -aG lxd "$USER"; fi
-            $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
-            EOF
+            apt update
+            apt -y upgrade
+            apt -y install git debhelper gpg snapd
+            snap install --classic lxd
+            snap install --classic snapcraft
+            lxd init --auto
+            if ! groups | grep -q lxd; then usermod -aG lxd "$USER"; fi
+            bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
@@ -354,13 +352,12 @@ jobs:
             if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi
             $SUDO apt update
             $SUDO apt -y upgrade
-            $SUDO apt -y install git debhelper gpg snap
+            $SUDO apt -y install git debhelper gpg snapd
             $SUDO snap install --classic lxd
             $SUDO snap install --classic snapcraft
             $SUDO lxd init --auto
             if ! groups | grep -q lxd; then $SUDO usermod -aG lxd "$USER"; fi
             $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
-            EOF
       - name: Build Deb
         if: matrix.pretty_arch == ''
         working-directory: packaging
