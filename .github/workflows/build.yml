@@ -271,7 +271,7 @@ jobs:
   ubuntu:
     name: DEB/Snap Build
     runs-on: ${{matrix.os}}
-    needs: build
+    # needs: build
     timeout-minutes: 65
     strategy:
       fail-fast: false
