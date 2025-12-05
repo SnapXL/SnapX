@@ -287,7 +287,7 @@ jobs:
             pretty_arch: ARMHF
     env:
       BUILD_DEB_COMMANDS: |
-        pacstall -B -K -I -P snapx.pacscript
+        pacstall -B -K -I -P -Q snapx.pacscript
       BUILD_SNAP_COMMANDS: |
         sg lxd -c 'snapcraft pack --use-lxd'
     steps:
@@ -332,7 +332,6 @@ jobs:
           # no secrets are present in the container state or logs.
           install: |
             apt update
-            apt -y upgrade
             apt -y install git debhelper gpg snapd
             bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
 
@@ -351,7 +350,6 @@ jobs:
         run: |
             if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi
             $SUDO apt update
-            $SUDO apt -y upgrade
             $SUDO apt -y install git debhelper gpg snapd
             $SUDO snap install --classic lxd
             $SUDO snap install --classic snapcraft
