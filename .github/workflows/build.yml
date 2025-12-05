@@ -292,7 +292,7 @@ jobs:
       BUILD_DEB_COMMANDS: |
         pacstall -B -K -I -P -Q snapx.pacscript
       BUILD_SNAP_COMMANDS: |
-        sg lxd -c "snapcraft pack --use-lxd"
+        snapcraft pack --use-lxd
     steps:
       - uses: actions/checkout@v6
         with:
