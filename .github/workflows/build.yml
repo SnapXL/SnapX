@@ -284,9 +284,6 @@ jobs:
             arch: X64
           - os: ubuntu-24.04-arm
             arch: ARM64
-          - os: ubuntu-latest
-            arch: armv7
-            pretty_arch: ARMHF
     env:
       API_KEYS: ${{ secrets.API_KEYS }}
       BUILD_DEB_COMMANDS: |
@@ -310,46 +307,13 @@ jobs:
         run: |
           . /etc/os-release
           echo "prettyName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
-
-      - uses: uraimo/run-on-arch-action@v3
-        name: Build in Container
-        if: matrix.pretty_arch != ''
-        with:
-          arch: ${{ matrix.arch }}
-          distro: ubuntu24.04
-
-          # Not required, but speeds up builds
-          githubToken: ${{ github.token }}
-          dockerRunArgs: |
-            --privileged
-            --volume "${PWD}:/workspace"
-
-          # The shell to run commands with in the container
-          shell: /bin/bash
-          env: | # DEEPLY NESTED YAML!!! AAAAA
-            API_KEYS: "${{ secrets.API_KEYS }}"
-          # Install some dependencies in the container. This speeds up builds if
-          # you are also using githubToken. Any dependencies installed here will
-          # be part of the container image that gets cached, so subsequent
-          # builds don't have to re-install them. The image layer is cached
-          # publicly in your project's package repository, so it is vital that
-          # no secrets are present in the container state or logs.
-          install: |
-            apt update
-            apt -y install git debhelper gpg
-            bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
-
-          # Produce a binary artifact and place it in the mounted volume
-          run: |
-            cd /workspace/packaging
-            ${{env.BUILD_DEB_COMMANDS}} -Ns
       - name: Setup environment
         if: matrix.pretty_arch == ''
         run: |
-            if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi
-            $SUDO apt update
-            $SUDO apt -y install git debhelper gpg snapd
-            $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
+            sudo apt update
+            sudo apt -y install git gpg snapd
+            sudo snap install snapcraft --classic
+            sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
       - name: Build Deb
         if: matrix.pretty_arch == ''
         working-directory: packaging
@@ -363,11 +327,10 @@ jobs:
       - name: Upload artifact (DEB)
         uses: actions/upload-artifact@v5
         with:
-          name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.pretty_arch || matrix.arch }}
+          name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.arch }}
           path: packaging/*.deb
           if-no-files-found: error
       - name: Upload artifact (Snap)
-        if: matrix.pretty_arch == ''
         uses: actions/upload-artifact@v5
         with:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
