@@ -342,7 +342,7 @@ jobs:
           # Produce a binary artifact and place it in the mounted volume
           run: |
             cd /workspace/packaging
-            ${{env.BUILD_DEB_COMMANDS}}
+            ${{env.BUILD_DEB_COMMANDS}} -Ns
       - name: Setup environment
         if: matrix.pretty_arch == ''
         run: |
