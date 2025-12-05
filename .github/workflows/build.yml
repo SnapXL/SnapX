@@ -376,7 +376,7 @@ jobs:
       - name: Build Snap
         if: matrix.pretty_arch == ''
         run: |
-          $BUILD_SNAP_COMMANDS
+          sudo $BUILD_SNAP_COMMANDS
 
       - name: Upload artifact (DEB)
         uses: actions/upload-artifact@v5
