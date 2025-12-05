@@ -336,37 +336,21 @@ jobs:
           # no secrets are present in the container state or logs.
           install: |
             apt update
-            apt -y install git debhelper gpg snapd
+            apt -y install git debhelper gpg software-properties-common
+            add-apt-repository -y ppa:dotnet/backports
+            apt -y install dotnet-sdk-10.0
             bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
-            # Start snapd in the background
-            # HOLD YOUR HORSES
-            ln -s /var/lib/snapd/snap /snap
-            /usr/lib/snapd/snapd &
-            timeout=30
-            elapsed=0
-            while [ ! -S /run/snapd.socket ]; do
-                sleep 1
-                elapsed=$((elapsed + 1))
-                if [ "$elapsed" -ge "$timeout" ]; then
-                    echo "snapd did not start within $timeout seconds" >&2
-                    exit 1
-                fi
-            done
-            snap install --classic snapcraft
             cd /workspace/packaging
             ${{env.BUILD_DEB_COMMANDS}}
-            cd /workspace
-            ${{env.BUILD_SNAP_COMMANDS}}
       - name: Setup environment
         if: matrix.pretty_arch == ''
         run: |
             if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi
             $SUDO apt update
             $SUDO apt -y install git debhelper gpg
-            $SUDO snap install --classic snapcraft
             $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
       - name: Build Deb
         if: matrix.pretty_arch == ''
@@ -385,6 +369,7 @@ jobs:
           path: packaging/*.deb
           if-no-files-found: error
       - name: Upload artifact (Snap)
+        if: matrix.pretty_arch == ''
         uses: actions/upload-artifact@v5
         with:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
