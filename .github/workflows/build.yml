@@ -273,6 +273,8 @@ jobs:
     runs-on: ${{matrix.os}}
     # needs: build
     timeout-minutes: 65
+    permissions:
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -340,9 +342,18 @@ jobs:
           # Produce a binary artifact and place it in the mounted volume
           run: |
             # Start snapd in the background
-            snapd &
             # HOLD YOUR HORSES
-            while [ ! -S /run/snapd.socket ]; do sleep 1; done
+            /usr/lib/snapd/snapd &
+            timeout=30
+            elapsed=0
+            while [ ! -S /run/snapd.socket ]; do
+                sleep 1
+                elapsed=$((elapsed + 1))
+                if [ "$elapsed" -ge "$timeout" ]; then
+                    echo "snapd did not start within $timeout seconds" >&2
+                    exit 1
+                fi
+            done
             snap install --classic lxd
             snap install --classic snapcraft
             lxd init --auto
