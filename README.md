@@ -193,6 +193,7 @@ Contributions are welcome. The documentation for contributing is a work in progr
 
 ## Donators 💖
 
+- [Rsslone (Tommy)](https://github.com/Rsslone)
 - [Skorlok](https://github.com/Skorlok)
 - [Abdullah16M](https://github.com/Abdullah16M)
 
