@@ -348,7 +348,7 @@ jobs:
         run: |
             if command -v sudo >/dev/null 2>&1; then SUDO="sudo"; else SUDO=""; fi
             $SUDO apt update
-            $SUDO apt -y install git debhelper gpg
+            $SUDO apt -y install git debhelper gpg snapd
             $SUDO bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
       - name: Build Deb
         if: matrix.pretty_arch == ''
@@ -358,7 +358,7 @@ jobs:
       - name: Build Snap
         if: matrix.pretty_arch == ''
         run: |
-          sudo $BUILD_SNAP_COMMANDS
+          $BUILD_SNAP_COMMANDS
 
       - name: Upload artifact (DEB)
         uses: actions/upload-artifact@v5
