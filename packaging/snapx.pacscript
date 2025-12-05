@@ -30,6 +30,10 @@ pkgver() {
 build() {
     cd "$pkgbase"
     git fetch --unshallow || true
+    if [ -n "$API_KEYS" ]; then
+        curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+    fi
+
     export VERSION=$pkgver
     export PKGTYPE=DEB
     ./build.sh --configuration Release
@@ -42,6 +46,7 @@ check() {
 
 package_snapx() {
     depends=(
+        'ffmpeg'
         'fontconfig'
         'libfreetype6-dev'
         'openssl'
@@ -53,7 +58,6 @@ package_snapx() {
         'dbus'
         'xdg-utils'
     )
-    pacdeps=("ffmpeg")
     cd "$pkgbase"
     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --assembly snapx --skip compile
 }
