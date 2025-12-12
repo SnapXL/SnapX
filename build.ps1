@@ -20,7 +20,7 @@ $TempDirectory = "$PSScriptRoot\build\temp"
 
 $DotNetGlobalFile = "$PSScriptRoot\\global.json"
 $DotNetInstallUrl = "https://dot.net/v1/dotnet-install.ps1"
-$DotNetChannel = "STS"
+$DotNetChannel = "LTS"
 
 $env:AVALONIA_TELEMETRY_OPTOUT = 1
 $env:DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE = "true"

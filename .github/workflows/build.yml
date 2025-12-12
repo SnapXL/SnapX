@@ -403,7 +403,7 @@ jobs:
         run: dotnet restore --packages ./vendor build/build.csproj
       - name: Cache .NET NuGet packages
         if: runner.os != 'macOS'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: vendor
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
