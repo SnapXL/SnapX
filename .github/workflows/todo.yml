@@ -1,13 +1,13 @@
-name: 'Run TODO to Issue'
+name: Run TODO to Issue
 on:
   push:
     branches:
-      - 'develop'
+      - develop
 
 jobs:
   build:
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     steps:
-      - uses: 'actions/checkout@v5'
-      - name: 'TODO to Issue'
-        uses: 'alstr/todo-to-issue-action@v5'
+      - uses: actions/checkout@v6
+      - name: TODO to Issue
+        uses: alstr/todo-to-issue-action@v5

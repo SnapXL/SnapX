@@ -136,6 +136,7 @@ jobs:
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
+          rm -rf .git # GitVersion keeps being a pain in the ass.
           sudo -u runner bash build.sh --configuration ${{ matrix.configuration }} --extra-args='-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false'
 
       - name: Tarball

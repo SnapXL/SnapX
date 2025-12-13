@@ -9,7 +9,7 @@
   <ItemGroup>
     <!-- Windows Registry Configuration Support -->
     <PackageReference Include="Esatto.Win32.Registry" Version="3.0.17"  />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.257" >
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.259" >
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -18,6 +18,6 @@
     <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.win-x64" Version="$(OpenCvSharp4Version)"  />
     <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas" Version="$(PaddleInferenceVersion)"  />
     <!-- Blazingly fast screen captures on Windows, hopefully even compatible with video games that have weird quirks. -->
-    <PackageReference Include="Vortice.Direct3D11" Version="3.8.1" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" />
   </ItemGroup>
 </Project>
