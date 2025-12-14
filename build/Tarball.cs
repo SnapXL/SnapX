@@ -3,7 +3,12 @@ using Bullseye;
 
 namespace DefaultNamespace;
 
-public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileSystem, BuildConfig config)
+public class Tarball(
+    IBuildLogger Logger,
+    ICommandRunner CommandRunner,
+    FS FileSystem,
+    BuildConfig config
+)
 {
     public async Task ProcessTarball()
     {
@@ -14,10 +19,7 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
         {
             var destDir = config.Tarballdir + Path.DirectorySeparatorChar;
             var installConfig = config;
-            var defaultConfig = new BuildConfig
-            {
-                BullseyeOptions = new Options()
-            };
+            var defaultConfig = new BuildConfig { BullseyeOptions = new Options() };
             if (string.IsNullOrWhiteSpace(installConfig.DestDir))
             {
                 installConfig.DestDir = destDir;
@@ -34,14 +36,18 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
 
             if (!OperatingSystem.IsWindows())
             {
-                if (installConfig.LibDir == Path.Join(config.DestDir, config.Prefix, "lib", "snapx"))
+                if (
+                    installConfig.LibDir == Path.Join(config.DestDir, config.Prefix, "lib", "snapx")
+                )
                 {
                     installConfig.LibDir = Path.Join(destDir, installConfig.Prefix, "lib");
                 }
             }
             else
             {
-                if (installConfig.LibDir == Path.Join(config.DestDir, config.Prefix, "lib", "snapx"))
+                if (
+                    installConfig.LibDir == Path.Join(config.DestDir, config.Prefix, "lib", "snapx")
+                )
                 {
                     installConfig.LibDir = destDir;
                 }
@@ -54,35 +60,27 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
 
             if (!installConfig.ShouldSkip("copy_deps"))
             {
-                var libDirWithoutDestDir = !string.IsNullOrWhiteSpace(config.DestDir) &&
-                                           config.LibDir.StartsWith(config.DestDir, StringComparison.Ordinal)
-                    ? config.LibDir[config.DestDir.Length..].TrimStart('/')
-                    : config.LibDir.TrimStart('/');
+                var libDirWithoutDestDir =
+                    !string.IsNullOrWhiteSpace(config.DestDir)
+                    && config.LibDir.StartsWith(config.DestDir, StringComparison.Ordinal)
+                        ? config.LibDir[config.DestDir.Length..].TrimStart('/')
+                        : config.LibDir.TrimStart('/');
+                var relativeLibPath = Path.GetRelativePath(config.Tarballdir, config.LibDir);
+
                 installConfig.CustomWrapperScript = $"""
-                                                     #!/usr/bin/env sh
-                                                     # SnapX version: {config.SnapXVersion}
+                    #!/usr/bin/env sh
+                    # SnapX version: {config.SnapXVersion}
 
-                                                     # Attempt to re-exec with bash if available
-                                                     if [ -z "$BOOTSTRAPPED_WITH_BASH" ] && command -v bash >/dev/null 2>&1; then
-                                                       BOOTSTRAPPED_WITH_BASH=1 exec bash "$0" "$@"
-                                                     fi
+                    dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
+                    cd "$dir" || exit
 
-                                                     dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
-                                                     cd "$dir" || exit
+                    PATH="$dir:$dir/{relativeLibPath}:$PATH"
 
-                                                     EXTRA_ARGS=""
-                                                     if [ -n "$BASH_VERSION" ]; then
-                                                         EXTRA_ARGS="-a -c"
-                                                     fi
-
-                                                     ld_path=$(echo lib/ld*.so* | head -n 1)
-
-                                                     if [ -e "$ld_path" ]; then
-                                                         exec "$EXTRA_ARGS" "$ld_path" "{Path.Join(libDirWithoutDestDir, TargetInstallAssembly ?? "snapx-ui")}" "$@"
-                                                     else
-                                                         exec "{Path.Join(libDirWithoutDestDir, TargetInstallAssembly ?? "snapx-ui")}" "$@"
-                                                     fi
-                                                     """;
+                    exec "{Path.Join(
+                        libDirWithoutDestDir,
+                        TargetInstallAssembly ?? "snapx-ui"
+                    )}" --inhibit-cache "$@"
+                    """;
             }
             installConfig.Docdir = destDir;
             // installConfig.Applicationsdir = destDir;
@@ -95,7 +93,11 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
         }
         if (TargetInstallAssembly is not null)
         {
-            var installedLibFiles = Directory.GetFiles(config.LibDir, "*", SearchOption.AllDirectories);
+            var installedLibFiles = Directory.GetFiles(
+                config.LibDir,
+                "*",
+                SearchOption.AllDirectories
+            );
 
             foreach (var libFile in installedLibFiles)
             {
@@ -103,7 +105,13 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
 
                 if (config.knownAssemblyNames.Contains(fileName))
                 {
-                    if (!string.Equals(fileName, TargetInstallAssembly, StringComparison.OrdinalIgnoreCase))
+                    if (
+                        !string.Equals(
+                            fileName,
+                            TargetInstallAssembly,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                    )
                     {
                         Logger.Debug($"Removing unwanted assembly '{fileName}'");
                         await FileSystem.TryDeleteFile(libFile);
@@ -112,8 +120,10 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
                 }
             }
         }
-        if ((OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD()) &&
-            !config.ShouldSkip("copy_deps"))
+        if (
+            (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+            && !config.ShouldSkip("copy_deps")
+        )
         {
             var processedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var targetOutputDir = TargetInstallAssembly is not null
@@ -125,11 +135,16 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             {
                 try
                 {
-                    if (!IsSoFile(file) && !IsElfFile(file)) continue;
-                    if (!processedFiles.Add(file)) continue;
+                    if (!IsSoFile(file) && !IsElfFile(file))
+                        continue;
+                    if (!processedFiles.Add(file))
+                        continue;
 
                     var args = $"\"{file}\" \"{config.LibDir}\"";
-                    await CommandRunner.RunAsync(Path.Join(config.PackagingDirectory, "copy_deps.sh"), args);
+                    await CommandRunner.RunAsync(
+                        Path.Join(config.PackagingDirectory, "copy_deps.sh"),
+                        args
+                    );
                 }
                 catch (Exception ex)
                 {
@@ -138,18 +153,49 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             }
 
             await FileSystem.TryDeleteFile("/tmp/processed_deps.lockfile");
-            var snapxfiles = Directory.EnumerateFiles(config.LibDir, "*snapx*", SearchOption.AllDirectories);
+            var snapxfiles = Directory.EnumerateFiles(
+                config.LibDir,
+                "*snapx*",
+                SearchOption.AllDirectories
+            );
+            var interpreterFile = Directory
+                .EnumerateFiles(config.LibDir, "ld-*.so.*", SearchOption.TopDirectoryOnly)
+                .Select(Path.GetFileName)
+                .FirstOrDefault(f => f.StartsWith("ld"));
+
+            string interpreterArgs = string.Empty;
+
+            if (!config.ShouldSkip("set_interpreter") && !string.IsNullOrWhiteSpace(interpreterFile))
+            {
+                var relativeLibPath = Path.GetRelativePath(config.Tarballdir, config.LibDir);
+                interpreterArgs = $"--set-interpreter {Path.Combine(relativeLibPath, interpreterFile)} ";
+            }
+
             foreach (var file in snapxfiles)
             {
                 try
                 {
-                    await CommandRunner.RunAsync("patchelf", $"--set-rpath \"$ORIGIN\" {file}");
+                    await CommandRunner.RunAsync(
+                        "patchelf",
+                        $"--set-rpath \"$ORIGIN\" --force-rpath {interpreterArgs} {file}"
+                    );
                 }
                 catch (Exception ex)
                 {
                     Logger.Error($"Error patching {file}: {ex.Message}");
                 }
             }
+            File.WriteAllText(
+                Path.Combine(config.LibDir, "README"),
+                """
+                The ELF binaries in this directory expect to be run from the root of the tarball. Additionally, they are not intended to be used outside of the tarball. They are patched for this tarball and may not work correctly if moved.
+
+
+                You can undo the patching with 'patchelf --remove-rpath --set-interpreter $(readelf -l "$(command -v uname)" | awk '/Requesting program interpreter/ {print $NF}' | tr -d '[]') <file>'.
+
+
+                """
+            );
         }
 
         if (!config.ShouldSkip("archive"))
@@ -183,13 +229,18 @@ public class Tarball(IBuildLogger Logger, ICommandRunner CommandRunner, FS FileS
             using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             byte[] magic = new byte[4];
             int read = fs.Read(magic, 0, 4);
-            return read == 4 && magic[0] == 0x7F && magic[1] == (byte)'E' && magic[2] == (byte)'L' && magic[3] == (byte)'F';
+            return read == 4
+                && magic[0] == 0x7F
+                && magic[1] == (byte)'E'
+                && magic[2] == (byte)'L'
+                && magic[3] == (byte)'F';
         }
         catch
         {
             return false;
         }
     }
+
     string NormalizePath(string path)
     {
         return Path.GetFullPath(path);
