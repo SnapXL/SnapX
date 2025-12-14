@@ -144,7 +144,6 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE;
           sudo -u runner bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
-          sleep 10
       - name: Upload artifact
         uses: actions/upload-artifact@v5
         with:
