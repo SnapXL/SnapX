@@ -165,10 +165,24 @@ public class Tarball(
 
             string interpreterArgs = string.Empty;
 
-            if (!config.ShouldSkip("set_interpreter") && !string.IsNullOrWhiteSpace(interpreterFile))
+            if (
+                !config.ShouldSkip("set_interpreter") && !string.IsNullOrWhiteSpace(interpreterFile)
+            )
             {
                 var relativeLibPath = Path.GetRelativePath(config.Tarballdir, config.LibDir);
-                interpreterArgs = $"--set-interpreter {Path.Combine(relativeLibPath, interpreterFile)} ";
+                interpreterArgs =
+                    $"--set-interpreter {Path.Combine(relativeLibPath, interpreterFile)} ";
+            }
+            if (!config.ShouldSkip("sniff_deps"))
+            {
+                var usesWrapperScript = config.DisableWrapperScript is false;
+                var target = TargetInstallAssembly ?? "snapx-ui";
+                var args =
+                    $"\"{(usesWrapperScript ? Path.Join(config.Tarballdir, target) : Path.Join(config.LibDir, target))}\" \"{config.LibDir}\"";
+                await CommandRunner.RunAsync(
+                    Path.Join(config.PackagingDirectory, "sniff_deps.sh"),
+                    args
+                );
             }
 
             foreach (var file in snapxfiles)
