@@ -65,6 +65,9 @@ Requires:       dotnet-runtime-10.0
 %endif
 
 Recommends:     /usr/bin/ffmpeg
+Recommends:     /usr/bin/glxinfo
+Recommends:     /usr/bin/lspci
+Recommends:     /usr/bin/xrandr
 # Generic Avalonia Dependencies
 Requires:       fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
 # Required for opening browser tabs across Linux desktops
