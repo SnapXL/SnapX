@@ -150,14 +150,6 @@ jobs:
               mkdir -p "$dir/obj"
               cp build/obj/gitversion.json "$dir/obj/"
           done
-      - name: Build & Install msquic
-        shell: freebsd {0}
-        run: |
-          git clone --branch v2.5.6 --recursive https://github.com/microsoft/msquic.git
-          cd msquic
-          cmake -S . -B build
-          cmake --build build --parallel
-          sudo cmake --install build
       - name: Publish
         shell: freebsd {0}
         run: |
