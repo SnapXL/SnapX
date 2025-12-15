@@ -31,7 +31,7 @@ trap cleanup EXIT
 echo "Last 20 lines of output:"
 tail -n 20 "$TMP"
 
-LIBS=$(awk '/calling init:/ {
+LIBS_EXTRACTED=$(awk '/calling init:/ {
     match($0,/calling init: ([^ ]+)/,a)
     if(a[1]) print a[1]
 }' "$TMP" | sort -u)
@@ -49,6 +49,11 @@ lspci
 dmidecode
 grep
 bash
+ffmpeg
+"
+
+LIBRARIES_KNOWN="
+libmsquic
 "
 
 # Coreutils will be provided by cool Rust implementation
@@ -77,6 +82,29 @@ PROGRAMS=$(
     } | grep -v -F -x -f "$BLACKLIST_FILE" | sort -u
 )
 
+resolve_lib() {
+    name="$1"
+
+    if command -v ldconfig >/dev/null 2>&1; then
+        ldconfig -p 2>/dev/null \
+        | awk -v n="$name" '$1 ~ "^"n"\\.so" {print $NF; exit}'
+    else
+        find /lib /usr/lib /lib64 /usr/lib64 2>/dev/null \
+            -type f -name "$name.so*" | head -n 1
+    fi
+}
+
+LIBS=$(
+    {
+        printf '%s\n' $LIBS_EXTRACTED
+
+        for lib in $LIBRARIES_KNOWN; do
+            resolved="$(resolve_lib "$lib")"
+            [ -n "$resolved" ] && printf '%s\n' "$resolved"
+        done
+    } | sort -u
+)
+
 rm -f "$BLACKLIST_FILE"
 SCRIPT_DIR="$(cd -- "$(dirname -- "$0")" && pwd -P)"
 
@@ -92,8 +120,6 @@ if [ -x "$(command -v patchelf)" ]; then
         exit 1
     fi
 fi
-
-set -x
 
 for lib in $LIBS; do
     if [ -n "$lib" ] && [ -f "$lib" ]; then
