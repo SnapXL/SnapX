@@ -19,14 +19,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# if command -v timeout >/dev/null 2>&1; then
-#     timeout 5s sh -c "LD_DEBUG=libs \"$EXE\" >/dev/null 2>\"$TMP\""
-# else
-    LD_DEBUG=libs "$EXE" >/dev/null 2>"$TMP" &
-    PID=$!
-    sleep 5
-    kill "$PID" 2>/dev/null || true
-# fi
+timeout 15s xvfb-run -w 5 sh -c '
+env LD_DEBUG=libs "$1" >/dev/null 2>"$2"
+' sh "$EXE" "$TMP" || true
 
 echo "Last 20 lines of output:"
 tail -n 20 "$TMP"
