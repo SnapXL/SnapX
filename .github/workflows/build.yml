@@ -68,7 +68,10 @@ jobs:
           # usesh: true
           sync: sshfs
           prepare: |
-            pkg install -y curl bash llvm21 sudo dotnet patchelf git flock xorg dbus
+            pkg install -y curl bash llvm21 sudo dotnet patchelf git flock xorg dbus glx-utils pciutils dmidecode
+            # Install pre compiled FreeBSD FFmpeg 8 (amd64 ONLY)
+            curl -fsSL https://github.com/Thefrank/ffmpeg-static-freebsd/releases/download/v8.0/ffmpeg -o /usr/local/bin/ffmpeg
+            chmod +x /usr/local/bin/ffmpeg
             chsh -s /usr/local/bin/bash
             pw useradd runner -m -s /usr/local/bin/bash
             pw groupmod wheel -m runner
@@ -147,6 +150,14 @@ jobs:
               mkdir -p "$dir/obj"
               cp build/obj/gitversion.json "$dir/obj/"
           done
+      - name: Build & Install msquic
+        shell: freebsd {0}
+        run: |
+          git clone --branch v2.5.6 --recursive https://github.com/microsoft/msquic.git
+          cd msquic
+          cmake -S . -B build
+          cmake --build build --parallel
+          sudo cmake --install build
       - name: Publish
         shell: freebsd {0}
         run: |
@@ -424,9 +435,17 @@ jobs:
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-nuget-
-      - name: Install NativeAOT Linux Deps
+      - name: Install Build Linux Deps
         if: runner.os == 'Linux'
-        run: "sudo apt update && sudo apt install -y clang zlib1g-dev patchelf"
+        run: "sudo add-apt-repository -y ppa:kisak/kisak-mesa && sudo add-apt-repository -y ppa:ubuntuhandbook1/ffmpeg8 && sudo apt update && sudo apt install -y clang zlib1g-dev patchelf xorg ffmpeg mesa-utils pciutils dmidecode"
+      - name: Build & Install msquic
+        if: runner.os == 'Linux'
+        run: |
+          git clone --branch v2.5.6 --recursive https://github.com/microsoft/msquic.git
+          cd msquic
+          cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr
+          cmake --build build --parallel
+          sudo cmake --install build
       - name: Install Rust toolchain
         if: runner.os == 'macOS'
         run: brew install rust
