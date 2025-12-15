@@ -68,8 +68,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <!-- Cross platform OCR library -->
-    <PackageReference Include="Sdcb.PaddleOCR" Version="$(PaddleOCRVersion)" />
-    <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="$(PaddleOCRVersion)" />
+    <PackageReference Include="Sdcb.PaddleOCR" Version="$(PaddleOCRVersion)" Condition="$(DisableOCR) != '1'" />
+    <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="$(PaddleOCRVersion)" Condition="$(DisableOCR) != '1'" />
     <!-- Crash forensics & performance analytics -->
     <PackageReference Include="Sentry.Profiling" Version="6.0.0" />
     <!-- Next generation logging -->
@@ -138,7 +138,7 @@
     <Compile Remove="SharpCapture/Windows/*.cs" />
     <Compile Remove="Utils/Native/WindowsAPI.cs" />
   </ItemGroup>
-  <Import Project="./Linux.props" Condition="'$(TargetLinux)' == 'true' or '$(TargetFreeBSD)' == 'true'" />
+  <Import Project="./Linux.props" Condition="'$(TargetLinux)' == 'true'" />
   <Import Project="./OSX.props" Condition="'$(TargetMacOS)' == 'true'" />
   <Import Project="./Windows.props" Condition="'$(TargetWindows)' == 'true'" />
 </Project>

@@ -8,11 +8,13 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using NeoSolve.ImageSharp.AVIF;
+#if !DISABLE_OCR
 using OpenCvSharp;
 using Sdcb.PaddleInference;
 using Sdcb.PaddleOCR;
 using Sdcb.PaddleOCR.Models;
 using Sdcb.PaddleOCR.Models.Local;
+#endif
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
@@ -782,6 +784,7 @@ public static class TaskHelpers
     {
         return await OCRImage(image, null, taskSettings);
     }
+    #if !DISABLE_OCR
     public static FullOcrModel GetModelForLanguage(string languageCode)
     {
         return languageCode switch
@@ -816,13 +819,14 @@ public static class TaskHelpers
             _ => LocalRecognizationModel.EnglishV4           // Fallback to English
         };
     }
+    #endif
 
     public static async Task<string> OCRImage(Image? image = null, string? filePath = null, TaskSettings? taskSettings = null, string? languageCode = null)
     {
 #if DISABLE_OCR
         DebugHelper.WriteException(new Exception("This build of SnapX was built with DISABLE_OCR build time constant."));
         return string.Empty;
-#endif
+        #else
         var model = GetModelForLanguage(languageCode ?? "eng");
         using var ms = new MemoryStream();
 
@@ -878,6 +882,7 @@ public static class TaskHelpers
             DebugHelper.WriteLine($"Text: {region.Text}, Score: {region.Score}, RectCenter: {region.Rect.Center}, RectSize:    {region.Rect.Size}, Angle: {region.Rect.Angle}");
         }
         return result.Text;
+        #endif
     }
 
     public static void PinToScreen(TaskSettings taskSettings = null)
