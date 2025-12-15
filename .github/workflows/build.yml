@@ -171,7 +171,7 @@ jobs:
           cd $GITHUB_WORKSPACE;
           sudo -u runner bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-FreeBSD-${{ runner.arch }}
           path: "SnapX-UI*"
@@ -289,7 +289,7 @@ jobs:
           }')
           echo "formattedName=${formattedName}" >> "$GITHUB_OUTPUT"
       - name: Upload artifact (RPM - Release on Linux)
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
           path: /github/home/rpmbuild/**/*.rpm
@@ -366,13 +366,13 @@ jobs:
           $BUILD_SNAP_COMMANDS
 
       - name: Upload artifact (DEB)
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.arch }}
           path: packaging/*.deb
           if-no-files-found: error
       - name: Upload artifact (Snap)
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
           path: "*.snap"
@@ -534,7 +534,7 @@ jobs:
       # I cannot provide them in public source code.
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: SnapX-Vendored-Source-${{ runner.arch }}
           path: .
@@ -561,7 +561,7 @@ jobs:
 
       - name: Upload artifact (Avalonia - Release on Linux)
         if: matrix.configuration == 'Release' && runner.os == 'Linux'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "SnapX-UI*"
@@ -569,7 +569,7 @@ jobs:
 
       - name: Upload artifact (Avalonia - Non-Release or non-Linux)
         if: matrix.configuration != 'Release' || runner.os != 'Linux'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "Output/snapx-ui"
