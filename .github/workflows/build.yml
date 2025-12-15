@@ -68,7 +68,7 @@ jobs:
           # usesh: true
           sync: sshfs
           prepare: |
-            pkg install -y curl bash llvm21 sudo dotnet patchelf git flock xorg xlibre-vfb dbus glx-utils pciutils dmidecode cmake
+            pkg install -y curl bash llvm21 sudo dotnet patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake
             # Install pre compiled FreeBSD FFmpeg 8 (amd64 ONLY)
             curl -fsSL https://github.com/Thefrank/ffmpeg-static-freebsd/releases/download/v8.0/ffmpeg -o /usr/local/bin/ffmpeg
             chmod +x /usr/local/bin/ffmpeg
