@@ -68,18 +68,19 @@ copy_deps() {
 
     chmod +x "$dest"/*.so* 2>/dev/null || echo "Failed to set libraries executable! Oh well"
 }
-
 posix_copy() {
     if [ "$#" -lt 2 ]; then
         printf '%s\n' "posix_copy: missing operand" >&2
         return 1
     fi
 
-    dest="${@: -1}"
+    eval "dest=\${$#}"
 
-    shift $(( $# - 1 ))
+    for src in "$@"; do
+        if [ "$src" = "$dest" ]; then
+            break
+        fi
 
-    for src do
         real="$src"
         while [ -L "$real" ]; do
             link=$(readlink "$real") || return 1
