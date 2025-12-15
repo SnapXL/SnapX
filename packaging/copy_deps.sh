@@ -15,11 +15,7 @@ copy_deps() {
     case "$bin" in
         *.so* )
             if ! cmp -s "$bin" "$destfile"; then
-                resolved="$bin"
-                if [ -L "$bin" ]; then
-                    resolved="$(readlink "$bin")"
-                fi
-                cp "$resolved" "$dest" || {
+                cp "$bin" "$dest" || {
                     echo "Failed to copy $bin"
                     exit 1
                 }
@@ -33,21 +29,17 @@ copy_deps() {
     fi
     flock "$PROCESSED_DEPS_FILE" grep -qxF "$bin" "$PROCESSED_DEPS_FILE" && return
     flock "$PROCESSED_DEPS_FILE" sh -c "echo '$bin' >> '$PROCESSED_DEPS_FILE'"
-    # cp -L $(ldd "$bin" | grep -E '(^|[^a-zA-Z0-9])ld' | awk '{print $1}') "$dest" || {
-    #     echo "Failed to copy dynamic linker"
-    #     exit 1
-    # }
+    posix_copy $(ldd "$bin" | grep -E '(^|[^a-zA-Z0-9])ld' | awk '{print $1}') "$dest" || {
+        echo "Failed to copy dynamic linker"
+        exit 1
+    }
 
     # Copy direct dependencies
    ldd "$bin" | awk '{print $3}' | grep -v 'not found' | while read dep; do
        if [ -n "$dep" ] && [ -f "$dep" ]; then
            destfile="$dest/$(basename "$dep")"
            if ! cmp -s "$dep" "$destfile"; then
-            resolved="$dep"
-            if [ -L "$dep" ]; then
-                resolved="$(readlink "$dep")"
-            fi
-               cp "$resolved" "$dest" || {
+               posix_copy "$dep" "$dest" || {
                    echo "Failed to copy $dep"
                    exit 1
                }
@@ -64,11 +56,7 @@ copy_deps() {
                if [ -n "$subdep" ] && [ -f "$subdep" ]; then
                    destfile="$dest/$(basename "$subdep")"
                    if ! cmp -s "$subdep" "$destfile"; then
-                        resolved="$subdep"
-                        if [ -L "$subdep" ]; then
-                            resolved="$(readlink "$subdep")"
-                        fi
-                       cp "$resolved" "$dest" || {
+                       posix_copy "$subdep" "$dest" || {
                            echo "Failed to copy $subdep"
                            exit 1
                        }
@@ -80,6 +68,31 @@ copy_deps() {
 
     chmod +x "$dest"/*.so* 2>/dev/null || echo "Failed to set libraries executable! Oh well"
 }
+
+posix_copy() {
+    if [ "$#" -lt 2 ]; then
+        printf '%s\n' "posix_copy: missing operand" >&2
+        return 1
+    fi
+
+    dest="${@: -1}"
+
+    shift $(( $# - 1 ))
+
+    for src do
+        real="$src"
+        while [ -L "$real" ]; do
+            link=$(readlink "$real") || return 1
+            case $link in
+                /*) real=$link ;;
+                *)  real=$(dirname "$real")/$link ;;
+            esac
+        done
+
+        cp "$real" "$dest" || return 1
+    done
+}
+
 
 # Pass args through if script is run directly
 if [ $# -eq 2 ]; then
