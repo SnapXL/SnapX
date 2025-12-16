@@ -74,26 +74,48 @@ posix_copy() {
         return 1
     fi
 
-    eval "dest=\${$#}"
-
-    for src in "$@"; do
-        if [ "$src" = "$dest" ]; then
+    # Get last argument (destination)
+    dest=""
+    i=1
+    for arg in "$@"; do
+        if [ "$i" -eq "$#" ]; then
+            dest="$arg"
             break
         fi
+        i=$((i + 1))
+    done
 
+    # Process all but last argument as sources
+    i=1
+    for src in "$@"; do
+        if [ "$i" -eq "$#" ]; then
+            break
+        fi
+        i=$((i + 1))
+
+        if [ "$src" = "$dest" ]; then
+            continue
+        fi
+
+        # Try to resolve symlinks if readlink exists
         real="$src"
-        while [ -L "$real" ]; do
-            link=$(readlink "$real") || return 1
-            case $link in
-                /*) real=$link ;;
-                *)  real=$(dirname "$real")/$link ;;
-            esac
-        done
+        if [ -L "$src" ]; then
+            if command -v readlink >/dev/null 2>&1; then
+                link=$(readlink "$src") || {
+                    printf 'warning: cannot readlink "%s"\n' "$src" >&2
+                }
+                case $link in
+                    /*) real=$link ;;
+                    *)  real=$(dirname "$src")/$link ;;
+                esac
+            else
+                printf 'warning: readlink not available, copying symlink "%s" directly\n' "$src" >&2
+            fi
+        fi
 
-        cp "$real" "$dest" || return 1
+        cp -- "$real" "$dest" || return 1
     done
 }
-
 
 # Pass args through if script is run directly
 if [ $# -eq 2 ]; then
