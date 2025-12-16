@@ -16,8 +16,7 @@ copy_deps() {
         *.so* )
             if ! cmp -s "$bin" "$destfile"; then
                 cp "$bin" "$dest" || {
-                    echo "Failed to copy $bin"
-                    exit 1
+                    echo "WARNING: Failed to copy $bin"
                 }
             fi
             ;;
@@ -30,8 +29,7 @@ copy_deps() {
     flock "$PROCESSED_DEPS_FILE" grep -qxF "$bin" "$PROCESSED_DEPS_FILE" && return
     flock "$PROCESSED_DEPS_FILE" sh -c "echo '$bin' >> '$PROCESSED_DEPS_FILE'"
     posix_copy $(ldd "$bin" | grep -E '(^|[^a-zA-Z0-9])ld' | awk '{print $1}') "$dest" || {
-        echo "Failed to copy dynamic linker"
-        exit 1
+        echo "WARNING: Failed to copy dynamic linker"
     }
 
     # Copy direct dependencies
@@ -40,8 +38,7 @@ copy_deps() {
            destfile="$dest/$(basename "$dep")"
            if ! cmp -s "$dep" "$destfile"; then
                posix_copy "$dep" "$dest" || {
-                   echo "Failed to copy $dep"
-                   exit 1
+                   echo "WARNING: Failed to copy $dep"
                }
            fi
 
@@ -57,8 +54,7 @@ copy_deps() {
                    destfile="$dest/$(basename "$subdep")"
                    if ! cmp -s "$subdep" "$destfile"; then
                        posix_copy "$subdep" "$dest" || {
-                           echo "Failed to copy $subdep"
-                           exit 1
+                           echo "Warning: Failed to copy $subdep"
                        }
                    fi
                fi

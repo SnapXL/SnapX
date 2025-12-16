@@ -111,8 +111,7 @@ if [ -x "$(command -v patchelf)" ]; then
         break
     done
     if [ -z "$INTERPRETER" ]; then
-        echo "ERROR: No dynamic linker found in $DEST"
-        exit 1
+        echo "WARNING: No dynamic linker found (This is normal on FreeBSD, the dynamic linker is tied to the kernel) in $DEST"
     fi
 fi
 
@@ -135,8 +134,17 @@ for program in $PROGRAMS; do
         # FFmpeg is known to have MANY MANY dependencies that will not all resolve. From local testing, it seems to still work?
         $SCRIPT_DIR/copy_deps.sh "$full_path" "$DEST/" || echo "Failed to copy deps of $program, PLEASE TEST BINARY TO ENSURE IT STILL WORKS"
         cp -L "$full_path" "$DEST/"
-        if [ -x "$(command -v patchelf)" ]; then
-            patchelf --set-interpreter "$(basename "$DEST")/$INTERPRETER" --force-rpath --set-rpath "\$ORIGIN" "$DEST/$program" || echo "WARNING: Could not patchelf $program"
+        if command -v patchelf >/dev/null 2>&1; then
+            EXTRA_PATCHELF_ARGS=""
+            if [ -n "$INTERPRETER" ]; then
+                EXTRA_PATCHELF_ARGS="--set-interpreter '$DEST/$INTERPRETER'"
+            fi
+
+            if [ -n "$EXTRA_PATCHELF_ARGS" ]; then
+                eval patchelf $EXTRA_PATCHELF_ARGS --force-rpath --set-rpath "\$ORIGIN" "$DEST/$program" || echo "WARNING: Could not patchelf $program"
+            else
+                patchelf --force-rpath --set-rpath "\$ORIGIN" "$DEST/$program" || echo "WARNING: Could not patchelf $program"
+            fi
         fi
     fi
 done
