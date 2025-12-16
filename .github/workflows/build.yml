@@ -68,8 +68,9 @@ jobs:
           # usesh: true
           sync: sshfs
           prepare: |
-            pkg install -y curl bash llvm21 sudo dotnet patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils
+            pkg install -y curl bash llvm21 sudo dotnet patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk
             for f in /usr/local/bin/uu*; do mv -f "$f" "/usr/local/bin/${f##*/uu}"; done
+            ln -sf /usr/local/bin/gawk /usr/local/bin/awk
             # Install pre compiled FreeBSD FFmpeg 8 (amd64 ONLY)
             curl -fsSL https://github.com/Thefrank/ffmpeg-static-freebsd/releases/download/v8.0/ffmpeg -o /usr/local/bin/ffmpeg
             chmod +x /usr/local/bin/ffmpeg
