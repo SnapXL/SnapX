@@ -131,19 +131,13 @@ for program in $PROGRAMS; do
 
     if [ -f "$full_path" ]; then
         echo "Copying program: $full_path"
-        # FFmpeg is known to have MANY MANY dependencies that will not all resolve. From local testing, it seems to still work?
         $SCRIPT_DIR/copy_deps.sh "$full_path" "$DEST/" || echo "Failed to copy deps of $program, PLEASE TEST BINARY TO ENSURE IT STILL WORKS"
         cp -L "$full_path" "$DEST/"
         if command -v patchelf >/dev/null 2>&1; then
-            EXTRA_PATCHELF_ARGS=""
             if [ -n "$INTERPRETER" ]; then
-                EXTRA_PATCHELF_ARGS="--set-interpreter '$DEST/$INTERPRETER'"
-            fi
-
-            if [ -n "$EXTRA_PATCHELF_ARGS" ]; then
-                eval patchelf $EXTRA_PATCHELF_ARGS --force-rpath --set-rpath "\$ORIGIN" "$DEST/$program" || echo "WARNING: Could not patchelf $program"
+                patchelf --set-interpreter "$DEST/$INTERPRETER" --force-rpath --set-rpath '\$ORIGIN' "$DEST/$program" || echo "WARNING: Could not patchelf $program"
             else
-                patchelf --force-rpath --set-rpath "\$ORIGIN" "$DEST/$program" || echo "WARNING: Could not patchelf $program"
+                patchelf --force-rpath --set-rpath '\$ORIGIN' "$DEST/$program" || echo "WARNING: Could not patchelf $program"
             fi
         fi
     fi

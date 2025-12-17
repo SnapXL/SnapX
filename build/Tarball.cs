@@ -66,7 +66,6 @@ public class Tarball(
                         ? config.LibDir[config.DestDir.Length..].TrimStart('/')
                         : config.LibDir.TrimStart('/');
                 var relativeLibPath = Path.GetRelativePath(config.Tarballdir, config.LibDir);
-
                 installConfig.CustomWrapperScript = $"""
                     #!/usr/bin/env sh
                     # SnapX version: {config.SnapXVersion}
@@ -79,7 +78,7 @@ public class Tarball(
                     exec "{Path.Join(
                         libDirWithoutDestDir,
                         TargetInstallAssembly ?? "snapx-ui"
-                    )}" --inhibit-cache "$@"
+                    )}" "$@"
                     """;
             }
             installConfig.Docdir = destDir;
