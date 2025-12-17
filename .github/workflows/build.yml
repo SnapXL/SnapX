@@ -249,7 +249,7 @@ jobs:
       matrix:
         os: [ ubuntu-24.04, ubuntu-24.04-arm ]
 
-        container: [ fedora:rawhide, fedora:43, fedora:42, fedora:41 ]
+        container: [ fedora:41 ]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -325,7 +325,7 @@ jobs:
 
           # all of these default to true, but feel free to set to
           # "false" if necessary for your workflow
-          android: false
+          android: true
           dotnet: false
           haskell: true
           large-packages: false
