@@ -19,7 +19,7 @@ using FluentAvalonia.UI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using SnapX.Avalonia.ViewModels;
-using SnapX.Avalonia.ViewModels.Settings;
+// using SnapX.Avalonia.ViewModels.Settings;
 using SnapX.Avalonia.Views;
 using SnapX.Avalonia.Views.Settings;
 using SnapX.Avalonia.Views.Settings.Views;
@@ -864,8 +864,8 @@ public partial class App : Application
         services.AddSingleton<CustomUploaderVM>();
         services.AddSingleton<ImportExportVM>();
         services.AddTransient<ImportExportView>();
-        services.AddSingleton<ScreenRecordOptionsVM>();
-        services.AddTransient<ScreenRecordOptionsView>();
+        // services.AddSingleton<ScreenRecordOptionsVM>();
+        // services.AddTransient<ScreenRecordOptionsView>();
 
         services.AddTransient<SettingsHomePageView>();
         services.AddSingleton<SettingsHomePageViewVM>();
