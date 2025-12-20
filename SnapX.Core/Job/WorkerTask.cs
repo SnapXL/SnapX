@@ -594,7 +594,9 @@ public class WorkerTask : IDisposable
 
         if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.CopyImageToClipboard))
         {
-            Clipboard.CopyImage(Image, Info.FileName);
+            // Clipboard.CopyImage(Image, Info.FileName);
+            Core.SnapX.EventAggregator.Publish(new NeedClipboardCopyEvent(Image, Info.FileName));
+
             DebugHelper.WriteLine("Image copied to clipboard.");
         }
 
@@ -712,7 +714,8 @@ public class WorkerTask : IDisposable
             }
             else if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.CopyFilePathToClipboard))
             {
-                Clipboard.CopyText(Info.FilePath);
+                // Clipboard.CopyText(Info.FilePath);
+                Core.SnapX.EventAggregator.Publish(new NeedClipboardCopyEvent(Info.FilePath));
             }
 
             if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.ShowInExplorer))
@@ -804,7 +807,8 @@ public class WorkerTask : IDisposable
 
                 if (!string.IsNullOrEmpty(txt))
                 {
-                    Clipboard.CopyText(txt);
+                    // Clipboard.CopyText(txt);
+                    Core.SnapX.EventAggregator.Publish(new NeedClipboardCopyEvent(txt));
                 }
             }
 

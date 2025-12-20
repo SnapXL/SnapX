@@ -1,3 +1,4 @@
+using SixLabors.ImageSharp;
 using SnapX.Core.Job;
 using Xdg.Directories;
 
@@ -20,17 +21,52 @@ public class NeedMainWindowHandle
     public IntPtr ResultHandle { get; set; } = IntPtr.Zero;
 }
 
-public class NeedRegionCaptureEvent
-{
+public class NeedRegionCaptureEvent { }
 
+public class NeedClipboardCopyEvent
+{
+    public string? Text { get; set; }
+
+    public NeedClipboardCopyEvent(string text)
+    {
+        Text = text;
+    }
+    public NeedClipboardCopyEvent(Image img)
+    {
+        Image = img;
+    }
+    public NeedClipboardCopyEvent(Image img, string? filename = null)
+    {
+        Image = img;
+        FileName = filename;
+    }
+
+
+    public Image? Image { get; set; }
+    public string FileName { get; set; }
+    public object? CustomData { get; set; }
+    public Dictionary<string, object> AdditionalFormats { get; } = new();
+
+    public bool HasText => !string.IsNullOrEmpty(Text);
+    public bool HasImage => Image != null;
+
+    public bool Handled { get; set; }
+
+    public void MarkAsHandled()
+    {
+        Handled = true;
+    }
 }
+
 public class EventAggregator
 {
     private readonly List<Tuple<Type, Action<object>>> _subscriptions = [];
 
     public void Subscribe<TEvent>(Action<TEvent> action)
     {
-        _subscriptions.Add(Tuple.Create<Type, Action<object>>(typeof(TEvent), (o) => action((TEvent)o)));
+        _subscriptions.Add(
+            Tuple.Create<Type, Action<object>>(typeof(TEvent), (o) => action((TEvent)o))
+        );
     }
 
     public void Publish<TEvent>(TEvent @event)

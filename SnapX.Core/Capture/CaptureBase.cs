@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -9,6 +8,7 @@ using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
 
 namespace SnapX.Core.Capture;
+
 public abstract class CaptureBase
 {
     public bool AllowAutoHideForm { get; set; } = true;
@@ -21,7 +21,8 @@ public abstract class CaptureBase
 
     public void Capture(TaskSettings taskSettings = null, bool autoHideForm = false)
     {
-        if (taskSettings == null) taskSettings = TaskSettings.GetDefaultTaskSettings();
+        if (taskSettings == null)
+            taskSettings = TaskSettings.GetDefaultTaskSettings();
 
         // TODO: Reimplement taskSettings.GeneralSettings.ToastWindowAutoHide
         // if (taskSettings.GeneralSettings.ToastWindowAutoHide)
@@ -33,10 +34,11 @@ public abstract class CaptureBase
         {
             int delay = (int)(taskSettings.CaptureSettings.ScreenshotDelay * 1000);
 
-            Task.Delay(delay).ContinueInCurrentContext(() =>
-            {
-                CaptureInternal(taskSettings, autoHideForm);
-            });
+            Task.Delay(delay)
+                .ContinueInCurrentContext(() =>
+                {
+                    CaptureInternal(taskSettings, autoHideForm);
+                });
         }
         else
         {
@@ -82,15 +84,25 @@ public abstract class CaptureBase
         {
             TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Capture, taskSettings);
 
-            if (taskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.AnnotateImage) && !AllowAnnotation)
+            if (
+                taskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.AnnotateImage)
+                && !AllowAnnotation
+            )
             {
-                taskSettings.AfterCaptureJob = taskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.AnnotateImage);
+                taskSettings.AfterCaptureJob = taskSettings.AfterCaptureJob.Remove(
+                    AfterCaptureTasks.AnnotateImage
+                );
             }
 
-            if (taskSettings.ImageSettings.ImageEffectOnlyRegionCapture &&
-                GetType() != typeof(CaptureRegion) && GetType() != typeof(CaptureLastRegion))
+            if (
+                taskSettings.ImageSettings.ImageEffectOnlyRegionCapture
+                && GetType() != typeof(CaptureRegion)
+                && GetType() != typeof(CaptureLastRegion)
+            )
             {
-                taskSettings.AfterCaptureJob = taskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.AddImageEffects);
+                taskSettings.AfterCaptureJob = taskSettings.AfterCaptureJob.Remove(
+                    AfterCaptureTasks.AddImageEffects
+                );
             }
 
             UploadManager.RunImageTask(metadata, taskSettings);
@@ -112,13 +124,22 @@ public abstract class CaptureBase
         var metadata = new TaskMetadata();
 
         var windowInfo = Methods.GetForegroundWindow();
-        if ((ignoreProcess == null || !windowInfo.ProcessName.Equals(ignoreProcess, StringComparison.OrdinalIgnoreCase)) &&
-            (insideRect.IsEmpty || windowInfo.Rectangle.Contains(insideRect)))
+        if (windowInfo != null)
         {
-            metadata.UpdateInfo(windowInfo);
+            if (
+                (
+                    ignoreProcess == null
+                    || !windowInfo.ProcessName.Equals(
+                        ignoreProcess,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                ) && (insideRect.IsEmpty || windowInfo.Rectangle.Contains(insideRect))
+            )
+            {
+                metadata.UpdateInfo(windowInfo);
+            }
         }
 
         return metadata;
     }
 }
-
