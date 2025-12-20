@@ -37,8 +37,16 @@ public class HistoryManagerSQLite(SqliteConnection Connection) : HistoryManager(
             ShortenedURL = @ShortenedURL,
             Hidden       = @Hidden
         WHERE Id = @Id;";
-        using var connection = new SqliteConnection(Connection.ConnectionString);
-        connection.Open();
+        SqliteConnection connection = Connection;
+        bool isMemoryDb = Connection.ConnectionString.Contains(":memory:", StringComparison.OrdinalIgnoreCase) ||
+          Connection.ConnectionString.Contains("Mode=Memory", StringComparison.OrdinalIgnoreCase);
+        if (!isMemoryDb)
+        {
+            // For each Save operation, we create a new connection for concurrency. SQLite handles the connections.
+            var concurrentConnection = new SqliteConnection(Connection.ConnectionString);
+            concurrentConnection.Open();
+            connection = concurrentConnection;
+        }
 
         using var transaction = connection.BeginTransaction();
         try
@@ -57,6 +65,10 @@ public class HistoryManagerSQLite(SqliteConnection Connection) : HistoryManager(
             DebugHelper.WriteException(ex);
             transaction.Rollback();
             return false;
+        }
+        finally
+        {
+            if (!isMemoryDb) connection.Close();
         }
     }
 
@@ -97,9 +109,16 @@ public class HistoryManagerSQLite(SqliteConnection Connection) : HistoryManager(
     [DapperAot]
     protected override bool Append(string? filePath, IEnumerable<HistoryItem> historyItems)
     {
-        // For each Append operation, we create a new connection for concurrency. SQLite handles the connections.
-        using var connection = new SqliteConnection(Connection.ConnectionString);
-        connection.Open();
+        SqliteConnection connection = Connection;
+        bool isMemoryDb = Connection.ConnectionString.Contains(":memory:", StringComparison.OrdinalIgnoreCase) ||
+          Connection.ConnectionString.Contains("Mode=Memory", StringComparison.OrdinalIgnoreCase);
+        if (!isMemoryDb)
+        {
+            // For each Append operation, we create a new connection for concurrency. SQLite handles the connections.
+            var concurrentConnection = new SqliteConnection(Connection.ConnectionString);
+            concurrentConnection.Open();
+            connection = concurrentConnection;
+        }
         using var tx = connection.BeginTransaction();
         try
         {
@@ -193,6 +212,14 @@ public class HistoryManagerSQLite(SqliteConnection Connection) : HistoryManager(
             DebugHelper.WriteException(ex);
             tx.Rollback();
             return false;
+        }
+        finally
+        {
+            if (!isMemoryDb)
+            {
+                connection?.Dispose();
+            }
+
         }
     }
 
