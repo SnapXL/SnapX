@@ -373,6 +373,61 @@ jobs:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
           path: "*.snap"
           if-no-files-found: error
+  flatpak:
+    name: Flatpak Build
+    runs-on: ${{ matrix.variant.runner }}
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
+      options: --privileged
+    strategy:
+      matrix:
+        variant:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+#      - name: Setup environment
+#        run: |
+#          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+#          flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet10//25.08
+#          dotnet tool install --global Nickvision.FlatpakGenerator
+#          Nickvision.FlatpakGenerator generate -i SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json -s false -u
+#          Nickvision.FlatpakGenerator generate -i build/build.csproj -o packaging/flathub/build-sources.json -s false -u
+# - name: 📦 Commit Flatpak Sources
+#   if: ${{ runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
+#   uses: EndBug/add-and-commit@v9
+#   continue-on-error: true
+#   with:
+#     add: "packaging/flathub/*.json"
+#     commit: "--no-verify --no-gpg-sign"
+#     push: "--no-verify --no-signed"
+#     message: "build(flathub): update nuget sources [skip ci]"
+      - name: Build
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          arch: ${{ matrix.variant.arch }}
+          bundle: io.github.SnapXL.SnapX.flatpak
+          manifest-path: io.github.SnapXL.SnapX.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+      - name: Upload Flatpak bundle
+        uses: actions/upload-artifact@v6
+        with:
+          name: SnapX-Flatpak-${{ matrix.variant.arch }}
+          path: "*.flatpak"
+          if-no-files-found: error
+#      - uses: flatpak/flatpak-github-actions/flat-manager@v6
+#        name: Deploy
+#        with:
+#          repository: elementary
+#          flat-manager-url: https://flatpak-api.elementary.io
+#          token: some_very_hidden_token
+#          end-of-life: "The application has been renamed to..."
+#          end-of-life-rebase: "org.zbrown.Palette"
   build:
     name: Build
     runs-on: ${{matrix.os}}
@@ -420,14 +475,14 @@ jobs:
         with:
           dotnet-version: 10.x.x
       - name: Restore
-        run: dotnet restore --packages ./vendor SnapX.slnx
+        run: dotnet restore --packages ./nuget-sources SnapX.slnx
       - name: Restore build project
-        run: dotnet restore --packages ./vendor build/build.csproj
+        run: dotnet restore --packages ./nuget-sources build/build.csproj
       - name: Cache .NET NuGet packages
         if: runner.os != 'macOS'
         uses: actions/cache@v5
         with:
-          path: vendor
+          path: nuget-sources
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-nuget-
@@ -445,27 +500,6 @@ jobs:
       - name: Install Rust toolchain
         if: runner.os == 'macOS'
         run: brew install rust
-      # - name: Add .NET global tools to PATH
-      #   if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-      #   run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-      # - name: 🔷 Update Flatpak Sources
-      #   if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-      #   run: |
-      #     sudo apt install -y flatpak flatpak-builder
-      #     flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-      #     flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet9//25.08
-      #     dotnet tool install --global Nickvision.FlatpakGenerator
-      #     flatpak-dotnet-generator SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json -d vendor --no-self-contained --user
-      #     flatpak-dotnet-generator build/build.csproj -o packaging/flathub/build-sources.json -d vendor --no-self-contained --user
-      # - name: 📦 Commit Flatpak Sources
-      #   if: ${{ matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-      #   uses: EndBug/add-and-commit@v9
-      #   continue-on-error: true
-      #   with:
-      #     add: "packaging/flathub/*.json"
-      #     commit: "--no-verify --no-gpg-sign"
-      #     push: "--no-verify --no-signed"
-      #     message: "build(flathub): update nuget vendor sources [skip ci]"
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet
@@ -504,7 +538,7 @@ jobs:
             '<configuration>' \
             '  <packageSources>' \
             '    <clear />' \
-            '    <add key="Local" value="vendor" />' \
+            '    <add key="Local" value="nuget-sources" />' \
             '  </packageSources>' \
             '</configuration>' > NuGet.config
       - name: 🛠 Ensure RestorePackagesPath in Directory.Build.props
@@ -515,9 +549,9 @@ jobs:
           # If file exists and node is missing, insert it
           if [ -f "$FILE" ]; then
             if ! xmlstarlet sel -t -v "$PATH_NODE" "$FILE" 2>/dev/null | grep -q .; then
-              echo "🔧 Inserting <RestorePackagesPath>vendor</RestorePackagesPath>..."
+              echo "🔧 Inserting <RestorePackagesPath>nuget-sources</RestorePackagesPath>..."
               xmlstarlet ed --inplace \
-                -s "//Project/PropertyGroup[1]" -t elem -n "RestorePackagesPath" -v "vendor" \
+                -s "//Project/PropertyGroup[1]" -t elem -n "RestorePackagesPath" -v "nuget-sources" \
                 "$FILE"
             else
               echo "✅ RestorePackagesPath already set."
