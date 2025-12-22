@@ -10,7 +10,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AvaloniaVersion>11.3.9</AvaloniaVersion>
+    <AvaloniaVersion>11.3.10</AvaloniaVersion>
     <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.2</HarfBuzzSharpVersion>
     <VelloSharpVersion>0.5.0-alpha.3</VelloSharpVersion>
@@ -23,9 +23,9 @@
 <!--  <PropertyGroup Condition="'$(TargetWindows)' == 'true'">-->
 <!--    <AvaloniaVersion>11.3.4</AvaloniaVersion>-->
 <!--  </PropertyGroup>-->
-<!--    <PropertyGroup Condition="'$(TargetFreeBSD)' == 'true'">-->
-<!--    <AvaloniaVersion>11.3.8</AvaloniaVersion>-->
-<!--  </PropertyGroup>-->
+    <PropertyGroup Condition="'$(TargetFreeBSD)' == 'true'">
+    <AvaloniaVersion>11.3.9</AvaloniaVersion>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetDesktop)' == 'true'">
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
