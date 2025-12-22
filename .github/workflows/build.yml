@@ -409,6 +409,7 @@ jobs:
 #     message: "build(flathub): update nuget sources [skip ci]"
       - name: Build
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        working-directory: packaging/flathub
         with:
           arch: ${{ matrix.variant.arch }}
           bundle: io.github.SnapXL.SnapX.flatpak
@@ -418,7 +419,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: SnapX-Flatpak-${{ matrix.variant.arch }}
-          path: "*.flatpak"
+          path: "packaging/flathub/*.flatpak"
           if-no-files-found: error
 #      - uses: flatpak/flatpak-github-actions/flat-manager@v6
 #        name: Deploy
