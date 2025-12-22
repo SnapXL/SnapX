@@ -5,7 +5,7 @@ sdk: org.freedesktop.Sdk
 command: snapx-ui
 
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.dotnet9
+  - org.freedesktop.Sdk.Extension.dotnet10
   - org.freedesktop.Sdk.Extension.llvm21
 
 finish-args:
@@ -29,16 +29,16 @@ modules:
   - name: snapx-ui
     buildsystem: simple
     build-options:
-      append-path: /usr/lib/sdk/dotnet9/bin:/usr/lib/sdk/llvm21/bin
-      append-ld-library-path: /usr/lib/sdk/dotnet9/lib
+      append-path: /usr/lib/sdk/dotnet10/bin:/usr/lib/sdk/llvm21/bin
+      append-ld-library-path: /usr/lib/sdk/dotnet10/lib
       prepend-ld-library-path: /usr/lib/sdk/llvm21/lib
-      prepend-pkg-config-path: /usr/lib/sdk/dotnet9/lib/pkgconfig
+      prepend-pkg-config-path: /usr/lib/sdk/dotnet10/lib/pkgconfig
       env:
         PKGTYPE: FLATPAK
     build-commands:
       - rm global.json || true
-      - dotnet restore build -p:RestorePackagesPath=vendor --ignore-failed-sources --source vendor
-      - dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="--source vendor --ignore-failed-sources"
+      - dotnet restore build -p:RestorePackagesPath=vendor --ignore-failed-sources --source nuget-sources
+      - dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="--source nuget-sources --ignore-failed-sources"
       - rm ${FLATPAK_DEST}/bin/snapx ${FLATPAK_DEST}/lib/snapx/snapx # Remove duplicate CLI, available in snapx-ui binary already.
     sources:
       - type: dir
@@ -81,7 +81,7 @@ modules:
         sources:
           - type: archive
             url: https://archive.mesa3d.org/glu/glu-9.0.3.tar.xz
-            sha256: bd43fe12f374b1192eb15fe21e45ff456b9bc26ab57f0eee919f96ca0f8a330f
+            sha256: bd43fe12f374b1192eb15fe20e45ff456b9bc26ab57f0eee919f96ca0f8a330f
         cleanup:
           - "/include"
           - "/lib/*.a"
