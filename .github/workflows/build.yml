@@ -379,9 +379,6 @@ jobs:
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
       options: --privileged
-    defaults:
-      run:
-        working-directory: packaging/flathub
     strategy:
       matrix:
         variant:
@@ -410,6 +407,29 @@ jobs:
 #     commit: "--no-verify --no-gpg-sign"
 #     push: "--no-verify --no-signed"
 #     message: "build(flathub): update nuget sources [skip ci]"
+      - name: Prepare Flatpak build directory
+        run: |
+          # Copy flatpak files to workspace root, preserving directory structure
+          cp -r packaging/flathub/* . || true
+          cp -r packaging/flathub/.* . 2>/dev/null || true
+
+          if [ -f "io.github.SnapXL.SnapX.yml" ]; then
+            echo "✓ Flatpak files moved successfully"
+          else
+            echo "✗ Manifest not found after moving files"
+            exit 1
+          fi
+
+          # Update relative paths in the manifest file
+          # This fixes ../../ references to point to workspace root
+          echo "Original manifest content (first few lines):"
+          head -20 io.github.SnapXL.SnapX.yml
+
+          # Use sed to replace ../../ with ./ (since we're now at root)
+          sed -i 's|\.\.\/\.\./|./|g' io.github.SnapXL.SnapX.yml
+
+          echo "Updated manifest content (first few lines):"
+          head -20 io.github.SnapXL.SnapX.yml
       - name: Build
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
