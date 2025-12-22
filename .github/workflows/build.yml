@@ -21,7 +21,7 @@ jobs:
     runs-on: ${{matrix.os}}
     continue-on-error: true # FreeBSD is not a first class citizen yet.
     # Prevent Ubuntu runner starvation from regular builds. FreeBSD builds are slightly slower than normal builds.
-    # needs: build
+    needs: build
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
@@ -293,7 +293,7 @@ jobs:
   ubuntu:
     name: DEB/Snap Build
     runs-on: ${{matrix.os}}
-    # needs: build
+    needs: build
     timeout-minutes: 65
     permissions:
       packages: write
@@ -375,6 +375,7 @@ jobs:
           if-no-files-found: error
   flatpak:
     name: Flatpak Build
+    needs: build
     runs-on: ${{ matrix.variant.runner }}
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
@@ -391,6 +392,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - name: Download API keys
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        if: env.API_KEYS != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
 #      - name: Setup environment
 #        run: |
 #          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
@@ -413,23 +422,7 @@ jobs:
           cp -r packaging/flathub/* . || true
           cp -r packaging/flathub/.* . 2>/dev/null || true
 
-          if [ -f "io.github.SnapXL.SnapX.yml" ]; then
-            echo "✓ Flatpak files moved successfully"
-          else
-            echo "✗ Manifest not found after moving files"
-            exit 1
-          fi
-
-          # Update relative paths in the manifest file
-          # This fixes ../../ references to point to workspace root
-          echo "Original manifest content (first few lines):"
-          head -20 io.github.SnapXL.SnapX.yml
-
-          # Use sed to replace ../../ with ./ (since we're now at root)
-          sed -i 's|\.\.\/\.\./|./|g' io.github.SnapXL.SnapX.yml
-
-          echo "Updated manifest content (first few lines):"
-          head -20 io.github.SnapXL.SnapX.yml
+          sed -i 's|^\([[:space:]]*[^:[:space:]]*:[[:space:]]*\)\.\./.*|\1./|g' io.github.SnapXL.SnapX.yml
       - name: Build
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
