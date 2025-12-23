@@ -37,8 +37,8 @@ modules:
         PKGTYPE: FLATPAK
     build-commands:
       - rm global.json || true
-      - dotnet restore build --ignore-failed-sources --source vendor
-      - dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="--source vendor --ignore-failed-sources"
+      - dotnet restore build -p:RestorePackagesPath=vendor --ignore-failed-sources --source vendor
+      - dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="-p:RestorePackagesPath=vendor --source vendor --ignore-failed-sources"
       - rm ${FLATPAK_DEST}/bin/snapx ${FLATPAK_DEST}/lib/snapx/snapx # Remove duplicate CLI, available in snapx-ui binary already.
     sources:
       - type: dir
