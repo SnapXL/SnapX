@@ -1,27 +1,48 @@
 [
   {
-    "dest": "nuget-sources",
+    "dest": "vendor",
     "dest-filename": "bullseye.6.0.0.nupkg",
     "sha512": "07ef885695a3cfb1aa6f1901b361e93d9292d05a50de55f4620a5d0eadb0f04352950dde7d21ad9785acf3d6ed0da480a8a6221e6943b59b8eef2e8c1917d25f",
     "url": "https://api.nuget.org/v3-flatcontainer/bullseye/6.0.0/bullseye.6.0.0.nupkg",
     "type": "file"
   },
   {
-    "dest": "nuget-sources",
+    "dest": "vendor",
     "dest-filename": "gitversion.msbuild.6.5.1.nupkg",
     "sha512": "858510b408c3d9c2616795df4500250b86c05158bb6820315623a1304a5549fc6c7513e4a64485dd339357d43cb2cf89a65fefcebf51da7cf9b5806c3aae87c3",
     "url": "https://api.nuget.org/v3-flatcontainer/gitversion.msbuild/6.5.1/gitversion.msbuild.6.5.1.nupkg",
     "type": "file"
   },
   {
-    "dest": "nuget-sources",
+    "dest": "vendor",
+    "dest-filename": "microsoft.aspnetcore.app.ref.9.0.11.nupkg",
+    "sha512": "09117a54d029d21be747e79a21ccae9f454384014e98c26046bab90be837a7f14234edac0268c6a7470f21adf345a64bd5bc35f20f4c86a555fec17352c8c018",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.aspnetcore.app.ref/9.0.11/microsoft.aspnetcore.app.ref.9.0.11.nupkg",
+    "type": "file"
+  },
+  {
+    "dest": "vendor",
+    "dest-filename": "microsoft.netcore.app.host.linux-x64.9.0.11.nupkg",
+    "sha512": "dbc5aaecb53f1bf10392002e67e968de3fa80ed06a7aab59b37acc68fabd9f12bf648cbb31e44a627a45323644fe84720fb6d1fd4fd6e7d0ce45c787661860f5",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.app.host.linux-x64/9.0.11/microsoft.netcore.app.host.linux-x64.9.0.11.nupkg",
+    "type": "file"
+  },
+  {
+    "dest": "vendor",
+    "dest-filename": "microsoft.netcore.app.ref.9.0.11.nupkg",
+    "sha512": "36c9ebdd162966cb743047b77c4cfcf32f6e5fbc8e9414a0895d50324566079348ccec25907de6abae6857a20ba67ce7ad04694cd2cd9c1cb4d78088076aea37",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.app.ref/9.0.11/microsoft.netcore.app.ref.9.0.11.nupkg",
+    "type": "file"
+  },
+  {
+    "dest": "vendor",
     "dest-filename": "simpleexec.12.0.0.nupkg",
     "sha512": "a2e12b2c5ca5c7e6d0afb9960f3a7b102a1f7f0345256e5502254babe8b905e42ee205260a0c81f2bb87d166a150b7eae47ddce6bde3f1918a23c8c98a90bdd8",
     "url": "https://api.nuget.org/v3-flatcontainer/simpleexec/12.0.0/simpleexec.12.0.0.nupkg",
     "type": "file"
   },
   {
-    "dest": "nuget-sources",
+    "dest": "vendor",
     "dest-filename": "system.commandline.2.0.1.nupkg",
     "sha512": "c177c517e4ad68ad121a82fe2d4e8159f1bc99dd98c59a32f1330d865300d7b3f4654556378d8ac54f47983c9da1e42b66538463bbe39fe6e3a726ae07d94d23",
     "url": "https://api.nuget.org/v3-flatcontainer/system.commandline/2.0.1/system.commandline.2.0.1.nupkg",

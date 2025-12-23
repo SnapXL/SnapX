@@ -485,14 +485,14 @@ jobs:
         with:
           dotnet-version: 10.x.x
       - name: Restore
-        run: dotnet restore --packages ./nuget-sources SnapX.slnx
+        run: dotnet restore --packages ./vendor SnapX.slnx
       - name: Restore build project
-        run: dotnet restore --packages ./nuget-sources build/build.csproj
+        run: dotnet restore --packages ./vendor build/build.csproj
       - name: Cache .NET NuGet packages
         if: runner.os != 'macOS'
         uses: actions/cache@v5
         with:
-          path: nuget-sources
+          path: vendor
           key: ${{ runner.os }}-${{ runner.arch }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-nuget-
@@ -548,7 +548,7 @@ jobs:
             '<configuration>' \
             '  <packageSources>' \
             '    <clear />' \
-            '    <add key="Local" value="nuget-sources" />' \
+            '    <add key="Local" value="vendor" />' \
             '  </packageSources>' \
             '</configuration>' > NuGet.config
       - name: 🛠 Ensure RestorePackagesPath in Directory.Build.props
@@ -559,9 +559,9 @@ jobs:
           # If file exists and node is missing, insert it
           if [ -f "$FILE" ]; then
             if ! xmlstarlet sel -t -v "$PATH_NODE" "$FILE" 2>/dev/null | grep -q .; then
-              echo "🔧 Inserting <RestorePackagesPath>nuget-sources</RestorePackagesPath>..."
+              echo "🔧 Inserting <RestorePackagesPath>vendor</RestorePackagesPath>..."
               xmlstarlet ed --inplace \
-                -s "//Project/PropertyGroup[1]" -t elem -n "RestorePackagesPath" -v "nuget-sources" \
+                -s "//Project/PropertyGroup[1]" -t elem -n "RestorePackagesPath" -v "vendor" \
                 "$FILE"
             else
               echo "✅ RestorePackagesPath already set."
