@@ -96,3 +96,12 @@ modules:
       - type: git
         url: https://github.com/microsoft/msquic.git
         tag: v2.5.6
+  - name: lspci
+    buildsystem: simple
+    sources:
+      - type: git
+        url: https://github.com/pciutils/pciutils.git
+        tag: v3.14.0
+    build-commands:
+      - make
+      - make PREFIX=/app install
