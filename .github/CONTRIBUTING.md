@@ -155,6 +155,10 @@ refactor(Core): use asynchronous save instead of sync
 
 <br/>
 
+### Current development focus / where to contribute
+
+The current focus is working on the SnapX.Avalonia UI. It's currently what's missing the most. The core code is going to be rewritten in the future, but contributions are welcome everywhere.
+
 ## Releasing a new version of SnapX
 
 One of the major benefits of this approach is that it will **automatically release a new version** on every successful push to either `develop` based on the commit messages. This ensures SnapX is released according to the [semantic versioning](https://semver.org/) guidelines. For this to work, you have to follow a few simple rules:
