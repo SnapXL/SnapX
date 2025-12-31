@@ -1709,9 +1709,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "tmds.dbus.protocol.0.22.0.nupkg",
-    "sha512": "28e482e23e9f9f13144ac2bac9a5dfeb6014681435cf8349b303f9d1f31334eeb0b24d1c80f71eaf1fb5674ded764315278256851e21d09d49a57eca59cbced6",
-    "url": "https://api.nuget.org/v3-flatcontainer/tmds.dbus.protocol/0.22.0/tmds.dbus.protocol.0.22.0.nupkg",
+    "dest-filename": "tmds.dbus.protocol.0.23.0.nupkg",
+    "sha512": "f5eac7b316e7da796ad6fe7d361f0f24fb9bd591a7f3b3b163105f6295a2f31a938a6d6b5f1d1b06a8e57437cba30f7d25795e9a2892870398d76cb8c19b7fee",
+    "url": "https://api.nuget.org/v3-flatcontainer/tmds.dbus.protocol/0.23.0/tmds.dbus.protocol.0.23.0.nupkg",
     "type": "file"
   },
   {
