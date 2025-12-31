@@ -37,7 +37,7 @@
 
 ## Technical Details
 
-- It uses [.NET 9](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
+- It uses [.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
 - It uses [SQLite](https://www.sqlite.org/about.html) for [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28).
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
 - UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU).
@@ -94,7 +94,7 @@ Additionally, you can download nightly builds from [here](https://nightly.link/S
 ## Development Dependencies
 
 - `git`
-- `dotnet-sdk-9.0`
+- `dotnet-sdk-10.0`
 - `ffmpeg` (<7)
 - `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
 - `clang`
@@ -116,16 +116,16 @@ JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. I
 ### Fedora 41+ 🌟
 
 ```bash
-sudo dnf in -y git dotnet-sdk-aot-9.0 /usr/bin/ffmpeg
+sudo dnf in -y git dotnet-sdk-aot-10.0 /usr/bin/ffmpeg
 ```
 
 ### Ubuntu 24.04+ ⚡
 
 ```bash
 sudo apt update && sudo apt install -y software-properties-common
-sudo add-apt-repository ppa:dotnet/backports -y # Ubuntu 24.04 doesn't have .NET 9 packaged. Do not add this PPA on Ubuntu 24.10+
+sudo add-apt-repository ppa:dotnet/backports -y # Ubuntu 24.04 doesn't have .NET 10 packaged. Do not add this PPA on Ubuntu 24.10+
 sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg8 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git dotnet-sdk-9.0 ffmpeg clang zlib1g-dev libsm6
+sudo apt install -y git dotnet-sdk-10.0 ffmpeg clang zlib1g-dev libsm6
 ```
 
 ### Windows 10 22H2+ 🪟
@@ -184,7 +184,7 @@ cd SnapX
 Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
 # Nothing is stopping you from using regular .NET building tools.
 # dotnet publish -c Release ./SnapX.sln
-# SnapX.Avalonia/bin/Release/net9.0/linux-x64/publish/snapx-ui
+# SnapX.Avalonia/bin/Release/net10.0/linux-x64/publish/snapx-ui
 ```
 
 ## Contributions
