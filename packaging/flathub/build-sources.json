@@ -1,9 +1,9 @@
 [
   {
     "dest": "vendor",
-    "dest-filename": "bullseye.6.0.0.nupkg",
-    "sha512": "07ef885695a3cfb1aa6f1901b361e93d9292d05a50de55f4620a5d0eadb0f04352950dde7d21ad9785acf3d6ed0da480a8a6221e6943b59b8eef2e8c1917d25f",
-    "url": "https://api.nuget.org/v3-flatcontainer/bullseye/6.0.0/bullseye.6.0.0.nupkg",
+    "dest-filename": "bullseye.6.1.0.nupkg",
+    "sha512": "494e704c2b9a8cb1b6edc6dd0c35c51a66afe3ffbda4f2607ee5189f1e8a018cd8c8b493b2fc828e9d68103084f72d84b5e33b16c9cc95e8b063054f78a41099",
+    "url": "https://api.nuget.org/v3-flatcontainer/bullseye/6.1.0/bullseye.6.1.0.nupkg",
     "type": "file"
   },
   {
@@ -36,9 +36,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "simpleexec.12.0.0.nupkg",
-    "sha512": "a2e12b2c5ca5c7e6d0afb9960f3a7b102a1f7f0345256e5502254babe8b905e42ee205260a0c81f2bb87d166a150b7eae47ddce6bde3f1918a23c8c98a90bdd8",
-    "url": "https://api.nuget.org/v3-flatcontainer/simpleexec/12.0.0/simpleexec.12.0.0.nupkg",
+    "dest-filename": "simpleexec.12.1.0.nupkg",
+    "sha512": "1d94747dc5ba54bb85daa51a92940b58d281d7ea0fe8a0aa5f57228bbb1fe3e46f7a458bc20a1ca49b479ccb677f4ed581c169e63b886dcfafbac2d04a2a6adb",
+    "url": "https://api.nuget.org/v3-flatcontainer/simpleexec/12.1.0/simpleexec.12.1.0.nupkg",
     "type": "file"
   },
   {

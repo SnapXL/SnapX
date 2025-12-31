@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bullseye" Version="6.0.0" />
-    <PackageReference Include="SimpleExec" Version="12.0.0" />
+    <PackageReference Include="Bullseye" Version="6.1.0" />
+    <PackageReference Include="SimpleExec" Version="12.1.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.1" />
   </ItemGroup>
 </Project>
