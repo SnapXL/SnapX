@@ -2,14 +2,14 @@
 pkgbase=snapx
 pkgname=(snapx snapx-ui)
 pkgver=0.4.0
-pkgrel=4
+pkgrel=5
 pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX)"
 arch=('x86_64' 'aarch64')
 url="https://github.com/SnapXL/SnapX"
 license=('GPL-3.0-or-later')
 makedepends=(
     'git'
-    'dotnet-sdk>=9.0'
+    'dotnet-sdk>=10.0'
     'clang'
     'zlib'
 )
