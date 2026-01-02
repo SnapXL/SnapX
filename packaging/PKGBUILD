@@ -1,8 +1,8 @@
 # Maintainer: Brycen Granville <brycengranville@outlook.com>
 pkgbase=snapx
 pkgname=(snapx snapx-ui)
-pkgver=0.4.0
-pkgrel=5
+pkgver=0.4.0~alpha.r705.g5c6ddf7
+pkgrel=2
 pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX)"
 arch=('x86_64' 'aarch64')
 url="https://github.com/SnapXL/SnapX"
@@ -13,22 +13,22 @@ makedepends=(
     'clang'
     'zlib'
 )
-source=("$pkgbase::git+https://github.com/SnapXL/SnapX.git")
+source=("$pkgbase::git+https://github.com/SnapXL/SnapX.git#branch=develop")
 sha256sums=('SKIP')
 
 pkgver() {
     cd "$pkgbase"
-    ver=$(./build.sh --version | tail -n1)
-    ver="${ver//-/_}"
-    ver=${ver%%_makepkg*}
-    echo "${ver}"
+    git checkout -B develop >/dev/null 2>&1
+    ver=$(./build.sh --version | tail -n1 | sed -E 's/^(.*)-(.*)\.([0-9]+)\+(.*)$/\1~\2.r\3.\4/')
+    echo "$ver"
 }
-
 
 build() {
     cd "$pkgbase"
     export VERSION=$pkgver
     export PKGTYPE=ARCH
+    # Build logic requires being on a known branch
+    git checkout -B develop
     ./build.sh --configuration Release
 }
 
@@ -50,6 +50,10 @@ package_snapx() {
         'libxcb'
         'dbus'
         'xdg-utils'
+    )
+    optdepends=(
+        'mesa-utils: Graphics hardware information'
+        'xorg-xrandr: Display configuration diagnostics'
     )
 
     cd "$pkgbase"
