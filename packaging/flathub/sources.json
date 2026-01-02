@@ -1,9 +1,9 @@
 [
   {
     "dest": "vendor",
-    "dest-filename": "asyncimageloader.avalonia.3.4.4.nupkg",
-    "sha512": "5335e1f168b6706ae14e21e8db440c8ec08e8619357cdd5fafa2dff6ce79989d5f9e70a50ec8825782dc525a37d1817d50d47a555b501c7febaaebe24e417546",
-    "url": "https://api.nuget.org/v3-flatcontainer/asyncimageloader.avalonia/3.4.4/asyncimageloader.avalonia.3.4.4.nupkg",
+    "dest-filename": "asyncimageloader.avalonia.3.5.0.nupkg",
+    "sha512": "de5aa4c7e9a9b294089481fd1248c8a5cb71395455b8be5b3f0f38c139588158cc178783fffdd572ca13f1ca78ca4aa93269c2acd40ca713c4fbf00be0841f69",
+    "url": "https://api.nuget.org/v3-flatcontainer/asyncimageloader.avalonia/3.5.0/asyncimageloader.avalonia.3.5.0.nupkg",
     "type": "file"
   },
   {

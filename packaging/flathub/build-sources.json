@@ -15,27 +15,6 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "microsoft.aspnetcore.app.ref.9.0.11.nupkg",
-    "sha512": "09117a54d029d21be747e79a21ccae9f454384014e98c26046bab90be837a7f14234edac0268c6a7470f21adf345a64bd5bc35f20f4c86a555fec17352c8c018",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.aspnetcore.app.ref/9.0.11/microsoft.aspnetcore.app.ref.9.0.11.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
-    "dest-filename": "microsoft.netcore.app.host.linux-x64.9.0.11.nupkg",
-    "sha512": "dbc5aaecb53f1bf10392002e67e968de3fa80ed06a7aab59b37acc68fabd9f12bf648cbb31e44a627a45323644fe84720fb6d1fd4fd6e7d0ce45c787661860f5",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.app.host.linux-x64/9.0.11/microsoft.netcore.app.host.linux-x64.9.0.11.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
-    "dest-filename": "microsoft.netcore.app.ref.9.0.11.nupkg",
-    "sha512": "36c9ebdd162966cb743047b77c4cfcf32f6e5fbc8e9414a0895d50324566079348ccec25907de6abae6857a20ba67ce7ad04694cd2cd9c1cb4d78088076aea37",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.netcore.app.ref/9.0.11/microsoft.netcore.app.ref.9.0.11.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
     "dest-filename": "simpleexec.12.1.0.nupkg",
     "sha512": "1d94747dc5ba54bb85daa51a92940b58d281d7ea0fe8a0aa5f57228bbb1fe3e46f7a458bc20a1ca49b479ccb677f4ed581c169e63b886dcfafbac2d04a2a6adb",
     "url": "https://api.nuget.org/v3-flatcontainer/simpleexec/12.1.0/simpleexec.12.1.0.nupkg",
