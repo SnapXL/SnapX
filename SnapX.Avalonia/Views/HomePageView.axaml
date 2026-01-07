@@ -295,7 +295,7 @@
                                         Height="150"
                                         Stretch="Uniform"
                                         Width="200"
-                                        asyncImageLoader:ImageLoader.Source="{Binding task.BestImageSource}"
+                                        asyncImageLoader:ImageLoader.Source="{Binding UIDisplaySource}"
                                         x:Name="PreviewImage" />
                                     <SelectableTextBlock
                                         FontWeight="SemiBold"
