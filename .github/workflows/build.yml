@@ -380,6 +380,8 @@ jobs:
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
       options: --privileged
+      volumes:
+        - /usr/local:/host/usr/local
     strategy:
       matrix:
         variant:
@@ -392,6 +394,30 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        shell:
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: false
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+      - name: Free Disk Space (Ubuntu)
+        run: |
+          # remove tool cache: about 8.5GB (github has host /opt/hostedtoolcache mounted as /__t)
+          rm -rf /__t/* || true
+          # remove Haskell runtime: about 6.3GB (host /usr/local/.ghcup6.3GB (host /usr/local/.ghcup)
+          rm -rf /host/usr/local/.ghcup || true
+          # remove Android library: about 7.8GB (host /usr/local/lib/android)
+          rm -rf /host/usr/local/lib/android || true
       - name: Download API keys
         env:
           API_KEYS: ${{ secrets.API_KEYS }}
