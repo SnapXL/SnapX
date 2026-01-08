@@ -21,7 +21,7 @@ jobs:
     runs-on: ${{matrix.os}}
     continue-on-error: true # FreeBSD is not a first class citizen yet.
     # Prevent Ubuntu runner starvation from regular builds. FreeBSD builds are slightly slower than normal builds.
-    needs: build
+    # needs: build
     timeout-minutes: 360
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
@@ -68,7 +68,14 @@ jobs:
           # usesh: true
           sync: sshfs
           prepare: |
-            pkg install -y curl bash llvm21 sudo dotnet patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk
+            pkg install -y curl bash icu llvm21 sudo patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk
+            mkdir -p /usr/lib/dotnet
+            wget -qO /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.101-amd64-freebsd-14/dotnet-sdk-10.0.101-freebsd-x64.tar.gz
+            tar -xzf /tmp/dotnet.tar.gz -C /usr/lib/dotnet --strip-components=1
+            rm /tmp/dotnet.tar.gz
+            ln -sf /usr/lib/dotnet/dotnet /usr/local/bin/dotnet
+            ln -sf /usr/lib/dotnet/dnx /usr/local/bin/dnx 2>/dev/null || true
+
             for f in /usr/local/bin/uu*; do mv -f "$f" "/usr/local/bin/${f##*/uu}"; done
             ln -sf /usr/local/bin/gawk /usr/local/bin/awk
             # Install pre compiled FreeBSD FFmpeg 8 (amd64 ONLY)
