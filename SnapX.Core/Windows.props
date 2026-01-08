@@ -18,6 +18,6 @@
     <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.win-x64" Version="$(OpenCvSharp4Version)"  />
     <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas" Version="$(PaddleInferenceVersion)"  />
     <!-- Blazingly fast screen captures on Windows, hopefully even compatible with video games that have weird quirks. -->
-    <PackageReference Include="Vortice.Direct3D11" Version="3.8.1" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.8.2" />
   </ItemGroup>
 </Project>
