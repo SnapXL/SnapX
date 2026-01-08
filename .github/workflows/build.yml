@@ -68,7 +68,7 @@ jobs:
           # usesh: true
           sync: sshfs
           prepare: |
-            pkg install -y curl bash icu llvm21 sudo patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk
+            pkg install -y curl bash icu terminfo-db libunwind libinotify brotli llvm21 sudo patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk
             mkdir -p /usr/lib/dotnet
             wcurl -O /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.101-amd64-freebsd-14/dotnet-sdk-10.0.101-freebsd-x64.tar.gz
             tar -xzf /tmp/dotnet.tar.gz -C /usr/lib/dotnet --strip-components=1
