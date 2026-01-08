@@ -25,6 +25,7 @@ finish-args:
   - --own-name=org.kde.* # Avalonia's Tray implementation is old, it seems? Without this, the app immediately crashes!
   - --talk-name=org.kde.StatusNotifierItem
 #  - --filesystem=xdg-run/keyring # OS Secret support
+  - --env=LD_LIBRARY_PATH=/app/lib:/app/lib/snapx # Fixes unable to load shared library 'OpenCvSharpExtern' or one of its dependencies
 modules:
   - name: snapx-ui
     buildsystem: simple
