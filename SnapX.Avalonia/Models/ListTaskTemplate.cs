@@ -6,8 +6,11 @@ using SnapX.Core.Media.Services;
 
 namespace SnapX.Avalonia.Models;
 
-public record ListTaskTemplate(Type ModelType, HistoryItem task) : INotifyPropertyChanged
+public class ListTaskTemplate(Type modelType, HistoryItem task) : INotifyPropertyChanged
 {
+    public Type ModelType { get; init; } = modelType;
+    public HistoryItem task { get; init; } = task;
+
     private string? _uiDisplaySource;
     private bool _isLoading;
 
@@ -54,6 +57,22 @@ public record ListTaskTemplate(Type ModelType, HistoryItem task) : INotifyProper
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
     protected void OnPropertyChanged([CallerMemberName] string? name = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is ListTaskTemplate other)
+        {
+            return EqualityComparer<Type>.Default.Equals(ModelType, other.ModelType)
+                && EqualityComparer<HistoryItem>.Default.Equals(task, other.task);
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(ModelType, task);
+    }
 }
