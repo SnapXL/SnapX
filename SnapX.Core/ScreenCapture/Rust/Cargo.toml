@@ -5,7 +5,7 @@ edition = "2021"
 build = "build.rs"
 
 [dependencies]
-xcap = "0.7.1"
+xcap = "0.8.0"
 uniffi = { version = "0.30.0", features = [ "build" ] }
 base64 = "0.22.1"
 serde = "1.0.217"
