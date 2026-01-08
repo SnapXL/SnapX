@@ -588,7 +588,7 @@ public static partial class OsInfo
         }
         else
         {
-            if (OperatingSystem.IsLinux())
+            if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
             {
                 var linuxInfo = GetGraphicsInfoLinux();
                 if (linuxInfo == null)

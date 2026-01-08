@@ -65,6 +65,11 @@ internal static class Program
 
         var x11Options = new X11PlatformOptions
         {
+#if FREEBSD
+            RenderingMode = [X11RenderingMode.Software],
+            UseGLibMainLoop = true,
+            ShouldRenderOnUIThread = false,
+#else
             RenderingMode =
             [
                 X11RenderingMode.Vulkan,
@@ -72,6 +77,7 @@ internal static class Program
                 X11RenderingMode.Glx,
                 X11RenderingMode.Software,
             ],
+#endif
             UseRetainedFramebuffer = true,
             OverlayPopups = true,
         };
