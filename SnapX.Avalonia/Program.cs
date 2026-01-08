@@ -76,12 +76,24 @@ internal static class Program
             OverlayPopups = true,
         };
 
-        builder = builder
-            .UsePlatformDetect()
-            .UseManagedSystemDialogs()
-            .With(x11Options)
-            .With(new AvaloniaNativePlatformOptions { OverlayPopups = true })
-            .With(new Win32PlatformOptions { OverlayPopups = true });
+        if (
+            OperatingSystem.IsFreeBSD()
+            || Environment.GetEnvironmentVariable("SNAPX_PRETEND_FREEBSD") is not null
+        )
+        {
+#if FREEBSD
+            builder = builder.UseSkia().UseX11().With(x11Options);
+#endif
+        }
+        else
+        {
+            builder = builder
+                .UsePlatformDetect()
+                .UseManagedSystemDialogs()
+                .With(x11Options)
+                .With(new AvaloniaNativePlatformOptions { OverlayPopups = true })
+                .With(new Win32PlatformOptions { OverlayPopups = true });
+        }
 
         return builder;
 #endif
