@@ -517,7 +517,7 @@ public partial class App : Application
                 var logoBitmap = new Bitmap(
                     AssetLoader.Open(new Uri("avares://snapx-ui/SnapX_Logo.png"))
                 );
-                if (!OperatingSystem.IsFreeBSD() && SnapX.GetConfiguration().ShowTray)
+                if (SnapX.GetConfiguration().ShowTray)
                 {
                     var trayIcon = new TrayIcon
                     {
