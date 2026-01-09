@@ -76,6 +76,9 @@ jobs:
             ln -sf /usr/lib/dotnet/dotnet /usr/local/bin/dotnet
             ln -sf /usr/lib/dotnet/dnx /usr/local/bin/dnx 2>/dev/null || true
             dotnet nuget add source https://pkgs.dev.azure.com/IFailAt/freebsd-dotnet-runtime-nightly/_packaging/freebsd-dotnet/nuget/v3/index.json --name freebsd-dotnet
+            wcurl -O /tmp/libskiasharp.pkg https://github.com/SnapXL/freebsd-libskiasharp3/releases/download/3.119.1/libskiasharp-3.119.1_1-amd64.pkg
+            pkg install -y /tmp/libskiasharp.pkg
+            rm /tmp/libskiasharp.pkg
 
             for f in /usr/local/bin/uu*; do mv -f "$f" "/usr/local/bin/${f##*/uu}"; done
             ln -sf /usr/local/bin/gawk /usr/local/bin/awk
