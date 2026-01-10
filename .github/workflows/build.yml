@@ -175,7 +175,7 @@ jobs:
         shell: freebsd {0}
         run: |
           cd $GITHUB_WORKSPACE;
-          cp /usr/local/lib/libsqlite3.so /usr/local/lib/libSkiaSharp.so Output/snapx-ui/
+          cp /usr/local/lib/libsqlite3.so /usr/local/lib/libSkiaSharp.so /usr/local/lib/libHarfBuzzSharp.so Output/snapx-ui/
 
       - name: Tarball
         shell: freebsd {0}
