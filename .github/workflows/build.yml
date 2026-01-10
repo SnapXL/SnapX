@@ -68,7 +68,7 @@ jobs:
           # usesh: true
           sync: sshfs
           prepare: |
-            pkg install -y curl bash icu terminfo-db libunwind libinotify brotli openssl lttng-ust krb5 llvm21 sudo patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk
+            pkg install -y curl bash icu terminfo-db libunwind libinotify brotli openssl lttng-ust krb5 llvm21 sqlite3 sudo patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk
             mkdir -p /usr/lib/dotnet
             wcurl -O /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.101-amd64-freebsd-14/dotnet-sdk-10.0.101-freebsd-x64.tar.gz
             tar -xzf /tmp/dotnet.tar.gz -C /usr/lib/dotnet --strip-components=1
@@ -171,6 +171,11 @@ jobs:
           cd $GITHUB_WORKSPACE;
           rm -rf .git # GitVersion keeps being a pain in the ass.
           sudo -u runner bash build.sh --configuration ${{ matrix.configuration }} --extra-args='-p:PublishAot=false -p:PublishSingleFile=false -p:PublishReadyToRun=false'
+      - name: Embed extra libraries
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE;
+          cp /usr/local/lib/libsqlite3.so /usr/local/lib/libSkiaSharp.so Output/snapx-ui/
 
       - name: Tarball
         shell: freebsd {0}
