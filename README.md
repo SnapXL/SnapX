@@ -49,7 +49,7 @@
 - The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now encouraged to use HTTPS <2.0 & *optionally* use TLS 1.3.
 - Keeps compatibility with the custom uploader configuration format (.sxcu).
-- As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, or macOS.
+- As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, macOS, or FreeBSD.
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
 
