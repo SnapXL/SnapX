@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
 using DotNext.Threading;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp.Formats.Png;
@@ -31,9 +32,28 @@ public partial class QRCodeView : AppWindow
         Clipboard.SetBitmapAsync(image);
     }
 
-    private void SaveImageButtonPressed(object? Sender, RoutedEventArgs RoutedEventArgs)
+    private async void SaveImageButtonPressed(object? sender, RoutedEventArgs e)
     {
-        image.Save("QRCode" + Sender + ".png", 100);
+        var topLevel = GetTopLevel(this);
+        if (topLevel == null)
+            return;
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(
+            new FilePickerSaveOptions
+            {
+                Title = "Save QR Code",
+                DefaultExtension = ".png",
+                SuggestedFileName = $"QRCode_{DateTime.Now:yyyyMMdd_HHmmss}.png",
+                FileTypeChoices = [new FilePickerFileType("PNG Image") { Patterns = ["*.png"] }],
+            }
+        );
+
+        if (file != null)
+        {
+            string filePath = file.Path.LocalPath;
+
+            image.Save(filePath, 100);
+        }
     }
 
     private void UploadImageButtonPressed(object? Sender, RoutedEventArgs RoutedEventArgs)
