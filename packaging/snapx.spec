@@ -31,6 +31,13 @@
     %{!?build_with_aot:%global build_with_aot false}
 %endif
 
+%define github_path %{?github_repo}%{!?github_repo:SnapXL/SnapX}
+
+%define repo_name   %(basename %{github_path})
+
+%define git_ref     %{?github_sha}%{!?github_sha:develop}
+%define clean_ref   %(echo %{git_ref} | sed 's/^v//')
+
 # .NET is not supported by either of these.
 %define _debugsource_template %{nil}
 %global         debug_package %{nil}
@@ -41,8 +48,8 @@ Release:        %{base_release}.%{?gitversion}%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
 
 License:        GPL-3.0-or-later
-URL:            https://github.com/SnapXL/SnapX
-Source:         %{url}/archive/refs/heads/develop.tar.gz
+URL:            https://github.com/%{github_path}
+Source:         %{url}/archive/%{git_ref}.tar.gz
 
 # RISCV64 support is coming soon. Maybe .NET 10 will add it?
 ExclusiveArch:  x86_64 aarch64 ppc64le s390x
@@ -89,7 +96,7 @@ It is not an official release and is not affiliated with the original ShareX pro
 SnapX but with Avalonia. Works best on X11.
 
 %prep
-%autosetup -n SnapX-develop
+%autosetup -n %{repo_name}-%{clean_ref}
 
 %build
 # Setup the correct compilation flags for the environment
