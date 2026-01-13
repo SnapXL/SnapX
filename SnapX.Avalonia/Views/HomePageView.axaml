@@ -49,7 +49,7 @@
                             UseLayoutRounding="True"
                             Width="205">
                             <ToolTip.Tip>
-                                <WrapPanel IsVisible="{Binding task.BestImageSource, Converter={StaticResource StringValid}}">
+                                <StackPanel IsVisible="{Binding task.BestImageSource, Converter={StaticResource StringValid}}">
                                     <TextBlock
                                         IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FilePathValidConverter}}"
                                         Margin="5"
@@ -58,8 +58,8 @@
                                     <TextBlock
                                         IsVisible="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, ConverterParameter=HasSize, Converter={StaticResource FilePathValidConverter}}"
                                         Margin="0,0,0,5"
-                                        Text="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}, StringFormat='File size: {0:N0} bytes'}" />
-                                </WrapPanel>
+                                        Text="{Binding task.FilePath, Converter={StaticResource FileSizeConverter}}" />
+                                </StackPanel>
                             </ToolTip.Tip>
                             <ToggleButton.ContextFlyout>
                                 <controls:FAMenuFlyout Opening="PopupFlyoutBase_OnOpening" Placement="Bottom">
