@@ -79,15 +79,22 @@ Recommends:     /usr/bin/xrandr
 Requires:       fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
 # Required for opening browser tabs across Linux desktops
 Requires:       xdg-utils
+Requires:       snapx-core = %{version}-%{release}
 
 %description
 This is a port of the original ShareX application to Linux.
 It is not an official release and is not affiliated with the original ShareX project.
 Specifically, it is the CLI tool.
 
+%package core
+Summary:        Shared libraries and core logic for SnapX
+%description core
+This package contains the heavy dependencies and shared libraries used by both
+the CLI and the UI.
+
 %package ui
 Summary:        SnapX Avalonia-based UI
-Requires:       snapx
+Requires:       snapx-core = %{version}-%{release}
 
 
 %description ui
@@ -155,15 +162,44 @@ done
 %check
 Output/snapx-ui/snapx-ui --version
 
-%files
-%{_bindir}/%{name}
+
+# This message will only show on first install, not upgrades/removals
+# Additionally, it will be removed once SnapX's CLI is mature.
+%post
+if [ "$1" -eq 1 ]; then
+    echo "--------------------------------------------------------------"
+    echo "  Welcome to SnapX! Thank you so much for testing the app.    "
+    echo "--------------------------------------------------------------"
+    echo "  NOTE: The 'snapx' CLI is still under active development.    "
+    echo "  For the best experience right now, please use 'snapx-ui'.   "
+    echo ""
+    echo "  If you enjoy the project, please consider:                  "
+    echo "  ⭐ Starring on GitHub: https://github.com/%{github_path}"
+    echo "  🚲 Donating to help me fund my bus fare and keep my scooter charged!"
+    echo "     https://liberapay.com/BrycensRanch"
+    echo "--------------------------------------------------------------"
+fi
+
+%files core
 %{_prefix}/lib/%{name}
 %{_datadir}/SnapX
 %{_docdir}/%{name}
+%exclude %{_prefix}/lib/%{name}/%{name}
+%exclude %{_prefix}/lib/%{name}/%{name}-ui
+%exclude %{_prefix}/lib/%{name}/libHarfBuzzSharp.so
+%exclude %{_prefix}/lib/%{name}/libSkiaSharp.so
+%license LICENSE.md
+
+%files
+%{_prefix}/lib/%{name}/%{name}
+%{_bindir}/%{name}
 %license LICENSE.md
 
 %files ui
+%{_prefix}/lib/%{name}/%{name}-ui
 %{_bindir}/%{name}-ui
+%{_prefix}/lib/%{name}/libHarfBuzzSharp.so
+%{_prefix}/lib/%{name}/libSkiaSharp.so
 %{_datadir}/applications/io.github.SnapXL.SnapX.desktop
 %{_datadir}/metainfo/io.github.SnapXL.SnapX.metainfo.xml
 %{_datadir}/icons/hicolor/48x48/apps/io.github.SnapXL.SnapX.png
