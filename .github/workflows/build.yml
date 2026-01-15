@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         # I haven't built binaries for FreeBSD ARM64 yet. Sorry.
-        os: [ ubuntu-24.04 ]
+        os: [ubuntu-24.04]
         configuration:
           - Release
           - Debug
@@ -146,7 +146,7 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v4.2.0
         with:
-          versionSpec: '6.5.x'
+          versionSpec: "6.5.x"
       - name: Run GitVersion
         uses: gittools/actions/gitversion/command@v4.2.0
         with:
@@ -154,7 +154,7 @@ jobs:
       - name: Update project files with GitVersion
         uses: gittools/actions/gitversion/command@v4.2.0
         with:
-          arguments: '/updateprojectfiles'
+          arguments: "/updateprojectfiles"
       - name: Copy GitVersion data
         shell: freebsd {0}
         run: |
@@ -263,9 +263,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
 
-        container: [ fedora:41 ]
+        container: [fedora:41]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -281,7 +281,7 @@ jobs:
         run: |
           cd packaging
           dnf builddep -y snapx.spec
-          spectool -g -R snapx.spec
+          spectool -g -R snapx.spec --define "github_repo ${{ github.repository }}" --define "github_sha ${{ github.sha }}"
           rpmdev-setuptree
           rpmbuild -ba snapx.spec --define "github_repo ${{ github.repository }}" --define "github_sha ${{ github.sha }}" | tee rpmbuild.log
           # Extract all lines starting with "Wrote:" and get the file paths
@@ -363,10 +363,10 @@ jobs:
       - name: Setup environment
         if: matrix.pretty_arch == ''
         run: |
-            sudo apt update
-            sudo apt -y install git gpg snapd
-            sudo snap install snapcraft --classic
-            sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
+          sudo apt update
+          sudo apt -y install git gpg snapd
+          sudo snap install snapcraft --classic
+          sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
       - name: Build Deb
         if: matrix.pretty_arch == ''
         working-directory: packaging
@@ -426,22 +426,22 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-#      - name: Setup environment
-#        run: |
-#          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-#          flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet10//25.08
-#          dotnet tool install --global Nickvision.FlatpakGenerator
-#          Nickvision.FlatpakGenerator generate -i SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json -s false -u
-#          Nickvision.FlatpakGenerator generate -i build/build.csproj -o packaging/flathub/build-sources.json -s false -u
-# - name: 📦 Commit Flatpak Sources
-#   if: ${{ runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-#   uses: EndBug/add-and-commit@v9
-#   continue-on-error: true
-#   with:
-#     add: "packaging/flathub/*.json"
-#     commit: "--no-verify --no-gpg-sign"
-#     push: "--no-verify --no-signed"
-#     message: "build(flathub): update nuget sources [skip ci]"
+      #      - name: Setup environment
+      #        run: |
+      #          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      #          flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet10//25.08
+      #          dotnet tool install --global Nickvision.FlatpakGenerator
+      #          Nickvision.FlatpakGenerator generate -i SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json -s false -u
+      #          Nickvision.FlatpakGenerator generate -i build/build.csproj -o packaging/flathub/build-sources.json -s false -u
+      # - name: 📦 Commit Flatpak Sources
+      #   if: ${{ runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
+      #   uses: EndBug/add-and-commit@v9
+      #   continue-on-error: true
+      #   with:
+      #     add: "packaging/flathub/*.json"
+      #     commit: "--no-verify --no-gpg-sign"
+      #     push: "--no-verify --no-signed"
+      #     message: "build(flathub): update nuget sources [skip ci]"
       - name: Prepare Flatpak build directory
         run: |
           # Copy flatpak files to workspace root, preserving directory structure
@@ -456,14 +456,14 @@ jobs:
           bundle: io.github.SnapXL.SnapX.flatpak
           manifest-path: io.github.SnapXL.SnapX.yml
           cache-key: flatpak-builder-${{ github.sha }}
-#      - uses: flatpak/flatpak-github-actions/flat-manager@v6
-#        name: Deploy
-#        with:
-#          repository: elementary
-#          flat-manager-url: https://flatpak-api.elementary.io
-#          token: some_very_hidden_token
-#          end-of-life: "The application has been renamed to..."
-#          end-of-life-rebase: "org.zbrown.Palette"
+  #      - uses: flatpak/flatpak-github-actions/flat-manager@v6
+  #        name: Deploy
+  #        with:
+  #          repository: elementary
+  #          flat-manager-url: https://flatpak-api.elementary.io
+  #          token: some_very_hidden_token
+  #          end-of-life: "The application has been renamed to..."
+  #          end-of-life-rebase: "org.zbrown.Palette"
   build:
     name: Build
     runs-on: ${{matrix.os}}
@@ -473,7 +473,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-26, macos-15-intel, windows-2025, windows-11-arm ]
+        os:
+          [
+            ubuntu-24.04,
+            ubuntu-24.04-arm,
+            macos-26,
+            macos-15-intel,
+            windows-2025,
+            windows-11-arm,
+          ]
         configuration:
           - Release
           - Debug
@@ -613,11 +621,11 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-#      - name: Enforce code style using dotnet format
-#        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
-#        run: |
-#          dotnet format --verify-no-changes -v diagnostic SnapX.slnx \
-#            --include $(find . -type f -name '*.cs' ! -path './build/*' ! -path './SnapX.Core/Upload/APIKeysLocal.cs')
+      #      - name: Enforce code style using dotnet format
+      #        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64'
+      #        run: |
+      #          dotnet format --verify-no-changes -v diagnostic SnapX.slnx \
+      #            --include $(find . -type f -name '*.cs' ! -path './build/*' ! -path './SnapX.Core/Upload/APIKeysLocal.cs')
       - name: Publish
         shell: bash
         run: ./build.sh --configuration ${{ matrix.configuration }}
