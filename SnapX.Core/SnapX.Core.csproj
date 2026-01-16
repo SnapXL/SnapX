@@ -23,12 +23,12 @@
   <PropertyGroup Condition="'$(DisableUploads)' == '1'">
     <DefineConstants>$(DefineConstants);DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
-  <!-- <ItemGroup Condition="'$(DisableUploads)' != '1'">
+  <ItemGroup Condition="'$(DisableUploads)' != '1'">
     <TrimmerRootDescriptor Include="ILLink.Descriptors.xml" />
     <EmbeddedResource Include="ILLink.Descriptors.xml">
       <LogicalName>ILLink.Descriptors.xml</LogicalName>
     </EmbeddedResource>
-  </ItemGroup> -->
+  </ItemGroup>
   <PropertyGroup Condition="$(RuntimeIdentifier.Contains('browser'))">
     <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
   </PropertyGroup>
