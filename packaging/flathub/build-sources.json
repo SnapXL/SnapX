@@ -15,16 +15,16 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "simpleexec.12.1.0.nupkg",
-    "sha512": "1d94747dc5ba54bb85daa51a92940b58d281d7ea0fe8a0aa5f57228bbb1fe3e46f7a458bc20a1ca49b479ccb677f4ed581c169e63b886dcfafbac2d04a2a6adb",
-    "url": "https://api.nuget.org/v3-flatcontainer/simpleexec/12.1.0/simpleexec.12.1.0.nupkg",
+    "dest-filename": "simpleexec.13.0.0.nupkg",
+    "sha512": "677661aa0dd4abc249c11055bcbb15d124acee4759486b563dea7be93eaad86c58696990acef0cd43c64ee6f658c6d0d0067bbabd8eeec7699a501fdd073ec19",
+    "url": "https://api.nuget.org/v3-flatcontainer/simpleexec/13.0.0/simpleexec.13.0.0.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "system.commandline.2.0.1.nupkg",
-    "sha512": "c177c517e4ad68ad121a82fe2d4e8159f1bc99dd98c59a32f1330d865300d7b3f4654556378d8ac54f47983c9da1e42b66538463bbe39fe6e3a726ae07d94d23",
-    "url": "https://api.nuget.org/v3-flatcontainer/system.commandline/2.0.1/system.commandline.2.0.1.nupkg",
+    "dest-filename": "system.commandline.2.0.2.nupkg",
+    "sha512": "88cc0e70e5e68040db65cd6da3d7e7b8d06ac21e31e3a9e9a744a5a2123a568a8aea73fcc08bc3cfa49b0e44f637b24d28989a7dec13c4a3a15b6e87840fffba",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.commandline/2.0.2/system.commandline.2.0.2.nupkg",
     "type": "file"
   }
 ]

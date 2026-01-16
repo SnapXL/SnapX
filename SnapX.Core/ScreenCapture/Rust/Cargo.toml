@@ -5,16 +5,16 @@ edition = "2021"
 build = "build.rs"
 
 [dependencies]
-xcap = "0.8.0"
-uniffi = { version = "0.30.0", features = [ "build" ] }
+xcap = "0.8.1"
+uniffi = { version = "0.31.0", features = [ "build" ] }
 base64 = "0.22.1"
 serde = "1.0.217"
-serde_json = "1.0.135"
+serde_json = "1.0.149"
 
 [build-dependencies]
-uniffi = { version = "0.30.0", features = [ "build" ] }
-uniffi_build = "0.30.0"
-uniffi_bindgen = "0.30.0"
+uniffi = { version = "0.31.0", features = [ "build" ] }
+uniffi_build = "0.31.0"
+uniffi_bindgen = "0.31.0"
 camino = "1.1.9"
 
 [lib]
