@@ -177,7 +177,7 @@
   {
     "dest": "vendor",
     "dest-filename": "brycensranch.sdcb.paddleocr.models.online.2.5.0.nupkg",
-    "sha512": "9d42fd27869ec04126596d28d5fddca7aba9fc9ac7e97f02567142fad3e7b8f473f32c82397f30b575065bf327b81ce3937fe5780e2e3200aaa0ba02565cddc6",
+    "sha512": "0c38fabef1d9741b808776d365fa3c588917ec4935aff5207620047ce65b96fe73fb47e89f36fc4538e226f60daacefa35c40c24ea1bd1837bc80a1a2f37cef2",
     "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.sdcb.paddleocr.models.online/2.5.0/brycensranch.sdcb.paddleocr.models.online.2.5.0.nupkg",
     "type": "file"
   },
