@@ -488,7 +488,8 @@ jobs:
         exclude:
           - os: windows-11-arm
             configuration: Debug
-
+          - os: macos-26
+            configuration: Debug
     env:
       SOLUTION_FILE_PATH: SnapX.slnx
       ASSEMBLY_INFO_PATH: Directory.build.props
