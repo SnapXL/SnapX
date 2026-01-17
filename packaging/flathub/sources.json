@@ -9,7 +9,7 @@
   {
     "dest": "vendor",
     "dest-filename": "avalonia.11.3.11.nupkg",
-    "sha512": "37e2e376818b383d918a8d492b456548c101da8a46669abcfd5b392d5d7a7809db8c579776a639bb099444529bd6b27d31cc8c6504f729fdbf0de7262aaacb13",
+    "sha512": "b1a7fdb92ad8cdf89c703661e56efcba7d1cb6ee9fec066f50d84fd98aaba4a4e4fb5f906abeec85911924d80393c1a3301d3289e43b279fc876c27cfa556a02",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia/11.3.11/avalonia.11.3.11.nupkg",
     "type": "file"
   },
@@ -58,14 +58,14 @@
   {
     "dest": "vendor",
     "dest-filename": "avalonia.desktop.11.3.11.nupkg",
-    "sha512": "9bad14d6357de91aaec181a0e0fcf0a7410d2f51d4accdd864b3027acd205919fcc7ec1e6d3f55e167ece7c3007533ae9173e9cbdb755e111de0d38debbe169b",
+    "sha512": "38f21b0cee49be287751aab8e7522bdc8952b5b4354b9c521b821fe8fd402cf87db85277d0723147d1547e93c121790e55cd8ed691686d7f0fe0263b0997e471",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.desktop/11.3.11/avalonia.desktop.11.3.11.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
     "dest-filename": "avalonia.diagnostics.11.3.11.nupkg",
-    "sha512": "82a29c3d3191646fe871eb79bce990ac8a5ffa0414e26392de6570222b12bf5180280ffe26635c9e9e68b9a2a290b6dd1aded0730d992a5f9d68cc2cf72ebf9a",
+    "sha512": "ee083013f58a67dc9f3ea4d0bcc7708cd5ef4180b2df14df8f5cafff13d71b3cd87e804c6eb63639673f798360f163ed729c7b683a6f8a66174ce003b619346e",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.diagnostics/11.3.11/avalonia.diagnostics.11.3.11.nupkg",
     "type": "file"
   },
@@ -79,7 +79,7 @@
   {
     "dest": "vendor",
     "dest-filename": "avalonia.markup.xaml.loader.11.3.11.nupkg",
-    "sha512": "078cd6d16d57055123683d75f91c18e450326168c0dced72f8ff332e46643acbc9955f6e142dd1188eee813e3b13accec13fc16752b04288afe60159a82c9d99",
+    "sha512": "c9d36c5610a60354c61f03aa903059936ed35a9baf9c42701f790bfe27c9ee0f9b5a92e4325f732f18d204640ee159dde85766b7e489c871d02fd8e8b0370646",
     "url": "https://api.nuget.org/v3-flatcontainer/avalonia.markup.xaml.loader/11.3.11/avalonia.markup.xaml.loader.11.3.11.nupkg",
     "type": "file"
   },
@@ -172,6 +172,13 @@
     "dest-filename": "brycensranch.neosolve.imagesharp.avif.1.3.2.nupkg",
     "sha512": "335aa6e394279c4ba61e0f6550f5d6d0fe987182f877352bdf88e9aebc6e8194e97d8c179af219da64daee902f5fd74b7760704c915440addcac4ede47b09d66",
     "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.neosolve.imagesharp.avif/1.3.2/brycensranch.neosolve.imagesharp.avif.1.3.2.nupkg",
+    "type": "file"
+  },
+  {
+    "dest": "vendor",
+    "dest-filename": "brycensranch.sdcb.paddleocr.models.online.2.5.0.nupkg",
+    "sha512": "9d42fd27869ec04126596d28d5fddca7aba9fc9ac7e97f02567142fad3e7b8f473f32c82397f30b575065bf327b81ce3937fe5780e2e3200aaa0ba02565cddc6",
+    "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.sdcb.paddleocr.models.online/2.5.0/brycensranch.sdcb.paddleocr.models.online.2.5.0.nupkg",
     "type": "file"
   },
   {
@@ -1016,44 +1023,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "sdcb.paddleocr.3.0.0.nupkg",
-    "sha512": "d9cf3412562b344c8fd808aba9c74870a206d99f42ad5a1919a82b4da20c346c60cff5e4c88eccabed3627d572792bd0d46f11ccb47c61a32455274d879ca4cb",
-    "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr/3.0.0/sdcb.paddleocr.3.0.0.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
     "dest-filename": "sdcb.paddleocr.3.0.1.nupkg",
     "sha512": "70e3ac5190ad851f26f246d62525611d550d5995c81795d86dbe43cf987001326fe62c118b3f48cc461388538f4527e826753f234ebd1d591e19984171e74e41",
     "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr/3.0.1/sdcb.paddleocr.3.0.1.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
-    "dest-filename": "sdcb.paddleocr.models.local.3.0.1.nupkg",
-    "sha512": "8ae97275ed8c596b5afe6c938db6fd41e3d46d83ddd242c5cb9103ed84f1e83198ba75ce1c406e5ac52829d12f6eb7b4d0c1b5f756e0d3438ee84c1b813b04a5",
-    "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr.models.local/3.0.1/sdcb.paddleocr.models.local.3.0.1.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
-    "dest-filename": "sdcb.paddleocr.models.localv3.2.7.0.1.nupkg",
-    "sha512": "98040ff998f2e1d095ed38f7d0134d25692d596eda8ea871f9980d65e78349223520a1aa359507c25320972aecbb8a37f8fe4fb4d16d9c06283b5f33adbd5ce8",
-    "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr.models.localv3/2.7.0.1/sdcb.paddleocr.models.localv3.2.7.0.1.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
-    "dest-filename": "sdcb.paddleocr.models.localv4.2.7.0.1.nupkg",
-    "sha512": "9b4967dd07d2dfd92bf59a72b8dec8b3ed6b6ffdad6ac87ec1004a37f5f74170c04693b14e5551eb0f8e674250cc0f22a9877cf869e1ef277ca224af26cb83fb",
-    "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr.models.localv4/2.7.0.1/sdcb.paddleocr.models.localv4.2.7.0.1.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
-    "dest-filename": "sdcb.paddleocr.models.localv5.3.0.0.nupkg",
-    "sha512": "386c399d99e15c090ed3fc7add78269fbf6964e08ee1121a1504f66718bb4766a0650741e8e81d90860035ee903b7d05bbd2cefe4ca80b07d3ff9b30b2e15af5",
-    "url": "https://api.nuget.org/v3-flatcontainer/sdcb.paddleocr.models.localv5/3.0.0/sdcb.paddleocr.models.localv5.3.0.0.nupkg",
     "type": "file"
   },
   {
@@ -1145,6 +1117,13 @@
     "dest-filename": "serilog.sinks.inmemory.2.0.0.nupkg",
     "sha512": "5d3ac66cc2534bed0b98ee7a86203514d3068966638af7e48bdbfd34c9d6186e5ff2abba0f479cc0f1bb2a5dea894b008adf0196eee3a71d2591e2c30c55aaaa",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog.sinks.inmemory/2.0.0/serilog.sinks.inmemory.2.0.0.nupkg",
+    "type": "file"
+  },
+  {
+    "dest": "vendor",
+    "dest-filename": "sharpcompress.0.44.0.nupkg",
+    "sha512": "cab0f7b597119f731d049066dae704716c2d657aeaafba9f7b8808d3c748ec8873edd79bbe53ac7573f239e67fc69d0dd0b02a1476d4a980ff107957e339b6b9",
+    "url": "https://api.nuget.org/v3-flatcontainer/sharpcompress/0.44.0/sharpcompress.0.44.0.nupkg",
     "type": "file"
   },
   {
