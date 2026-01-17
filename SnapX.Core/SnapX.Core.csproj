@@ -69,7 +69,8 @@
     </PackageReference>
     <!-- Cross platform OCR library -->
     <PackageReference Include="Sdcb.PaddleOCR" Version="$(PaddleOCRVersion)" Condition="$(DisableOCR) != '1'" />
-    <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="$(PaddleOCRVersion)" Condition="$(DisableOCR) != '1'"/>
+    <PackageReference Include="BrycensRanch.Sdcb.PaddleOCR.Models.Online" Version="2.5.0" Condition="$(DisableOCR) != '1'" />
+
     <!-- Crash forensics & performance analytics -->
     <PackageReference Include="Sentry.Profiling" Version="6.0.0" />
     <!-- Next generation logging -->

@@ -15,8 +15,8 @@
     </PackageReference>
     <!-- Waiting for matching win-arm64 PaddleInference package.-->
 <!--    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.win-arm64" Version="$(OpenCvSharp4Version)"  />-->
-    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.win-x64" Version="$(OpenCvSharp4Version)"  />
-    <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas" Version="$(PaddleInferenceVersion)"  />
+    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.win-x64" Version="$(OpenCvSharp4Version)" Condition="$(DisableOCR) != '1'" />
+    <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas" Version="$(PaddleInferenceVersion)" Condition="$(DisableOCR) != '1'" />
     <!-- Blazingly fast screen captures on Windows, hopefully even compatible with video games that have weird quirks. -->
     <PackageReference Include="Vortice.Direct3D11" Version="3.8.2" />
   </ItemGroup>

@@ -1,5 +1,5 @@
 <Project>
-  <ItemGroup>
+  <ItemGroup Condition="$(DisableOCR) != '1'">
     <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.linux-x64" Version="$(OpenCvSharp4Version)"  />
     <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.linux-arm64" Version="$(OpenCvSharp4Version)"  />
     <PackageReference Include="Sdcb.PaddleInference.runtime.linux-x64.openblas" Version="$(PaddleInferenceVersion)" />

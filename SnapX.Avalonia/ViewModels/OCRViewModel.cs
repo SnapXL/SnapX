@@ -31,34 +31,46 @@ public partial class OCRViewModel : ViewModelBase
 
     [ObservableProperty]
     public int selectedLanguageIndex;
-    public ObservableCollection<string> LanguageDisplayNames { get; } = new(_languages.Select(l => l.Display));
+    public ObservableCollection<string> LanguageDisplayNames { get; } =
+        new(_languages.Select(l => l.Display));
 
     public string GetLanguageCode(int index) => _languages[index].Code;
 
-    public async Task<string> RunOCRAsync(HistoryItem? Item = null, string? languageCode = null)
+    public async Task<string> RunOCRAsync(
+        HistoryItem? Item = null,
+        string? languageCode = null,
+        Progress<TaskHelpers.OCRProgress>? progressHandler = null
+    )
     {
-        return await Task.Factory.StartNew(async () =>
-            {
-                Image? img = null;
-
-                if (img is null && Item?.BestImageSource is not null)
+        return await Task
+            .Factory.StartNew(
+                async () =>
                 {
-                    if (!Uri.IsWellFormedUriString(Item.BestImageSource, UriKind.Absolute))
-                    {
-                        // It's likely a file path, so no need to download
-                    }
-                    else
-                    {
-                        img = await WebHelpers.DownloadImageAsync(Item.BestImageSource);
-                    }
-                }
+                    Image? img = null;
 
+                    if (img is null && Item?.BestImageSource is not null)
+                    {
+                        if (!Uri.IsWellFormedUriString(Item.BestImageSource, UriKind.Absolute))
+                        {
+                            // It's likely a file path, so no need to download
+                        }
+                        else
+                        {
+                            img = await WebHelpers.DownloadImageAsync(Item.BestImageSource);
+                        }
+                    }
 
-                return await TaskHelpers.OCRImage(img, Item?.BestImageSource, TaskSettings.GetDefaultTaskSettings(), languageCode);
-            },
-            CancellationToken.None,
-            TaskCreationOptions.LongRunning,
-            TaskScheduler.Default).Unwrap();
+                    return await TaskHelpers.OCRImage(
+                        img,
+                        Item?.BestImageSource,
+                        TaskSettings.GetDefaultTaskSettings(),
+                        languageCode, progressHandler
+                    );
+                },
+                CancellationToken.None,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default
+            )
+            .Unwrap();
     }
-
 }

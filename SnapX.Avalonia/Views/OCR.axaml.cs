@@ -5,6 +5,7 @@ using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.History;
 using SnapX.Core.Utils;
+using static SnapX.Core.Job.TaskHelpers;
 
 namespace SnapX.Avalonia.Views;
 
@@ -12,7 +13,6 @@ public partial class OCR : AppWindow
 {
     private OCRViewModel _ocrViewModel;
     private HistoryItem? _item;
-
 
     public OCR(HistoryItem? item, OCRViewModel viewModel)
     {
@@ -29,18 +29,22 @@ public partial class OCR : AppWindow
         // LoadImage();
         // RunOCR(_languages[0]);
     }
-    public OCR() : this(null, new OCRViewModel())
-    {
-    }
-    public OCR(HistoryItem item) : this(item, new OCRViewModel())
-    {
-    }
 
-    private async void LanguageSelector_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    public OCR()
+        : this(null, new OCRViewModel()) { }
+
+    public OCR(HistoryItem item)
+        : this(item, new OCRViewModel()) { }
+
+    private async void LanguageSelector_SelectionChanged(
+        object? sender,
+        SelectionChangedEventArgs e
+    )
     {
         DebugHelper.WriteLine($"{nameof(LanguageSelector_SelectionChanged)} triggered");
 
-        if (LanguageSelector?.SelectedIndex is not (>= 0 and var index)) return;
+        if (LanguageSelector?.SelectedIndex is not (>= 0 and var index))
+            return;
 
         _ocrViewModel.SelectedLanguageIndex = index;
 
@@ -53,8 +57,21 @@ public partial class OCR : AppWindow
         DebugHelper.WriteLine($"{nameof(RunOCRAsync)} triggered");
         var textBox = this.FindControl<TextBox>("ResultText")!;
         textBox.Text = Lang.Processing;
-        var result = await _ocrViewModel.RunOCRAsync(_item, languageCode);
-        if (SingleLine?.IsChecked ?? false) result = result.Replace("\r", "").Replace("\n", "");
+        LanguageSelector?.IsEnabled = false;
+
+        var progressHandler = new Progress<OCRProgress>(update =>
+        {
+            textBox.Text = $"[{update.Percent}%] {update.Status}";
+        });
+
+        var result = await _ocrViewModel.RunOCRAsync(_item, languageCode, progressHandler);
+
+        if (SingleLine?.IsChecked ?? false)
+        {
+            result = result.Replace("\r", "").Replace("\n", "");
+        }
+        LanguageSelector?.IsEnabled = true;
+
         textBox.Text = result;
     }
 
@@ -76,4 +93,3 @@ public partial class OCR : AppWindow
         Clipboard?.SetTextAsync(ResultText.Text);
     }
 }
-

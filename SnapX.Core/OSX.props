@@ -6,7 +6,7 @@
     </PropertyGroup>
     <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
   </Target>
-  <ItemGroup>
+  <ItemGroup Condition="$(DisableOCR) != '1'">
     <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.osx-x64" Version="$(OpenCvSharp4Version)"  />
     <PackageReference Include="Sdcb.PaddleInference.runtime.osx-x64" Version="$(PaddleInferenceVersion)" />
     <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.osx-arm64" Version="$(OpenCvSharp4Version)"  />
