@@ -67,18 +67,6 @@ BuildRequires:  openssl-devel
 BuildRequires:  zlib-devel
 %endif
 
-%if "%{build_with_aot}" != "true"
-Requires:       dotnet-runtime-10.0
-%endif
-
-Recommends:     /usr/bin/ffmpeg
-Recommends:     /usr/bin/glxinfo
-Recommends:     /usr/bin/lspci
-Recommends:     /usr/bin/xrandr
-# Generic Avalonia Dependencies
-Requires:       fontconfig, freetype, openssl, glibc, libicu, at, sudo, libXrandr, libxcb, dbus
-# Required for opening browser tabs across Linux desktops
-Requires:       xdg-utils
 Requires:       snapx-core = %{version}-%{release}
 
 %description
@@ -88,6 +76,20 @@ Specifically, it is the CLI tool.
 
 %package core
 Summary:        Shared libraries and core logic for SnapX
+
+%if "%{build_with_aot}" != "true"
+Requires:       dotnet-runtime-10.0
+%endif
+
+Recommends:     /usr/bin/ffmpeg
+Recommends:     /usr/bin/glxinfo
+Recommends:     /usr/bin/lspci
+Recommends:     /usr/bin/xrandr
+
+# Required for opening browser tabs across Linux desktops
+Requires:       xdg-utils
+Requires:       /usr/bin/avifenc
+
 %description core
 This package contains the heavy dependencies and shared libraries used by both
 the CLI and the UI.
@@ -95,7 +97,8 @@ the CLI and the UI.
 %package ui
 Summary:        SnapX Avalonia-based UI
 Requires:       snapx-core = %{version}-%{release}
-
+# libicu was removed because we now compile with InvariantGlobalization
+Requires:       fontconfig, freetype, openssl, glibc, at, sudo, libXrandr, libxcb, dbus
 
 %description ui
 This is a port of the original ShareX application to Linux.
@@ -185,6 +188,7 @@ fi
 %{_datadir}/SnapX
 %{_docdir}/%{name}
 %exclude %{_prefix}/lib/%{name}/%{name}
+%exclude %{_prefix}/lib/%{name}/avif*
 %exclude %{_prefix}/lib/%{name}/%{name}-ui
 %exclude %{_prefix}/lib/%{name}/libHarfBuzzSharp.so
 %exclude %{_prefix}/lib/%{name}/libSkiaSharp.so
