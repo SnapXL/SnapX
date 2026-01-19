@@ -15,6 +15,8 @@ public class NeedFileOpenerEvent
     public TaskSettings TaskSettings { get; set; }
 }
 
+public record ErrorMessageEvent(Exception Exception, string Context, bool FullError);
+
 public class NeedMainWindowHandle
 {
     // The subscriber will fill this property

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Layout;
@@ -12,9 +13,11 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -376,6 +379,56 @@ public partial class App : Application
         }
     }
 
+    private async void HandleErrorMessageEvent(ErrorMessageEvent @event)
+    {
+        await Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            try
+            {
+                var textBlock = new SelectableTextBlock
+                {
+                    Text = @event.FullError
+                        ? @event.Exception.ToString()
+                        : @event.Exception.Message,
+                    TextWrapping = TextWrapping.Wrap,
+                    MaxWidth = 600,
+                };
+
+                var scrollViewer = new ScrollViewer
+                {
+                    Content = textBlock,
+                    MaxHeight = 400,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                };
+
+                var dialog = new ContentDialog
+                {
+                    Title = $"Error in {@event.Context}",
+                    Content = scrollViewer,
+                    CloseButtonText = "Close",
+                    DefaultButton = ContentDialogButton.Close,
+                    PrimaryButtonText = @event.FullError ? "Copy" : null,
+                };
+                TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Error);
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    var topLevel = TopLevel.GetTopLevel(
+                        MyMainWindow is not null ? MyMainWindow : dialog
+                    );
+                    await topLevel?.Clipboard?.SetTextAsync(@event.Exception.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                // Fallback to console if the UI is in a state where dialogs can't open
+                DebugHelper.Logger?.Error("Critical: Could not open FluentAvalonia ContentDialog.");
+                DebugHelper.Logger?.Error(ex.ToString());
+            }
+        });
+    }
+
     private static async Task<IClipboard> GetClipboardAsync()
     {
         if (Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -440,6 +493,19 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        // Crashes must be contained, AT ALL COSTS!
+        Dispatcher.UIThread.UnhandledException += (s, e) =>
+        {
+            e.Handled = true;
+            var ex = e.Exception;
+
+            ex.ShowError(true, "UI Dispatcher Critical Error");
+        };
+        TaskScheduler.UnobservedTaskException += (s, e) =>
+        {
+            e.SetObserved();
+            e.Exception.ShowError(true, "Unobserved Task Exception");
+        };
         var locator = new ViewLocator();
         DataTemplates.Add(locator);
         var services = new ServiceCollection();
