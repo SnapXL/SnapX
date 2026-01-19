@@ -20,9 +20,8 @@ public partial class AboutWindow : AppWindow
 {
     internal AboutWindowViewModel ViewModel;
 
-    public AboutWindow() : this(new AboutWindowViewModel())
-    {
-    }
+    public AboutWindow()
+        : this(new AboutWindowViewModel()) { }
 
     public AboutWindow(AboutWindowViewModel vm)
     {
@@ -30,6 +29,7 @@ public partial class AboutWindow : AppWindow
         DataContext = ViewModel;
         InitializeComponent();
     }
+
     private void FindURLOnDescendant(ILogical control)
     {
         foreach (var child in control.GetLogicalChildren())
@@ -41,7 +41,8 @@ public partial class AboutWindow : AppWindow
             }
 
             var url = toolTip?.Content as string ?? string.Empty;
-            if (!string.IsNullOrEmpty(url)) URLHelpers.OpenURL(url);
+            if (!string.IsNullOrEmpty(url))
+                URLHelpers.OpenURL(url);
         }
     }
 
@@ -63,13 +64,15 @@ public partial class AboutWindow : AppWindow
         else
         {
             DebugHelper.WriteLine(
-                $"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!");
+                $"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!"
+            );
         }
     }
 
     private void ApplicationActualThemeVariantChanged(object? sender, EventArgs e)
     {
-        if (!OperatingSystem.IsWindows()) return;
+        if (!OperatingSystem.IsWindows())
+            return;
         if (IsWindows11 && ActualThemeVariant != FluentAvaloniaTheme.HighContrastTheme)
         {
             TryEnableMicaEffect();
@@ -86,9 +89,15 @@ public partial class AboutWindow : AppWindow
 
         Application.Current!.ActualThemeVariantChanged += ApplicationActualThemeVariantChanged;
         var thm = ActualThemeVariant;
-        if (!IsWindows11 || thm == FluentAvaloniaTheme.HighContrastTheme) return;
+        if (!IsWindows11 || thm == FluentAvaloniaTheme.HighContrastTheme)
+            return;
         TransparencyBackgroundFallback = Brushes.Transparent;
-        TransparencyLevelHint = [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.None];
+        TransparencyLevelHint =
+        [
+            WindowTransparencyLevel.Mica,
+            WindowTransparencyLevel.AcrylicBlur,
+            WindowTransparencyLevel.None,
+        ];
 
         TryEnableMicaEffect();
     }
@@ -97,8 +106,11 @@ public partial class AboutWindow : AppWindow
     {
         if (ActualThemeVariant == ThemeVariant.Dark)
         {
-            var color = this.TryFindResource("SolidBackgroundFillColorBase",
-                ThemeVariant.Dark, out var value)
+            var color = this.TryFindResource(
+                "SolidBackgroundFillColorBase",
+                ThemeVariant.Dark,
+                out var value
+            )
                 ? (Color2)(Color)value!
                 : new Color2(32, 32, 32);
 
@@ -109,8 +121,11 @@ public partial class AboutWindow : AppWindow
         else if (ActualThemeVariant == ThemeVariant.Light)
         {
             // Similar effect here
-            var color = this.TryFindResource("SolidBackgroundFillColorBase",
-                ThemeVariant.Light, out var value)
+            var color = this.TryFindResource(
+                "SolidBackgroundFillColorBase",
+                ThemeVariant.Light,
+                out var value
+            )
                 ? (Color2)(Color)value!
                 : new Color2(243, 243, 243);
 
@@ -138,7 +153,7 @@ public partial class AboutWindow : AppWindow
             SecondaryButtonText = Lang.MaybeLater,
             DefaultButton = ContentDialogButton.Primary,
             PrimaryButtonCommand = donationMenu.PrimaryClickCommand,
-            FullSizeDesired = true
+            FullSizeDesired = true,
         };
         dialog.ShowAsync(this);
     }

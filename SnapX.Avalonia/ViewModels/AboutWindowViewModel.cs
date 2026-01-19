@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SnapX.CommonUI;
@@ -12,36 +13,141 @@ public partial class AboutWindowViewModel : ViewModelBase
     // Internal instance of the base class (SnapX.CommonUI.AboutDialog)
     private AboutDialog _commonAboutDialog = new();
 
-    [UnconditionalSuppressMessage("Trimming",
-         "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
-         Justification = "<Pending>"),
-     RelayCommand]
+    public static string ToFriendlyString(Version v)
+    {
+        // Start with Major.Minor (always present)
+        string result = $"{v.Major}.{v.Minor}.{v.Build}";
+        if (v.Revision > 0)
+        {
+            result += $".{v.Revision}";
+        }
+
+        return result;
+    }
+
+    public static string? GetUrl(Assembly assembly)
+    {
+        var attributes = assembly.GetCustomAttributes<AssemblyMetadataAttribute>().ToList();
+
+        var repoUrl = attributes
+            .FirstOrDefault(m => m.Key.Equals("RepositoryUrl", StringComparison.OrdinalIgnoreCase))
+            ?.Value;
+
+        if (!string.IsNullOrEmpty(repoUrl))
+            return repoUrl;
+
+        var projectUrl = attributes
+            .FirstOrDefault(m =>
+                m.Key.Equals("PackageProjectUrl", StringComparison.OrdinalIgnoreCase)
+            )
+            ?.Value;
+
+        if (!string.IsNullOrEmpty(projectUrl))
+            return projectUrl;
+
+        var projectSite = attributes
+            .FirstOrDefault(m => m.Key.Equals("ProjectUrl", StringComparison.OrdinalIgnoreCase))
+            ?.Value;
+
+        return projectSite;
+    }
+
+    public static readonly string[] excludedPrefixes =
+    [
+        "System",
+        "SnapX",
+        "Anonymous",
+        "Microsoft",
+        "SkiaSharp",
+        "Harfbuzz",
+        "SQLitePCLRaw",
+        "Microcom",
+        "Color",
+    ];
+    public static readonly string[] excludedKeywords = ["mscorlib", "Mono", "netstandard"];
+    public static IEnumerable<Assembly> CombinedLoadedAssemblies =>
+        AppDomain.CurrentDomain.GetAssemblies().Concat(App.SnapX.GetAssemblies()).Distinct();
+
+    [
+        UnconditionalSuppressMessage(
+            "Trimming",
+            "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
+            Justification = "<Pending>"
+        ),
+        RelayCommand
+    ]
     private Task InitDataAsync()
     {
-        var combinedLoadedAssemblies = AppDomain.CurrentDomain.GetAssemblies()
-            .Concat(App.SnapX.GetAssemblies())
-            .Distinct();
-        LoadedAssemblies = string.Join(Environment.NewLine, combinedLoadedAssemblies
-            .Where(a => a.GetName().Name != null)
-            .Where(a =>
-                !a.GetName().Name.StartsWith("System") &&
-                !a.GetName().Name.StartsWith("SnapX", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.StartsWith("Anonymous", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase) &&
-                // A dependency on Avalonia is self-explanatory.
-                !a.GetName().Name.StartsWith("SkiaSharp", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.StartsWith("Harfbuzz", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.Contains("mscorlib", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.Contains("Mono", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.StartsWith("Microcom", StringComparison.OrdinalIgnoreCase) &&
-                !a.GetName().Name.Contains("netstandard", StringComparison.OrdinalIgnoreCase))
-            .Select(a => new { a.GetName().Name, a.GetName().Version })
-            .GroupBy(a => a.Name.Split('.')[0])
-            .Select(g => g.Count() > 1
-                ? $"{g.Key} {g.First().Version.Major}.{g.First().Version.Minor}.{g.First().Version.Build}"
-                : $"{g.First().Name} {g.First().Version.Major}.{g.First().Version.Minor}.{g.First().Version.Build}")
-            .Append($"SQLite {Core.SnapX.DbConnection.ServerVersion}")
-            .OrderBy(name => name));
+        CombinedRawAssemblies = string.Join(
+            "  " + Environment.NewLine,
+            CombinedLoadedAssemblies.Select(a => $"{a.GetName().Name} {a.GetName().Version}")
+        );
+        LoadedAssemblies = string.Join(
+            "  " + Environment.NewLine,
+            CombinedLoadedAssemblies
+                .Where(a => a.GetName().Name != null)
+                .Where(a =>
+                    !excludedPrefixes.Any(p =>
+                        a.GetName()!.Name!.StartsWith(p, StringComparison.OrdinalIgnoreCase)
+                    )
+                )
+                .Where(a =>
+                    !excludedKeywords.Any(k =>
+                        a.GetName()!.Name!.Contains(k, StringComparison.OrdinalIgnoreCase)
+                    )
+                )
+                .Select(a =>
+                {
+                    var sourceURL = GetUrl(a);
+                    return new
+                    {
+                        a.GetName().Name,
+                        a.GetName().Version,
+                        sourceURL,
+                    };
+                })
+                .Append(
+                    new
+                    {
+                        Name = "SQLite",
+                        Version = new Version(Core.SnapX.DbConnection.ServerVersion),
+                        sourceURL = "https://www.nuget.org/packages/Microsoft.Data.Sqlite",
+                    }
+                )
+                .GroupBy(a =>
+                {
+                    // Markdown.Avalonia needs to be fully expressed
+                    if (a.Name.StartsWith("Markdown", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var parts = a.Name.Split('.');
+
+                        if (parts.Length > 2)
+                        {
+                            return $"{parts[0]}.{parts[1]}";
+                        }
+
+                        return a.Name;
+                    }
+                    return a.Name!.Split('.') switch
+                    {
+                        var p when p[0] is "Sdcb" or "SixLabors" or "Tmds" && p.Length > 1 => p[1],
+                        var p when p[0] is "DotNext" or "CommunityToolkit" && p.Length > 1 =>
+                            $"{p[0]}.{p[1]}",
+                        var p when p[0] is "NeoSolve" && p.Length > 2 => $"{p[1]}.{p[2]}",
+                        var p => p[0],
+                    };
+                })
+                .OrderBy(g => g.Key)
+                .Select(g =>
+                {
+                    var best = g.OrderByDescending(x => x.Version).First();
+                    var version = ToFriendlyString(best.Version!);
+
+                    return !string.IsNullOrEmpty(best.sourceURL)
+                        ? $"[{g.Key} {version}]({best.sourceURL})"
+                        : $"{g.Key} {version}";
+                })
+        );
         Description = _commonAboutDialog.GetDescription();
         Version = _commonAboutDialog.GetVersion();
         Copyright = _commonAboutDialog.GetCopyright();
@@ -56,50 +162,61 @@ public partial class AboutWindowViewModel : ViewModelBase
         Runtime = _commonAboutDialog.GetRuntime();
         OsPlatform = _commonAboutDialog.GetOsPlatform();
         BuildInformation = _commonAboutDialog.GetBuildInformation();
-        SystemInformationText = $"{SystemInfo} ({OsArchitecture}, {OsPlatform}) powered by {Runtime}!";
+        SystemInformationText =
+            $"{SystemInfo} ({OsArchitecture}, {OsPlatform}) powered by {Runtime}!";
         return Task.CompletedTask;
     }
+
     [ObservableProperty]
     public string dialogTitle = Lang.AboutSnapX;
+
     [ObservableProperty]
     private string? description;
+
     [ObservableProperty]
     public string? buildInformation;
-    [ObservableProperty]
 
+    [ObservableProperty]
     public string? version;
+
     [ObservableProperty]
     public string? copyright;
-    [ObservableProperty]
 
+    [ObservableProperty]
     public string? license;
-    [ObservableProperty]
 
+    [ObservableProperty]
     public string? website;
-    [ObservableProperty]
 
+    [ObservableProperty]
     public string? systemInfo;
-    [ObservableProperty]
 
+    [ObservableProperty]
     public string? osArchitecture;
-    [ObservableProperty]
 
+    [ObservableProperty]
     public string? runtime;
-    [ObservableProperty]
 
+    [ObservableProperty]
     public string? osPlatform;
-    [ObservableProperty]
 
+    [ObservableProperty]
     public string? documentation;
-    [ObservableProperty]
 
+    [ObservableProperty]
     public string? issues;
+
     [ObservableProperty]
     public string? discord;
+
     [ObservableProperty]
     public string? donate;
+
     [ObservableProperty]
     public string? loadedAssemblies;
+
+    [ObservableProperty]
+    public string? _combinedRawAssemblies;
 
     [ObservableProperty]
     public string? systemInformationText;
