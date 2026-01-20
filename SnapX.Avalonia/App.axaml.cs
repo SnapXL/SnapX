@@ -22,6 +22,7 @@ using FluentAvalonia.UI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using SnapX.Avalonia.ViewModels;
+using SnapX.Avalonia.ViewModels.Settings;
 // using SnapX.Avalonia.ViewModels.Settings;
 using SnapX.Avalonia.Views;
 using SnapX.Avalonia.Views.Settings;
@@ -31,6 +32,7 @@ using SnapX.Core.Capture;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
 using Point = SixLabors.ImageSharp.Point;
 
@@ -311,6 +313,7 @@ public partial class App : Application
     public void ListenForEvents()
     {
         Core.SnapX.EventAggregator.Subscribe<NeedClipboardCopyEvent>(HandleClipboardCopyEvent);
+        Core.SnapX.EventAggregator.Subscribe<ErrorMessageEvent>(HandleErrorMessageEvent);
     }
 
     [RequiresDynamicCode(
@@ -489,7 +492,6 @@ public partial class App : Application
             return MyMainWindow.Clipboard;
         }
     }
-
 
     public override void OnFrameworkInitializationCompleted()
     {
@@ -930,8 +932,8 @@ public partial class App : Application
         services.AddSingleton<CustomUploaderVM>();
         services.AddSingleton<ImportExportVM>();
         services.AddTransient<ImportExportView>();
-        // services.AddSingleton<ScreenRecordOptionsVM>();
-        // services.AddTransient<ScreenRecordOptionsView>();
+        services.AddSingleton<ScreenRecordOptionsVM>();
+        services.AddTransient<ScreenRecordOptionsView>();
 
         services.AddTransient<SettingsHomePageView>();
         services.AddSingleton<SettingsHomePageViewVM>();

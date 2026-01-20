@@ -15,7 +15,7 @@ public partial class SettingsWindow : AppWindow
         var screenWidth = activeScreen?.Bounds.Width ?? 1920;
         var screenHeight = activeScreen?.Bounds.Height ?? 1080;
         Width = screenWidth * 0.6;
-        Height = screenHeight * 0.55;
+        Height = screenHeight - 100;
     }
 }
 

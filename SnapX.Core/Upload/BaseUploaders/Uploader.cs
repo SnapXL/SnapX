@@ -77,13 +77,11 @@ public class Uploader
     }
 
 
-    protected string? SendRequest(HttpMethod method, string? url, string? content, string contentType = null, Dictionary<string, string?> args = null, NameValueCollection headers = null,
-        CookieCollection cookies = null)
+    protected string? SendRequest(HttpMethod method, string? url, string? content, string contentType = null, Dictionary<string, string?> args = null, NameValueCollection headers = null, CookieCollection cookies = null)
     {
-        var data = Encoding.UTF8.GetBytes(content);
+        var data = Encoding.UTF8.GetBytes(content ?? string.Empty);
 
-        using var ms = new MemoryStream();
-        ms.Write(data, 0, data.Length);
+        var ms = new MemoryStream(data);
 
         return SendRequest(method, url, ms, contentType, args, headers, cookies);
     }
@@ -110,8 +108,7 @@ public class Uploader
     protected string? SendRequestMultiPart(string? url, Dictionary<string, string?> args,
         NameValueCollection headers = null, CookieCollection cookies = null, HttpMethod method = null)
     {
-        if (method == null) method = HttpMethod.Post;
-
+        method ??= HttpMethod.Post;
 
         var multipartContent = GetMultipartFormDataContent(args, null, null, null, null);
 
@@ -155,16 +152,16 @@ public class Uploader
         {
             multipartContent.Add(
                 new StringContent(relatedData, Encoding.UTF8, "application/json"),
-                "file",
-                fileName
-            );
+                "relatedData");
         }
         else if (data is not null)
         {
             var fileContent = new StreamContent(data);
             var mimeType = MimeTypes.GetMimeType(fileName);
 
-            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType);
+            fileContent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(
+                mimeType
+            );
             multipartContent.Add(fileContent, fileFormName, fileName);
         }
         return multipartContent;
@@ -189,7 +186,6 @@ public class Uploader
             {
                 Content = multipartContent
             };
-
             if (headers != null)
             {
                 foreach (var key in headers.AllKeys)
@@ -197,8 +193,6 @@ public class Uploader
                     requestMessage.Headers.TryAddWithoutValidation(key, headers[key]);
                 }
             }
-            requestMessage.Headers.TransferEncodingChunked = true;
-            requestMessage.Content.Headers.ContentLength = null;
             if (cookies != null)
             {
                 var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
@@ -230,6 +224,7 @@ public class Uploader
             {
                 result.IsSuccess = false;
                 result.Response = $"Error: {response.StatusCode}";
+                ProcessError(new HttpRequestException(result.Response), url);
             }
         }
         catch (Exception e)
@@ -327,6 +322,7 @@ public class Uploader
             else
             {
                 result.IsSuccess = false;
+                result.ResponseInfo = ProcessWebResponse(response);
                 result.Response = $"Error: {response.StatusCode}";
             }
         }
@@ -340,6 +336,7 @@ public class Uploader
                 {
                     result.Response = response;
                 }
+
 
                 result.IsSuccess = false;
             }
@@ -395,6 +392,10 @@ public class Uploader
             if (data != null && (method == HttpMethod.Post || method == HttpMethod.Put))
             {
                 requestContent = new StreamContent(data);
+                if (!string.IsNullOrEmpty(contentType))
+            {
+                requestContent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(contentType);
+            }
             }
             var requestMessage = new HttpRequestMessage(method, url)
             {

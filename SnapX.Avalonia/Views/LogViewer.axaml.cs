@@ -73,7 +73,7 @@ public partial class LogViewer : AppWindow
 
             _logTextBlock.Inlines!.Add(new Run($"{timestamp} ")
             {
-                Foreground = Brushes.DimGray // Use DimGray for a softer grey that works well on dark backgrounds
+                Foreground = Brushes.DimGray
             });
 
             _logTextBlock.Inlines.Add(new Run($"[{level}] ")

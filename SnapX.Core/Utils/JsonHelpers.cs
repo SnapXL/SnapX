@@ -14,6 +14,8 @@ namespace SnapX.Core.Utils;
 
 [JsonSerializable(typeof(NativeMessagingInput))]
 [JsonSerializable(typeof(CustomUploaderItem))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
+[JsonSerializable(typeof(Dictionary<string, string?>))]
 [JsonSerializable(typeof(CustomUploaderInput))]
 internal partial class JsonHelpersContext : JsonSerializerContext;
 

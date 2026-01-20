@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using SnapX.Avalonia.ViewModels.Settings;
 using SnapX.Core;
 
 namespace SnapX.Avalonia.ViewModels;
@@ -21,6 +22,7 @@ public partial class SettingsMainViewVM : ViewModelBase
         RegisterPage<SettingsHomePageViewVM>("Home");
         RegisterPage<CustomUploaderVM>("CustomUploader");
         RegisterPage<ImportExportVM>("ImportExport");
+        RegisterPage<ScreenRecordOptionsVM>("ScreenRecordOptions");
 
     }
 
@@ -48,7 +50,7 @@ public partial class SettingsMainViewVM : ViewModelBase
     }
     public void Navigate(string destinationTag)
     {
-        DebugHelper.WriteLine(destinationTag);
+        DebugHelper.WriteLine("SettingsMainViewVM.Navigate: " + destinationTag);
         if (_pageFactory.TryGetValue(destinationTag, out var factory))
         {
             var type = factory;
@@ -66,6 +68,7 @@ public partial class SettingsMainViewVM : ViewModelBase
         }
         else
         {
+            DebugHelper.WriteLine($"SettingsMainViewVM.Navigate: Unknown destination, defaulting to home page");
             // fallback, e.g. Home page
             _history.Push(CurrentPage);
             CurrentPage = new SettingsHomePageViewVM();

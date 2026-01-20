@@ -1,7 +1,7 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -17,18 +17,34 @@ using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.Custom;
 
-public record CustomUploaderItem
+public class CustomUploaderItem : INotifyPropertyChanged
 {
     [DefaultValue("")]
     public string Version { get; set; }
 
     [DefaultValue("")]
-    public string? Name { get; set; }
+    public string? Name
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+            field = value;
+            OnPropertyChanged(nameof(Name));
+        }
+    } = "";
 
-    public bool ShouldSerializeName() => !string.IsNullOrEmpty(Name) && Name != URLHelpers.GetHostName(RequestURL);
+    protected void OnPropertyChanged(string prop) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+
+    public bool ShouldSerializeName() =>
+        !string.IsNullOrEmpty(Name) && Name != URLHelpers.GetHostName(RequestURL);
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     [DefaultValue(CustomUploaderDestinationType.None)]
     public CustomUploaderDestinationType DestinationType { get; set; }
+
     [JsonConverter(typeof(HttpMethodConverter))]
     [TypeConverter(typeof(HttpMethodTypeConverter))]
     [JsonInclude]
@@ -39,39 +55,56 @@ public record CustomUploaderItem
     public HttpMethod RequestMethod { get; set; } = HttpMethod.Post;
 
     [DefaultValue("")]
-    public string? RequestURL { get; set; }
+    public string? RequestURL
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+            field = value;
+            OnPropertyChanged(nameof(RequestURL));
+        }
+    } = "";
 
-    [DefaultValue(null)]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Dictionary<string, string?>? Parameters { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(HeaderCollectionConverter))]
+    public ObservableCollection<HeaderItem> Parameters { get; set; } = [];
 
     public bool ShouldSerializeParameters() => Parameters is { Count: > 0 };
 
-    [DefaultValue(null)]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Dictionary<string, string?> Headers { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(HeaderCollectionConverter))]
+    public ObservableCollection<HeaderItem> Headers { get; set; } = [];
 
     public bool ShouldSerializeHeaders() => Headers is { Count: > 0 };
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     [DefaultValue(CustomUploaderBody.None)]
     public CustomUploaderBody Body { get; set; } = CustomUploaderBody.None;
 
-    [DefaultValue(null)]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Dictionary<string, string?>? Arguments { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(HeaderCollectionConverter))]
+    public ObservableCollection<HeaderItem> Arguments { get; set; } = [];
 
-    public bool ShouldSerializeArguments() => (Body == CustomUploaderBody.MultipartFormData || Body == CustomUploaderBody.FormURLEncoded) &&
-                                              Arguments is { Count: > 0 };
+    public bool ShouldSerializeArguments() =>
+        (Body == CustomUploaderBody.MultipartFormData || Body == CustomUploaderBody.FormURLEncoded)
+        && Arguments is { Count: > 0 };
 
-    [DefaultValue("")] public string FileFormName { get; set; } = "";
+    [DefaultValue("")]
+    public string FileFormName { get; set; } = "";
 
-    public bool ShouldSerializeFileFormName() => Body == CustomUploaderBody.MultipartFormData && !string.IsNullOrEmpty(FileFormName);
+    public bool ShouldSerializeFileFormName() =>
+        Body == CustomUploaderBody.MultipartFormData && !string.IsNullOrEmpty(FileFormName);
 
     [DefaultValue(null)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Data { get; set; }
 
-    public bool ShouldSerializeData() => (Body == CustomUploaderBody.JSON || Body == CustomUploaderBody.XML) && !string.IsNullOrEmpty(Data);
+    public bool ShouldSerializeData() =>
+        (Body == CustomUploaderBody.JSON || Body == CustomUploaderBody.XML)
+        && !string.IsNullOrEmpty(Data);
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     // TEMP: For backward compatibility
     public ResponseType ResponseType { private get; set; }
@@ -91,7 +124,8 @@ public record CustomUploaderItem
     public CustomUploaderItem()
     {
         Version = Helpers.GetApplicationVersion();
-        if (string.IsNullOrWhiteSpace(Name)) Name = URLHelpers.GetHostName(RequestURL);
+        if (string.IsNullOrWhiteSpace(Name))
+            Name = URLHelpers.GetHostName(RequestURL);
     }
 
     // public static CustomUploaderItem Init()
@@ -133,10 +167,7 @@ public record CustomUploaderItem
             throw new Exception("Custom uploader RequestURL must be configured.");
         }
 
-        var parser = new ShareXCustomUploaderSyntaxParser(input)
-        {
-            URLEncode = true
-        };
+        var parser = new ShareXCustomUploaderSyntaxParser(input) { URLEncode = true };
         var url = parser.Parse(RequestURL);
 
         url = URLHelpers.FixPrefix(url);
@@ -149,13 +180,11 @@ public record CustomUploaderItem
     {
         Dictionary<string, string?> parameters = [];
 
-        if (Parameters == null) return parameters;
-        var parser = new ShareXCustomUploaderSyntaxParser(input)
-        {
-            UseNameParser = true
-        };
+        if (Parameters == null)
+            return parameters;
+        var parser = new ShareXCustomUploaderSyntaxParser(input) { UseNameParser = true };
 
-        foreach (KeyValuePair<string, string?> parameter in Parameters)
+        foreach (var parameter in Parameters)
         {
             parameters.Add(parameter.Key, parser.Parse(parameter.Value));
         }
@@ -190,14 +219,18 @@ public record CustomUploaderItem
         Dictionary<string, string?> replace = new Dictionary<string, string?>
         {
             { "{input}", EncodeBodyData(input.Input) },
-            { "{filename}", EncodeBodyData(input.FileName) }
+            { "{filename}", EncodeBodyData(input.FileName) },
         };
         result = result.BatchReplace(replace, StringComparison.OrdinalIgnoreCase);
 
         return result;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
+        Justification = "<Pending>"
+    )]
     private string? EncodeBodyData(string? input)
     {
         if (!string.IsNullOrEmpty(input))
@@ -231,12 +264,9 @@ public record CustomUploaderItem
 
         if (Arguments != null)
         {
-            var parser = new ShareXCustomUploaderSyntaxParser(input)
-            {
-                UseNameParser = true
-            };
+            var parser = new ShareXCustomUploaderSyntaxParser(input) { UseNameParser = true };
 
-            foreach (KeyValuePair<string, string?> arg in Arguments)
+            foreach (var arg in Arguments)
             {
                 arguments.Add(arg.Key, parser.Parse(arg.Value));
             }
@@ -245,31 +275,46 @@ public record CustomUploaderItem
         return arguments;
     }
 
-    public NameValueCollection GetHeaders(CustomUploaderInput input)
+    public NameValueCollection? GetHeaders(CustomUploaderInput input)
     {
-        if (Headers is { Count: > 0 })
+        if (Headers is not { Count: > 0 })
+            return null;
+
+        var collection = new NameValueCollection();
+        var parser = new ShareXCustomUploaderSyntaxParser(input) { UseNameParser = true };
+
+        var seenKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var header in Headers)
         {
-            var collection = new NameValueCollection();
+            if (string.IsNullOrWhiteSpace(header.Key))
+                continue;
 
-            var parser = new ShareXCustomUploaderSyntaxParser(input)
+            if (!seenKeys.Add(header.Key))
             {
-                UseNameParser = true
-            };
-
-            foreach (KeyValuePair<string, string?> header in Headers)
-            {
-                collection.Add(header.Key, parser.Parse(header.Value));
+                DebugHelper.Logger?.Warning(
+                    $"Duplicate header key detected: '{header.Key}'. "
+                );
             }
 
-            return collection;
+            string parsedValue = parser.Parse(header.Value ?? "");
+
+            collection.Add(header.Key, parsedValue);
         }
 
-        return null;
+        return collection;
     }
 
-    public void ParseResponse(UploadResult result, ResponseInfo responseInfo, UploaderErrorManager errors, CustomUploaderInput input, bool isShortenedURL = false)
+    public void ParseResponse(
+        UploadResult result,
+        ResponseInfo responseInfo,
+        UploaderErrorManager errors,
+        CustomUploaderInput input,
+        bool isShortenedURL = false
+    )
     {
-        if (result == null || responseInfo == null) return;
+        if (result == null || responseInfo == null)
+            return;
         result.ResponseInfo = responseInfo;
 
         responseInfo.ResponseText ??= "";
@@ -278,7 +323,7 @@ public record CustomUploaderItem
         {
             FileName = input.FileName,
             ResponseInfo = responseInfo,
-            URLEncode = true
+            URLEncode = true,
         };
 
         if (responseInfo.IsSuccess)
@@ -289,7 +334,11 @@ public record CustomUploaderItem
             {
                 url = parser.Parse(URL);
 
-                if (string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(URL) && URL.Contains("{output:"))
+                if (
+                    string.IsNullOrEmpty(url)
+                    && !string.IsNullOrEmpty(URL)
+                    && URL.Contains("{output:")
+                )
                 {
                     result.IsURLExpected = false;
                 }
@@ -325,7 +374,13 @@ public record CustomUploaderItem
         }
     }
 
-    public void TryParseResponse(UploadResult result, ResponseInfo responseInfo, UploaderErrorManager errors, CustomUploaderInput input, bool isShortenedURL = false)
+    public void TryParseResponse(
+        UploadResult result,
+        ResponseInfo responseInfo,
+        UploaderErrorManager errors,
+        CustomUploaderInput input,
+        bool isShortenedURL = false
+    )
     {
         try
         {
@@ -334,14 +389,22 @@ public record CustomUploaderItem
         catch (JsonException e)
         {
             var hostName = URLHelpers.GetHostName(RequestURL);
-            errors.AddFirst($"Invalid response content is returned from host ({hostName}), expected response content is JSON." +
-                Environment.NewLine + Environment.NewLine + e);
+            errors.AddFirst(
+                $"Invalid response content is returned from host ({hostName}), expected response content is JSON."
+                    + Environment.NewLine
+                    + Environment.NewLine
+                    + e
+            );
         }
         catch (Exception e)
         {
             var hostName = URLHelpers.GetHostName(RequestURL);
-            errors.AddFirst($"Unable to parse response content returned from host ({hostName})." +
-                Environment.NewLine + Environment.NewLine + e);
+            errors.AddFirst(
+                $"Unable to parse response content returned from host ({hostName})."
+                    + Environment.NewLine
+                    + Environment.NewLine
+                    + e
+            );
         }
     }
 
@@ -363,7 +426,7 @@ public record CustomUploaderItem
                 {
                     Parameters ??= [];
 
-                    foreach (KeyValuePair<string, string?> pair in Arguments)
+                    foreach (var pair in Arguments)
                     {
                         if (!Parameters.ContainsKey(pair.Key))
                         {
@@ -388,7 +451,8 @@ public record CustomUploaderItem
             }
             else if (ResponseType == ResponseType.Headers)
             {
-                URL = "Response type option is deprecated, please use \\$header:header_name\\$ syntax instead.";
+                URL =
+                    "Response type option is deprecated, please use \\$header:header_name\\$ syntax instead.";
             }
             else if (ResponseType == ResponseType.LocationHeader)
             {
@@ -413,32 +477,35 @@ public record CustomUploaderItem
 
             if (Parameters != null)
             {
-                foreach (string key in Parameters.Keys.ToList())
+                foreach (string key in Parameters.Keys().ToList())
                 {
-                    Parameters[key] = MigrateOldSyntax(Parameters[key]);
+                    var currentVal = Parameters.GetValue(key);
+                    Parameters.SetValue(key, MigrateOldSyntax(currentVal));
                 }
             }
 
             if (Headers != null)
             {
-                foreach (string key in Headers.Keys.ToList())
+                foreach (string key in Headers.Keys().ToList())
                 {
-                    Headers[key] = MigrateOldSyntax(Headers[key]);
+                    var currentVal = Headers.GetValue(key);
+                    Headers.SetValue(key, MigrateOldSyntax(currentVal));
                 }
             }
 
             if (Arguments != null)
             {
-                foreach (string key in Arguments.Keys.ToList())
+                foreach (string key in Headers.Keys().ToList())
                 {
-                    Arguments[key] = MigrateOldSyntax(Arguments[key]);
+                    var currentVal = Headers.GetValue(key);
+                    Headers.SetValue(key, MigrateOldSyntax(currentVal));
                 }
             }
 
             if (Data != null)
             {
-                Data = Data.Replace("$input$", "{input}", StringComparison.OrdinalIgnoreCase).
-                    Replace("$filename$", "{filename}", StringComparison.OrdinalIgnoreCase);
+                Data = Data.Replace("$input$", "{input}", StringComparison.OrdinalIgnoreCase)
+                    .Replace("$filename$", "{filename}", StringComparison.OrdinalIgnoreCase);
             }
             URL = MigrateOldSyntax(URL);
             ThumbnailURL = MigrateOldSyntax(ThumbnailURL);
@@ -486,10 +553,12 @@ public record CustomUploaderItem
 
     private void CheckRequestURL()
     {
-        if (string.IsNullOrEmpty(RequestURL)) return;
+        if (string.IsNullOrEmpty(RequestURL))
+            return;
         var nvc = URLHelpers.ParseQueryString(RequestURL);
 
-        if (nvc is not { Count: > 0 }) return;
+        if (nvc is not { Count: > 0 })
+            return;
         Parameters ??= [];
 
         foreach (string key in nvc)
@@ -498,7 +567,7 @@ public record CustomUploaderItem
             {
                 foreach (string value in nvc.GetValues(key))
                 {
-                    Parameters.TryAdd(value, "");
+                    Parameters.Add(value, "");
                 }
             }
             else if (!Parameters.ContainsKey(key))
@@ -510,4 +579,6 @@ public record CustomUploaderItem
 
         RequestURL = URLHelpers.RemoveQueryString(RequestURL);
     }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 }

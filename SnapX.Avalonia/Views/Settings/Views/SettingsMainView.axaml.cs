@@ -70,7 +70,7 @@ public partial class SettingsMainView : UserControl
             DebugHelper.WriteLine($"{nameof(NavigationView_OnSelectionChanged)}: {item}");
             if (item.Tag is not string ItemTag)
             {
-                DebugHelper.WriteLine("NavigationView_OnSelectionChanged.Tag is null");
+                DebugHelper.WriteLine($"NavigationView_OnSelectionChanged.Tag is not string. value: {item.Tag}");
                 return;
             }
             _vm?.Navigate(ItemTag);

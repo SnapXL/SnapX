@@ -22,7 +22,7 @@ using SnapX.Core.Utils.Extensions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SnapX.Core;
-[JsonSourceGenerationOptions(WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.Never)]
+[JsonSourceGenerationOptions(WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault)]
 
 [JsonSerializable(typeof(ApplicationConfig))]
 [JsonSerializable(typeof(UploadersConfig))]
@@ -35,6 +35,8 @@ namespace SnapX.Core;
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(uint))]
 [JsonSerializable(typeof(bool))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
+[JsonSerializable(typeof(Dictionary<string, string?>))]
 // [JsonSerializable(typeof(Keys))]
 // [JsonSerializable(typeof(SafeEnumConverter<Keys>))]
 // [JsonSerializable(typeof(SafeEnumConverter<Modifiers>))]
@@ -42,7 +44,7 @@ namespace SnapX.Core;
 // [JsonSerializable(typeof(SafeEnumConverter<HotkeyStatus>))]
 
 internal partial class SettingsContext : JsonSerializerContext;
-internal static class SettingManager
+public static class SettingManager
 {
     private const string ApplicationConfigFileName = "ApplicationConfig.json";
 
@@ -530,7 +532,7 @@ internal static class SettingManager
 
     public static bool Export(string? archivePath, bool settings, bool history)
     {
-        MemoryStream msApplicationConfig = null, msUploadersConfig = null, msHotkeysConfig = null;
+        MemoryStream msApplicationConfig = null, msUploadersConfig = null, msHotkeysConfig = null, msSqlite = null;
 
         try
         {
@@ -538,19 +540,30 @@ internal static class SettingManager
 
             if (settings)
             {
-                // msApplicationConfig = Settings.SaveToMemoryStream(false);
-                // entries.Add(new ZipEntryInfo(msApplicationConfig, ApplicationConfigFileName));
-                //
-                // msUploadersConfig = UploadersConfig.SaveToMemoryStream(false);
-                // entries.Add(new ZipEntryInfo(msUploadersConfig, UploadersConfigFileName));
-                //
-                // msHotkeysConfig = HotkeysConfig.SaveToMemoryStream(false);
-                // entries.Add(new ZipEntryInfo(msHotkeysConfig, HotkeysConfigFileName));
+                msApplicationConfig = Settings.SaveToMemoryStream(false);
+                entries.Add(new ZipEntryInfo(msApplicationConfig, ApplicationConfigFileName));
+                msUploadersConfig = UploadersConfig.SaveToMemoryStream(false);
+                entries.Add(new ZipEntryInfo(msUploadersConfig, UploadersConfigFileName));
+                msHotkeysConfig = HotkeysConfig.SaveToMemoryStream(false);
+                entries.Add(new ZipEntryInfo(msHotkeysConfig, HotkeysConfigFileName));
             }
 
             if (history)
             {
-                entries.Add(new ZipEntryInfo(SnapX.DBPath));
+                string tempDb = Path.Combine(Path.GetTempPath(), $"{SnapX.AppName}_DB_Backup_{Guid.NewGuid()}.db");
+
+                using (var cmd = SnapX.DbConnection.CreateCommand())
+                {
+                    cmd.CommandText = $"VACUUM INTO '{tempDb}'";
+                    cmd.ExecuteNonQuery();
+                }
+
+                var dbBytes = File.ReadAllBytes(tempDb);
+                msSqlite = new MemoryStream(dbBytes);
+
+                File.Delete(tempDb);
+
+                entries.Add(new ZipEntryInfo(msSqlite, Path.GetFileName(SnapX.DBPath)));
             }
 
             ZipManager.Compress(archivePath, entries);
@@ -565,6 +578,7 @@ internal static class SettingManager
             msApplicationConfig?.Dispose();
             msUploadersConfig?.Dispose();
             msHotkeysConfig?.Dispose();
+            msSqlite?.Dispose();
         }
 
         return false;
@@ -574,9 +588,19 @@ internal static class SettingManager
     {
         try
         {
+            ZipManager.Extract(
+                archivePath,
+                SnapX.PersonalFolder,
+                true,
+                entry =>
+                {
+                    return FileHelpers.CheckExtension(entry.Name, new[] { "db" });
+                },
+                1_000_000_000
+            );
             ZipManager.Extract(archivePath, SnapX.ConfigFolder, true, entry =>
             {
-                return FileHelpers.CheckExtension(entry.Name, new[] { "db" });
+                return FileHelpers.CheckExtension(entry.Name, new[] {  "json", "xml" });
             }, 1_000_000_000);
 
             return true;

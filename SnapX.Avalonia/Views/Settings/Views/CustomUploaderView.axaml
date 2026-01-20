@@ -1,138 +1,630 @@
 <UserControl
-    Initialized="CustomUploaderView_Initialized"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
-    x:Class="SnapX.Avalonia.Views.Settings.Views.CustomUploaderView"
-    x:DataType="viewModels:CustomUploaderVM"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:system="clr-namespace:System;assembly=System.Runtime"
-    xmlns:upload="clr-namespace:SnapX.Core.Upload.Custom;assembly=SnapX.Core"
-    xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Design.DataContext>
-        <viewModels:CustomUploaderVM />
-    </Design.DataContext>
-    <UserControl.DataContext>
-        <viewModels:CustomUploaderVM />
-    </UserControl.DataContext>
-    <SplitView
-        DisplayMode="Inline"
-        IsPaneOpen="True"
-        OpenPaneLength="350">
-        <!--  Sidebar  -->
-        <SplitView.Pane>
+  x:Class="SnapX.Avalonia.Views.Settings.Views.CustomUploaderView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:avalonia="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
+  xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:system="clr-namespace:System;assembly=System.Runtime"
+  xmlns:upload="clr-namespace:SnapX.Core.Upload.Custom;assembly=SnapX.Core"
+  xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+  d:DesignHeight="450"
+  d:DesignWidth="800"
+  x:DataType="viewModels:CustomUploaderVM"
+  DetachedFromVisualTree="CustomUploaderView_Detached"
+  Initialized="CustomUploaderView_Initialized">
+  <Design.DataContext>
+    <viewModels:CustomUploaderVM />
+  </Design.DataContext>
+  <UserControl.DataContext>
+    <viewModels:CustomUploaderVM />
+  </UserControl.DataContext>
+  <SplitView
+    DisplayMode="CompactInline"
+    IsEnabled="{Binding IsUiEnabled}"
+    IsPaneOpen="True">
+    <!--  Sidebar  -->
+    <SplitView.Pane>
+      <DockPanel LastChildFill="True">
+        <Border
+          Grid.Row="1"
+          Padding="12"
+          Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+          BorderThickness="0,1,0,0"
+          DockPanel.Dock="Bottom">
+          <StackPanel Spacing="15">
+            <TextBlock
+              Margin="0,0,0,5"
+              FontSize="14"
+              FontWeight="Bold"
+              Text="Active Uploaders" />
+
+            <StackPanel Spacing="12">
+
+              <StackPanel Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <avalonia:SymbolIcon FontSize="18" Symbol="Image" />
+
+                  <TextBlock
+                    FontSize="12"
+                    FontWeight="SemiBold"
+                    Text="Image" />
+                </StackPanel>
+                <Grid ColumnDefinitions="*, Auto">
+                  <ComboBox
+                    Grid.Column="0"
+                    HorizontalAlignment="Stretch"
+                    DisplayMemberBinding="{Binding}"
+                    IsEnabled="{Binding !IsEmpty}"
+                    ItemsSource="{Binding ImageUploaders}"
+                    SelectedItem="{Binding SelectedImageUploader}" />
+                  <Button
+                    Grid.Column="1"
+                    Margin="4,0,0,0"
+                    VerticalAlignment="Stretch"
+                    Command="{Binding TestUploaderCommand}"
+                    CommandParameter="{Binding SelectedImageUploader}"
+                    Content="Test"
+                    FontSize="11"
+                    IsEnabled="{Binding !IsEmpty}" />
+                </Grid>
+              </StackPanel>
+
+              <StackPanel Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <avalonia:SymbolIcon FontSize="18" Symbol="Document" />
+                  <TextBlock
+                    FontSize="12"
+                    FontWeight="SemiBold"
+                    Text="File" />
+                </StackPanel>
+                <Grid ColumnDefinitions="*, Auto">
+                  <ComboBox
+                    Grid.Column="0"
+                    HorizontalAlignment="Stretch"
+                    DisplayMemberBinding="{Binding}"
+                    IsEnabled="{Binding !IsEmpty}"
+                    ItemsSource="{Binding FileUploaders}"
+                    SelectedItem="{Binding SelectedFileUploader}" />
+                  <Button
+                    Grid.Column="1"
+                    Margin="4,0,0,0"
+                    VerticalAlignment="Stretch"
+                    Command="{Binding TestUploaderCommand}"
+                    CommandParameter="{Binding SelectedFileUploader}"
+                    Content="Test"
+                    FontSize="11"
+                    IsEnabled="{Binding !IsEmpty}" />
+                </Grid>
+              </StackPanel>
+
+              <StackPanel Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <avalonia:SymbolIcon FontSize="18" Symbol="TextWholeWord" />
+
+                  <TextBlock
+                    FontSize="12"
+                    FontWeight="SemiBold"
+                    Text="Text" />
+                </StackPanel>
+                <Grid ColumnDefinitions="*, Auto">
+                  <ComboBox
+                    Grid.Column="0"
+                    HorizontalAlignment="Stretch"
+                    DisplayMemberBinding="{Binding}"
+                    IsEnabled="{Binding !IsEmpty}"
+                    ItemsSource="{Binding TextUploaders}"
+                    SelectedItem="{Binding SelectedTextUploader}" />
+                  <Button
+                    Grid.Column="1"
+                    Margin="4,0,0,0"
+                    VerticalAlignment="Stretch"
+                    Command="{Binding TestUploaderCommand}"
+                    CommandParameter="{Binding SelectedTextUploader}"
+                    Content="Test"
+                    FontSize="11"
+                    IsEnabled="{Binding !IsEmpty}" />
+                </Grid>
+              </StackPanel>
+
+              <StackPanel Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <avalonia:SymbolIcon FontSize="18" Symbol="Link" />
+
+                  <TextBlock
+                    FontSize="12"
+                    FontWeight="SemiBold"
+                    Text="Shortener" />
+                </StackPanel>
+                <Grid ColumnDefinitions="*, Auto">
+                  <ComboBox
+                    Grid.Column="0"
+                    HorizontalAlignment="Stretch"
+                    DisplayMemberBinding="{Binding}"
+                    IsEnabled="{Binding !IsEmpty}"
+                    ItemsSource="{Binding ShortenerUploaders}"
+                    SelectedItem="{Binding SelectedShortenerUploader}" />
+                  <Button
+                    Grid.Column="1"
+                    Margin="4,0,0,0"
+                    VerticalAlignment="Stretch"
+                    Command="{Binding TestUploaderCommand}"
+                    CommandParameter="{Binding SelectedShortenerUploader}"
+                    Content="Test"
+                    FontSize="11"
+                    IsEnabled="{Binding !IsEmpty}" />
+                </Grid>
+              </StackPanel>
+
+              <StackPanel Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <avalonia:SymbolIcon FontSize="18" Symbol="ShareMultiple" />
+
+                  <TextBlock
+                    FontSize="12"
+                    FontWeight="SemiBold"
+                    Text="Sharing" />
+                </StackPanel>
+                <Grid ColumnDefinitions="*, Auto">
+                  <ComboBox
+                    Grid.Column="0"
+                    HorizontalAlignment="Stretch"
+                    DisplayMemberBinding="{Binding}"
+                    IsEnabled="{Binding !IsEmpty}"
+                    ItemsSource="{Binding SharingUploaders}"
+                    SelectedItem="{Binding SelectedSharingUploader}" />
+                  <Button
+                    Grid.Column="1"
+                    Margin="4,0,0,0"
+                    VerticalAlignment="Stretch"
+                    Command="{Binding TestUploaderCommand}"
+                    CommandParameter="{Binding SelectedSharingUploader}"
+                    Content="Test"
+                    FontSize="11"
+                    IsEnabled="{Binding !IsEmpty}" />
+                </Grid>
+              </StackPanel>
+
+            </StackPanel>
+          </StackPanel>
+        </Border>
+        <ScrollViewer DockPanel.Dock="Top">
+          <StackPanel>
+            <DockPanel Margin="8" LastChildFill="False">
+              <Button
+                Padding="4"
+                Command="{Binding AddUploaderCommand}"
+                CornerRadius="8"
+                DockPanel.Dock="Right">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <avalonia:SymbolIcon FontSize="18" Symbol="AddSquare" />
+                </StackPanel>
+              </Button>
+              <Button
+                Margin="0,0,8,0"
+                Padding="4"
+                Command="{Binding ImportUploaderCommand}"
+                CornerRadius="8"
+                DockPanel.Dock="Right">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <avalonia:SymbolIcon FontSize="18" Symbol="ArrowImport" />
+                  <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Text="Import" />
+                </StackPanel>
+              </Button>
+              <Button
+                Margin="0,0,8,0"
+                Padding="8,4"
+                Command="{Binding OpenCatalogCommand}"
+                CornerRadius="8"
+                DockPanel.Dock="Right">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <avalonia:SymbolIcon FontSize="18" Symbol="Library" />
+                  <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Text="Catalog" />
+                </StackPanel>
+              </Button>
+            </DockPanel>
+
             <ListBox ItemsSource="{Binding Uploaders}" SelectedItem="{Binding SelectedUploader, Mode=TwoWay}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock
-                                Text="{Binding Name}"
-                                TextTrimming="CharacterEllipsis"
-                                TextWrapping="WrapWithOverflow"
-                                VerticalAlignment="Center"
-                                Width="145" />
-                            <Button
-                                Command="{Binding DuplicateUploaderCommand, DataType=viewModels:CustomUploaderVM}"
-                                CommandParameter="{Binding}"
-                                Content="Duplicate" />
-                            <Button
-                                Command="{Binding RemoveUploaderCommand, DataType=viewModels:CustomUploaderVM}"
-                                CommandParameter="{Binding}"
-                                Content="Remove" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock
+                      Width="150"
+                      VerticalAlignment="Center"
+                      TextTrimming="CharacterEllipsis">
+                      <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource CustomUploaderNameConverter}">
+                          <Binding Path="Name" />
+                          <Binding Path="RequestURL" />
+                        </MultiBinding>
+                      </TextBlock.Text>
+                    </TextBlock>
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
             </ListBox>
-        </SplitView.Pane>
+          </StackPanel>
+        </ScrollViewer>
+      </DockPanel>
+    </SplitView.Pane>
 
-        <!--  Editor  -->
-        <SplitView.Content>
-            <ContentControl Content="{Binding SelectedUploader}">
-                <ContentControl.ContentTemplate>
-                    <DataTemplate DataType="{x:Type upload:CustomUploaderItem}">
-                        <ScrollViewer>
-                            <StackPanel Margin="16" Spacing="12">
+    <!--  Editor  -->
+    <SplitView.Content>
+      <Grid>
+        <ContentControl Content="{Binding SelectedUploader, Mode=TwoWay}" IsVisible="{Binding !IsEmpty}">
+          <ContentControl.ContentTemplate>
+            <DataTemplate DataType="{x:Type upload:CustomUploaderItem}">
+              <ScrollViewer>
+                <StackPanel Margin="16" Spacing="12">
 
-                                <!--  Name + URL  -->
-                                <TextBox Text="{Binding Name, Mode=TwoWay}" />
-                                <TextBox Text="{Binding RequestURL, Mode=TwoWay}" />
+                  <!--  Name + URL  -->
+                  <StackPanel Margin="0,5" Spacing="10">
+                    <TextBox
+                      Width="350"
+                      Height="32"
+                      HorizontalAlignment="Left"
+                      VerticalContentAlignment="Center"
+                      CornerRadius="4"
+                      Text="{Binding Name, Mode=TwoWay}"
+                      Watermark="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).DynamicWatermark}" />
 
-                                <!--  HTTP Method  -->
-                                <controls:FAComboBox SelectedItem="{Binding RequestMethod, Mode=TwoWay, Converter={StaticResource HttpMethodConverter}}">
-                                    <controls:FAComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding}" />
-                                        </DataTemplate>
-                                    </controls:FAComboBox.ItemTemplate>
-                                    <system:String>GET</system:String>
-                                    <system:String>HEAD</system:String>
-                                    <system:String>POST</system:String>
-                                    <system:String>PUT</system:String>
-                                    <system:String>DELETE</system:String>
-                                    <system:String>CONNECT</system:String>
-                                    <system:String>OPTIONS</system:String>
-                                    <system:String>TRACE</system:String>
-                                    <system:String>PATCH</system:String>
-                                </controls:FAComboBox>
+                    <TextBox
+                      VerticalContentAlignment="Center"
+                      CornerRadius="4"
+                      Text="{Binding RequestURL, Mode=TwoWay}"
+                      Watermark="https://example.com/upload" />
 
+                    <Separator
+                      Height="1"
+                      Margin="0,5"
+                      Opacity="0.5" />
+                  </StackPanel>
 
-                                <!--  Body Type  -->
-                                <controls:FAComboBox SelectedItem="{Binding Body, Mode=TwoWay, Converter={StaticResource BodyConverter}}">
-                                    <controls:FAComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding}" />
-                                        </DataTemplate>
-                                    </controls:FAComboBox.ItemTemplate>
-                                    <system:String>None</system:String>
-                                    <system:String>MultipartFormData</system:String>
-                                    <system:String>FormURLEncoded</system:String>
-                                    <system:String>JSON</system:String>
-                                    <system:String>XML</system:String>
-                                </controls:FAComboBox>
+                  <Grid
+                    Margin="0,10"
+                    ColumnDefinitions="Auto, Auto, Auto, *"
+                    RowDefinitions="*, *">
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                      <Label
+                        Padding="0,0,0,4"
+                        Content="HTTP Method"
+                        FontWeight="SemiBold" />
+                      <controls:FAComboBox
+                        HorizontalAlignment="Stretch"
+                        ItemsSource="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).AllHttpMethods}"
+                        SelectedItem="{Binding RequestMethod, Mode=TwoWay}}">
+                        <controls:FAComboBox.ItemTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding}" />
+                          </DataTemplate>
+                        </controls:FAComboBox.ItemTemplate>
+                      </controls:FAComboBox>
+                    </StackPanel>
 
-                                <!--  Headers  -->
-                                <TextBlock FontWeight="Bold" Text="Headers" />
-                                <ItemsControl ItemsSource="{Binding Headers}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <TextBox Text="{Binding Key, Mode=TwoWay}" Width="120" />
-                                                <TextBox Text="{Binding Value, Mode=TwoWay}" Width="180" />
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <Button
-                                    Command="{Binding AddHeaderCommand, DataType=viewModels:CustomUploaderVM}"
+                    <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                      <Label
+                        Padding="0,0,0,4"
+                        Content="Body"
+                        FontWeight="SemiBold" />
+                      <controls:FAComboBox
+                        HorizontalAlignment="Stretch"
+                        ItemsSource="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).AllBodyTypes}"
+                        SelectedItem="{Binding Body, Mode=TwoWay}">
+                        <controls:FAComboBox.ItemTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding}" />
+                          </DataTemplate>
+                        </controls:FAComboBox.ItemTemplate>
+                      </controls:FAComboBox>
+                    </StackPanel>
+                    <StackPanel
+                      Grid.Column="2"
+                      Width="265"
+                      Margin="8,0,0,0">
+                      <Label Content="Destination Type" FontWeight="SemiBold" />
+                      <DropDownButton HorizontalAlignment="Stretch" Content="{Binding DestinationType}">
+                        <DropDownButton.Flyout>
+                          <Flyout>
+                            <ItemsControl ItemsSource="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).AllDestinationTypes}">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <CheckBox
+                                    Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).ToggleDestinationTypeCommand}"
                                     CommandParameter="{Binding}"
-                                    Content="Add Header" />
+                                    Content="{Binding}">
+                                    <CheckBox.IsChecked>
+                                      <MultiBinding Converter="{StaticResource EnumToBool}" Mode="OneWay">
+                                        <Binding Path="$parent[UserControl].((viewModels:CustomUploaderVM)DataContext).SelectedUploader.DestinationType" />
+                                        <Binding />
+                                      </MultiBinding>
+                                    </CheckBox.IsChecked>
+                                  </CheckBox>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </Flyout>
+                        </DropDownButton.Flyout>
+                      </DropDownButton>
+                    </StackPanel>
+                  </Grid>
+                  <!--  Headers  -->
+                  <StackPanel Margin="0,5" Spacing="4">
 
-                                <!--  Parameters  -->
-                                <TextBlock FontWeight="Bold" Text="Parameters" />
-                                <ItemsControl ItemsSource="{Binding Parameters}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                <TextBox Text="{Binding Key, Mode=TwoWay}" Width="120" />
-                                                <TextBox Text="{Binding Value, Mode=TwoWay}" Width="180" />
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <Button
-                                    Command="{Binding AddParameterCommand, DataType=viewModels:CustomUploaderVM}"
-                                    CommandParameter="{Binding}"
-                                    Content="Add Parameter" />
+                    <TextBlock
+                      FontSize="12"
+                      FontWeight="SemiBold"
+                      Foreground="{DynamicResource SystemAccentColor}"
+                      LetterSpacing="1.2"
+                      Text="HEADERS" />
+                    <Border
+                      Height="1"
+                      HorizontalAlignment="Stretch"
+                      Background="{DynamicResource SystemAccentColor}"
+                      Opacity="0.4" />
+                  </StackPanel>
+                  <ItemsControl ItemsSource="{Binding Headers}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel
+                          Margin="4"
+                          Orientation="Horizontal"
+                          Spacing="8">
+                          <TextBox Width="120" Text="{Binding Key, Mode=TwoWay}" />
+                          <TextBox
+                            Width="180"
+                            Classes="revealable"
+                            PointerEntered="OnPointerEntered"
+                            PointerExited="OnPointerExited"
+                            Text="{Binding Value, Mode=TwoWay}">
+                            <TextBox.Effect>
+                              <BlurEffect Radius="{Binding Key, Converter={StaticResource HeaderSecurityBlurConverter}}" />
+                            </TextBox.Effect>
+                          </TextBox>
+                          <Button
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).RemoveHeaderCommand}"
+                            CommandParameter="{Binding}"
+                            Content="❌"
+                            Foreground="Red" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <Button Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).AddHeaderCommand}" Content="Add Header" />
 
-                            </StackPanel>
-                        </ScrollViewer>
-                    </DataTemplate>
-                </ContentControl.ContentTemplate>
-            </ContentControl>
-        </SplitView.Content>
-    </SplitView>
+                  <!--  Parameters  -->
+                  <StackPanel Margin="0,5" Spacing="4">
+                    <TextBlock
+                      FontSize="12"
+                      FontWeight="SemiBold"
+                      Foreground="{DynamicResource SystemAccentColor}"
+                      LetterSpacing="1.2"
+                      Text="PARAMETERS" />
+                    <Border
+                      Height="1"
+                      HorizontalAlignment="Stretch"
+                      Background="{DynamicResource SystemAccentColor}"
+                      Opacity="0.4" />
+                  </StackPanel>
+                  <ItemsControl ItemsSource="{Binding Parameters}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel
+                          Margin="4"
+                          Orientation="Horizontal"
+                          Spacing="8">
+                          <TextBox Width="120" Text="{Binding Key, Mode=TwoWay}" />
+                          <TextBox
+                            Width="180"
+                            Classes="revealable"
+                            PointerEntered="OnPointerEntered"
+                            PointerExited="OnPointerExited"
+                            Text="{Binding Value, Mode=TwoWay}">
+                            <TextBox.Effect>
+                              <BlurEffect Radius="{Binding Key, Converter={StaticResource HeaderSecurityBlurConverter}}" />
+                            </TextBox.Effect>
+                          </TextBox>
+                          <Button
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).RemoveParameterCommand}"
+                            CommandParameter="{Binding}"
+                            Content="❌"
+                            Foreground="Red" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <Button
+                    Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).AddParameterCommand}"
+                    CommandParameter="{Binding}"
+                    Content="Add Parameter" />
+                  <!--  Arguments  -->
+                  <StackPanel Margin="0,5" Spacing="4">
+                    <TextBlock
+                      FontSize="12"
+                      FontWeight="SemiBold"
+                      Foreground="{DynamicResource SystemAccentColor}"
+                      LetterSpacing="1.2"
+                      Text="ARGUMENTS" />
+                    <Border
+                      Height="1"
+                      HorizontalAlignment="Stretch"
+                      Background="{DynamicResource SystemAccentColor}"
+                      Opacity="0.4" />
+                  </StackPanel>
+                  <ItemsControl ItemsSource="{Binding Arguments}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel
+                          Margin="4"
+                          Orientation="Horizontal"
+                          Spacing="8">
+                          <TextBox Width="120" Text="{Binding Key, Mode=TwoWay}" />
+                          <TextBox
+                            Width="180"
+                            Classes="revealable"
+                            PointerEntered="OnPointerEntered"
+                            PointerExited="OnPointerExited"
+                            Text="{Binding Value, Mode=TwoWay}">
+                            <TextBox.Effect>
+                              <BlurEffect Radius="{Binding Key, Converter={StaticResource HeaderSecurityBlurConverter}}" />
+                            </TextBox.Effect>
+                          </TextBox>
+                          <Button
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).RemoveArgumentCommand}"
+                            CommandParameter="{Binding}"
+                            Content="❌"
+                            Foreground="Red" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <Button
+                    Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).AddArgumentCommand}"
+                    CommandParameter="{Binding}"
+                    Content="Add Argument" />
+                  <StackPanel Grid.Row="1" Grid.Column="0">
+                    <Label Content="File Form Name" FontWeight="SemiBold" />
+                    <TextBox
+                      Width="100"
+                      Height="24"
+                      HorizontalAlignment="Left"
+                      VerticalContentAlignment="Center"
+                      CornerRadius="4"
+                      Text="{Binding FileFormName, Mode=TwoWay}"
+                      Watermark="file" />
+                  </StackPanel>
+                  <StackPanel>
+                    <Label Content="URL" FontWeight="SemiBold" />
+                    <TextBox
+                      Width="450"
+                      Height="24"
+                      HorizontalAlignment="Left"
+                      VerticalContentAlignment="Center"
+                      CornerRadius="4"
+                      Text="{Binding URL, Mode=TwoWay}"
+                      Watermark="{}{json:url}" />
+                  </StackPanel>
+                  <StackPanel>
+                    <Label Content="Thumbnail URL" FontWeight="SemiBold" />
+                    <TextBox
+                      Width="450"
+                      Height="24"
+                      HorizontalAlignment="Left"
+                      VerticalContentAlignment="Center"
+                      CornerRadius="4"
+                      Text="{Binding ThumbnailURL, Mode=TwoWay}"
+                      Watermark="{}{json:thumbnail_url}" />
+                  </StackPanel>
+                  <StackPanel>
+                    <Label Content="Deletion URL" FontWeight="SemiBold" />
+                    <TextBox
+                      Width="450"
+                      Height="24"
+                      HorizontalAlignment="Left"
+                      VerticalContentAlignment="Center"
+                      CornerRadius="4"
+                      Text="{Binding DeletionURL, Mode=TwoWay}"
+                      Watermark="{}{json:deletion_url}" />
+                  </StackPanel>
+                  <StackPanel>
+                    <Label Content="Error Message Path" FontWeight="SemiBold" />
+                    <TextBox
+                      Width="450"
+                      Height="24"
+                      HorizontalAlignment="Left"
+                      VerticalContentAlignment="Center"
+                      CornerRadius="4"
+                      Text="{Binding ErrorMessage, Mode=TwoWay}"
+                      Watermark="{}{json:error}" />
+                  </StackPanel>
+                  <StackPanel Spacing="5">
+                    <TextBlock
+                      FontSize="12"
+                      FontWeight="SemiBold"
+                      Text="JSON Data" />
+                    <TextBox
+                      Height="200"
+                      VerticalContentAlignment="Top"
+                      AcceptsReturn="True"
+                      AcceptsTab="True"
+                      FontFamily="Cascadia Code, Consolas, Monospace"
+                      Text="{Binding Data}"
+                      TextWrapping="Wrap" />
+                    <TextBlock
+                      FontSize="11"
+                      Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                      Text="Tip: Use {input} or {filename} as variables." />
+                  </StackPanel>
+                  <DockPanel Margin="8" LastChildFill="False">
+                    <StackPanel
+                      DockPanel.Dock="Right"
+                      Orientation="Horizontal"
+                      Spacing="8">
+                      <Button
+                        Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).DuplicateUploaderCommand}"
+                        CommandParameter="{Binding}"
+                        Content="Duplicate" />
+                      <Button
+                        Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).TestUploaderCommand}"
+                        CommandParameter="{Binding}"
+                        Content="Test" />
+                      <Button
+                        Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).ExportUploaderCommand}"
+                        CommandParameter="{Binding}"
+                        Content="Export" />
+                      <Button
+                        Command="{Binding $parent[UserControl].((viewModels:CustomUploaderVM)DataContext).RemoveUploaderCommand}"
+                        CommandParameter="{Binding}"
+                        Content="Remove" />
+                    </StackPanel>
+                  </DockPanel>
+                </StackPanel>
+              </ScrollViewer>
+            </DataTemplate>
+          </ContentControl.ContentTemplate>
+        </ContentControl>
+        <StackPanel
+          HorizontalAlignment="Center"
+          VerticalAlignment="Center"
+          IsVisible="{Binding IsEmpty}"
+          Spacing="10">
+
+          <TextBlock
+            HorizontalAlignment="Center"
+            FontSize="18"
+            FontWeight="SemiBold"
+            Text="Wow, a fresh start!" />
+
+          <TextBlock
+            MaxWidth="300"
+            Opacity="0.7"
+            Text="Open the catalog to import a pre-made configuration with no hassle!"
+            TextAlignment="Center"
+            TextWrapping="Wrap" />
+
+          <Button
+            Margin="0,10,0,0"
+            HorizontalAlignment="Center"
+            Classes="accent"
+            Command="{Binding OpenCatalogCommand}"
+            Content="Open Catalog" />
+        </StackPanel>
+      </Grid>
+    </SplitView.Content>
+  </SplitView>
 </UserControl>
-

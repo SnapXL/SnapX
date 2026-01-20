@@ -250,7 +250,7 @@ public class SnapX
 
     #endregion Paths
 
-    private static bool closeSequenceStarted, restartRequested, restartAsAdmin;
+    public static bool CloseSequenceStarted, restartRequested, restartAsAdmin;
 
     public void start()
     {
@@ -579,8 +579,8 @@ public class SnapX
 
     public static void CloseSequence()
     {
-        if (closeSequenceStarted) return;
-        closeSequenceStarted = true;
+        if (CloseSequenceStarted) return;
+        CloseSequenceStarted = true;
 
         DebugHelper.WriteLine("SnapX closing!");
         TaskManager.StopAllTasks();

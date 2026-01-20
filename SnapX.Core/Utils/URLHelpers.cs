@@ -9,11 +9,23 @@ using System.Globalization;
 using System.Security;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
+using SnapX.Core.CLI;
+using SnapX.Core.Upload.Custom;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Utils;
+
+[JsonSerializable(typeof(NativeMessagingInput))]
+[JsonSerializable(typeof(CustomUploaderItem))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
+[JsonSerializable(typeof(Dictionary<string, string?>))]
+[JsonSerializable(typeof(CustomUploaderInput))]
+[JsonSerializable(typeof(string))]
+
+internal partial class URLHelpersContext : JsonSerializerContext;
 
 public static class URLHelpers
 {
@@ -154,14 +166,14 @@ public static class URLHelpers
         return result.ToString();
     }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
     public static string? JSONEncode(string? text)
     {
-        text = JsonSerializer.Serialize(text);
+        if (text == null)
+            return null;
+        text = JsonSerializer.Serialize(text, URLHelpersContext.Default.String);
 
         // Remove the surrounding quotes added during serialization
-        return text[1..^1];
+        return text.Length >= 2 ? text[1..^1] : text;
     }
 
     public static string? XMLEncode(string? text)

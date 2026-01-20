@@ -216,7 +216,7 @@
                                         IconVariant="Regular" />
                                 </controls:NavigationViewItem.IconSource>
                             </controls:NavigationViewItem>
-                            <controls:NavigationViewItem Content="Screen recorder">
+                            <controls:NavigationViewItem Content="Screen recorder" Tag="ScreenRecordOptions">
                                 <controls:NavigationViewItem.IconSource>
                                     <fluent:FluentIconSource
                                         Icon="VideoRecording"

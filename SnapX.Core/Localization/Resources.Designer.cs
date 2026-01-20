@@ -85,12 +85,32 @@ namespace SnapX.Core.Resources {
                 return GetImage("Play.png");
             }
         }
+        public static Image Logo
+        {
+            get
+            {
+                return GetImage("SnapX_Logo.png");
+            }
+        }
+        public static Stream LogoStream
+        {
+            get
+            {
+                return GetStream("SnapX_Logo.png");
+            }
+        }
 
         private static Stream GetSoundStream(string soundName)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var name = assembly.GetName().Name;
             return assembly.GetManifestResourceStream($"{name}.Resources.{soundName}.flac");
+        }
+        private static Stream GetStream(string resourceName)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var name = assembly.GetName().Name;
+            return assembly.GetManifestResourceStream($"{name}.Resources.{resourceName}");
         }
         private static Image GetImage(string imageName)
         {

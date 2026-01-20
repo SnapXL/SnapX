@@ -1,0 +1,54 @@
+<UserControl
+  x:Class="SnapX.Avalonia.Views.Settings.Views.CustomUploaderCatalogView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:ui="using:FluentAvalonia.UI.Controls"
+  xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+  x:DataType="viewModels:CustomUploaderCatalogVM">
+  <Design.DataContext>
+    <viewModels:CustomUploaderCatalogVM />
+  </Design.DataContext>
+  <UserControl.DataContext>
+    <viewModels:CustomUploaderCatalogVM />
+  </UserControl.DataContext>
+<StackPanel MinWidth="400" Spacing="10">
+    <DockPanel>
+        <TextBlock
+            VerticalAlignment="Center"
+            FontSize="12"
+            Opacity="0.6"
+            Text="Select configurations to import:" />
+
+        <HyperlinkButton
+            DockPanel.Dock="Right"
+            HorizontalAlignment="Right"
+            Content="View Source"
+            NavigateUri="https://github.com/SnapXL/CustomUploaders"
+            Padding="4,2"
+            FontSize="12">
+            <ToolTip.Tip>
+                <TextBlock Text="Go give it a star on GitHub!" />
+            </ToolTip.Tip>
+        </HyperlinkButton>
+    </DockPanel>
+
+    <ListBox
+        x:Name="CatalogList"
+        Height="300"
+        CornerRadius="8"
+        ItemsSource="{Binding AvailableUploaders}"
+        SelectionMode="Multiple, Toggle"
+        SelectionChanged="CatalogList_SelectionChanged">
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <ui:SymbolIcon Symbol="Document" />
+                    <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                </StackPanel>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+</StackPanel>
+</UserControl>

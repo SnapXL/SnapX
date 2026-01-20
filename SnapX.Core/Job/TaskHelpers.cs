@@ -1082,24 +1082,31 @@ public static class TaskHelpers
 
     public static void ImportCustomUploader(string? filePath)
     {
-        ImportCustomUploader(new[] { filePath });
+        ImportCustomUploader([filePath]);
     }
 
     public static void ImportCustomUploader(IEnumerable<string?> filePaths)
     {
+        var contents = filePaths
+            .Where(p => !string.IsNullOrEmpty(p) && File.Exists(p))
+            .Select(File.ReadAllText);
+
+        ImportCustomUploaderJson(contents);
+    }
+
+    public static void ImportCustomUploaderJson(IEnumerable<string> jsonContents)
+    {
         if (SnapX.UploadersConfig == null)
             return;
 
-        foreach (var filePath in filePaths)
+        foreach (var json in jsonContents)
         {
-            if (string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrEmpty(json))
                 continue;
 
             try
             {
-                CustomUploaderItem cui = JsonHelpers.DeserializeFromFile<CustomUploaderItem>(
-                    filePath
-                );
+                CustomUploaderItem cui = JsonHelpers.DeserializeFromString<CustomUploaderItem>(json);
                 if (cui != null)
                 {
                     bool activate = false;
@@ -1121,14 +1128,13 @@ public static class TaskHelpers
                             )
                         )
                             destinations.Add("urls");
-                        string destinationsText = string.Join("/", destinations);
-                        DebugHelper.WriteLine(
-                            $"Set \"{cui}\" as the active custom uploader for {destinationsText}"
-                        );
+
                         activate = true;
                     }
+
                     cui.CheckBackwardCompatibility();
                     SnapX.UploadersConfig.CustomUploadersList.Add(cui);
+
                     if (activate)
                     {
                         int index = SnapX.UploadersConfig.CustomUploadersList.Count - 1;

@@ -1,13 +1,15 @@
-
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SnapX.Core.Upload.Custom;
 
 namespace SnapX.Core.Utils.Extensions;
 
@@ -24,6 +26,49 @@ public static class Extensions
         }
     }
 
+    /// <summary>
+    /// Allows dictionary-like syntax: Headers.Add("Key", "Value");
+    /// </summary>
+    public static void Add(
+        this ObservableCollection<HeaderItem> collection,
+        string key,
+        string value
+    )
+    {
+        collection.Add(new HeaderItem { Key = key, Value = value });
+    }
+
+    public static IEnumerable<string> Keys(this ObservableCollection<HeaderItem> collection) =>
+        collection.Select(x => x.Key);
+
+    public static string? GetValue(this ObservableCollection<HeaderItem> collection, string key) =>
+        collection
+            .FirstOrDefault(x => x.Key.Equals(key, StringComparison.OrdinalIgnoreCase))
+            ?.Value;
+
+    public static void SetValue(
+        this ObservableCollection<HeaderItem> collection,
+        string key,
+        string value
+    )
+    {
+        var item = collection.FirstOrDefault(x =>
+            x.Key.Equals(key, StringComparison.OrdinalIgnoreCase)
+        );
+        if (item != null)
+        {
+            item.Value = value;
+        }
+        else
+        {
+            collection.Add(new HeaderItem { Key = key, Value = value });
+        }
+    }
+
+    // Simulates dictionary.ContainsKey("name")
+    public static bool ContainsKey(this ObservableCollection<HeaderItem> collection, string key) =>
+        collection.Any(x => x.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
+
     public static bool IsValidIndex<T>(this T[] array, int index)
     {
         return index >= 0 && index < array.Length;
@@ -36,34 +81,38 @@ public static class Extensions
 
     public static T ReturnIfValidIndex<T>(this T[] array, int index)
     {
-        if (array.IsValidIndex(index)) return array[index];
+        if (array.IsValidIndex(index))
+            return array[index];
         return default;
     }
 
     public static T ReturnIfValidIndex<T>(this List<T> list, int index)
     {
-        if (list.IsValidIndex(index)) return list[index];
+        if (list.IsValidIndex(index))
+            return list[index];
         return default;
     }
 
     public static T Last<T>(this T[] array, int index = 0)
     {
-        if (array.Length > index) return array[array.Length - index - 1];
+        if (array.Length > index)
+            return array[array.Length - index - 1];
         return default;
     }
 
     public static T Last<T>(this List<T> list, int index = 0)
     {
-        if (list.Count > index) return list[list.Count - index - 1];
+        if (list.Count > index)
+            return list[list.Count - index - 1];
         return default;
     }
 
     public static double ToDouble(this Version value)
     {
-        return (System.Math.Max(value.Major, 0) * System.Math.Pow(10, 12)) +
-            (System.Math.Max(value.Minor, 0) * System.Math.Pow(10, 9)) +
-            (System.Math.Max(value.Build, 0) * System.Math.Pow(10, 6)) +
-            System.Math.Max(value.Revision, 0);
+        return (System.Math.Max(value.Major, 0) * System.Math.Pow(10, 12))
+            + (System.Math.Max(value.Minor, 0) * System.Math.Pow(10, 9))
+            + (System.Math.Max(value.Build, 0) * System.Math.Pow(10, 6))
+            + System.Math.Max(value.Revision, 0);
     }
 
     public static bool IsValid(this Rectangle rect)
@@ -76,15 +125,23 @@ public static class Extensions
     public static Point Add(this Point point, int offsetX, int offsetY) =>
         new Point(point.X + offsetX, point.Y + offsetY);
 
-    public static Point Add(this Point point, Point offset) => new Point(point.X + offset.X, point.Y + offset.Y);
+    public static Point Add(this Point point, Point offset) =>
+        new Point(point.X + offset.X, point.Y + offset.Y);
 
     public static Point Add(this Point point, int offset) => point.Add(offset, offset);
-    public static PointF Add(this PointF point, float offsetX, float offsetY) => new PointF(point.X + offsetX, point.Y + offsetY);
-    public static PointF Add(this PointF point, PointF offset) => new PointF(point.X + offset.X, point.Y + offset.Y);
 
-    public static PointF Scale(this Point point, float scaleFactor) => new PointF(point.X * scaleFactor, point.Y * scaleFactor);
+    public static PointF Add(this PointF point, float offsetX, float offsetY) =>
+        new PointF(point.X + offsetX, point.Y + offsetY);
 
-    public static PointF Scale(this PointF point, float scaleFactor) => new PointF(point.X * scaleFactor, point.Y * scaleFactor);
+    public static PointF Add(this PointF point, PointF offset) =>
+        new PointF(point.X + offset.X, point.Y + offset.Y);
+
+    public static PointF Scale(this Point point, float scaleFactor) =>
+        new PointF(point.X * scaleFactor, point.Y * scaleFactor);
+
+    public static PointF Scale(this PointF point, float scaleFactor) =>
+        new PointF(point.X * scaleFactor, point.Y * scaleFactor);
+
     public static Point Round(this PointF point) => Point.Round(point);
 
     public static void Offset(this PointF point, PointF offset)
@@ -94,36 +151,73 @@ public static class Extensions
     }
 
     public static Size Offset(this Size size, int offset) => size.Offset(offset, offset);
-    public static Size Offset(this Size size, int width, int height) => new Size(size.Width + width, size.Height + height);
 
-    public static Rectangle Offset(this Rectangle rect, int offset) => new Rectangle(rect.X - offset, rect.Y - offset, rect.Width + (offset * 2), rect.Height + (offset * 2));
-    public static RectangleF Offset(this RectangleF rect, float offset) => new RectangleF(rect.X - offset, rect.Y - offset, rect.Width + (offset * 2), rect.Height + (offset * 2));
+    public static Size Offset(this Size size, int width, int height) =>
+        new Size(size.Width + width, size.Height + height);
 
-    public static RectangleF Scale(this RectangleF rect, float scaleFactor) => new RectangleF(rect.X * scaleFactor, rect.Y * scaleFactor, rect.Width * scaleFactor, rect.Height * scaleFactor);
+    public static Rectangle Offset(this Rectangle rect, int offset) =>
+        new Rectangle(
+            rect.X - offset,
+            rect.Y - offset,
+            rect.Width + (offset * 2),
+            rect.Height + (offset * 2)
+        );
+
+    public static RectangleF Offset(this RectangleF rect, float offset) =>
+        new RectangleF(
+            rect.X - offset,
+            rect.Y - offset,
+            rect.Width + (offset * 2),
+            rect.Height + (offset * 2)
+        );
+
+    public static RectangleF Scale(this RectangleF rect, float scaleFactor) =>
+        new RectangleF(
+            rect.X * scaleFactor,
+            rect.Y * scaleFactor,
+            rect.Width * scaleFactor,
+            rect.Height * scaleFactor
+        );
 
     public static Rectangle Round(this RectangleF rect) => Rectangle.Round(rect);
 
-    public static Rectangle LocationOffset(this Rectangle rect, int x, int y) => new Rectangle(rect.X + x, rect.Y + y, rect.Width, rect.Height);
+    public static Rectangle LocationOffset(this Rectangle rect, int x, int y) =>
+        new Rectangle(rect.X + x, rect.Y + y, rect.Width, rect.Height);
 
-    public static RectangleF LocationOffset(this RectangleF rect, float x, float y) => new RectangleF(rect.X + x, rect.Y + y, rect.Width, rect.Height);
+    public static RectangleF LocationOffset(this RectangleF rect, float x, float y) =>
+        new RectangleF(rect.X + x, rect.Y + y, rect.Width, rect.Height);
 
-    public static RectangleF LocationOffset(this RectangleF rect, PointF offset) => rect.LocationOffset(offset.X, offset.Y);
+    public static RectangleF LocationOffset(this RectangleF rect, PointF offset) =>
+        rect.LocationOffset(offset.X, offset.Y);
 
-    public static Rectangle LocationOffset(this Rectangle rect, Point offset) => rect.LocationOffset(offset.X, offset.Y);
-    public static Rectangle LocationOffset(this Rectangle rect, int offset) => rect.LocationOffset(offset, offset);
+    public static Rectangle LocationOffset(this Rectangle rect, Point offset) =>
+        rect.LocationOffset(offset.X, offset.Y);
 
-    public static Rectangle SizeOffset(this Rectangle rect, int width, int height) => new Rectangle(rect.X, rect.Y, rect.Width + width, rect.Height + height);
+    public static Rectangle LocationOffset(this Rectangle rect, int offset) =>
+        rect.LocationOffset(offset, offset);
 
-    public static RectangleF SizeOffset(this RectangleF rect, float width, float height) => new RectangleF(rect.X, rect.Y, rect.Width + width, rect.Height + height);
-    public static Rectangle SizeOffset(this Rectangle rect, int offset) => rect.SizeOffset(offset, offset);
+    public static Rectangle SizeOffset(this Rectangle rect, int width, int height) =>
+        new Rectangle(rect.X, rect.Y, rect.Width + width, rect.Height + height);
 
-    public static RectangleF SizeOffset(this RectangleF rect, float offset) => rect.SizeOffset(offset, offset);
+    public static RectangleF SizeOffset(this RectangleF rect, float width, float height) =>
+        new RectangleF(rect.X, rect.Y, rect.Width + width, rect.Height + height);
+
+    public static Rectangle SizeOffset(this Rectangle rect, int offset) =>
+        rect.SizeOffset(offset, offset);
+
+    public static RectangleF SizeOffset(this RectangleF rect, float offset) =>
+        rect.SizeOffset(offset, offset);
+
     public static string Join<T>(this T[] array, string separator = " ") =>
         array?.Length > 0 ? string.Join(separator, array) : string.Empty;
 
-
     public static int WeekOfYear(this DateTime dateTime) =>
-        CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+        CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
+            dateTime,
+            CalendarWeekRule.FirstDay,
+            DayOfWeek.Monday
+        );
+
     [RequiresDynamicCode("Uses reflection to set default values on fields and properties.")]
     [RequiresUnreferencedCode("Uses reflection which may break with trimming.")]
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
@@ -137,7 +231,11 @@ public static class Extensions
             if (!prop.CanWrite)
                 continue;
 
-            if (prop.GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true).FirstOrDefault() is DefaultValueAttribute attr)
+            if (
+                prop.GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true)
+                    .FirstOrDefault()
+                is DefaultValueAttribute attr
+            )
             {
                 prop.SetValue(self, attr.Value);
             }
@@ -146,32 +244,41 @@ public static class Extensions
         // Apply to fields
         foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
         {
-            if (field.GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true).FirstOrDefault() is DefaultValueAttribute attr)
+            if (
+                field
+                    .GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true)
+                    .FirstOrDefault()
+                is DefaultValueAttribute attr
+            )
             {
                 field.SetValue(self, attr.Value);
             }
         }
     }
 
-
-
-
-
     public static string GetDescription(this Type type)
     {
-        var attributes = (DescriptionAttribute[])type.GetCustomAttributes(typeof(DescriptionAttribute), false);
+        var attributes = (DescriptionAttribute[])
+            type.GetCustomAttributes(typeof(DescriptionAttribute), false);
         return attributes.Length > 0 ? attributes[0].Description : type.Name;
     }
 
     public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int count) =>
         source.Reverse().Take(count).Reverse();
 
-    public static Version Normalize(this Version version, bool ignoreRevision = false, bool ignoreBuild = false, bool ignoreMinor = false)
+    public static Version Normalize(
+        this Version version,
+        bool ignoreRevision = false,
+        bool ignoreBuild = false,
+        bool ignoreMinor = false
+    )
     {
-        return new Version(System.Math.Max(version.Major, 0),
+        return new Version(
+            System.Math.Max(version.Major, 0),
             ignoreMinor ? 0 : System.Math.Max(version.Minor, 0),
             ignoreBuild ? 0 : System.Math.Max(version.Build, 0),
-            ignoreRevision ? 0 : System.Math.Max(version.Revision, 0));
+            ignoreRevision ? 0 : System.Math.Max(version.Revision, 0)
+        );
     }
 
     public static void Move<T>(this List<T> list, int oldIndex, int newIndex)
@@ -182,11 +289,16 @@ public static class Extensions
     }
 
     public static Rectangle Combine(this IEnumerable<Rectangle> rects) =>
-        rects.Aggregate(Rectangle.Empty, (result, rect) => result.IsEmpty ? rect : Rectangle.Union(result, rect));
-
+        rects.Aggregate(
+            Rectangle.Empty,
+            (result, rect) => result.IsEmpty ? rect : Rectangle.Union(result, rect)
+        );
 
     public static RectangleF Combine(this IEnumerable<RectangleF> rects) =>
-        rects.Aggregate(RectangleF.Empty, (result, rect) => result.IsEmpty ? rect : RectangleF.Union(result, rect));
+        rects.Aggregate(
+            RectangleF.Empty,
+            (result, rect) => result.IsEmpty ? rect : RectangleF.Union(result, rect)
+        );
 
     public static RectangleF AddPoint(this RectangleF rect, PointF point)
     {
@@ -194,8 +306,11 @@ public static class Extensions
     }
 
     public static RectangleF CreateRectangle(this IEnumerable<PointF> points) =>
-        points.Aggregate(RectangleF.Empty, (rect, point) => rect.IsEmpty ? new RectangleF(point, new Size(1, 1)) : rect.AddPoint(point));
-
+        points.Aggregate(
+            RectangleF.Empty,
+            (rect, point) =>
+                rect.IsEmpty ? new RectangleF(point, new Size(1, 1)) : rect.AddPoint(point)
+        );
 
     public static Point Center(this Rectangle rect)
     {
@@ -209,8 +324,7 @@ public static class Extensions
 
     public static float Area(this RectangleF rect) => rect.Width * rect.Height;
 
-    public static float Perimeter(this RectangleF rect) =>
-        2 * (rect.Width + rect.Height);
+    public static float Perimeter(this RectangleF rect) => 2 * (rect.Width + rect.Height);
 
     public static PointF Restrict(this PointF point, RectangleF rect)
     {
@@ -221,27 +335,28 @@ public static class Extensions
         return point;
     }
 
-    public static void ShowError(this Exception e, bool fullError = true)
+    public static void ShowError(this Exception e, bool fullError = true, [CallerMemberName] string context = "")
     {
         var error = fullError ? e.ToString() : e.Message;
         DebugHelper.WriteException(error);
+        SnapX.EventAggregator.Publish(new ErrorMessageEvent(e, context, fullError));
     }
 
     public static Task ContinueInCurrentContext(this Task task, Action action) =>
         task.ContinueWith(t => action(), TaskScheduler.FromCurrentSynchronizationContext());
 
-
     public static List<T> Range<T>(this List<T> source, int start, int end) =>
         source.GetRange(System.Math.Min(start, end), System.Math.Abs(end - start) + 1);
-
 
     public static List<T> Range<T>(this List<T> source, T start, T end)
     {
         int startIndex = source.IndexOf(start);
-        if (startIndex == -1) return [];
+        if (startIndex == -1)
+            return [];
 
         int endIndex = source.IndexOf(end);
-        if (endIndex == -1) return [];
+        if (endIndex == -1)
+            return [];
 
         return Range(source, startIndex, endIndex);
     }
@@ -250,7 +365,7 @@ public static class Extensions
     {
         return color.ToPixel<Rgba32>().A < 255;
     }
+
     public static string ToStringProper(this Rectangle rect) =>
         $"X: {rect.X}, Y: {rect.Y}, Width: {rect.Width}, Height: {rect.Height}";
 }
-

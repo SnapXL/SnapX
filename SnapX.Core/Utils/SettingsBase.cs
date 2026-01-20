@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using SnapX.Core.Utils.Converters;
+using SnapX.Core.Utils.Extensions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SnapX.Core.Utils;
@@ -345,7 +346,7 @@ public abstract partial class SettingsBase<T>
             }
             catch (Exception e)
             {
-                DebugHelper.WriteException(e, $"{typeName} load failed: {filePath}");
+                e.ShowError(true, $"{typeName} load failed: {filePath}");
             }
         }
         else
