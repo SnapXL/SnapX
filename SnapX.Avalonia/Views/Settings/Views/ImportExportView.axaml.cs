@@ -8,9 +8,9 @@ public partial class ImportExportView : UserControl
     private readonly ImportExportVM _vm;
     public ImportExportView(ImportExportVM vm)
     {
+        InitializeComponent();
         _vm = vm;
         DataContext = _vm;
-        InitializeComponent();
     }
 
     public ImportExportView() : this(new ImportExportVM())
