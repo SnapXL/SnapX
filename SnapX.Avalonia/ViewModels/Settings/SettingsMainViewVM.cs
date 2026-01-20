@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using SnapX.Avalonia.ViewModels.Settings;
+// using SnapX.Avalonia.ViewModels.Settings;
 using SnapX.Core;
 
 namespace SnapX.Avalonia.ViewModels;
@@ -22,7 +22,7 @@ public partial class SettingsMainViewVM : ViewModelBase
         RegisterPage<SettingsHomePageViewVM>("Home");
         RegisterPage<CustomUploaderVM>("CustomUploader");
         RegisterPage<ImportExportVM>("ImportExport");
-        RegisterPage<ScreenRecordOptionsVM>("ScreenRecordOptions");
+        // RegisterPage<ScreenRecordOptionsVM>("ScreenRecordOptions");
 
     }
 
