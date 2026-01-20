@@ -63,16 +63,24 @@ public partial class OCR : AppWindow
         {
             textBox.Text = $"[{update.Percent}%] {update.Status}";
         });
-
-        var result = await _ocrViewModel.RunOCRAsync(_item, languageCode, progressHandler);
-
-        if (SingleLine?.IsChecked ?? false)
+        string result = string.Empty;
+        try
         {
-            result = result.Replace("\r", "").Replace("\n", "");
+            result = await _ocrViewModel.RunOCRAsync(_item, languageCode, progressHandler);
+            if (SingleLine?.IsChecked ?? false)
+            {
+                result = result.Replace("\r", "").Replace("\n", "");
+            }
+            textBox.Text = result;
         }
-        LanguageSelector?.IsEnabled = true;
-
-        textBox.Text = result;
+        catch (Exception ex)
+        {
+            textBox.Text = ex.ToString();
+        }
+        finally
+        {
+            LanguageSelector?.IsEnabled = true;
+        }
     }
 
     private async void Control_OnLoaded(object? Sender, RoutedEventArgs E)
