@@ -78,17 +78,17 @@ public partial class CustomUploaderVM : ViewModelBase
             .ToArray();
     public CustomUploaderBody[] AllBodyTypes { get; } = Enum.GetValues<CustomUploaderBody>();
     public HttpMethod[] AllHttpMethods { get; } =
-        [
-            HttpMethod.Get,
-            HttpMethod.Post,
-            HttpMethod.Put,
-            HttpMethod.Patch,
-            HttpMethod.Delete,
-            HttpMethod.Head,
-            HttpMethod.Options,
-            HttpMethod.Trace,
-            HttpMethod.Connect,
-        ];
+    [
+        HttpMethod.Get,
+        HttpMethod.Post,
+        HttpMethod.Put,
+        HttpMethod.Patch,
+        HttpMethod.Delete,
+        HttpMethod.Head,
+        HttpMethod.Options,
+        HttpMethod.Trace,
+        HttpMethod.Connect,
+    ];
 
     public CustomUploaderVM()
     {
@@ -642,6 +642,11 @@ public partial class CustomUploaderVM : ViewModelBase
         SelectedUploader.DestinationType ^= flag;
 
         OnPropertyChanged(nameof(SelectedUploader));
+        OnPropertyChanged(nameof(ImageUploaders));
+        OnPropertyChanged(nameof(FileUploaders));
+        OnPropertyChanged(nameof(TextUploaders));
+        OnPropertyChanged(nameof(ShortenerUploaders));
+        OnPropertyChanged(nameof(SharingUploaders));
     }
 
     public string DynamicWatermark =>
