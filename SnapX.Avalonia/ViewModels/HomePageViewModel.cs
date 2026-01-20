@@ -1,5 +1,6 @@
 using System.Timers;
 using Avalonia.Collections;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Threading;
@@ -94,6 +95,22 @@ public partial class HomePageViewModel : ViewModelBase
     public void ContextMenuSelection(object Sender)
     {
         SelectedTasks.Add(Sender as ListTaskTemplate);
+    }
+
+    [RelayCommand]
+    public void ShareHistoryItem(object Sender)
+    {
+        if (Sender is not ListTaskTemplate ltt)
+            return;
+        UploadManager.ShareURL(ltt.task.URL);
+    }
+
+    [RelayCommand]
+    public void ShortenHistoryItem(object Sender)
+    {
+        if (Sender is not ListTaskTemplate ltt)
+            return;
+        UploadManager.ShortenURL(ltt.task.URL);
     }
 
     [RelayCommand]
