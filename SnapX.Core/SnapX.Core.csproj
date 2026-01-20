@@ -134,7 +134,6 @@
   </ItemGroup>
 <ItemGroup>
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
-  <LinkerArg Include="-Wl,-ld_classic" Condition="'$(TargetMacOS)' == 'true'" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
   <ItemGroup Condition="'$(TargetWindows)' != 'true'">
