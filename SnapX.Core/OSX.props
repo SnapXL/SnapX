@@ -2,9 +2,21 @@
   <Target Name="CargoBuild" BeforeTargets="BeforeBuild" Condition="'$(nocargobuild)' == ''">
     <Message Text="Compiling Rust intermediary library..." Importance="High" />
     <PropertyGroup>
-      <RustLibName>libsnapxrust.dylib</RustLibName>
+      <!-- Since snapxrust is written in a completely different programming language, this props file can also be ran on Linux for development -->
+      <RustLibName Condition="'$(TargetMacOS)' == 'true'">libsnapxrust.dylib</RustLibName>
+      <RustLibName Condition="'$(TargetLinux)' == 'true'">libsnapxrust.so</RustLibName>
+      <RustLibName Condition="'$(TargetWindows)' == 'true'">snapxrust.dll</RustLibName>
+      <RustDir>ScreenCapture/Rust</RustDir>
+      <RustConfig>release</RustConfig>
+      <RustLibSource>$(RustDir)/target/$(RustConfig)/$(RustLibName)</RustLibSource>
     </PropertyGroup>
-    <Exec Command="cd ScreenCapture/Rust &amp;&amp; cargo build --release" />
+    <Exec Command="cd $(RustDir) &amp;&amp; cargo build --$(RustConfig)" />
+    <ItemGroup>
+    <None Include="$(RustLibSource)">
+      <Link>$(RustLibName)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   </Target>
   <ItemGroup Condition="$(DisableOCR) != '1'">
     <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.osx-x64" Version="$(OpenCvSharp4Version)"  />

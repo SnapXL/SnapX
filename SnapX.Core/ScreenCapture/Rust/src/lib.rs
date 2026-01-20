@@ -1,7 +1,9 @@
 uniffi::include_scaffolding!("snapxrust");
 
-use xcap::{image::{imageops, EncodableLayout, RgbaImage}, Monitor, Window};
-
+use xcap::{
+    image::{imageops, EncodableLayout, RgbaImage},
+    Monitor, Window,
+};
 
 fn normalized(filename: &str) -> String {
     filename
@@ -20,34 +22,84 @@ pub struct MonitorData {
     height: u32,
     x: i32,
     y: i32,
-    name: String
+    name: String,
 }
+pub struct WindowData {
+    pub app_name: String,
+    pub title: String,
+    pub process_id: u32,
+    pub x: i32,
+    pub y: i32,
+    pub width: u32,
+    pub height: u32,
+    pub is_minimized: bool,
+    pub is_maximized: bool,
+    pub is_focused: bool,
+}
+
+pub fn get_window_list() -> Vec<WindowData> {
+    let windows = Window::all().unwrap();
+    let mut list = Vec::new();
+
+    for window in windows {
+        let app_name = window.app_name().unwrap_or_default();
+        let title = window.title().unwrap_or_default();
+        let x = window.x().unwrap_or(0);
+        let y = window.y().unwrap_or(0);
+        let width = window.width().unwrap_or(0);
+        let height = window.height().unwrap_or(0);
+        let is_minimized = window.is_minimized().unwrap_or(false);
+        let is_maximized = window.is_maximized().unwrap_or(false);
+        let process_id = window.pid().unwrap_or(0);
+        let is_focused = window.is_focused().unwrap_or(false);
+
+        list.push(WindowData {
+            app_name,
+            title,
+            process_id,
+            x,
+            y,
+            width,
+            height,
+            is_minimized,
+            is_maximized,
+            is_focused,
+        });
+    }
+
+    list
+}
+
 pub fn get_screen_dimensions(name: &str) -> MonitorData {
     let monitors = Monitor::all().unwrap();
 
-    let monitor = monitors
-        .iter()
-        .find(|m| m.name().unwrap() == name)
-        .unwrap(); // Will panic if no monitor is found, as the name is assumed valid
+    let monitor = monitors.iter().find(|m| m.name().unwrap() == name).unwrap(); // Will panic if no monitor is found, as the name is assumed valid
     MonitorData {
         width: monitor.width().expect("Failed to get monitor width"),
         height: monitor.height().expect("Failed to get monitor height"),
         x: monitor.x().expect("Failed to get monitor x"),
         y: monitor.y().expect("Failed to get monitor y"),
-        name: monitor.name().unwrap()
+        name: monitor.name().unwrap(),
     }
 }
 pub fn get_working_area() -> MonitorData {
     let monitors = Monitor::all().unwrap();
 
-    let width: u32 = monitors.iter().map(|m| m.width().expect("Failed to get monitor width")).sum();
+    let width: u32 = monitors
+        .iter()
+        .map(|m| m.width().expect("Failed to get monitor width"))
+        .sum();
 
-    let height: u32 = monitors.iter().map(|m| m.height().expect("Failed to get monitor width")).max().unwrap_or(0);
-    let name = monitors.iter()
-    .map(|m| m.name().unwrap())
-    .collect::<Vec<String>>()
-    .join(", ");
-
+    let height: u32 = monitors
+        .iter()
+        .map(|m| m.height().expect("Failed to get monitor width"))
+        .max()
+        .unwrap_or(0);
+    let name = monitors
+        .iter()
+        .map(|m| m.name().unwrap())
+        .collect::<Vec<String>>()
+        .join(", ");
 
     MonitorData {
         width,
@@ -67,31 +119,24 @@ pub fn get_monitor(x: u32, y: u32) -> MonitorData {
         y: y as i32,
         name: monitor.name().unwrap(),
     }
-
 }
 pub fn get_primary_monitor() -> MonitorData {
     let monitors = Monitor::all().unwrap();
 
-    let monitor = monitors
-        .iter()
-        .find(|m| m.is_primary().unwrap())
-        .unwrap();
+    let monitor = monitors.iter().find(|m| m.is_primary().unwrap()).unwrap();
     MonitorData {
         width: monitor.width().expect("Failed to get monitor width"),
         height: monitor.height().expect("Failed to get monitor height"),
         x: monitor.x().expect("Failed to get monitor x"),
         y: monitor.y().expect("Failed to get monitor y"),
-        name: monitor.name().unwrap()
+        name: monitor.name().unwrap(),
     }
 }
 
 pub fn capture_monitor(name: &str) -> ImageData {
     let monitors = Monitor::all().unwrap();
 
-    let monitor = monitors
-        .iter()
-        .find(|m| m.name().unwrap() == name)
-        .unwrap();
+    let monitor = monitors.iter().find(|m| m.name().unwrap() == name).unwrap();
 
     let image = monitor.capture_image().unwrap();
     let image_bytes = image.as_bytes().to_vec();
@@ -107,16 +152,23 @@ pub fn capture_monitor(name: &str) -> ImageData {
 pub fn capture_fullscreen() -> ImageData {
     let monitors = Monitor::all().unwrap();
 
-    let total_width = monitors.iter()
-        .map(|m| (m.x().expect("Failed to get monitor x") as u32 + m.width().expect("Failed to get monitor width")))
+    let total_width = monitors
+        .iter()
+        .map(|m| {
+            (m.x().expect("Failed to get monitor x") as u32
+                + m.width().expect("Failed to get monitor width"))
+        })
         .max()
         .unwrap();
 
-    let total_height = monitors.iter()
-        .map(|m| (m.y().expect("Failed to get monitor y") as u32 + m.height().expect("Failed to get monitor height")))
+    let total_height = monitors
+        .iter()
+        .map(|m| {
+            (m.y().expect("Failed to get monitor y") as u32
+                + m.height().expect("Failed to get monitor height"))
+        })
         .max()
         .unwrap();
-
 
     let mut combined_image = RgbaImage::new(total_width, total_height);
 
@@ -187,14 +239,10 @@ pub fn capture_window(x: u32, y: u32) -> ImageData {
     }
 }
 
-
-
-
 pub fn capture_rect(x: u32, y: u32, width: u32, height: u32) -> ImageData {
     let monitor = Monitor::from_point(x as i32, y as i32).unwrap();
     let mut full_image = monitor.capture_image().unwrap();
     let image = imageops::crop(&mut full_image, x, y, width, height).to_image();
-
 
     let width = image.width();
     let height = image.height();
