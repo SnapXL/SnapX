@@ -85,14 +85,59 @@ public class MacOSAPI : NativeAPI
         public double Y;
     }
 
-    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
+    private const string CoreGraphicsLib =
+        "/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics";
+
+    [DllImport(CoreGraphicsLib)]
     static extern CGPoint CGEventGetLocation(IntPtr eventRef);
 
-    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
+    [DllImport(CoreGraphicsLib)]
     static extern IntPtr CGEventCreate(IntPtr source);
 
-    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
+    [DllImport(CoreGraphicsLib)]
     static extern IntPtr CFRelease(IntPtr eventRef);
+
+    private const string CoreFoundationLib =
+        "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
+
+    // Options for window list
+    private const uint kCGWindowListOptionIncludingWindow = 1 << 3;
+
+    [DllImport(CoreGraphicsLib)]
+    private static extern IntPtr CGWindowListCopyWindowInfo(uint option, uint relativeToWindow);
+
+    [DllImport(CoreFoundationLib)]
+    private static extern int CFArrayGetCount(IntPtr theArray);
+
+    [DllImport(CoreFoundationLib)]
+    private static extern IntPtr CFArrayGetValueAtIndex(IntPtr theArray, int idx);
+    [DllImport(CoreFoundationLib)]
+    internal static extern IntPtr CFStringCreateWithCString(
+        IntPtr alloc,
+        string str,
+        uint encoding
+    );
+
+    [DllImport(CoreFoundationLib)]
+    internal static extern IntPtr CFDictionaryGetValue(IntPtr theDict, IntPtr key);
+
+    [DllImport(CoreGraphicsLib)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    internal static extern bool CGRectMakeWithDictionaryRepresentation(
+        IntPtr dict,
+        out CGRect rect
+    );
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CGRect
+    {
+        public double X;
+        public double Y;
+        public double Width;
+        public double Height;
+    }
+
+    // Standard UTF8 encoding ID for CFString
+    internal const uint kCFStringEncodingUTF8 = 0x08000100;
 
     public override Point GetCursorPosition()
     {
@@ -101,6 +146,7 @@ public class MacOSAPI : NativeAPI
         CFRelease(ev);
         return new Point((int)point.X, (int)point.Y);
     }
+
     public void ShowWindow(WindowInfo window)
     {
         if (window.ProcessId == 0)
@@ -121,6 +167,66 @@ public class MacOSAPI : NativeAPI
         using var process = Process.Start(psi);
         process?.WaitForExit();
     }
+    public override Rectangle GetWindowRectangle(WindowInfo window)
+    {
+        return base.GetWindowRectangle(window.Handle);
+    }
+    public override Rectangle GetWindowRectangle(IntPtr windowHandle)
+    {
+        uint windowId = (uint)windowHandle.ToInt32();
+
+        IntPtr arrayRef = CGWindowListCopyWindowInfo(kCGWindowListOptionIncludingWindow, windowId);
+        if (arrayRef == IntPtr.Zero)
+            return Rectangle.Empty;
+
+        try
+        {
+            int count = CFArrayGetCount(arrayRef);
+            if (count == 0)
+                return Rectangle.Empty;
+
+            IntPtr dictRef = CFArrayGetValueAtIndex(arrayRef, 0);
+
+            return ExtractCGRectFromDict(dictRef);
+        }
+        finally
+        {
+            CFRelease(arrayRef);
+        }
+    }
+    private Rectangle ExtractCGRectFromDict(IntPtr dictRef)
+    {
+        IntPtr key = CFStringCreateWithCString(
+            IntPtr.Zero,
+            "kCGWindowBounds",
+            kCFStringEncodingUTF8
+        );
+
+        try
+        {
+            IntPtr boundsDict = CFDictionaryGetValue(dictRef, key);
+
+            if (
+                boundsDict != IntPtr.Zero
+                && CGRectMakeWithDictionaryRepresentation(boundsDict, out CGRect cgRect)
+            )
+            {
+                return new Rectangle(
+                    (int)cgRect.X,
+                    (int)cgRect.Y,
+                    (int)cgRect.Width,
+                    (int)cgRect.Height
+                );
+            }
+        }
+        finally
+        {
+            if (key != IntPtr.Zero)
+                CFRelease(key);
+        }
+
+        return Rectangle.Empty;
+    }
 
     public override List<WindowInfo> GetWindowList()
     {
@@ -139,9 +245,7 @@ public class MacOSAPI : NativeAPI
                 IsMinimized = raw.isMinimized,
                 IsVisible = !raw.isMinimized,
                 IsActive = raw.isFocused,
-
-                // Not exposed
-                Handle = IntPtr.Zero,
+                Handle = (nint)(nuint)raw.hwnd,
             })
             .ToList();
 

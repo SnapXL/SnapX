@@ -1513,6 +1513,7 @@ internal record WindowData(
     string @appName,
     string @title,
     uint @processId,
+    uint @hwnd,
     int @x,
     int @y,
     uint @width,
@@ -1532,6 +1533,7 @@ class FfiConverterTypeWindowData : FfiConverterRustBuffer<WindowData>
             @appName: FfiConverterString.INSTANCE.Read(stream),
             @title: FfiConverterString.INSTANCE.Read(stream),
             @processId: FfiConverterUInt32.INSTANCE.Read(stream),
+            @hwnd: FfiConverterUInt32.INSTANCE.Read(stream),
             @x: FfiConverterInt32.INSTANCE.Read(stream),
             @y: FfiConverterInt32.INSTANCE.Read(stream),
             @width: FfiConverterUInt32.INSTANCE.Read(stream),
@@ -1548,6 +1550,7 @@ class FfiConverterTypeWindowData : FfiConverterRustBuffer<WindowData>
             + FfiConverterString.INSTANCE.AllocationSize(value.@appName)
             + FfiConverterString.INSTANCE.AllocationSize(value.@title)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.@processId)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.@hwnd)
             + FfiConverterInt32.INSTANCE.AllocationSize(value.@x)
             + FfiConverterInt32.INSTANCE.AllocationSize(value.@y)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.@width)
@@ -1562,6 +1565,7 @@ class FfiConverterTypeWindowData : FfiConverterRustBuffer<WindowData>
         FfiConverterString.INSTANCE.Write(value.@appName, stream);
         FfiConverterString.INSTANCE.Write(value.@title, stream);
         FfiConverterUInt32.INSTANCE.Write(value.@processId, stream);
+        FfiConverterUInt32.INSTANCE.Write(value.@hwnd, stream);
         FfiConverterInt32.INSTANCE.Write(value.@x, stream);
         FfiConverterInt32.INSTANCE.Write(value.@y, stream);
         FfiConverterUInt32.INSTANCE.Write(value.@width, stream);

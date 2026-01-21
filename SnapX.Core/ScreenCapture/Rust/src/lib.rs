@@ -28,6 +28,7 @@ pub struct WindowData {
     pub app_name: String,
     pub title: String,
     pub process_id: u32,
+    pub hwnd: u32,
     pub x: i32,
     pub y: i32,
     pub width: u32,
@@ -52,11 +53,13 @@ pub fn get_window_list() -> Vec<WindowData> {
         let is_maximized = window.is_maximized().unwrap_or(false);
         let process_id = window.pid().unwrap_or(0);
         let is_focused = window.is_focused().unwrap_or(false);
+        let hwnd = window.id().unwrap_or_default();
 
         list.push(WindowData {
             app_name,
             title,
             process_id,
+            hwnd,
             x,
             y,
             width,

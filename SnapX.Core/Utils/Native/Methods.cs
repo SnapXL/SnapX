@@ -84,6 +84,8 @@ public static class Methods
 
     public static Rectangle GetWindowRectangle(IntPtr windowHandle = 0) =>
         NativeAPI.GetWindowRectangle(windowHandle);
+            public static Rectangle GetWindowRectangle(WindowInfo window) =>
+        NativeAPI.GetWindowRectangle(window);
 
     public static WindowInfo? GetForegroundWindow()
     {

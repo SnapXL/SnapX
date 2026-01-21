@@ -31,6 +31,11 @@ public partial class LinuxAPI : NativeAPI
             && sessionVersion.Contains("gnome", StringComparison.OrdinalIgnoreCase);
     }
 
+    public override Rectangle GetWindowRectangle(WindowInfo window)
+    {
+        return GetWindowRectangleX11(window.Handle);
+    }
+
     public override Rectangle GetWindowRectangle(IntPtr windowHandle)
     {
         return GetWindowRectangleX11(windowHandle);
