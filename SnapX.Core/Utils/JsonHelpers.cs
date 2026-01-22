@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -32,8 +31,7 @@ public static class JsonHelpers
         WriteIndented = true
     };
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
+
     public static void Serialize<T>(T obj, TextWriter textWriter, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
@@ -44,8 +42,7 @@ public static class JsonHelpers
         textWriter.Write(Encoding.UTF8.GetString(memoryStream.ToArray()));
     }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
+
     public static string SerializeToString<T>(T obj, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
@@ -53,7 +50,6 @@ public static class JsonHelpers
         return JsonSerializer.Serialize(obj, options);
     }
 
-    [RequiresUnreferencedCode("Uploader")]
     public static void SerializeToStream<T>(T obj, Stream stream, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
@@ -62,7 +58,6 @@ public static class JsonHelpers
         JsonSerializer.Serialize(stream, obj, options);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static MemoryStream SerializeToMemoryStream<T>(T obj, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
@@ -71,7 +66,6 @@ public static class JsonHelpers
         return memoryStream;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static void SerializeToFile<T>(T obj, string filePath, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
@@ -84,7 +78,6 @@ public static class JsonHelpers
         SerializeToStream(obj, fileStream, options);
     }
 
-    [RequiresUnreferencedCode("Uploader")]
     public static T Deserialize<T>(TextReader textReader, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
@@ -94,13 +87,11 @@ public static class JsonHelpers
         return JsonSerializer.Deserialize<T>(json, options);
     }
 
-    [RequiresUnreferencedCode("Uploader")]
     public static T DeserializeFromString<T>(string? json, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
         return !string.IsNullOrEmpty(json) ? JsonSerializer.Deserialize<T>(json, options) : default;
     }
-    [RequiresUnreferencedCode("Uploader")]
     public static T DeserializeFromStream<T>(Stream stream, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
@@ -109,7 +100,6 @@ public static class JsonHelpers
         return JsonSerializer.Deserialize<T>(stream, options);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static T DeserializeFromFile<T>(string? filePath, JsonSerializerOptions? options = null)
     {
         options ??= defaultOptions;
