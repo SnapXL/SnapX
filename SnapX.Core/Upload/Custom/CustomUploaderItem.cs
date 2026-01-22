@@ -43,7 +43,17 @@ public class CustomUploaderItem : INotifyPropertyChanged
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     [DefaultValue(CustomUploaderDestinationType.None)]
-    public CustomUploaderDestinationType DestinationType { get; set; }
+    public CustomUploaderDestinationType DestinationType
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+            field = value;
+            OnPropertyChanged(nameof(DestinationType));
+        }
+    } = CustomUploaderDestinationType.None;
 
     [JsonConverter(typeof(HttpMethodConverter))]
     [TypeConverter(typeof(HttpMethodTypeConverter))]
