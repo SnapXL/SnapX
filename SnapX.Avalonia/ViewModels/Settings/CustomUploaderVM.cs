@@ -1,16 +1,19 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
+using System.Text.RegularExpressions;
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using DotNext.Threading;
 using FluentAvalonia.UI.Controls;
+using SnapX.Avalonia.Views.Settings;
 using SnapX.Avalonia.Views.Settings.Views;
 using SnapX.Core;
 using SnapX.Core.Job;
@@ -25,12 +28,46 @@ using SnapX.Core.Upload.URL;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
+using HttpClientFactory = SnapX.Core.Utils.Miscellaneous.HttpClientFactory;
 
 namespace SnapX.Avalonia.ViewModels;
 
 public partial class CustomUploaderVM : ViewModelBase
 {
+    private readonly AsyncLock _collectionLock = new();
+    private bool _isDisposed;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsUiEnabled))]
+    private bool _isInitializing = true;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsUiEnabled))]
+    private bool _isLoading = true;
+
+    [ObservableProperty] private CustomUploaderItem? _selectedFileUploader;
+
+    [ObservableProperty] private CustomUploaderItem? _selectedImageUploader;
+
+    [ObservableProperty] private CustomUploaderItem? _selectedSharingUploader;
+
+    [ObservableProperty] private CustomUploaderItem? _selectedShortenerUploader;
+
+    [ObservableProperty] private CustomUploaderItem? _selectedTextUploader;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DynamicWatermark))]
+    [NotifyPropertyChangedFor(nameof(IsEmpty))]
+    private CustomUploaderItem? selectedUploader;
+
+    public CustomUploaderVM()
+    {
+        IsInitializing = true;
+        IsLoading = true;
+        var UploadersConfig = App.SnapX.GetUploadersConfig();
+        UploadersConfig.SettingsSaved += UploadersConfig_SettingsSaved;
+    }
+
     public ObservableCollection<CustomUploaderItem> Uploaders { get; } = new();
+
     public IEnumerable<CustomUploaderItem> ImageUploaders =>
         Uploaders.Where(x =>
             x.DestinationType.HasFlag(CustomUploaderDestinationType.ImageUploader)
@@ -50,33 +87,15 @@ public partial class CustomUploaderVM : ViewModelBase
             x.DestinationType.HasFlag(CustomUploaderDestinationType.URLSharingService)
         );
 
-    [ObservableProperty]
-    private CustomUploaderItem? _selectedImageUploader;
-
-    [ObservableProperty]
-    private CustomUploaderItem? _selectedFileUploader;
-
-    [ObservableProperty]
-    private CustomUploaderItem? _selectedTextUploader;
-
-    [ObservableProperty]
-    private CustomUploaderItem? _selectedShortenerUploader;
-
-    [ObservableProperty]
-    private CustomUploaderItem? _selectedSharingUploader;
-    private readonly AsyncLock _collectionLock = new();
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DynamicWatermark))]
-    [NotifyPropertyChangedFor(nameof(IsEmpty))]
-    private CustomUploaderItem? selectedUploader;
     public bool IsEmpty => Uploaders.Count == 0;
 
     public CustomUploaderDestinationType[] AllDestinationTypes { get; } =
         Enum.GetValues<CustomUploaderDestinationType>()
             .Where(t => t != CustomUploaderDestinationType.None)
             .ToArray();
+
     public CustomUploaderBody[] AllBodyTypes { get; } = Enum.GetValues<CustomUploaderBody>();
+
     public HttpMethod[] AllHttpMethods { get; } =
     [
         HttpMethod.Get,
@@ -87,16 +106,15 @@ public partial class CustomUploaderVM : ViewModelBase
         HttpMethod.Head,
         HttpMethod.Options,
         HttpMethod.Trace,
-        HttpMethod.Connect,
+        HttpMethod.Connect
     ];
 
-    public CustomUploaderVM()
-    {
-        IsInitializing = true;
-        IsLoading = true;
-        var UploadersConfig = App.SnapX.GetUploadersConfig();
-        UploadersConfig.SettingsSaved += UploadersConfig_SettingsSaved;
-    }
+    public bool IsUiEnabled => !IsLoading && !IsInitializing;
+
+    public string DynamicWatermark =>
+        !string.IsNullOrWhiteSpace(SelectedUploader?.RequestURL)
+            ? URLHelpers.GetHostName(SelectedUploader.RequestURL)
+            : "Name";
 
     [RelayCommand]
     private async Task OpenCatalog()
@@ -110,7 +128,7 @@ public partial class CustomUploaderVM : ViewModelBase
             Content = new CustomUploaderCatalogView(vm) { DataContext = vm },
             PrimaryButtonText = "Import Selected",
             CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Primary,
+            DefaultButton = ContentDialogButton.Primary
         };
 
         var result = await dialog.ShowAsync();
@@ -132,6 +150,7 @@ public partial class CustomUploaderVM : ViewModelBase
             {
                 TaskHelpers.ImportCustomUploaderJson(validJson);
             }
+
             IsLoading = false;
             TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
 
@@ -143,7 +162,7 @@ public partial class CustomUploaderVM : ViewModelBase
     {
         try
         {
-            var client = Core.Utils.Miscellaneous.HttpClientFactory.Get();
+            var client = HttpClientFactory.Get();
             return await client.GetStringAsync(url);
         }
         catch (Exception ex)
@@ -153,17 +172,6 @@ public partial class CustomUploaderVM : ViewModelBase
             return null;
         }
     }
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsUiEnabled))]
-    private bool _isInitializing = true;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsUiEnabled))]
-    private bool _isLoading = true;
-
-    public bool IsUiEnabled => !IsLoading && !IsInitializing;
-    private bool _isDisposed;
 
     async partial void OnSelectedUploaderChanged(
         CustomUploaderItem? oldValue,
@@ -200,6 +208,7 @@ public partial class CustomUploaderVM : ViewModelBase
                     );
                     Uploaders.Add(uploader);
                 }
+
                 Uploaders.CollectionChanged += OnUploadersChanged;
                 OnPropertyChanged(nameof(ImageUploaders));
                 OnPropertyChanged(nameof(FileUploaders));
@@ -231,47 +240,48 @@ public partial class CustomUploaderVM : ViewModelBase
         }
     }
 
+    // ReSharper disable once AsyncVoidEventHandlerMethod
     private async void OnUploadersChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (_isDisposed)
             return;
-        using (await _collectionLock.AcquireAsync(new CancellationToken()))
+        using (await _collectionLock.AcquireAsync(CancellationToken.None))
         {
             var configList = App.SnapX.GetUploadersConfig().CustomUploadersList;
             DebugHelper.Logger?.Debug(
                 "CustomUploaderVM: Uploaders collection change: "
-                    + e.Action.ToString()
-                    + "\n\n"
-                    + e.NewItems?.Count
-                    + " new items, "
-                    + e.OldItems?.Count
-                    + " old items."
+                + e.Action
+                + "\n\n"
+                + e.NewItems?.Count
+                + " new items, "
+                + e.OldItems?.Count
+                + " old items."
             );
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewItems != null)
                     {
-                        int insertIndex =
+                        var insertIndex =
                             e.NewStartingIndex >= 0 && e.NewStartingIndex <= configList.Count
                                 ? e.NewStartingIndex
                                 : configList.Count;
 
-                        for (int i = 0; i < e.NewItems.Count; i++)
+                        for (var i = 0; i < e.NewItems.Count; i++)
                         {
                             configList.Insert(insertIndex + i, (CustomUploaderItem)e.NewItems[i]!);
                         }
                     }
+
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
                     if (
-                        e.OldItems != null
-                        && e.OldStartingIndex >= 0
+                        e is { OldItems: not null, OldStartingIndex: >= 0 }
                         && e.OldStartingIndex < configList.Count
                     )
                     {
-                        for (int i = 0; i < e.OldItems.Count; i++)
+                        for (var i = 0; i < e.OldItems.Count; i++)
                         {
                             if (configList.Count > e.OldStartingIndex)
                             {
@@ -279,17 +289,17 @@ public partial class CustomUploaderVM : ViewModelBase
                             }
                         }
                     }
+
                     break;
 
                 case NotifyCollectionChangedAction.Replace:
                     if (
                         e.NewItems != null
-                        && e.OldItems != null
-                        && e.OldStartingIndex >= 0
+                        && e is { OldItems: not null, OldStartingIndex: >= 0 }
                         && e.OldStartingIndex < configList.Count
                     )
                     {
-                        for (int i = 0; i < e.NewItems.Count; i++)
+                        for (var i = 0; i < e.NewItems.Count; i++)
                         {
                             if (e.OldStartingIndex + i < configList.Count)
                             {
@@ -298,12 +308,12 @@ public partial class CustomUploaderVM : ViewModelBase
                             }
                         }
                     }
+
                     break;
 
                 case NotifyCollectionChangedAction.Move:
                     if (
-                        e.OldItems != null
-                        && e.OldStartingIndex >= 0
+                        e is { OldItems: not null, OldStartingIndex: >= 0 }
                         && e.OldStartingIndex < configList.Count
                     )
                     {
@@ -314,14 +324,13 @@ public partial class CustomUploaderVM : ViewModelBase
                             configList.Insert(e.NewStartingIndex, movedItem);
                         }
                     }
+
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
                     configList.Clear();
-                    foreach (var item in Uploaders)
-                    {
-                        configList.Add(item);
-                    }
+                    configList.AddRange(Uploaders);
+
                     break;
             }
         }
@@ -337,11 +346,12 @@ public partial class CustomUploaderVM : ViewModelBase
                 DebugHelper.WriteLine("CustomUploaderVM already initialized.");
                 return;
             }
+
             await PropagateData(cts);
             var targetIndex = UploadersConfig.CustomImageUploaderSelected;
 
             SelectedUploader =
-                (targetIndex >= 0 && targetIndex < Uploaders.Count)
+                targetIndex >= 0 && targetIndex < Uploaders.Count
                     ? Uploaders[targetIndex]
                     : Uploaders.FirstOrDefault();
             IsInitializing = false;
@@ -358,10 +368,10 @@ public partial class CustomUploaderVM : ViewModelBase
                     Text =
                         $"Failed to initialize CustomUploadersVM.\nYou will not be able to interact with this view without a reload.\nDetails: {e}",
                     TextWrapping = TextWrapping.Wrap,
-                    MaxWidth = 400,
+                    MaxWidth = 400
                 },
                 PrimaryButtonText = "Copy",
-                CloseButtonText = "Close",
+                CloseButtonText = "Close"
             };
             IsInitializing = false;
             // Prevent UI from being usable in this state
@@ -376,7 +386,6 @@ public partial class CustomUploaderVM : ViewModelBase
                 );
                 await topLevel?.Clipboard?.SetTextAsync(e.ToString());
             }
-            return;
         }
     }
 
@@ -447,6 +456,7 @@ public partial class CustomUploaderVM : ViewModelBase
         }
     }
 
+    // ReSharper disable once AsyncVoidMethod
     private async void UploadersConfig_SettingsSaved(
         UploadersConfig settings,
         string filePath,
@@ -462,9 +472,11 @@ public partial class CustomUploaderVM : ViewModelBase
     [RelayCommand]
     private void AddUploader()
     {
-        var newItem = new CustomUploaderItem();
-        newItem.Headers = [];
-        newItem.Parameters = [];
+        var newItem = new CustomUploaderItem
+        {
+            Headers = [],
+            Parameters = []
+        };
         Uploaders.Add(newItem);
         SelectedUploader = newItem;
     }
@@ -483,7 +495,7 @@ public partial class CustomUploaderVM : ViewModelBase
             DebugHelper.Logger?.Error("Failed to get top-level window for file picker.");
             return;
         }
-        // 2. Open the file picker
+
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(
             new FilePickerOpenOptions
             {
@@ -494,9 +506,9 @@ public partial class CustomUploaderVM : ViewModelBase
                     new FilePickerFileType("SnapX/ShareX Custom Uploader")
                     {
                         Patterns = ["*.sxcu"],
-                        MimeTypes = ["application/json"],
-                    },
-                ],
+                        MimeTypes = ["application/json"]
+                    }
+                ]
             }
         );
         if (files.Count == 0)
@@ -504,12 +516,14 @@ public partial class CustomUploaderVM : ViewModelBase
             DebugHelper.WriteLine("No files selected for import.");
             return;
         }
+
         try
         {
             foreach (var file in files)
             {
                 DebugHelper.WriteLine("Selected file for import: " + file.Path.LocalPath);
             }
+
             IsLoading = true;
             TaskHelpers.ImportCustomUploader(files.Select(f => f.Path.LocalPath));
             IsLoading = false;
@@ -526,12 +540,11 @@ public partial class CustomUploaderVM : ViewModelBase
                 {
                     Text = $"Failed to import uploader(s). Details:\n{ex.Message}",
                     TextWrapping = TextWrapping.Wrap,
-                    MaxWidth = 400,
+                    MaxWidth = 400
                 },
-                CloseButtonText = "Close",
+                CloseButtonText = "Close"
             };
             await dialog.ShowAsync();
-            return;
         }
         finally
         {
@@ -542,7 +555,7 @@ public partial class CustomUploaderVM : ViewModelBase
     [RelayCommand]
     private async Task ExportUploader(CustomUploaderItem item)
     {
-        await InternalExportLogic(item, null);
+        await InternalExportLogic(item);
     }
 
     private async Task InternalExportLogic(CustomUploaderItem item, string? filePath = null)
@@ -554,12 +567,13 @@ public partial class CustomUploaderVM : ViewModelBase
             {
                 Title = "Invalid Uploader",
                 Content = "This uploader cannot be exported because the Request URL is empty.",
-                CloseButtonText = "OK",
+                CloseButtonText = "OK"
             };
 
             await dialog.ShowAsync();
             return;
         }
+
         if (item.DestinationType == CustomUploaderDestinationType.None)
         {
             DebugHelper.Logger?.Error("Cannot export uploader with None destination type.");
@@ -568,12 +582,13 @@ public partial class CustomUploaderVM : ViewModelBase
                 Title = "Invalid Uploader",
                 Content =
                     "This uploader cannot be exported because the Destination Type is not yet configured.",
-                CloseButtonText = "OK",
+                CloseButtonText = "OK"
             };
 
             await dialog.ShowAsync();
             return;
         }
+
         if (filePath == null)
         {
             var topLevel = TopLevel.GetTopLevel(
@@ -587,6 +602,7 @@ public partial class CustomUploaderVM : ViewModelBase
                 DebugHelper.Logger?.Error("Failed to get top-level window for file picker.");
                 return;
             }
+
             var file = await topLevel.StorageProvider.SaveFilePickerAsync(
                 new FilePickerSaveOptions
                 {
@@ -598,9 +614,9 @@ public partial class CustomUploaderVM : ViewModelBase
                         new FilePickerFileType("SnapX/ShareX Custom Uploader")
                         {
                             Patterns = ["*.sxcu"],
-                            MimeTypes = ["application/json"],
-                        },
-                    ],
+                            MimeTypes = ["application/json"]
+                        }
+                    ]
                 }
             );
 
@@ -609,6 +625,7 @@ public partial class CustomUploaderVM : ViewModelBase
                 filePath = file.Path.LocalPath;
             }
         }
+
         try
         {
             JsonHelpers.SerializeToFile(item, filePath);
@@ -623,24 +640,23 @@ public partial class CustomUploaderVM : ViewModelBase
                 {
                     Text = $"Failed to export. Details:\n{e.Message}",
                     TextWrapping = TextWrapping.Wrap,
-                    MaxWidth = 400,
+                    MaxWidth = 400
                 },
-                CloseButtonText = "Close",
+                CloseButtonText = "Close"
             };
             await dialog.ShowAsync();
-            return;
         }
     }
 
     [RelayCommand]
     private void ToggleDestinationType(CustomUploaderDestinationType flag)
     {
-        DebugHelper.WriteLine("Toggling destination type: " + flag.ToString());
+        DebugHelper.WriteLine("Toggling destination type: " + flag);
         if (SelectedUploader == null)
             return;
 
         SelectedUploader.DestinationType ^= flag;
-
+        OnPropertyChanged(nameof(SelectedUploader.DestinationType));
         OnPropertyChanged(nameof(SelectedUploader));
         OnPropertyChanged(nameof(ImageUploaders));
         OnPropertyChanged(nameof(FileUploaders));
@@ -649,100 +665,219 @@ public partial class CustomUploaderVM : ViewModelBase
         OnPropertyChanged(nameof(SharingUploaders));
     }
 
-    public string DynamicWatermark =>
-        !string.IsNullOrWhiteSpace(SelectedUploader?.RequestURL)
-            ? URLHelpers.GetHostName(SelectedUploader.RequestURL)
-            : "Name";
-
     public bool IsTypeSelected(CustomUploaderDestinationType flag)
     {
-        DebugHelper.WriteLine("Checking if type is selected: " + flag.ToString());
+        DebugHelper.WriteLine("Checking if type is selected: " + flag);
         return SelectedUploader?.DestinationType.HasFlag(flag) ?? false;
     }
 
     [RelayCommand]
     private async Task TestUploader(CustomUploaderItem item)
     {
-        var type = item.DestinationType;
-        UploadResult result = new UploadResult();
-        DebugHelper.WriteLine($"Testing {item.Name ?? item.GetFileName()} ({type})");
-        // Doing requests on the UI thread can cause freezes, so run in background
-        await Task.Run(() =>
+        var DestinationType = item.DestinationType;
+        var testSummary = new List<(CustomUploaderDestinationType Type, UploadResult Result)>();
+        DebugHelper.WriteLine($"Testing {item.Name ?? item.GetFileName()} ({DestinationType})");
+        WeakReferenceMessenger.Default.Send(
+            new NotificationMessage("Test Started", "Bombs away!", NotificationType.Information)
+        );
+
+        try
         {
-            try
+            var flags = Enum.GetValues<CustomUploaderDestinationType>()
+                .Where(f =>
+                    item.DestinationType.HasFlag(f) && f != CustomUploaderDestinationType.None
+                );
+
+            foreach (var type in flags)
             {
-                var flags = Enum.GetValues<CustomUploaderDestinationType>()
-                    .Where(f =>
-                        item.DestinationType.HasFlag(f) && f != CustomUploaderDestinationType.None
-                    );
-
-                foreach (var type in flags)
+                UploadResult? result = null;
+                switch (type)
                 {
-                    switch (type)
+                    case CustomUploaderDestinationType.ImageUploader:
                     {
-                        case CustomUploaderDestinationType.ImageUploader:
+                        var imageUploader = new CustomImageUploader(item);
+                        await using var logo = Resources.LogoStream;
+                        result = await Task.Run(() => imageUploader.Upload(logo, "Test.png"));
+                        result.Errors.Add(imageUploader.Errors);
+                        break;
+                    }
+                    case CustomUploaderDestinationType.TextUploader:
+                    {
+                        var textUploader = new CustomTextUploader(item);
+                        var textBox = new TextBox
+                        {
+                            AcceptsReturn = true,
+                            TextWrapping = TextWrapping.Wrap,
+                            Height = 200,
+                            Text = "This is a test text upload from SnapX!",
+                            Watermark = "Enter text to upload..."
+                        };
 
-                            CustomImageUploader imageUploader = new CustomImageUploader(item);
-                            imageUploader.Upload(Resources.LogoStream, "Test.png");
-                            result.Errors.Add(imageUploader.Errors);
-                            break;
-                        case CustomUploaderDestinationType.TextUploader:
-                            CustomTextUploader textUploader = new CustomTextUploader(item);
-                            textUploader.UploadText(
-                                "This is a test text upload from SnapX!",
-                                "Test.txt"
-                            );
-                            result.Errors.Add(textUploader.Errors);
+                        var TextUploadDialog = new ContentDialog
+                        {
+                            Title = "SnapX text upload test",
+                            Content = textBox,
+                            PrimaryButtonText = "OK",
+                            CloseButtonText = "Cancel",
+                            DefaultButton = ContentDialogButton.Primary
+                        };
 
-                            break;
-                        case CustomUploaderDestinationType.FileUploader:
+                        var dialogResult = await TextUploadDialog.ShowAsync();
 
-                            CustomFileUploader fileUploader = new CustomFileUploader(item);
-                            fileUploader.Upload(Resources.LogoStream, "Test.png");
-                            result.Errors.Add(fileUploader.Errors);
-                            break;
-                        case CustomUploaderDestinationType.URLShortener:
-                            CustomURLShortener urlShortener = new CustomURLShortener(item);
-                            urlShortener.ShortenURL(Links.Website);
-                            result.Errors.Add(urlShortener.Errors);
-                            break;
-                        case CustomUploaderDestinationType.URLSharingService:
-                            CustomURLSharer urlSharer = new CustomURLSharer(item);
-                            urlSharer.ShareURL(Links.Website);
-                            result.Errors.Add(urlSharer.Errors);
-                            break;
+                        if (dialogResult == ContentDialogResult.Primary)
+                        {
+                            var text = textBox.Text;
+
+                            if (!string.IsNullOrEmpty(text))
+                            {
+                                result = await Task.Run(() => textUploader.UploadText(text, "Test.txt"));
+                                result.Errors.Add(textUploader.Errors);
+                            }
+                        }
+
+                        break;
+                    }
+                    case CustomUploaderDestinationType.FileUploader:
+                    {
+                        var fileUploader = new CustomFileUploader(item);
+                        await using var logo = Resources.LogoStream;
+                        result = await Task.Run(() => fileUploader.Upload(logo, "Test.png"));
+                        result.Errors.Add(fileUploader.Errors);
+
+                        break;
+                    }
+                    case CustomUploaderDestinationType.URLShortener:
+                    {
+                        var urlShortener = new CustomURLShortener(item);
+                        result = await Task.Run(() => urlShortener.ShortenURL(Links.Website));
+                        result.Errors.Add(urlShortener.Errors);
+                        break;
+                    }
+                    case CustomUploaderDestinationType.URLSharingService:
+                    {
+                        var urlSharer = new CustomURLSharer(item);
+                        result = await Task.Run(() => urlSharer.ShareURL(Links.Website));
+                        result.Errors.Add(urlSharer.Errors);
+                        break;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                result.Errors.Add(e.Message);
-                // Do not use WriteException to avoid sending data to Sentry
-                DebugHelper.Logger?.Error("Error during test upload: " + e.ToString());
-            }
-        });
-        if (result?.Errors.Count != 0)
-        {
-            TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Error);
 
-            var dialog = new ContentDialog
-            {
-                Title = "Test Upload Errors",
-                Content = new ScrollViewer
+                if (result is not null)
                 {
-                    MaxHeight = 300,
-                    Content = new SelectableTextBlock
-                    {
-                        Text = result?.Errors.ToString(),
-                        TextWrapping = TextWrapping.Wrap,
-                        MaxWidth = 450,
-                    },
-                },
-                CloseButtonText = "Close",
-                DefaultButton = ContentDialogButton.Close,
-            };
-            await dialog.ShowAsync();
+                    testSummary.Add((type, result));
+                }
+            }
         }
+        catch (Exception e)
+        {
+            var result = testSummary.LastOrDefault();
+            result.Result.Errors.Add(e.Message);
+            // Do not use WriteException to avoid sending data to Sentry
+            DebugHelper.Logger?.Error("Error during test upload: " + e);
+        }
+
+        await ShowDetailedSummary(testSummary);
+    }
+
+    private async Task ShowDetailedSummary(List<(CustomUploaderDestinationType Type, UploadResult Result)> summary)
+    {
+        var mainStack = new StackPanel { Spacing = 12, Width = 450 };
+
+        foreach (var (type, res) in summary)
+        {
+            var isSuccess = res.IsSuccess;
+
+            var sectionStack = new StackPanel { Spacing = 4 };
+
+            var headerStack = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+            headerStack.Children.Add(new SymbolIcon
+            {
+                Symbol = isSuccess ? Symbol.Checkmark : Symbol.Dismiss,
+                Foreground = isSuccess ? Brushes.LightGreen : Brushes.OrangeRed,
+                FontSize = 18
+            });
+            headerStack.Children.Add(new TextBlock
+            {
+                Text = type.ToString(),
+                FontWeight = FontWeight.SemiBold,
+                VerticalAlignment = VerticalAlignment.Center
+            });
+
+            sectionStack.Children.Add(headerStack);
+
+            var infoBorder = new Border
+            {
+                Padding = new Thickness(12, 8),
+                Background = new SolidColorBrush(Color.Parse("#1aFFFFFF")),
+                CornerRadius = new CornerRadius(4),
+                Child = CreateResultDetailGrid(res, isSuccess)
+            };
+
+            sectionStack.Children.Add(infoBorder);
+            mainStack.Children.Add(sectionStack);
+
+            if (!isSuccess)
+            {
+                WeakReferenceMessenger.Default.Send(new NotificationMessage("Test Upload Fail",
+                    "Sometimes, success means being the first to fail.", NotificationType.Error));
+                TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Error);
+            }
+            else
+            {
+                WeakReferenceMessenger.Default.Send(new NotificationMessage("Successful", "Upload complete.",
+                    NotificationType.Success));
+                TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
+            }
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Test Upload Summary",
+            Content = new ScrollViewer { MaxHeight = 600, Content = mainStack },
+            CloseButtonText = "Close",
+            DefaultButton = ContentDialogButton.Close
+        };
+
+        await dialog.ShowAsync();
+    }
+
+    private Control CreateResultDetailGrid(UploadResult res, bool isSuccess)
+    {
+        var stack = new StackPanel { Spacing = 2 };
+
+        if (!isSuccess)
+        {
+            if (res.ResponseInfo is not null) AddDetailRow(stack, "ResponseText", res.ResponseInfo.ResponseText);
+            AddDetailRow(stack, "Errors", res.Errors.ToString());
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(res.URL)) AddDetailRow(stack, "URL", res.URL);
+            if (!string.IsNullOrEmpty(res.ThumbnailURL)) AddDetailRow(stack, "Thumbnail", res.ThumbnailURL);
+            if (!string.IsNullOrEmpty(res.DeletionURL)) AddDetailRow(stack, "Deletion", res.DeletionURL);
+            if (res.ResponseInfo is not null) AddDetailRow(stack, "Response", res.ResponseInfo.ResponseText);
+        }
+
+        return stack;
+    }
+
+    private void AddDetailRow(StackPanel parent, string label, string value)
+    {
+        var panel = new DockPanel { LastChildFill = true };
+        panel.Children.Add(new TextBlock
+        {
+            Text = $"{label}: ",
+            Width = 85,
+            Opacity = 0.6,
+            FontSize = 12
+        });
+        panel.Children.Add(new SelectableTextBlock
+        {
+            Text = value,
+            TextWrapping = TextWrapping.Wrap,
+            FontSize = 12
+        });
+        parent.Children.Add(panel);
     }
 
     [RelayCommand]
@@ -778,7 +913,7 @@ public partial class CustomUploaderVM : ViewModelBase
     [RelayCommand]
     private void DuplicateUploader(CustomUploaderItem uploader)
     {
-        string originalName =
+        var originalName =
             uploader.Name ?? URLHelpers.GetHostName(uploader?.RequestURL) ?? "Custom Uploader";
 
         var match = CopyNameRegex().Match(originalName);
@@ -796,6 +931,7 @@ public partial class CustomUploaderVM : ViewModelBase
             newName = $"{baseNameWithCopy} ({counter})";
             counter++;
         }
+
         var json = JsonHelpers.SerializeToString(uploader);
         var newItem = JsonHelpers.DeserializeFromString<CustomUploaderItem>(json);
         newItem.Name = newName;
@@ -833,6 +969,14 @@ public partial class CustomUploaderVM : ViewModelBase
         SelectedUploader.Arguments.Add("", "");
     }
 
+    [RelayCommand]
+    private async Task OpenUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+            return;
+        URLHelpers.OpenURL(url);
+    }
+
     public void Cleanup()
     {
         if (_isDisposed)
@@ -844,6 +988,6 @@ public partial class CustomUploaderVM : ViewModelBase
         // Uploaders.CollectionChanged -= OnUploadersChanged;
     }
 
-    [System.Text.RegularExpressions.GeneratedRegex(@"(.+?)(?: - Copy(?: \(\d+\))?)$")]
-    private static partial System.Text.RegularExpressions.Regex CopyNameRegex();
+    [GeneratedRegex(@"(.+?)(?: - Copy(?: \(\d+\))?)$")]
+    private static partial Regex CopyNameRegex();
 }
