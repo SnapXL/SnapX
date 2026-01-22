@@ -55,13 +55,12 @@ public partial class OCR : AppWindow
     private async Task RunOCRAsync(string languageCode)
     {
         DebugHelper.WriteLine($"{nameof(RunOCRAsync)} triggered");
-        var textBox = this.FindControl<TextBox>("ResultText")!;
-        textBox.Text = Lang.Processing;
+        ResultText?.Text = Lang.Processing;
         LanguageSelector?.IsEnabled = false;
 
         var progressHandler = new Progress<OCRProgress>(update =>
         {
-            textBox.Text = $"[{update.Percent}%] {update.Status}";
+            ResultText?.Text = $"[{update.Percent}%] {update.Status}";
         });
         string result = string.Empty;
         try
@@ -71,15 +70,16 @@ public partial class OCR : AppWindow
             {
                 result = result.Replace("\r", "").Replace("\n", "");
             }
-            textBox.Text = result;
+            ResultText?.Text = result;
         }
         catch (Exception ex)
         {
-            textBox.Text = ex.ToString();
+            ResultText?.Text = ex.ToString();
         }
         finally
         {
             LanguageSelector?.IsEnabled = true;
+            ResultText?.IsReadOnly = false;
         }
     }
 
