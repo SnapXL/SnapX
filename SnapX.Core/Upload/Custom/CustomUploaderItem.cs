@@ -148,7 +148,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
     //     };
     // }
 
-    public override string? ToString()
+    public override string ToString()
     {
         if (!string.IsNullOrEmpty(Name))
         {
@@ -165,9 +165,28 @@ public class CustomUploaderItem : INotifyPropertyChanged
         return "Name";
     }
 
+    private static readonly string[] Protocols =
+    [
+        "https://", "http://", "ftp://", "sftp://", "ftps://",
+        "smb://", "afp://", "nfs://", "ssh://", "dav://", "davs://"
+    ];
     public string GetFileName()
     {
-        return ToString() + ".sxcu";
+        var name = ToString();
+
+        foreach (var protocol in Protocols)
+        {
+            var index = name.IndexOf(protocol, StringComparison.OrdinalIgnoreCase);
+            if (index != -1)
+            {
+                name = name.Remove(index, protocol.Length);
+            }
+        }
+
+        var invalid = Path.GetInvalidFileNameChars();
+        name = invalid.Aggregate(name, (current, c) => current.Replace(c, '_'));
+
+        return name + ".sxcu";
     }
 
     public string? GetRequestURL(CustomUploaderInput input)
