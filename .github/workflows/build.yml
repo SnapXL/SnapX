@@ -430,6 +430,7 @@ jobs:
         run: |
           flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet10//25.08
+          sudo ln -s $HOME/.local/share/flatpak/runtime/org.freedesktop.Sdk.Extension.dotnet10/x86_64/25.08/active/files/lib/dotnet /usr/local/bin/dotnet
           dotnet tool install --global Nickvision.FlatpakGenerator
           Nickvision.FlatpakGenerator generate -i SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json --destination-name vendor -s false -u
           ./packaging/flathub/update_hashes.sh # Script to fix possible bug in FlatpakGenerator that affects Avalonia
