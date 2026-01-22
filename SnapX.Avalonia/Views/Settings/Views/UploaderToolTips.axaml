@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SnapX.Avalonia.Views.Settings.Views.UploaderToolTips">
+
+      <StackPanel Spacing="2">
+          <TextBlock FontWeight="Bold" Text="Available Placeholders:" Foreground="{DynamicResource SystemAccentColor}"/>
+          <TextBlock xml:space="preserve" FontSize="12">
+  <Run FontWeight="Bold">{response}</Run> — Response text
+  <Run FontWeight="Bold">{responseurl}</Run> — Response/Redirection URL
+  <Run FontWeight="Bold">{header:name}</Run> — Response header
+  <Run FontWeight="Bold">{json:path}</Run> — Parse JSON via JSONPath
+  <Run FontWeight="Bold">{xml:path}</Run> — Parse XML via XPath
+  <Run FontWeight="Bold">{regex:pattern|group}</Run> — Parse via Regex
+  <Run FontWeight="Bold">{filename}</Run> — Original file name
+  <Run FontWeight="Bold">{random:a|b}</Run> — Random selection
+  <Run FontWeight="Bold">{base64:input}</Run> — Base64 encode</TextBlock>
+      </StackPanel>
+        <!-- These are not implemented by my UI frontends yet. -->
+          <!-- <Run FontWeight="Bold">{select:a|b}</Run> — User selection -->
+  <!-- <Run FontWeight="Bold">{inputbox:title|default}</Run> — Prompt user
+  <Run FontWeight="Bold">{outputbox:title|text}</Run> — Show output -->
+</UserControl>
