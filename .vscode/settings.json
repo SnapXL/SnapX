@@ -1,0 +1,31 @@
+{
+  "rust-analyzer.linkedProjects": ["SnapX.Core/ScreenCapture/Rust/Cargo.toml"],
+  "search.exclude": {
+    "**/.flatpak-builder": true,
+    "**/flatpak-builder": true,
+    "**/repo": true,
+    "**/export": true,
+    "**/builddir/**": true,
+    "**/bin/**": true,
+    "**/obj/**": true
+  },
+  "files.exclude": {
+    "**/.flatpak-builder": true,
+    "**/flatpak-builder": true,
+    "**/repo": true,
+    "**/export": true,
+    "**/builddir/**": true,
+    "**/bin/**": true,
+    "**/obj/**": true
+  },
+  "files.watcherExclude": {
+    "**/.flatpak-builder/**": true,
+    "**/flatpak-builder/**": true,
+    "**/repo/**": true,
+    "**/export/**": true,
+    "**/builddir/**": true,
+    "**/bin/**": true,
+    "**/obj/**": true
+  },
+  "cSpell.words": ["Avalonia", "Harf", "Mvvm", "Skia", "Vello"]
+}

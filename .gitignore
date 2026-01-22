@@ -39,7 +39,6 @@ bld/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
-.vscode/
 
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
@@ -349,7 +348,24 @@ paket-files/
 **/.fake/
 
 # JetBrains Rider
-.idea/
+.idea/**/*
+
+!.idea/**/
+
+!.idea/**/runConfigurations/
+!.idea/**/vcs.xml
+!.idea/**/indexLayout.xml
+!.idea/**/codeStyles/
+!.idea/**/encodings.xml
+!.idea/**/misc.xml
+!.idea/**/modules.xml
+!.idea/**/externalDependencies.xml
+
+# 4. Explicitly block high-churn/personal files regardless of nesting
+.idea/**/workspace.xml
+.idea/**/shelf/
+.idea/**/tasks.xml
+.idea/**/dictionaries/
 *.sln.iml
 
 # CodeRush
@@ -482,6 +498,7 @@ NSIS/Plugins/x86-unicode/
 *.tar.bz2
 *.tar.lz
 *.tar**
+*.zsync
 *.tgz
 *.7z
 *.run*

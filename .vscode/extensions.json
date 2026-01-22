@@ -1,0 +1,26 @@
+{
+    "recommendations": [
+        "mads-hartmann.bash-ide-vscode",
+        "rogalmic.bash-debug",
+        "shakram02.bash-beautify",
+        "aaron-bond.better-comments",
+        "jetbrains.resharper-code",
+        "streetsidesoftware.code-spell-checker",
+        "vivaxy.vscode-conventional-commits",
+        "csharpier.csharpier-vscode",
+        "me-dutour-mathieu.vscode-github-actions",
+        "digimezzo.jetbrains-rider-new-ui-theme",
+        "nico-castell.linux-desktop-file",
+        "davidanson.vscode-markdownlint",
+        "prateekmahendrakar.resxpress",
+        "rvsmartporting.rpm-spec-ext",
+        "zerotaskx.rust-extension-pack",
+        "dustypomerleau.rust-syntax",
+        "timonwong.shellcheck",
+        "alexcvzz.vscode-sqlite",
+        "gruntfuggly.todo-tree",
+        "istarwyh.writinghelper",
+        "dabbinavo.xamlstyler",
+        "redhat.vscode-yaml"
+    ]
+}
