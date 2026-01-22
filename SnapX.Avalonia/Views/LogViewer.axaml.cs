@@ -81,7 +81,7 @@ public partial class LogViewer : AppWindow
                 Foreground = GetBrushForLevel(logEvent.Level)
             });
 
-            _logTextBlock.Inlines.Add(new Run(Regex.Unescape(message)));
+            _logTextBlock.Inlines.Add(new Run(SafeUnescape(message)));
             _logTextBlock.Inlines.Add(new LineBreak());
 
             if (logEvent.Exception != null)
@@ -94,6 +94,17 @@ public partial class LogViewer : AppWindow
             }
             _lastDisplayedLogCount = DebugHelper.LogEvents.Count();
         }
+    }
+    private static string SafeUnescape(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+
+        return input
+            .Replace("\\\"", "\"")
+            .Replace("\\n", Environment.NewLine)
+            .Replace("\\t", "\t")
+            .Replace("\\r", "\r")
+            .Replace("\\\\", "\\");
     }
     private IBrush GetBrushForLevel(LogEventLevel level)
     {
