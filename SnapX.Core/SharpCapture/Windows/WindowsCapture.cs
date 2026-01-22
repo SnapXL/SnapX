@@ -12,6 +12,7 @@ using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
+using SnapX.Core.Utils.Native;
 using WinRT;
 
 
@@ -179,6 +180,8 @@ public class WindowsCapture : BaseCapture
 
         return device;
     }
+    public override async Task<Rectangle> GetScreen(Point pos) => Methods.NativeAPI.GetScreen(pos)?.Bounds ?? Rectangle.Empty;
+
     private static ID3D11Texture2D Texture2DFromSurface(IDirect3DSurface surface, ID3D11Device device, IntPtr captureHwnd)
     {
         DebugHelper.WriteLine("=== IDirect3DSurface ===");

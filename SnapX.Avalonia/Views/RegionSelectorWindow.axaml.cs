@@ -36,24 +36,50 @@ public partial class RegionSelectorWindow : Window
     {
         DataContext = vm;
         InitializeComponent();
+
         _selectionRect = this.FindControl<Rectangle>("SelectionRect");
         _infoBox = this.FindControl<TextBox>("InfoBox");
         _canvas = this.FindControl<Canvas>("Canvas");
 
-        // var workingArea = Screens.All
-        //     .Select(screen => screen.Bounds)
-        //     .Aggregate((acc, next) => acc.Union(next));
-        var (x, y, width, height) = Methods.GetActiveScreen().GetAwaiter().GetResult();
-        DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
-        Position = new PixelPoint(x, y);
-        // Width = width;
-        // height = width;
-        _canvas.Width = width;
-        _canvas.Height = height;
-        var viewBox = _canvas.Parent as Viewbox;
-        viewBox.Width = width;
-        viewBox.Height = height;
+        // Set initial state to invisible/minimized to prevent flicker
+        // until the async position logic finishes.
+        Opacity = 0;
+    }
+    protected override async void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
 
+        await SetupWindowBoundsAsync();
+
+        Opacity = 1;
+    }
+    private async Task SetupWindowBoundsAsync()
+    {
+        var bounds = await Task.Run(async() =>
+        {
+            var (x, y, width, height) = await Methods.GetActiveScreen();
+            DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
+
+            return new PixelRect(x, y, width, height);
+        });
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            Position = new PixelPoint(bounds.X, bounds.Y);
+            Width = bounds.Width;
+            Height = bounds.Height;
+
+            _canvas.Width = bounds.Width;
+            _canvas.Height = bounds.Height;
+
+            if (_canvas.Parent is Viewbox viewBox)
+            {
+                viewBox.Width = bounds.Width;
+                viewBox.Height = bounds.Height;
+            }
+
+            DebugHelper.WriteLine($"Selector Ready: {bounds.Width}x{bounds.Height} at {bounds.X},{bounds.Y}");
+        });
     }
     public RegionSelectorWindow() : this(new RegionSelectorViewModel()) { }
     private void OnPointerPressed(object? Sender, PointerPressedEventArgs E)

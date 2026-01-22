@@ -10,7 +10,9 @@ using SnapX.Core.Media;
 using SnapX.Core.Utils.Extensions;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.System.Memory;
+using Windows.Win32.UI.HiDpi;
 using Windows.Win32.UI.Shell;
 using Windows.Win32.UI.WindowsAndMessaging;
 
@@ -239,6 +241,77 @@ public class WindowsAPI : NativeAPI
 
         PInvoke.GetWindowRect(new HWND(hwnd), out RECT rect);
         return new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+    }
+
+    public override Screen? GetScreen(Point pos)
+    {
+        var pt = new System.Drawing.Point(pos.X, pos.Y);
+
+        // 2. Get the HMONITOR handle.
+        // MONITOR_DEFAULTTONEAREST ensures that even if the point is off-screen,
+        // it returns the closest monitor rather than null.
+        var hMonitor = PInvoke.MonitorFromPoint(pt, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
+
+        if (hMonitor == IntPtr.Zero)
+        {
+            return null;
+        }
+
+        unsafe
+        {
+            var info = new MONITORINFOEXW();
+            info.monitorInfo.cbSize = (uint)Marshal.SizeOf<MONITORINFOEXW>();
+
+            if (!PInvoke.GetMonitorInfo(hMonitor, (MONITORINFO*)&info)) return null;
+            var deviceName = info.szDevice.ToString();
+            var devMode = new DEVMODEW { dmSize = (ushort)sizeof(DEVMODEW) };
+            uint refreshRate = 0;
+            var orientation = ScreenOrientation.Landscape;
+            if (PInvoke.EnumDisplaySettings(deviceName, ENUM_DISPLAY_SETTINGS_MODE.ENUM_CURRENT_SETTINGS, ref devMode))
+            {
+                refreshRate = devMode.dmDisplayFrequency;
+                orientation = devMode.Anonymous1.Anonymous2.dmDisplayOrientation switch
+                {
+                    DEVMODE_DISPLAY_ORIENTATION.DMDO_90 => ScreenOrientation.Portrait,
+                    DEVMODE_DISPLAY_ORIENTATION.DMDO_270 => ScreenOrientation.Portrait,
+                    _ => ScreenOrientation.Landscape
+                };
+            }
+            PInvoke.GetDpiForMonitor(hMonitor, MONITOR_DPI_TYPE.MDT_EFFECTIVE_DPI, out var dpiX, out var _);
+            var scaleFactor = dpiX / 96.0;
+            var hdc = PInvoke.CreateDCW(null, deviceName, null, null);
+            double diagonalInches = 0;
+            if (!hdc.IsNull)
+            {
+                var widthMm = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.HORZSIZE);
+                var heightMm = PInvoke.GetDeviceCaps(hdc, GET_DEVICE_CAPS_INDEX.VERTSIZE);
+
+                var widthInches = widthMm / 25.4;
+                var heightInches = heightMm / 25.4;
+                diagonalInches = Math.Sqrt(Math.Pow(widthInches, 2) + Math.Pow(heightInches, 2));
+
+                PInvoke.DeleteDC(hdc);
+            }
+            return new Screen
+            {
+                Id = deviceName,
+                // Index = index, unknown
+                Name = deviceName,
+                Bounds = new Rectangle(
+                    info.monitorInfo.rcMonitor.left,
+                    info.monitorInfo.rcMonitor.top,
+                    info.monitorInfo.rcMonitor.right - info.monitorInfo.rcMonitor.left,
+                    info.monitorInfo.rcMonitor.bottom - info.monitorInfo.rcMonitor.top
+                ),
+                RefreshRate = refreshRate,
+                Orientation = orientation,
+                DPI = dpiX,
+                ScaleFactor = scaleFactor,
+                DiagonalSizeInches = Math.Round(diagonalInches, 1),
+                IsPrimary = (info.monitorInfo.dwFlags & PInvoke.MONITORINFOF_PRIMARY) != 0,
+                SessionType = SessionType.Windows
+            };
+        }
     }
 
     // Beginning of IntegrationHelper class being integrated into WindowsAPI class
