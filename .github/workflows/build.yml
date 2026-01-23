@@ -392,19 +392,21 @@ jobs:
   generate-sources:
     name: Generate Flatpak Sources (${{ matrix.arch }})
     runs-on: ${{ matrix.variant.runner }}
+    permissions:
+      contents: write
     strategy:
       matrix:
         variant:
-            - arch: x86_64
-              runner: ubuntu-24.04
-            - arch: aarch64
-              runner: ubuntu-24.04-arm
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
     outputs:
-      artifact-name: flatpak-sources-${{ matrix.arch }}
+      artifact-name: flatpak-sources-${{ matrix.variant.arch }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup dotnet
@@ -423,7 +425,7 @@ jobs:
       - name: 🌐 Upload Sources
         uses: actions/upload-artifact@v6
         with:
-          name: flatpak-sources-${{ matrix.arch }}
+          name: flatpak-sources-${{ matrix.variant.arch }}
           path: packaging/flathub/*.json
       - name: 📦 Commit Flatpak Sources
         if: ${{ runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
@@ -465,7 +467,7 @@ jobs:
           # remove Android library: about 7.8GB (host /usr/local/lib/android)
           rm -rf /host/usr/local/lib/android || true
       - name: Download Generated Sources
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: flatpak-sources-${{matrix.arch}}
           path: packaging/flathub/
@@ -477,15 +479,6 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-      - name: 📦 Commit Flatpak Sources
-        if: ${{ runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-        uses: EndBug/add-and-commit@v9
-        continue-on-error: true
-        with:
-          add: "packaging/flathub/*.json"
-          commit: "--no-verify --no-gpg-sign"
-          push: "--no-verify --no-signed"
-          message: "build(flathub): update nuget sources [skip ci]"
       - name: Prepare Flatpak build directory
         run: |
           # Copy flatpak files to workspace root, preserving directory structure
@@ -499,7 +492,7 @@ jobs:
           arch: ${{ matrix.variant.arch }}
           bundle: io.github.SnapXL.SnapX.flatpak
           manifest-path: io.github.SnapXL.SnapX.yml
-          cache-key: flatpak-builder-${{ github.sha }}
+          cache-key: flatpak-builder-${{ matrix.variant.arch }}-${{ github.sha }}
   #      - uses: flatpak/flatpak-github-actions/flat-manager@v6
   #        name: Deploy
   #        with:
