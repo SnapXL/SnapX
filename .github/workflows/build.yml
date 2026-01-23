@@ -389,9 +389,55 @@ jobs:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
           path: "*.snap"
           if-no-files-found: error
+  generate-sources:
+    name: Generate Flatpak Sources (${{ matrix.arch }})
+    runs-on: ${{ matrix.variant.runner }}
+    strategy:
+      matrix:
+        variant:
+            - arch: x86_64
+              runner: ubuntu-24.04
+            - arch: aarch64
+              runner: ubuntu-24.04-arm
+    outputs:
+      artifact-name: flatpak-sources-${{ matrix.arch }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x.x
+      - name: 🔷 Update Flatpak Sources
+        run: |
+          sudo apt install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet10//25.08
+          dotnet tool install --global Nickvision.FlatpakGenerator
+          Nickvision.FlatpakGenerator generate -i SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json --destination-name vendor -s false -u
+          ./packaging/flathub/update_hashes.sh # Script to fix possible bug in FlatpakGenerator that affects Avalonia
+          Nickvision.FlatpakGenerator generate -i build/build.csproj -o packaging/flathub/build-sources.json --destination-name vendor -s false -u
+      - name: 🌐 Upload Sources
+        uses: actions/upload-artifact@v6
+        with:
+          name: flatpak-sources-${{ matrix.arch }}
+          path: packaging/flathub/*.json
+      - name: 📦 Commit Flatpak Sources
+        if: ${{ runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
+        uses: EndBug/add-and-commit@v9
+        continue-on-error: true
+        with:
+          add: "packaging/flathub/*.json"
+          commit: "--no-verify --no-gpg-sign"
+          push: "--no-verify --no-signed"
+          message: "build(flathub): update nuget vendor sources [skip ci]"
   flatpak:
     name: Flatpak Build
-#    needs: build
+#    needs: [build, generate-sources]
+    needs: generate-sources
     runs-on: ${{ matrix.variant.runner }}
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
@@ -418,6 +464,11 @@ jobs:
           rm -rf /host/usr/local/.ghcup || true
           # remove Android library: about 7.8GB (host /usr/local/lib/android)
           rm -rf /host/usr/local/lib/android || true
+      - name: Download Generated Sources
+        uses: actions/download-artifact@v4
+        with:
+          name: flatpak-sources-${{matrix.arch}}
+          path: packaging/flathub/
       - name: Download API keys
         env:
           API_KEYS: ${{ secrets.API_KEYS }}
@@ -426,20 +477,6 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-      - name: Setup environment
-        run: |
-          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet10//25.08
-          alias dotnet='flatpak run --devel --share=network --share=ipc --device=all --filesystem=host --filesystem=home --filesystem=/usr/bin/flatpak:ro --filesystem=/github/home --filesystem=xdg-run/flatpak --talk-name=org.freedesktop.Flatpak --env=DOTNET_CLI_HOME=/tmp/dotnet_home --env=PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/dotnet_home/.dotnet/tools:/tmp/sandbox_bin" --socket=session-bus --socket=system-bus --socket=x11 --socket=wayland --command=/usr/lib/sdk/dotnet10/bin/dotnet org.freedesktop.Sdk//25.08'
-          mkdir -p /tmp/sandbox_bin
-          echo '#!/bin/sh' > /tmp/sandbox_bin/flatpak
-          echo 'flatpak-spawn --host flatpak "$@"' >> /tmp/sandbox_bin/flatpak
-          chmod +x /tmp/sandbox_bin/flatpak
-          dotnet tool install --global Nickvision.FlatpakGenerator
-          FLATPAKGEN="/tmp/dotnet_home/.dotnet/tools/.store/nickvision.flatpakgenerator/2025.12.0/nickvision.flatpakgenerator/2025.12.0/tools/net10.0/any/Nickvision.FlatpakGenerator.dll"
-          dotnet $FLATPAKGEN generate -i SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json --destination-name vendor --temp /tmp/nickvision_nuget -s false -u
-          ./packaging/flathub/update_hashes.sh # Script to fix possible bug in FlatpakGenerator that affects Avalonia
-          dotnet $FLATPAKGEN generate -i build/build.csproj -o packaging/flathub/build-sources.json --destination-name vendor --temp /tmp/nickvision_nuget -s false -u
       - name: 📦 Commit Flatpak Sources
         if: ${{ runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
         uses: EndBug/add-and-commit@v9
