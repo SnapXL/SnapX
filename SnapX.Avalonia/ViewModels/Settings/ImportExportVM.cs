@@ -164,7 +164,6 @@ public partial class ImportExportVM : ViewModelBase
             });
 
             DebugHelper.WriteLine($"Export completed: {exportPath}");
-            await RestartApp();
         }
     }
     [RelayCommand]
