@@ -55,6 +55,11 @@ public partial class CustomUploaderVM : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DynamicWatermark))]
+    [NotifyPropertyChangedFor(nameof(ImageUploaders))]
+    [NotifyPropertyChangedFor(nameof(FileUploaders))]
+    [NotifyPropertyChangedFor(nameof(TextUploaders))]
+    [NotifyPropertyChangedFor(nameof(ShortenerUploaders))]
+    [NotifyPropertyChangedFor(nameof(SharingUploaders))]
     [NotifyPropertyChangedFor(nameof(IsEmpty))]
     private CustomUploaderItem? selectedUploader;
 
@@ -148,13 +153,11 @@ public partial class CustomUploaderVM : ViewModelBase
 
             if (validJson.Count > 0)
             {
-                TaskHelpers.ImportCustomUploaderJson(validJson);
+                await Task.Run(() => TaskHelpers.ImportCustomUploaderJson(validJson));
             }
 
             IsLoading = false;
             TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
-
-            SelectedUploader = Uploaders.LastOrDefault();
         }
     }
 
@@ -194,6 +197,8 @@ public partial class CustomUploaderVM : ViewModelBase
             IsLoading = true;
             DebugHelper.WriteLine("Propagating custom uploader data...");
             var UploadersConfig = App.SnapX.GetUploadersConfig();
+            var oldIndex = Uploaders.IndexOf(SelectedUploader!);
+            var oldCount = Uploaders.Count;
             using (await _collectionLock.AcquireAsync(cts))
             {
                 // There is no telling what happens if interrupted while modifying the collection
@@ -231,6 +236,23 @@ public partial class CustomUploaderVM : ViewModelBase
                 SelectedSharingUploader = GetUploaderByIndex(
                     UploadersConfig.CustomURLSharingServiceSelected
                 );
+                if (Uploaders.Count > oldCount)
+                {
+                    // Likely an import occurred
+                    SelectedUploader = Uploaders.LastOrDefault();
+                    DebugHelper.WriteLine($"[Propagate] Collection grew. Selected last item: '{SelectedUploader?.Name}'");
+                }
+                else if (oldIndex >= 0 && oldIndex < Uploaders.Count)
+                {
+                    // Routine refresh, keep the user on the same row
+                    SelectedUploader = Uploaders[oldIndex];
+                    DebugHelper.WriteLine($"[Propagate] Restored selection to index {oldIndex}: '{SelectedUploader?.Name}'");
+                }
+                else
+                {
+                    SelectedUploader = Uploaders.LastOrDefault();
+                    DebugHelper.WriteLine("[Propagate] Index invalid or item removed. Defaulting to LastOrDefault.");
+                }
                 DebugHelper.WriteLine($"Propagated {Uploaders.Count} custom uploaders.");
             }
         }
@@ -525,10 +547,9 @@ public partial class CustomUploaderVM : ViewModelBase
             }
 
             IsLoading = true;
-            TaskHelpers.ImportCustomUploader(files.Select(f => f.Path.LocalPath));
+            await Task.Run(() => TaskHelpers.ImportCustomUploader(files.Select(f => f.Path.LocalPath)));
             IsLoading = false;
             TaskHelpers.PlayNotificationSoundAsync(NotificationSound.ActionCompleted);
-            SelectedUploader = Uploaders.LastOrDefault();
         }
         catch (Exception ex)
         {
