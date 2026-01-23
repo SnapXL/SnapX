@@ -430,7 +430,11 @@ jobs:
         run: |
           flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet10//25.08
-          alias dotnet='flatpak run --devel --share=network --share=ipc --device=all --filesystem=host --filesystem=home --filesystem=/github/home --env=DOTNET_CLI_HOME=/tmp/dotnet_home --env=PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/dotnet_home/.dotnet/tools" --socket=session-bus --socket=system-bus --socket=x11 --socket=wayland --command=/usr/lib/sdk/dotnet10/bin/dotnet org.freedesktop.Sdk//25.08'
+          alias dotnet='flatpak run --devel --share=network --share=ipc --device=all --filesystem=host --filesystem=home --filesystem=/usr/bin/flatpak:ro --filesystem=/github/home --filesystem=xdg-run/flatpak --talk-name=org.freedesktop.Flatpak --env=DOTNET_CLI_HOME=/tmp/dotnet_home --env=PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/dotnet_home/.dotnet/tools:/tmp/sandbox_bin" --socket=session-bus --socket=system-bus --socket=x11 --socket=wayland --command=/usr/lib/sdk/dotnet10/bin/dotnet org.freedesktop.Sdk//25.08'
+          mkdir -p /tmp/sandbox_bin
+          echo '#!/bin/sh' > /tmp/sandbox_bin/flatpak
+          echo 'flatpak-spawn --host flatpak "$@"' >> /tmp/sandbox_bin/flatpak
+          chmod +x /tmp/sandbox_bin/flatpak
           dotnet tool install --global Nickvision.FlatpakGenerator
           FLATPAKGEN="/tmp/dotnet_home/.dotnet/tools/.store/nickvision.flatpakgenerator/2025.12.0/nickvision.flatpakgenerator/2025.12.0/tools/net10.0/any/Nickvision.FlatpakGenerator.dll"
           dotnet $FLATPAKGEN generate -i SnapX.Avalonia/SnapX.Avalonia.csproj -o packaging/flathub/sources.json --destination-name vendor --temp /tmp/nickvision_nuget -s false -u
