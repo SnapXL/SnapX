@@ -11,7 +11,6 @@
     xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
-    xmlns:views="clr-namespace:SnapX.Avalonia.Views.Settings.Views"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.DataContext>
         <viewModels1:SettingsMainViewVM />
@@ -406,15 +405,15 @@
 
                         </controls:NavigationViewItem.MenuItems>
                     </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="Custom uploaders" Tag="CustomUploader">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="AppGeneric"
+                                IconSize="Size32"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
                 </controls:NavigationViewItem.MenuItems>
-            </controls:NavigationViewItem>
-            <controls:NavigationViewItem Content="Custom uploader" Tag="CustomUploader">
-                <controls:NavigationViewItem.IconSource>
-                    <fluent:FluentIconSource
-                        Icon="AppGeneric"
-                        IconSize="Size32"
-                        IconVariant="Regular" />
-                </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>
         </controls:NavigationView.MenuItems>
 
