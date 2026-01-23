@@ -415,6 +415,7 @@ jobs:
           dotnet-version: 10.x.x
       - name: 🔷 Update Flatpak Sources
         run: |
+          sudo apt update
           sudo apt install -y flatpak flatpak-builder
           flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install --user -y org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.dotnet10//25.08
