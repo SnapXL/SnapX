@@ -57,12 +57,17 @@ public class CustomUploaderItem : INotifyPropertyChanged
 
     [JsonConverter(typeof(HttpMethodConverter))]
     [TypeConverter(typeof(HttpMethodTypeConverter))]
+    [DefaultValue(typeof(HttpMethod), "POST")]
     [JsonInclude]
     // System.Text.Json does not automatically apply custom converters to built-in reference types like HttpMethod,
     // even if the converter is registered globally.
     // To ensure the converter is used during serialization and deserialization,
     // we must explicitly declare [JsonConverter(typeof(HttpMethodConverter))] on the property or type.
-    public HttpMethod RequestMethod { get; set; } = HttpMethod.Post;
+    public HttpMethod RequestMethod
+    {
+        get => field;
+        set => field = value;
+    } = HttpMethod.Post;
 
     [DefaultValue("")]
     public string? RequestURL

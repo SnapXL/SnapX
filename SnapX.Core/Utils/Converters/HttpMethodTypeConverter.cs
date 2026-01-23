@@ -19,11 +19,11 @@ public class HttpMethodTypeConverter : TypeConverter
     {
         if (value is string str)
         {
-            return new HttpMethod(str.ToUpperInvariant());
+            return string.IsNullOrWhiteSpace(str) ? HttpMethod.Post : HttpMethod.Parse(str.ToUpperInvariant());
         }
+
         return base.ConvertFrom(context, culture, value);
     }
-
     public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
     {
         if (value is HttpMethod method && destinationType == typeof(string))
