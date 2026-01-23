@@ -390,7 +390,7 @@ jobs:
           path: "*.snap"
           if-no-files-found: error
   generate-sources:
-    name: Generate Flatpak Sources (${{ matrix.variant.runner }})
+    name: Generate Flatpak Sources (${{ matrix.variant.arch }})
     runs-on: ${{ matrix.variant.runner }}
     permissions:
       contents: write
@@ -438,7 +438,7 @@ jobs:
           push: "--no-verify --no-signed"
           message: "build(flathub): update nuget vendor sources [skip ci]"
   flatpak:
-    name: Flatpak Build (${{ matrix.variant.arch }})
+    name: Flatpak (${{ matrix.variant.arch }})
 #    needs: [build, generate-sources]
     needs: generate-sources
     runs-on: ${{ matrix.variant.runner }}

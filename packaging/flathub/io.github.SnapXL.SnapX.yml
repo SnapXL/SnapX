@@ -50,8 +50,8 @@ modules:
   - name: xrandr
     sources:
       - type: archive
-        sha256: 980befa14b48de2fa74dc07bbb22f746acfd12e1f9dbd539eab9a3c9b434d667
-        url: https://www.x.org/archive/individual/app/xrandr-1.5.3.tar.gz
+        sha256: f8dd7566adb74147fab9964680b6bbadee87cf406a7fcff51718a5e6949b841c
+        url: https://www.x.org/archive/individual/app/xrandr-1.5.3.tar.xz
   - name: glxinfo
     buildsystem: meson
     config-opts:
