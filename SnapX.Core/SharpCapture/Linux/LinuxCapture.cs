@@ -142,14 +142,34 @@ public class LinuxCapture : BaseCapture
     }
     public override async Task<Image?> CaptureScreen(Rectangle bounds)
     {
-        var fullscreenImage = await CaptureFullscreen().ConfigureAwait(false);
-        var croppedImage = CropFullscreenScreenshotToBounds(bounds, fullscreenImage);
-        return croppedImage;
+        using var fullscreenImage = await CaptureFullscreen().ConfigureAwait(false);
+
+        if (fullscreenImage == null)
+        {
+            DebugHelper.Logger?.Error("[LinuxCapture] Fullscreen capture returned null.");
+            return null;
+        }
+
+        return CropFullscreenScreenshotToBounds(bounds, fullscreenImage);
     }
+
     public override async Task<Image?> CaptureScreen(Point? pos)
     {
-        if (pos == null || !pos.HasValue) throw new ArgumentNullException(nameof(pos));
-        return await CaptureScreen(await GetScreen(pos.Value));
+        if (pos == null)
+        {
+            DebugHelper.Logger?.Error("[LinuxCapture] Position point was null.");
+            throw new ArgumentNullException(nameof(pos));
+        }
+
+        var screen = await GetScreen(pos.Value).ConfigureAwait(false);
+
+        if (screen == Rectangle.Empty)
+        {
+            DebugHelper.Logger?.Error($"[LinuxCapture] Could not find screen at coordinates: {pos.Value}");
+            return null;
+        }
+
+        return await CaptureScreen(screen).ConfigureAwait(false);
     }
 
     public override async Task<Rectangle> GetScreen(Point pos) => Methods.NativeAPI.GetScreen(pos)?.Bounds ?? Rectangle.Empty;
