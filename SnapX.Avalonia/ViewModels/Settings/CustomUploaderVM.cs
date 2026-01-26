@@ -37,10 +37,12 @@ public partial class CustomUploaderVM : ViewModelBase
     private readonly AsyncLock _collectionLock = new();
     private bool _isDisposed;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsUiEnabled))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsUiEnabled))]
     private bool _isInitializing = true;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsUiEnabled))]
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsUiEnabled))]
     private bool _isLoading = true;
 
     [ObservableProperty] private CustomUploaderItem? _selectedFileUploader;
@@ -715,72 +717,91 @@ public partial class CustomUploaderVM : ViewModelBase
                 switch (type)
                 {
                     case CustomUploaderDestinationType.ImageUploader:
-                    {
-                        var imageUploader = new CustomImageUploader(item);
-                        await using var logo = Resources.LogoStream;
-                        result = await Task.Run(() => imageUploader.Upload(logo, "Test.png"));
-                        result.Errors.Add(imageUploader.Errors);
-                        break;
-                    }
-                    case CustomUploaderDestinationType.TextUploader:
-                    {
-                        var textUploader = new CustomTextUploader(item);
-                        var textBox = new TextBox
                         {
-                            AcceptsReturn = true,
-                            TextWrapping = TextWrapping.Wrap,
-                            Height = 200,
-                            Text = "This is a test text upload from SnapX!",
-                            Watermark = "Enter text to upload..."
-                        };
-
-                        var TextUploadDialog = new ContentDialog
-                        {
-                            Title = "SnapX text upload test",
-                            Content = textBox,
-                            PrimaryButtonText = "OK",
-                            CloseButtonText = "Cancel",
-                            DefaultButton = ContentDialogButton.Primary
-                        };
-
-                        var dialogResult = await TextUploadDialog.ShowAsync();
-
-                        if (dialogResult == ContentDialogResult.Primary)
-                        {
-                            var text = textBox.Text;
-
-                            if (!string.IsNullOrEmpty(text))
+                            var imageUploader = new CustomImageUploader(item);
+                            await using var logo = Resources.LogoStream;
+                            result = await Task.Run(() =>
                             {
-                                result = await Task.Run(() => textUploader.UploadText(text, "Test.txt"));
-                                result.Errors.Add(textUploader.Errors);
-                            }
+                                var res = imageUploader.Upload(logo, "Test.png");
+                                res.Errors.Add(imageUploader.Errors);
+                                return res;
+                            });
+                            break;
                         }
+                    case CustomUploaderDestinationType.TextUploader:
+                        {
+                            var textUploader = new CustomTextUploader(item);
+                            var textBox = new TextBox
+                            {
+                                AcceptsReturn = true,
+                                TextWrapping = TextWrapping.Wrap,
+                                Height = 200,
+                                Text = "This is a test text upload from SnapX!",
+                                Watermark = "Enter text to upload..."
+                            };
 
-                        break;
-                    }
+                            var TextUploadDialog = new ContentDialog
+                            {
+                                Title = "SnapX text upload test",
+                                Content = textBox,
+                                PrimaryButtonText = "OK",
+                                CloseButtonText = "Cancel",
+                                DefaultButton = ContentDialogButton.Primary
+                            };
+
+                            var dialogResult = await TextUploadDialog.ShowAsync();
+
+                            if (dialogResult == ContentDialogResult.Primary)
+                            {
+                                var text = textBox.Text;
+
+                                if (!string.IsNullOrEmpty(text))
+                                {
+                                    result = await Task.Run(() =>
+                                    {
+                                        var res = textUploader.UploadText(text, "Test.txt");
+                                        res.Errors.Add(textUploader.Errors);
+                                        return res;
+                                    });
+                                }
+                            }
+
+                            break;
+                        }
                     case CustomUploaderDestinationType.FileUploader:
-                    {
-                        var fileUploader = new CustomFileUploader(item);
-                        await using var logo = Resources.LogoStream;
-                        result = await Task.Run(() => fileUploader.Upload(logo, "Test.png"));
-                        result.Errors.Add(fileUploader.Errors);
-
-                        break;
-                    }
+                        {
+                            var fileUploader = new CustomFileUploader(item);
+                            await using var logo = Resources.LogoStream;
+                            result = await Task.Run(() =>
+                            {
+                                var res = fileUploader.Upload(logo, "Test.png");
+                                res.Errors.Add(fileUploader.Errors);
+                                return res;
+                            });
+                            break;
+                        }
                     case CustomUploaderDestinationType.URLShortener:
-                    {
-                        var urlShortener = new CustomURLShortener(item);
-                        result = await Task.Run(() => urlShortener.ShortenURL(Links.Website));
-                        result.Errors.Add(urlShortener.Errors);
-                        break;
-                    }
+                        {
+                            var urlShortener = new CustomURLShortener(item);
+                            result = await Task.Run(() =>
+                            {
+                                var res = urlShortener.ShortenURL(Links.Website);
+                                res.Errors.Add(urlShortener.Errors);
+                                return res;
+                            });
+                            break;
+                        }
                     case CustomUploaderDestinationType.URLSharingService:
-                    {
-                        var urlSharer = new CustomURLSharer(item);
-                        result = await Task.Run(() => urlSharer.ShareURL(Links.Website));
-                        result.Errors.Add(urlSharer.Errors);
-                        break;
-                    }
+                        {
+                            var urlSharer = new CustomURLSharer(item);
+                            result = await Task.Run(() =>
+                            {
+                                var res = urlSharer.ShareURL(Links.Website);
+                                res.Errors.Add(urlSharer.Errors);
+                                return res;
+                            });
+                            break;
+                        }
                 }
 
                 if (result is not null)
@@ -791,6 +812,7 @@ public partial class CustomUploaderVM : ViewModelBase
         }
         catch (Exception e)
         {
+            if (!testSummary.Any()) testSummary.Add((item.DestinationType, new UploadResult()));
             var result = testSummary.LastOrDefault();
             result.Result.Errors.Add(e.Message);
             // Do not use WriteException to avoid sending data to Sentry
@@ -806,7 +828,7 @@ public partial class CustomUploaderVM : ViewModelBase
 
         foreach (var (type, res) in summary)
         {
-            var isSuccess = res.IsSuccess;
+            var isSuccess = res is { IsError: false, ResponseInfo.IsSuccess: true };
 
             var sectionStack = new StackPanel { Spacing = 4 };
 
@@ -831,7 +853,7 @@ public partial class CustomUploaderVM : ViewModelBase
                 Padding = new Thickness(12, 8),
                 Background = new SolidColorBrush(Color.Parse("#1aFFFFFF")),
                 CornerRadius = new CornerRadius(4),
-                Child = CreateResultDetailGrid(res, isSuccess)
+                Child = CreateResultDetailGrid(res)
             };
 
             sectionStack.Children.Add(infoBorder);
@@ -862,22 +884,16 @@ public partial class CustomUploaderVM : ViewModelBase
         await dialog.ShowAsync();
     }
 
-    private Control CreateResultDetailGrid(UploadResult res, bool isSuccess)
+    private Control CreateResultDetailGrid(UploadResult res)
     {
         var stack = new StackPanel { Spacing = 2 };
+        AddDetailRow(stack, "Result", res.ToSummaryString());
+        if (res.IsError)
+        {
+            AddDetailRow(stack, "Errors", res.ErrorsToString());
+        }
 
-        if (!isSuccess)
-        {
-            if (res.ResponseInfo is not null) AddDetailRow(stack, "ResponseText", res.ResponseInfo.ResponseText);
-            AddDetailRow(stack, "Errors", res.Errors.ToString());
-        }
-        else
-        {
-            if (!string.IsNullOrEmpty(res.URL)) AddDetailRow(stack, "URL", res.URL);
-            if (!string.IsNullOrEmpty(res.ThumbnailURL)) AddDetailRow(stack, "Thumbnail", res.ThumbnailURL);
-            if (!string.IsNullOrEmpty(res.DeletionURL)) AddDetailRow(stack, "Deletion", res.DeletionURL);
-            if (res.ResponseInfo is not null) AddDetailRow(stack, "Response", res.ResponseInfo.ResponseText);
-        }
+        AddDetailRow(stack, "Response", res.ResponseInfo.ToReadableString(true));
 
         return stack;
     }

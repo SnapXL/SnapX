@@ -30,7 +30,8 @@ public class ResponseInfo
 
         if (Headers?.Count > 0)
         {
-            sbResponseInfo.AppendLine().AppendLine("Headers:").Append(Headers.ToString().TrimEnd());
+            var headerString = string.Join(Environment.NewLine, Headers.Select(h => $"{h.Key}: {h.Value}"));
+            sbResponseInfo.AppendLine().AppendLine("Headers:").Append(headerString).Append(Environment.NewLine);
         }
 
         if (includeResponseText && !string.IsNullOrEmpty(ResponseText))

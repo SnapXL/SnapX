@@ -15,17 +15,47 @@ public class UploadResult
     public string? DeletionURL { get; set; }
     public string? ShortenedURL { get; set; }
 
-    private bool isSuccess;
-
     public bool IsSuccess
     {
         get
         {
-            return isSuccess && !string.IsNullOrEmpty(Response);
+            string caller = GetCallerName();
+            bool hasResponse = !string.IsNullOrEmpty(Response);
+
+            bool finalResult = field && hasResponse;
+
+            if (field && !hasResponse)
+            {
+                DebugHelper.Logger?.Debug($"[UploadResult] IsSuccess GET by [{caller}]: FALSE. (Reason: field is true, but Response is empty)");
+            }
+            else if (!finalResult && !field)
+            {
+                DebugHelper.Logger?.Debug($"[UploadResult] IsSuccess GET by [{caller}]: FALSE. (Reason: field is false)");
+            }
+
+            return finalResult;
         }
         set
         {
-            isSuccess = value;
+            string caller = GetCallerName();
+            if (field != value)
+            {
+                DebugHelper.Logger?.Debug($"[UploadResult] IsSuccess SET by [{caller}]: {field} -> {value}");
+                field = value;
+            }
+        }
+    }
+
+    private string GetCallerName()
+    {
+        try
+        {
+            // Frame 0 is GetCallerName, Frame 1 is the getter/setter, Frame 2 is the actual caller
+            return new System.Diagnostics.StackTrace().GetFrame(2)?.GetMethod()?.Name ?? "Unknown";
+        }
+        catch
+        {
+            return "Unknown";
         }
     }
 

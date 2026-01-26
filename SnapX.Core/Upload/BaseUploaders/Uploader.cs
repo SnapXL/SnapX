@@ -13,6 +13,7 @@ using SnapX.Core.Utils.Extensions;
 using Math = System.Math;
 
 namespace SnapX.Core.Upload.BaseUploaders;
+
 public class Uploader
 {
     public delegate void ProgressEventHandler(ProgressManager progress);
@@ -28,7 +29,6 @@ public class Uploader
     protected bool StopUploadRequested { get; set; }
     protected bool AllowReportProgress { get; set; } = true;
     protected bool ReturnResponseOnError { get; set; }
-
     protected ResponseInfo LastResponseInfo { get; set; }
 
 
@@ -64,15 +64,15 @@ public class Uploader
         }
     }
 
-    internal string? SendRequest(HttpMethod method, string? url, Dictionary<string, string?> args = null, NameValueCollection headers = null, CookieCollection cookies = null)
+    internal string SendRequest(HttpMethod method, string url, Dictionary<string, string> args = null, NameValueCollection headers = null, CookieCollection cookies = null)
     {
         return SendRequest(method, url, (Stream)null, null, args, headers, cookies);
     }
 
-    protected string? SendRequest(HttpMethod method, string? url, Stream data, string contentType = null,
+    protected string? SendRequest(HttpMethod method, string? url, Stream? data, string contentType = null,
         Dictionary<string, string?> args = null, NameValueCollection headers = null, CookieCollection cookies = null)
     {
-        using var response = GetResponse(method, url, data, contentType, args, headers, cookies);
+        var response = GetResponse(method, url, data, contentType, args, headers, cookies);
         return ProcessWebResponseText(response);
     }
 
@@ -132,7 +132,6 @@ public class Uploader
         }
         var client = HttpClientFactory.Get();
         var response = client.SendAsync(requestMessage).GetAwaiter().GetResult();
-        response.EnsureSuccessStatusCode();
         return ProcessWebResponseText(response);
     }
 
@@ -213,19 +212,15 @@ public class Uploader
 
             ph.HttpSendProgress += handler;
             var response = client.SendAsync(requestMessage).GetAwaiter().GetResult();
+            // foreach (var part in multipartContent)
+            // {
+            //     DebugHelper.WriteLine($"Part Headers:");
+            //     DebugHelper.WriteLine(part.Headers.ToString());
+            // }
 
-            if (response.IsSuccessStatusCode)
-            {
-                result.ResponseInfo = ProcessWebResponse(response);
-                result.Response = result.ResponseInfo?.ResponseText;
-                result.IsSuccess = true;
-            }
-            else
-            {
-                result.IsSuccess = false;
-                result.Response = $"Error: {response.StatusCode}";
-                ProcessError(new HttpRequestException(result.Response), url);
-            }
+            result.ResponseInfo = ProcessWebResponse(response);
+            result.Response = result.ResponseInfo?.ResponseText;
+            result.IsSuccess = result.ResponseInfo?.IsSuccess ?? false;
         }
         catch (Exception e)
         {
@@ -313,18 +308,9 @@ public class Uploader
 
             var response = client.SendAsync(requestMessage).GetAwaiter().GetResult();
 
-            if (response.IsSuccessStatusCode)
-            {
-                result.ResponseInfo = ProcessWebResponse(response);
-                result.Response = result.ResponseInfo?.ResponseText;
-                result.IsSuccess = true;
-            }
-            else
-            {
-                result.IsSuccess = false;
-                result.ResponseInfo = ProcessWebResponse(response);
-                result.Response = $"Error: {response.StatusCode}";
-            }
+            result.ResponseInfo = ProcessWebResponse(response);
+            result.Response = result.ResponseInfo?.ResponseText;
+            result.IsSuccess = result.ResponseInfo?.IsSuccess ?? false;
         }
         catch (Exception e)
         {
@@ -372,7 +358,7 @@ public class Uploader
         public override void SetLength(long value) => throw new NotSupportedException();
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
     }
-    protected HttpResponseMessage? GetResponse(HttpMethod method, string? url, Stream data = null, string contentType = null, Dictionary<string, string?> args = null,
+    protected HttpResponseMessage? GetResponse(HttpMethod method, string? url, Stream? data = null, string? contentType = null, Dictionary<string, string?> args = null,
         NameValueCollection headers = null, CookieCollection cookies = null, bool allowNon2xxResponses = false)
     {
         IsUploading = true;
@@ -393,13 +379,15 @@ public class Uploader
             {
                 requestContent = new StreamContent(data);
                 if (!string.IsNullOrEmpty(contentType))
-            {
-                requestContent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(contentType);
+                {
+                    requestContent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(contentType);
+                }
             }
-            }
+
+            LastResponseInfo = null;
             var requestMessage = new HttpRequestMessage(method, url)
             {
-                Content = requestContent
+                Content = requestContent,
             };
 
             if (headers != null)
@@ -418,11 +406,6 @@ public class Uploader
 
             var client = HttpClientFactory.Get();
             var response = client.SendAsync(requestMessage).ConfigureAwait(false).GetAwaiter().GetResult();
-            if (!response.IsSuccessStatusCode && !allowNon2xxResponses)
-            {
-                response.EnsureSuccessStatusCode();
-            }
-
             return response;
         }
         catch (Exception e)
@@ -537,7 +520,7 @@ public class Uploader
                             }
                             catch (Exception nested)
                             {
-                                DebugHelper.WriteException(nested);
+                                DebugHelper.WriteException(nested, "ProcessError() WebException handler");
                             }
                         }
 
@@ -551,7 +534,6 @@ public class Uploader
 
             var errorText = sb.ToString();
 
-            Errors ??= new UploaderErrorManager();
             Errors.Add(errorText);
 
             DebugHelper.WriteLine("Error:\r\n" + errorText);
@@ -581,25 +563,19 @@ public class Uploader
     }
 
 
-    private ResponseInfo ProcessWebResponse(HttpResponseMessage response)
+    private ResponseInfo? ProcessWebResponse(HttpResponseMessage response)
     {
         if (response == null)
         {
-            DebugHelper.Logger.Error("HttpResponseMessage was null.");
-            return new ResponseInfo
-            {
-                StatusCode = 0,
-                StatusDescription = "No Response",
-                ResponseURL = string.Empty,
-                Headers = new Dictionary<string, string>()
-            };
+            DebugHelper.Logger.Error("ProcessWebResponse: response is null");
+            return null;
         }
 
         var responseInfo = new ResponseInfo
         {
             StatusCode = response.StatusCode,
             StatusDescription = response.ReasonPhrase ?? "ERROR",
-            ResponseURL = response.RequestMessage?.RequestUri?.OriginalString ?? string.Empty,
+            ResponseURL = response.RequestMessage?.RequestUri?.OriginalString ?? response.RequestMessage?.RequestUri?.ToString() ?? string.Empty,
             Headers = ConvertHeadersToDictionary(response),
             ResponseText = response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
         };
@@ -615,7 +591,7 @@ public class Uploader
     {
         var responseInfo = ProcessWebResponse(response);
 
-        return responseInfo.ResponseText;
+        return responseInfo?.ResponseText;
     }
 
 

@@ -340,17 +340,21 @@ public class CustomUploaderItem : INotifyPropertyChanged
     }
 
     public void ParseResponse(
-        UploadResult result,
-        ResponseInfo responseInfo,
-        UploaderErrorManager errors,
-        CustomUploaderInput input,
-        bool isShortenedURL = false
-    )
+    UploadResult result,
+    ResponseInfo responseInfo,
+    UploaderErrorManager errors,
+    CustomUploaderInput input,
+    bool isShortenedURL = false
+)
     {
-        if (result == null || responseInfo == null)
-            return;
-        result.ResponseInfo = responseInfo;
 
+        if (result == null || responseInfo == null)
+        {
+            DebugHelper.Logger?.Error("[ParseResponse] Aborted: result or responseInfo is NULL.");
+            return;
+        }
+
+        result.ResponseInfo = responseInfo;
         responseInfo.ResponseText ??= "";
 
         var parser = new ShareXCustomUploaderSyntaxParser()
@@ -368,11 +372,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
             {
                 url = parser.Parse(URL);
 
-                if (
-                    string.IsNullOrEmpty(url)
-                    && !string.IsNullOrEmpty(URL)
-                    && URL.Contains("{output:")
-                )
+                if (string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(URL) && URL.Contains("{output:"))
                 {
                     result.IsURLExpected = false;
                 }
@@ -406,6 +406,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
                 }
             }
         }
+
     }
 
     public void TryParseResponse(

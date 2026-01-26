@@ -3,18 +3,14 @@
 
 
 namespace SnapX.Core.Upload.Utils;
+
 public class UploaderErrorManager
 {
-    public List<UploaderErrorInfo> Errors { get; private set; }
+    public List<UploaderErrorInfo> Errors { get; private set; } = [];
 
     public int Count => Errors.Count;
 
     public string? DefaultTitle { get; set; } = "Error";
-
-    public UploaderErrorManager()
-    {
-        Errors = [];
-    }
 
     public void Add(string? text)
     {
@@ -28,6 +24,11 @@ public class UploaderErrorManager
 
     public void Add(UploaderErrorManager manager)
     {
+        if (manager == null)
+        {
+            return;
+        }
+
         Errors.AddRange(manager.Errors);
     }
 
@@ -43,7 +44,12 @@ public class UploaderErrorManager
 
     public override string ToString()
     {
-        return string.Join(Environment.NewLine + Environment.NewLine, Errors.Select(x => x.Text));
+        var output = string.Join(Environment.NewLine + Environment.NewLine, Errors.Select(x => x.Text));
+        return output;
+    }
+
+    public void Clear()
+    {
+        Errors.Clear();
     }
 }
-
