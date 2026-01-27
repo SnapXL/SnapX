@@ -6,6 +6,7 @@ using SnapX.Core.Job;
 using SnapX.Core.Media;
 
 namespace SnapX.Core.Capture;
+
 public class CaptureWindow : CaptureBase
 {
     public IntPtr WindowHandle { get; protected set; }

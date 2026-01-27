@@ -3,6 +3,7 @@
 
 
 namespace SnapX.Core.CLI;
+
 public class CLICommand
 {
     public string? Command { get; set; }

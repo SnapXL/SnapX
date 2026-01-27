@@ -12,6 +12,7 @@ using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.File;
+
 public class BoxFileUploaderService : FileUploaderService
 {
     public override FileDestination EnumValue => FileDestination.Box;

@@ -5,6 +5,7 @@
 using System.Text;
 
 namespace SnapX.Core.CLI;
+
 public class CLIManager
 {
     public string?[] Arguments { get; private set; }

@@ -20,6 +20,7 @@ using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Watch;
 
 namespace SnapX.Core.Job;
+
 public class TaskSettings
 {
     [JsonIgnore]

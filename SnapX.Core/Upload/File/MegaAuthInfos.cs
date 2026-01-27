@@ -5,6 +5,7 @@
 using CG.Web.MegaApiClient;
 
 namespace SnapX.Core.Upload.File;
+
 public class MegaAuthInfos
 {
     public string Email { get; set; }

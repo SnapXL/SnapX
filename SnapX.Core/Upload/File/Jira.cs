@@ -12,6 +12,7 @@ using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
 
 namespace SnapX.Core.Upload.File;
+
 public class JiraFileUploaderService : FileUploaderService
 {
     public override FileDestination EnumValue => FileDestination.Jira;

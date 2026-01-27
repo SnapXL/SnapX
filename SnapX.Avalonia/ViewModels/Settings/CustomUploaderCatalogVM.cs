@@ -115,7 +115,7 @@ public partial class CustomUploaderCatalogVM : ViewModelBase
 
 public partial class UploaderInfo : ObservableObject
 {
-    [JsonIgnore] [ObservableProperty] private bool _isSelected;
+    [JsonIgnore][ObservableProperty] private bool _isSelected;
 
     public string Name { get; init; }
     public string DownloadUrl { get; init; }

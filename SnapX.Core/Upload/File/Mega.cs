@@ -8,6 +8,7 @@ using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 
 namespace SnapX.Core.Upload.File;
+
 public class MegaFileUploaderService : FileUploaderService
 {
     public override FileDestination EnumValue { get; } = FileDestination.Mega;

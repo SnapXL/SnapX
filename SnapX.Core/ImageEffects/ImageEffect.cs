@@ -12,6 +12,7 @@ using SnapX.Core.ImageEffects.Manipulations;
 using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.ImageEffects;
+
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(Inverse), "Inverse")]
 [JsonDerivedType(typeof(Polaroid), "Polaroid")]

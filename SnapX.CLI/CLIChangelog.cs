@@ -1,4 +1,5 @@
 namespace SnapX.CLI;
+
 public class CLIChangelog : SnapX.CommonUI.Changelog
 {
     public CLIChangelog(string version) : base(version)

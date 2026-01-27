@@ -15,6 +15,7 @@ using SnapX.Core.Utils;
 using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.File;
+
 public class MediaFireFileUploaderService : FileUploaderService
 {
     public override FileDestination EnumValue => FileDestination.MediaFire;

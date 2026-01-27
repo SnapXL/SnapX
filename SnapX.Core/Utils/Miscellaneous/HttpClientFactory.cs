@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Security.Authentication;
 
 namespace SnapX.Core.Utils.Miscellaneous;
+
 public static class HttpClientFactory
 {
     private static readonly Lazy<SocketsHttpHandler> _lazyHandler = new(CreateHandler);

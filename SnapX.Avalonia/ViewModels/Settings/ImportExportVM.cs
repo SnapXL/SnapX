@@ -88,7 +88,7 @@ public partial class ImportExportVM : ViewModelBase
 
             await dialog.ShowAsync();
         }
-         var processPath = Environment.ProcessPath;
+        var processPath = Environment.ProcessPath;
         if (string.IsNullOrEmpty(processPath))
             return;
 

@@ -8,6 +8,7 @@ using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.File;
+
 public class LocalhostAccount : ICloneable
 {
     [Category("Localhost"), Description("Shown in the list as: Name - LocalhostRoot:Port")]

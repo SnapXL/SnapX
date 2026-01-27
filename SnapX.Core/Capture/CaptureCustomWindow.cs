@@ -5,6 +5,7 @@
 using SnapX.Core.Job;
 
 namespace SnapX.Core.Capture;
+
 public class CaptureCustomWindow : CaptureWindow
 {
     protected override TaskMetadata Execute(TaskSettings taskSettings)

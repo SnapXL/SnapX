@@ -5,6 +5,7 @@
 using SnapX.Core.Job;
 
 namespace SnapX.Core.Capture;
+
 public class CaptureRegion : CaptureBase
 {
     protected static RegionCaptureType lastRegionCaptureType = RegionCaptureType.Default;

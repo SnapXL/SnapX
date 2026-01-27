@@ -4,6 +4,7 @@
 
 
 namespace SnapX.Core.Job;
+
 public class TaskEx<T>
 {
     public delegate void ProgressChangedEventHandler(T progress);

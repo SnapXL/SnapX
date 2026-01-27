@@ -5,6 +5,7 @@
 using System.Diagnostics;
 
 namespace SnapX.Core.Utils;
+
 public class FileDownloader
 {
     public event Action FileSizeReceived;

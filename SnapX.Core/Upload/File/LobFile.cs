@@ -10,6 +10,7 @@ using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
 
 namespace SnapX.Core.Upload.File;
+
 public class LobFileFileUploaderService : FileUploaderService
 {
     public override FileDestination EnumValue => FileDestination.Lithiio;

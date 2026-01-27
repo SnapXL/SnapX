@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml;
 
 namespace SnapX.Core.Indexer;
+
 public class IndexerXml : Indexer
 {
     protected XmlWriter xmlWriter;

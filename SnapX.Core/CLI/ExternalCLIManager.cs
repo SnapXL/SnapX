@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Text;
 
 namespace SnapX.Core.CLI;
+
 public abstract class ExternalCLIManager : IDisposable
 {
     public event DataReceivedEventHandler OutputDataReceived;

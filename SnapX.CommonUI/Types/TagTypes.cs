@@ -4,6 +4,7 @@
 using System.Text.Json.Serialization;
 
 namespace SnapX.CommonUI.Types;
+
 public record Tag(
     [property: JsonPropertyName("name")] string Name,
     [property: JsonPropertyName("zipball_url")] string ZipballUrl,

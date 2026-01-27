@@ -9,6 +9,7 @@ using SixLabors.ImageSharp.Processing;
 using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.ImageEffects.Adjustments;
+
 internal class Gamma : ImageEffect
 {
     [DefaultValue(1f), Description("Min 0.1, Max 5.0")]

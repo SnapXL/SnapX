@@ -5,6 +5,7 @@
 using SnapX.Core.Job;
 
 namespace SnapX.Core.Capture;
+
 public class CaptureLastRegion : CaptureRegion
 {
     protected override TaskMetadata Execute(TaskSettings taskSettings)

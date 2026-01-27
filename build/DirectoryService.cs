@@ -1,5 +1,6 @@
 
 namespace DefaultNamespace;
+
 public class DirectoryService
 {
     private static IBuildLogger Logger = null!;

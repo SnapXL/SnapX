@@ -11,6 +11,7 @@ using SnapX.Core.Utils.Cryptographic;
 using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Upload.File;
+
 public class SendSpaceFileUploaderService : FileUploaderService
 {
     public override FileDestination EnumValue { get; } = FileDestination.SendSpace;

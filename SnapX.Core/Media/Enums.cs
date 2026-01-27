@@ -5,6 +5,7 @@
 using System.ComponentModel;
 
 namespace SnapX.Core.Media;
+
 public enum ThumbnailLocationType
 {
     [Description("Default folder")]

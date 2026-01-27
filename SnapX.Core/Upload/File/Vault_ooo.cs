@@ -14,6 +14,7 @@ using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.File;
+
 public class Vault_oooFileUploaderService : FileUploaderService
 {
     public override FileDestination EnumValue => FileDestination.Vault_ooo;

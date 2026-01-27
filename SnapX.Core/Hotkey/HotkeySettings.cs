@@ -5,6 +5,7 @@
 using SnapX.Core.Job;
 
 namespace SnapX.Core.Hotkey;
+
 public class HotkeySettings
 {
     public HotkeyInfo HotkeyInfo { get; set; }

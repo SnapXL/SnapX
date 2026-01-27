@@ -6,6 +6,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace SnapX.Core.ImageEffects.Filters;
+
 internal class Emboss : ImageEffect
 {
     public static Vector3 GetPixelRGB(Image<Rgba32> originalImage, int xPos, int yPos)

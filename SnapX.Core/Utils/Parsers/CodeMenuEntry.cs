@@ -3,6 +3,7 @@
 
 
 namespace SnapX.Core.Utils.Parsers;
+
 public abstract class CodeMenuEntry
 {
     protected abstract string Prefix { get; }

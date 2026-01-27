@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 
 namespace SnapX.Core.Utils.Miscellaneous;
+
 public static class PingHelper
 {
     public static PingResult PingHost(string host, int timeout = 1000, int pingCount = 4, int waitTime = 100)

@@ -6,6 +6,7 @@ using System.Text;
 using SnapX.Core.Utils.Miscellaneous;
 
 namespace SnapX.Core.Indexer;
+
 public class IndexerText : Indexer
 {
     protected StringBuilder sbContent = new StringBuilder();

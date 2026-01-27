@@ -5,6 +5,7 @@
 using SnapX.Core.Utils;
 
 namespace SnapX.Core.History;
+
 public partial class HistoryItemManager
 {
     public delegate HistoryItem[] GetHistoryItemsEventHandler();

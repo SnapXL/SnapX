@@ -1,6 +1,5 @@
 using System.Globalization;
 using Avalonia.Data.Converters;
-using SnapX.Core;
 
 namespace SnapX.Avalonia.Converters;
 

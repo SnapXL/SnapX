@@ -3,6 +3,7 @@
 using System.Text.Json.Serialization;
 
 namespace SnapX.CommonUI.Types;
+
 public record Asset(
         [property: JsonPropertyName("url")] string Url,
         [property: JsonPropertyName("id")] int? Id,

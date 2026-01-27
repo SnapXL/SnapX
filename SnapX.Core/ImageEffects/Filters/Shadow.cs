@@ -9,6 +9,7 @@ using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.ImageEffects.Filters;
+
 internal class Shadow : ImageEffect
 {
     private float opacity;

@@ -46,6 +46,7 @@ Name:           snapx
 Version:        %{version}
 Release:        %{base_release}.%{?gitversion}%{?dist}
 Summary:        Screenshot tool that handles images, text, and video.
+Packager:       Brycen G <brycengranville@outlook.com>
 
 License:        GPL-3.0-or-later
 URL:            https://github.com/%{github_path}

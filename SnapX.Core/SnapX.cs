@@ -24,6 +24,7 @@ using Xdg.Directories;
 
 
 namespace SnapX.Core;
+
 public class SnapX
 {
     public const string AppName = "SnapX";

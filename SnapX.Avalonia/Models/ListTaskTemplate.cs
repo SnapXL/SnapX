@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using SnapX.Core;
 using SnapX.Core.History;
 using SnapX.Core.Media.Services;
 

@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 
 namespace SnapX.Core.Indexer;
+
 public class IndexerJson : Indexer
 {
     private Utf8JsonWriter jsonWriter;

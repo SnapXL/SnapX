@@ -7,6 +7,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace SnapX.Core.ImageEffects.Filters;
+
 [Description("RGB split")]
 internal class RGBSplit : ImageEffect
 {

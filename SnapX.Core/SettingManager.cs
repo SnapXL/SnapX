@@ -22,6 +22,7 @@ using SnapX.Core.Utils.Extensions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SnapX.Core;
+
 [JsonSourceGenerationOptions(WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault)]
 
 [JsonSerializable(typeof(ApplicationConfig))]
@@ -600,7 +601,7 @@ public static class SettingManager
             );
             ZipManager.Extract(archivePath, SnapX.ConfigFolder, true, entry =>
             {
-                return FileHelpers.CheckExtension(entry.Name, new[] {  "json", "xml" });
+                return FileHelpers.CheckExtension(entry.Name, new[] { "json", "xml" });
             }, 1_000_000_000);
 
             return true;

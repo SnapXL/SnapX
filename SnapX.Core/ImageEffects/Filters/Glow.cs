@@ -10,6 +10,7 @@ using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.ImageEffects.Filters;
+
 internal class Glow : ImageEffect
 {
     private int size;

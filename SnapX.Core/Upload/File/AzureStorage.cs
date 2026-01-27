@@ -13,6 +13,7 @@ using SnapX.Core.Utils;
 using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.File;
+
 public class AzureStorageUploaderService : FileUploaderService
 {
     public override FileDestination EnumValue => FileDestination.AzureStorage;

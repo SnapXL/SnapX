@@ -7,6 +7,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
 namespace SnapX.Core.ImageEffects.Manipulations;
+
 public enum FlipType
 {
     None,      // No flip (RotateNoneFlipNone)
