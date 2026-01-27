@@ -864,6 +864,12 @@ static class _UniFFILib
     );
 
     [DllImport("snapxrust", CallingConvention = CallingConvention.Cdecl)]
+    public static extern RustBuffer uniffi_snapxrust_fn_func_capture_window_by_handle(
+        ulong @hwnd,
+        ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("snapxrust", CallingConvention = CallingConvention.Cdecl)]
     public static extern RustBuffer uniffi_snapxrust_fn_func_get_monitor(
         uint @x,
         uint @y,
@@ -1157,6 +1163,9 @@ static class _UniFFILib
     public static extern ushort uniffi_snapxrust_checksum_func_capture_window();
 
     [DllImport("snapxrust", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_snapxrust_checksum_func_capture_window_by_handle();
+
+    [DllImport("snapxrust", CallingConvention = CallingConvention.Cdecl)]
     public static extern ushort uniffi_snapxrust_checksum_func_get_monitor();
 
     [DllImport("snapxrust", CallingConvention = CallingConvention.Cdecl)]
@@ -1220,6 +1229,15 @@ static class _UniFFILib
             {
                 throw new UniffiContractChecksumException(
                     $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_window` checksum `26724`, library returned `{checksum}`"
+                );
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_snapxrust_checksum_func_capture_window_by_handle();
+            if (checksum != 40059)
+            {
+                throw new UniffiContractChecksumException(
+                    $"uniffi.snapxrust: uniffi bindings expected function `uniffi_snapxrust_checksum_func_capture_window_by_handle` checksum `40059`, library returned `{checksum}`"
                 );
             }
         }
@@ -1332,6 +1350,36 @@ class FfiConverterInt32 : FfiConverter<int, int>
     public override void Write(int value, BigEndianStream stream)
     {
         stream.WriteInt(value);
+    }
+}
+
+class FfiConverterUInt64 : FfiConverter<ulong, ulong>
+{
+    public static FfiConverterUInt64 INSTANCE = new FfiConverterUInt64();
+
+    public override ulong Lift(ulong value)
+    {
+        return value;
+    }
+
+    public override ulong Read(BigEndianStream stream)
+    {
+        return stream.ReadULong();
+    }
+
+    public override ulong Lower(ulong value)
+    {
+        return value;
+    }
+
+    public override int AllocationSize(ulong value)
+    {
+        return 8;
+    }
+
+    public override void Write(ulong value, BigEndianStream stream)
+    {
+        stream.WriteULong(value);
     }
 }
 
@@ -1677,6 +1725,19 @@ internal static class SnapxrustMethods
                     _UniFFILib.uniffi_snapxrust_fn_func_capture_window(
                         FfiConverterUInt32.INSTANCE.Lower(@x),
                         FfiConverterUInt32.INSTANCE.Lower(@y),
+                        ref _status
+                    )
+            )
+        );
+    }
+
+    public static ImageData CaptureWindowByHandle(ulong @hwnd)
+    {
+        return FfiConverterTypeImageData.INSTANCE.Lift(
+            _UniffiHelpers.RustCall(
+                (ref UniffiRustCallStatus _status) =>
+                    _UniFFILib.uniffi_snapxrust_fn_func_capture_window_by_handle(
+                        FfiConverterUInt64.INSTANCE.Lower(@hwnd),
                         ref _status
                     )
             )

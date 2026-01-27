@@ -1,4 +1,5 @@
 using SixLabors.ImageSharp;
+using SnapX.Core.Media;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Native;
 using uniffi.snapxrust;
@@ -333,9 +334,12 @@ public class macOSCapture : BaseCapture
 
     public override async Task<Image?> CaptureScreen(Point? pos)
     {
-        return CaptureMonitor(Methods.GetCursorPosition());
+        return CaptureMonitor(pos ?? Methods.GetCursorPosition());
     }
-
+    public override async Task<Image?> CaptureScreen(string name)
+    {
+        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureMonitor(name));
+    }
     public override async Task<Image?> CaptureRectangle(Rectangle rect)
     {
         return CaptureRectangleNative(rect);
@@ -344,6 +348,10 @@ public class macOSCapture : BaseCapture
     public override async Task<Image?> CaptureWindow(Point pos)
     {
         return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureWindow((uint)pos.X, (uint)pos.Y));
+    }
+    public override async Task<Image?> CaptureWindow(WindowInfo windowInfo)
+    {
+        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureWindowByHandle((ulong)windowInfo.Handle));
     }
     private Image CaptureMonitor(Point pos)
     {

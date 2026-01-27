@@ -201,6 +201,26 @@ pub fn capture_fullscreen() -> ImageData {
         height,
     }
 }
+
+pub fn capture_window_by_handle(handle: u64) -> ImageData {
+    let windows = Window::all().unwrap();
+    let window = windows
+        .iter()
+        .find(|w| w.id().unwrap() as u64 == handle)
+        .expect("Window handle not found");
+
+    let image = window.capture_image().unwrap();
+    let image_bytes = image.as_bytes().to_vec();
+    let width = image.width();
+    let height = image.height();
+
+    ImageData {
+        image: image_bytes,
+        width,
+        height,
+    }
+}
+
 pub fn capture_window(x: u32, y: u32) -> ImageData {
     let windows = Window::all().unwrap();
 
@@ -230,16 +250,7 @@ pub fn capture_window(x: u32, y: u32) -> ImageData {
         })
         .unwrap();
 
-    let image = window.capture_image().unwrap();
-    let image_bytes = image.as_bytes().to_vec();
-    let width = image.width();
-    let height = image.height();
-
-    ImageData {
-        image: image_bytes,
-        width,
-        height,
-    }
+    capture_window_by_handle(window.id().unwrap() as u64)
 }
 
 pub fn capture_rect(x: u32, y: u32, width: u32, height: u32) -> ImageData {

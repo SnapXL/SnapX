@@ -153,7 +153,35 @@ public class WindowsCapture : BaseCapture
         var defaultBounds = new Rectangle(defaultOutput.X, defaultOutput.Y, defaultOutput.Width, defaultOutput.Height);
         return await CaptureOutputImage(defaultOutput.Output, defaultOutput.Adapter, defaultBounds);
     }
+    public override async Task<Image?> CaptureScreen(string screenName)
+    {
+        var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>()!;
+        var adapters = EnumerateAdapters(factory);
 
+        if (adapters.Count == 0)
+        {
+            DebugHelper.WriteLine($"{nameof(WindowsCapture)}: No adapters found");
+            return null;
+        }
+
+        var outputs = EnumerateOutputs(adapters);
+
+        var targetOutput = outputs.FirstOrDefault(o => 
+        {
+            o.Output.GetDesc(out var desc);
+            return desc.DeviceName.ToString() == screenName;
+        });
+
+        if (targetOutput.Equals(default) || targetOutput.Output == null)
+        {
+            DebugHelper.WriteLine($"{nameof(WindowsCapture)}: Output with name '{screenName}' not found.");
+            return null;
+        }
+
+        var bounds = new Rectangle(targetOutput.X, targetOutput.Y, targetOutput.Width, targetOutput.Height);
+    
+        return await CaptureOutputImage(targetOutput.Output, targetOutput.Adapter, bounds);
+    }
     [DllImport(
         "d3d11.dll",
         EntryPoint = "CreateDirect3D11DeviceFromDXGIDevice",
@@ -205,17 +233,24 @@ public class WindowsCapture : BaseCapture
 
         return texture;
     }
+
     public override async Task<Image?> CaptureWindow(Point pos)
     {
-        if (!GraphicsCaptureSession.IsSupported())
-        {
-            throw new ExternalException("WindowsCapture: GraphicsCaptureSession is not supported on this device. Perhaps update your Windows?");
-        }
         var hwnd = PInvoke.WindowFromPoint(new System.Drawing.Point(pos.X, pos.Y));
         if (hwnd == IntPtr.Zero)
         {
             DebugHelper.WriteLine("WindowsCapture was provided a invalid window handle");
             return null;
+        }
+
+        return await CaptureWindow(hwnd);
+    }
+
+    public override async Task<Image?> CaptureWindow(IntPtr hwnd)
+    {
+        if (!GraphicsCaptureSession.IsSupported())
+        {
+            throw new ExternalException("WindowsCapture: GraphicsCaptureSession is not supported on this device. Perhaps update your Windows?");
         }
 
         var capacity = PInvoke.GetWindowTextLength(hwnd);

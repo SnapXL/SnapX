@@ -40,82 +40,65 @@ public partial class LinuxAPI : NativeAPI
     {
         return GetWindowRectangleX11(windowHandle);
     }
-    public override Screen? GetScreen(Point pos)
+    private Screen MapToScreen(int index, string monitorName, XRRMonitorInfo info)
+    {
+        var bounds = new Rectangle(info.x, info.y, info.width, info.height);
+
+        // DPI and Physical Size Calculation
+        double dpi = 96.0;
+        double diagonalInches = 0;
+        if (info.mwidth > 0 && info.mheight > 0)
+        {
+            diagonalInches = Math.Sqrt(info.mwidth * info.mwidth + info.mheight * info.mheight) / 25.4;
+            var resolutionDiagonal = Math.Sqrt(info.width * info.width + info.height * info.height);
+            dpi = resolutionDiagonal / diagonalInches;
+        }
+        if (dpi <= 0) dpi = 96.0;
+
+        return new Screen
+        {
+            Id = $"X11_{index}",
+            Index = index,
+            Name = monitorName,
+            Bounds = bounds,
+            DPI = dpi,
+            DiagonalSizeInches = diagonalInches,
+            Orientation = info.width >= info.height ? ScreenOrientation.Landscape : ScreenOrientation.Portrait,
+            IsPrimary = info.primary != 0,
+            SessionType = SessionType.X11
+        };
+    }
+    private IEnumerable<Screen> GetAllX11Screens()
     {
         var display = XOpenDisplay(null);
-        if (display == IntPtr.Zero)
-        {
-            DebugHelper.WriteLine("Unable to open X11 display.");
-            return null;
-        }
+        if (display == IntPtr.Zero) yield break;
 
         try
         {
             var rootWindow = XDefaultRootWindow(display);
-
             int monitorCount = 0;
             IntPtr monitorsPtr = XRRGetMonitors(display, rootWindow, true, out monitorCount);
-            if (monitorsPtr == IntPtr.Zero || monitorCount == 0)
-            {
-                DebugHelper.WriteLine("Failed to get monitors via XRRGetMonitors or no monitors found.");
-                return null;
-            }
+
+            if (monitorsPtr == IntPtr.Zero) yield break;
 
             try
             {
-                DebugHelper.WriteLine($"Number of X11 monitors (XRRGetMonitors): {monitorCount}");
-                var monitorStructSize = Marshal.SizeOf<XRRMonitorInfo>();
-
+                var structSize = Marshal.SizeOf<XRRMonitorInfo>();
                 for (var i = 0; i < monitorCount; i++)
                 {
-                    var monitorPtr = IntPtr.Add(monitorsPtr, i * monitorStructSize);
-                    var monitorInfo = Marshal.PtrToStructure<XRRMonitorInfo>(monitorPtr);
+                    var monitorPtr = IntPtr.Add(monitorsPtr, i * structSize);
+                    var info = Marshal.PtrToStructure<XRRMonitorInfo>(monitorPtr);
 
-                    var bounds = new Rectangle(monitorInfo.x, monitorInfo.y, monitorInfo.width, monitorInfo.height);
-                    var monitorName = string.Empty;
-                    var atomNamePtr = XGetAtomName(display, monitorInfo.name);
-                    if (atomNamePtr != IntPtr.Zero)
+                    // Get the hardware name (e.g., "HDMI-1")
+                    string hardwareName = "Unknown";
+                    var atomPtr = XGetAtomName(display, info.name);
+                    if (atomPtr != IntPtr.Zero)
                     {
-                        monitorName = Marshal.PtrToStringAnsi(atomNamePtr) ?? "Unnamed";
-#pragma warning disable CA1806
-                        XFree(atomNamePtr);
-#pragma warning restore CA1806
+                        hardwareName = Marshal.PtrToStringAnsi(atomPtr) ?? "Unknown";
+                        XFree(atomPtr);
                     }
-                    var name = $"Monitor_{i} ({monitorName})";
-                    DebugHelper.WriteLine($"{name}: {bounds}");
 
-                    if (!bounds.Contains(pos))
-                        continue;
-                    DebugHelper.Logger?.Debug("Point {Pos} is within monitor bounds {MonitorName}", pos, monitorName);
-                    var width = monitorInfo.width;
-                    var height = monitorInfo.height;
-                    var mwidth = monitorInfo.mwidth;
-                    var mheight = monitorInfo.mheight;
-
-                    var dpi = 96.0;
-                    double diagonalInches = 0;
-                    if (mwidth > 0 && mheight > 0)
-                    {
-                        diagonalInches = Math.Sqrt(mwidth * mwidth + mheight * mheight) / 25.4;
-                        var resolutionDiagonal = Math.Sqrt(width * width + height * height);
-                        dpi = resolutionDiagonal / diagonalInches;
-                    }
-                    if (dpi == 0) dpi = 96.0; // X server is lying
-
-                    var orientation = width >= height ? ScreenOrientation.Landscape : ScreenOrientation.Portrait;
-
-                    return new Screen
-                    {
-                        Id = $"X11_{i}",
-                        Index = i,
-                        Name = monitorName,
-                        Bounds = bounds,
-                        DPI = dpi,
-                        DiagonalSizeInches = diagonalInches,
-                        Orientation = orientation,
-                        IsPrimary = monitorInfo.primary != 0,
-                        SessionType = SessionType.X11
-                    };
+                    yield return MapToScreen(i, hardwareName, info);
                 }
             }
             finally
@@ -127,8 +110,22 @@ public partial class LinuxAPI : NativeAPI
         {
             XCloseDisplay(display);
         }
+    }
+    public override Screen? GetScreen(Point pos)
+    {
+        return GetAllX11Screens()
+            .FirstOrDefault(s => s.Bounds.Contains(pos));
+    }
 
-        return null;
+    public Screen? GetScreen(string monitorName)
+    {
+        return GetAllX11Screens()
+            .FirstOrDefault(s => s.Name.Equals(monitorName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public List<Screen> GetScreens()
+    {
+        return GetAllX11Screens().ToList();
     }
 
     private static readonly Lock X11Sync = new();
@@ -136,27 +133,9 @@ public partial class LinuxAPI : NativeAPI
 
     public override List<WindowInfo> GetWindowList()
     {
-        DebugHelper.WriteLine($"GetWindowList called");
         var windows = new List<WindowInfo>();
         lock (X11Sync)
         {
-            // if (IsWayland())
-            // {
-            //     if (IsPlasma())
-            //     {
-            //         // Interact with Plasmashell over DBus
-            //         return windows;
-            //     }
-            //
-            //     if (IsGNOME())
-            //     {
-            //         // Interact with GNOME Shell
-            //         return windows;
-            //     }
-            //
-            //     return windows;
-            // }
-
             var display = XOpenDisplay(null);
             if (display == IntPtr.Zero)
             {
@@ -164,158 +143,138 @@ public partial class LinuxAPI : NativeAPI
                 return windows;
             }
 
-            var root = XDefaultRootWindow(display); // Get the root window of the X display
-
-            // Get all the child windows of the root window
-            var status = XQueryTree(
-                display,
-                root,
-                out root,
-                out _,
-                out var windowsPtr,
-                out var nchildren
-            );
-            if (status == 0 || windowsPtr == IntPtr.Zero)
+            try
             {
-                DebugHelper.Logger?.Debug("XQueryTree failed");
-                XCloseDisplay(display);
-                return windows;
-            }
+                var root = XDefaultRootWindow(display);
+                var stackingAtom = XInternAtom(display, "_NET_CLIENT_LIST_STACKING", true);
 
-            DebugHelper.Logger?.Debug("XQueryTree returned: " + status);
-            DebugHelper.Logger?.Debug("nchildren: " + nchildren);
+                IntPtr windowsPtr = IntPtr.Zero;
+                uint nchildren = 0;
 
-            for (uint i = 0; i < nchildren; i++)
-            {
-                var window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
-
-                var title = GetWindowTitle(display, window);
-                // if (title == string.Empty || title == "Untitled")
-                // {
-                //     DebugHelper.Logger?.Debug("Window is untitled, skipping");
-                //     continue;
-                // }
-
-                XGetWindowAttributes(display, window, out var attributes);
-                if (attributes.map_state != MapState.IsViewable)
-                {
-                    continue;
-                }
-
-                if (attributes.width <= 1 || attributes.height <= 1)
-                {
-                    continue;
-                }
-                int pid = 0;
-                if (TryGetWindowPid(display, window, out int windowPid))
-                {
-                    pid = windowPid;
-                }
-
-                string processName = string.Empty;
-                if (pid > 0)
-                {
-                    try
-                    {
-                        var proc = Process.GetProcessById(pid);
-                        processName = proc.ProcessName;
-                    }
-                    catch
-                    {
-                        processName = string.Empty;
-                    }
-                }
-
-                // Active window
-                XGetInputFocus(display, out var focusWindow, out _);
-                var isActive = focusWindow == window;
-                var rect = GetWindowRectangle(window);
-                windows.Add(
-                    new WindowInfo
-                    {
-                        Handle = window,
-                        Title = title,
-                        IsVisible = true,
-                        Rectangle = rect,
-                        // IsMinimized = IsWindowMinimized(display, window),
-                        ProcessId = pid,
-                        ProcessName = processName,
-                        IsActive = isActive,
-                    }
+                int status = XGetWindowProperty(
+                    display, root, stackingAtom, IntPtr.Zero, new IntPtr(1024),
+                    false, (IntPtr)33, // XA_WINDOW
+                    out _, out _, out var nItems, out _, out windowsPtr
                 );
-            }
 
-            XCloseDisplay(display);
+                // Fallback to XQueryTree if the Window Manager doesn't support the stacking atom
+                if (status != 0 || windowsPtr == IntPtr.Zero || nItems == IntPtr.Zero)
+                {
+                    XQueryTree(display, root, out _, out _, out windowsPtr, out nchildren);
+                }
+                else
+                {
+                    nchildren = (uint)nItems.ToInt32();
+                }
+
+                if (windowsPtr == IntPtr.Zero) return windows;
+
+                try
+                {
+                    XGetInputFocus(display, out var focusWindow, out _);
+
+                    for (uint i = 0; i < nchildren; i++)
+                    {
+                        var window = Marshal.ReadIntPtr(windowsPtr, (int)(i * IntPtr.Size));
+
+                        XGetWindowAttributes(display, window, out var attributes);
+                        if (attributes.map_state != MapState.IsViewable) continue;
+                        if (attributes.width <= 1 || attributes.height <= 1) continue;
+
+                        var title = GetWindowTitle(display, window);
+                        var isActive = focusWindow == window;
+                        var rect = GetWindowRectangleX11(display, window);
+
+                        int pid = 0;
+                        if (TryGetWindowPid(display, window, out var windowPid)) pid = windowPid;
+
+                        string processName = string.Empty;
+                        if (pid > 0)
+                        {
+                            try
+                            {
+                                processName = Process.GetProcessById(pid).ProcessName;
+                            }
+                            catch
+                            {
+                                // Silence!
+                            }
+                        }
+
+                        windows.Add(new WindowInfo
+                        {
+                            Handle = window,
+                            Title = title,
+                            IsVisible = true,
+                            Rectangle = rect,
+                            IsMinimized = IsWindowMinimized(display, window),
+                            ProcessId = pid,
+                            ProcessName = processName,
+                            IsActive = isActive,
+                        });
+                    }
+                }
+                finally
+                {
+                    if (windowsPtr != IntPtr.Zero) XFree(windowsPtr);
+                }
+            }
+            finally
+            {
+                XCloseDisplay(display);
+            }
         }
 
         return windows;
     }
-    /// <summary>
-    /// Attempts to read the _NET_WM_PID property of a window.
-    /// </summary>
     private bool TryGetWindowPid(IntPtr display, IntPtr window, out int pid)
     {
         pid = 0;
-
         var atomNetWmPid = XInternAtom(display, "_NET_WM_PID", false);
 
-        IntPtr prop = IntPtr.Zero;
-        IntPtr actualType;
-        int actualFormat;
-        IntPtr nItems;
-        IntPtr bytesAfter;
-
-        // The property should be XA_CARDINAL (a 32-bit unsigned integer).
-        // long_length is 1 because we expect one 32-bit value (the PID).
-        int result = XGetWindowProperty(
+        // Initialize out variables for XGetWindowProperty
+        var prop = IntPtr.Zero;
+        var result = XGetWindowProperty(
             display,
             window,
             atomNetWmPid,
             0,            // long_offset
-            1,            // long_length (1 CARDINAL = 4 bytes)
+            1,            // long_length
             false,        // delete
-            XA_CARDINAL,  // req_type
-            out actualType,
-            out actualFormat,
-            out nItems,
-            out bytesAfter,
+            (IntPtr)XA_CARDINAL,    // XA_CARDINAL is usually 6
+            out var actualType,
+            out var actualFormat,
+            out var nItems,
+            out var bytesAfter,
             out prop);
 
         if (result != 0)
         {
-            DebugHelper.WriteLine("Failed to get window process id. XGetWindowProperty returned error code: {0}", result);
+            DebugHelper.WriteLine($"XGetWindowProperty error: {result}");
             return false;
         }
 
-        bool success = false;
-        int itemCount = (int)nItems.ToInt64();
-
-        if (itemCount > 0 && prop != IntPtr.Zero)
+        var success = false;
+        try
         {
-
-            if (actualType == XA_CARDINAL && actualFormat == 32)
+            var itemCount = (int)nItems.ToInt64();
+            if (itemCount > 0 && prop != IntPtr.Zero)
             {
-                pid = Marshal.ReadInt32(prop);
-                DebugHelper.WriteLine("Got process id {0} for window 0x{1:X}", pid, window.ToInt64());
-                success = true;
-            }
-            else
-            {
-                DebugHelper.WriteLine("Property type or format mismatch. Expected type 0x{0:X} (XA_CARDINAL) and format 32. Got type 0x{1:X} and format {2}.",
-                                      XA_CARDINAL.ToInt64(), actualType.ToInt64(), actualFormat);
+                if (actualFormat == 32)
+                {
+                    pid = Marshal.ReadInt32(prop);
+                    success = true;
+                }
             }
         }
-        else
+        finally
         {
-            DebugHelper.WriteLine("XGetWindowProperty succeeded but returned no items (nItems = {0}).", itemCount);
+            if (prop != IntPtr.Zero)
+            {
+                XFree(prop);
+            }
         }
 
-        if (prop != IntPtr.Zero)
-        {
-            XFree(prop);
-        }
-
-        DebugHelper.WriteLine("TryGetWindowPid finished. Success: {0}, PID: {1}", success, pid);
         return success;
     }
     [LibraryImport(LibX11, StringMarshalling = StringMarshalling.Utf16)]
@@ -326,6 +285,14 @@ public partial class LinuxAPI : NativeAPI
 
     [LibraryImport(LibX11)]
     internal static partial IntPtr XDefaultRootWindow(IntPtr display);
+    [LibraryImport(LibX11)]
+    internal static partial int XDefaultScreen(IntPtr display);
+
+    [LibraryImport(LibX11)]
+    internal static partial int XDisplayWidth(IntPtr display, int screenNumber);
+
+    [LibraryImport(LibX11)]
+    internal static partial int XDisplayHeight(IntPtr display, int screenNumber);
 
     [LibraryImport(LibX11)]
     internal static partial int XEventsQueued(IntPtr display, int mode); // mode 0 for QueuedAfterReading,
@@ -418,9 +385,6 @@ public partial class LinuxAPI : NativeAPI
         int destX,
         int dextY
     );
-
-    [LibraryImport(LibX11)]
-    internal static partial int XGetWMState(IntPtr display, IntPtr window, out IntPtr state);
     [LibraryImport(LibX11)]
     internal static partial IntPtr XGetAtomName(IntPtr display, IntPtr atom); // Returns char*, needs marshalling
 
@@ -439,228 +403,206 @@ public partial class LinuxAPI : NativeAPI
     internal static partial int XDestroyWindow(IntPtr display, IntPtr w);
     [LibraryImport(LibX11)]
     internal static partial int XFree(IntPtr data);
+    private const int WithdrawnState = 0;
+    private const int NormalState = 1;
+    private const int IconicState = 3; // This means Minimized
     private static bool IsWindowMinimized(IntPtr display, IntPtr hwnd)
     {
-        XGetWMState(display, hwnd, out var state);
-        // Minimal state is often represented as iconified
-        return state != IntPtr.Zero;
+        IntPtr wmStateAtom = XInternAtom(display, "WM_STATE", false);
+
+        int status = XGetWindowProperty(
+            display, hwnd, wmStateAtom, IntPtr.Zero, new IntPtr(2),
+            false, wmStateAtom, out _, out _, out IntPtr nItems, out _, out IntPtr prop
+        );
+
+        if (status == 0 && prop != IntPtr.Zero)
+        {
+            try
+            {
+                if (nItems != IntPtr.Zero)
+                {
+                    // The first 32-bit value in the buffer is the state
+                    int stateValue = Marshal.ReadInt32(prop);
+                    return stateValue == IconicState;
+                }
+            }
+            finally
+            {
+                XFree(prop); // RAHHH! Must free the property buffer
+            }
+        }
+        return false;
     }
 
     private const uint ALL_PLANES = 0xFFFFFFFF;
     public const int ZPIXMAP = 2;
 
-    internal static Image TakeScreenshotWithX11(Screen screen)
-    {
-        DebugHelper.WriteLine($"Screenshotting screen {screen.Name} with {screen.Resolution} ({screen.Id})");
 
+    internal static unsafe Image TakeFullscreenScreenshot()
+    {
+        var display = XOpenDisplay(null);
+        if (display == IntPtr.Zero) throw new Exception("Unable to open X display.");
+
+        try
+        {
+            var root = XDefaultRootWindow(display);
+
+            var screenNum = XDefaultScreen(display);
+            var width = XDisplayWidth(display, screenNum);
+            var height = XDisplayHeight(display, screenNum);
+
+            DebugHelper.Logger?.Debug($"Capturing Full Virtual Desktop: {width}x{height}");
+
+            return CaptureAreaInternal(display, root, 0, 0, width, height);
+        }
+        finally
+        {
+            XCloseDisplay(display);
+        }
+    }
+    internal static unsafe Image<Rgba32> TakeScreenshotWithX11(Screen screen)
+    {
         var display = XOpenDisplay(null);
         if (display == IntPtr.Zero)
-            throw new Exception("Unable to open X display.");
-
-        var screenPtr = XScreenOfDisplay(display, screen.Index);
-        if (screenPtr == IntPtr.Zero)
-            throw new Exception($"Unable to open XScreen {screen.Index}");
-
-        var rootWindow = XRootWindowOfScreen(screenPtr);
-        if (rootWindow == IntPtr.Zero)
-            throw new Exception("Unable to open root xwindow");
-
-        XGetWindowAttributes(display, rootWindow, out var attributes);
-
-        DebugHelper.Logger?.Debug("x: {AttributesX}", attributes.x);
-        DebugHelper.Logger?.Debug("y: {AttributesY}", attributes.y);
-        DebugHelper.Logger?.Debug("width: {AttributesWidth}", attributes.width);
-        DebugHelper.Logger?.Debug("height: {AttributesHeight}", attributes.height);
-        DebugHelper.Logger?.Debug("border_width: {AttributesBorderWidth}", attributes.border_width);
-        DebugHelper.Logger?.Debug("depth: {AttributesDepth}", attributes.depth);
-        DebugHelper.Logger?.Debug("visual: {AttributesVisual}", attributes.visual);
-        DebugHelper.Logger?.Debug("root: {AttributesRoot}", attributes.root);
-        DebugHelper.Logger?.Debug("colormap: {AttributesColormap}", attributes.colormap);
-
-        var screenBounds = screen.Bounds;
-        var imagePtr = XGetImage(
-            display,
-            rootWindow,
-            screenBounds.X,
-            screenBounds.Y,
-            (uint)screenBounds.Width,
-            (uint)screenBounds.Height,
-            ALL_PLANES,
-            ZPIXMAP
-        );
-
-        if (imagePtr == IntPtr.Zero)
-            throw new Exception("Unable to capture screen image using X11.");
-
-        var xImage = Marshal.PtrToStructure<XImage>(imagePtr);
-
-        var width = xImage.width;
-        var height = xImage.height;
-        var bpp = xImage.bits_per_pixel;  // Bits per pixel (important for interpreting format)
-        DebugHelper.Logger?.Debug($"XImage: width={width}, height={height}, bits_per_pixel={bpp}");
-        DebugHelper.Logger?.Debug($"XImage masks: red=0x{xImage.red_mask:X}, green=0x{xImage.green_mask:X}, blue=0x{xImage.blue_mask:X}");
-
-        var bytesPerPixel = bpp / 8;
-
-        var pixelData = new byte[width * height * 4];
-
-        var rawPixels = new byte[width * height * bytesPerPixel];
-        Marshal.Copy(xImage.data, rawPixels, 0, rawPixels.Length);
-
-        for (var y = 0; y < height; y++)
         {
-            if (y % 100 == 0)
-                DebugHelper.Logger?.Debug($"Processing row {y}/{height}");
-
-            for (var x = 0; x < width; x++)
-            {
-                // Calculate the offset for the current pixel (byte-by-byte)
-                var pixelOffset = (y * width + x) * bytesPerPixel;
-
-                // Extract the raw pixel value from the data buffer
-                ulong pixel = 0;
-                for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
-                {
-                    pixel |= (ulong)rawPixels[pixelOffset + byteIndex] << (8 * byteIndex); // assuming little-endian
-                }
-                var rawPixelBytes = new byte[bytesPerPixel];
-                for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
-                {
-                    var currentByte = rawPixels[pixelOffset + byteIndex];
-                    rawPixelBytes[byteIndex] = currentByte;
-                    pixel |= (ulong)currentByte << (8 * byteIndex); // assuming little-endian
-                }
-                if ((x == 0 && y == 0) || (x == width / 2 && y == height / 2))
-                {
-                    DebugHelper.Logger?.Debug(
-                        "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {BPP}",
-                        x, y,
-                        BitConverter.ToString(rawPixelBytes),
-                        pixel,
-                        bytesPerPixel
-                    );
-
-                    DebugHelper.Logger?.Debug(
-                        "Masks - Red: 0x{RedMask:X}, Green: 0x{GreenMask:X}, Blue: 0x{BlueMask:X}",
-                        xImage.red_mask, xImage.green_mask, xImage.blue_mask
-                    );
-                }
-
-                var r = ExtractColorComponent(pixel, xImage.red_mask);
-                var g = ExtractColorComponent(pixel, xImage.green_mask);
-                var b = ExtractColorComponent(pixel, xImage.blue_mask);
-
-                var idx = (y * width + x) * 4;
-                pixelData[idx + 0] = r;
-                pixelData[idx + 1] = g;
-                pixelData[idx + 2] = b;
-                pixelData[idx + 3] = 255;
-            }
+            throw new Exception("Unable to open X display.");
         }
 
-        // Create ImageSharp image from the processed pixel data
-        var image = Image.LoadPixelData<Rgba32>(pixelData, width, height);
+        try
+        {
+            var screenPtr = XScreenOfDisplay(display, screen.Index);
+            if (screenPtr == IntPtr.Zero)
+            {
+                throw new Exception($"Unable to open XScreen {screen.Index}");
+            }
 
-        // Clean up
-        XDestroyImage(imagePtr);
-        XCloseDisplay(display);
+            var rootWindow = XRootWindowOfScreen(screenPtr);
+            var bounds = screen.Bounds;
+
+            DebugHelper.Logger?.Debug($"Capturing Screen {screen.Name} ({screen.Id}): {bounds}");
+
+            return CaptureAreaInternal(display, rootWindow, bounds.X, bounds.Y, bounds.Width, bounds.Height);
+        }
+        finally
+        {
+            XCloseDisplay(display);
+        }
+    }
+
+    /// <summary>
+    /// Reusable core logic to pull pixels from a specific X11 Window/Area
+    /// </summary>
+    private static unsafe Image<Rgba32> CaptureAreaInternal(IntPtr display, IntPtr window, int x, int y, int width, int height)
+    {
+        var imagePtr = XGetImage(display, window, x, y, (uint)width, (uint)height, ALL_PLANES, ZPIXMAP);
+
+        if (imagePtr == IntPtr.Zero)
+        {
+            throw new Exception($"XGetImage failed for area {width}x{height} at {x},{y}.");
+        }
+
+        try
+        {
+            return ConvertXImageToImageSharp(imagePtr);
+        }
+        finally
+        {
+            XDestroyImage(imagePtr);
+        }
+    }
+
+    private static unsafe Image<Rgba32> ConvertXImageToImageSharp(IntPtr xImagePtr)
+    {
+        // Access the struct directly via pointer to avoid marshalling alignment issues
+        XImage* xImage = (XImage*)xImagePtr;
+
+        var width = xImage->width;
+        var height = xImage->height;
+        var bpp = xImage->bits_per_pixel;
+        var stride = xImage->bytes_per_line;
+        var bytesPerPixel = bpp / 8;
+
+        var srcData = (byte*)xImage->data;
+        var rMask = (uint)xImage->red_mask;
+        var gMask = (uint)xImage->green_mask;
+        var bMask = (uint)xImage->blue_mask;
+
+        // Alpha mask calculation: usually only exists on 32bpp
+        var aMask = (bpp == 32) ? ~(rMask | gMask | bMask) & 0xFFFFFFFF : 0;
+
+        var image = new Image<Rgba32>(width, height);
+
+        image.ProcessPixelRows(accessor =>
+        {
+            for (var y = 0; y < height; y++)
+            {
+                var destRow = accessor.GetRowSpan(y);
+                // Jump to the start of the row using the Stride (bytes_per_line)
+                var srcRow = srcData + (y * stride);
+
+                for (var x = 0; x < width; x++)
+                {
+                    var pixelPtr = srcRow + (x * bytesPerPixel);
+
+                    // Read the pixel value based on bit depth
+                    var pixel = bpp switch
+                    {
+                        32 => *(uint*)pixelPtr,
+                        24 => *(uint*)pixelPtr & 0xFFFFFF,
+                        16 => *(ushort*)pixelPtr,
+                        _ => *pixelPtr
+                    };
+
+                    destRow[x] = new Rgba32(
+                        ExtractColorComponent(pixel, rMask),
+                        ExtractColorComponent(pixel, gMask),
+                        ExtractColorComponent(pixel, bMask),
+                        (aMask != 0) ? ExtractColorComponent(pixel, aMask) : (byte)255
+                    );
+                }
+            }
+        });
 
         return image;
     }
-    internal Image? TakeScreenshotOfX11Window(WindowInfo window)
+    internal unsafe Image? TakeScreenshotOfX11Window(WindowInfo window)
     {
-        DebugHelper.WriteLine($"Screenshotting window '{window.Title}' ({window.Handle:X}) with bounds {window.Rectangle}");
-
         var display = XOpenDisplay(null);
-        if (display == IntPtr.Zero)
-            throw new Exception("Unable to open X display.");
+        if (display == IntPtr.Zero) return null;
 
-        var gotWindowAttributes = XGetWindowAttributes(display, window.Handle, out var attributes);
-        if (gotWindowAttributes == 0) throw new Exception("Unable to get window attributes.");
-        int width = attributes.width;
-        int height = attributes.height;
-
-        DebugHelper.Logger?.Debug("Window Attributes: width={Width}, height={Height}, depth={Depth}", width, height, attributes.depth);
-        DebugHelper.Logger?.Debug("visual: {Visual}, colormap: {Colormap}", attributes.visual, attributes.colormap);
-
-        // Capture the image from the window using XGetImage
-        var imagePtr = XGetImage(
-            display,
-            window.Handle,
-            0, 0,
-            (uint)width,
-            (uint)height,
-            ALL_PLANES,
-            ZPIXMAP
-        );
-
-        if (imagePtr == IntPtr.Zero)
-            throw new Exception("Unable to capture window image using XGetImage.");
-
-        var xImage = Marshal.PtrToStructure<XImage>(imagePtr);
-        var bpp = xImage.bits_per_pixel;
-        var bytesPerPixel = bpp / 8;
-
-        DebugHelper.Logger?.Debug($"XImage: width={xImage.width}, height={xImage.height}, bits_per_pixel={bpp}");
-        DebugHelper.Logger?.Debug($"XImage masks: red=0x{xImage.red_mask:X}, green=0x{xImage.green_mask:X}, blue=0x{xImage.blue_mask:X}");
-
-        var rawPixels = new byte[width * height * bytesPerPixel];
-        Marshal.Copy(xImage.data, rawPixels, 0, rawPixels.Length);
-
-        var pixelData = new byte[width * height * 4];
-
-        for (var y = 0; y < height; y++)
+        try
         {
-            if (y % 100 == 0)
-                DebugHelper.Logger?.Debug("Processing row {Y}/{Height}", y, height);
-
-            for (var x = 0; x < width; x++)
+            // 1. Get current window geometry to ensure we have the correct dimensions
+            // We use XGetWindowAttributes because windows can be resized by the user at any time.
+            if (XGetWindowAttributes(display, window.Handle, out var attrs) == 0)
             {
-                var pixelOffset = (y * width + x) * bytesPerPixel;
-
-                ulong pixel = 0;
-                var rawPixelBytes = new byte[bytesPerPixel];
-
-                for (var byteIndex = 0; byteIndex < bytesPerPixel; byteIndex++)
-                {
-                    var currentByte = rawPixels[pixelOffset + byteIndex];
-                    rawPixelBytes[byteIndex] = currentByte;
-                    pixel |= (ulong)currentByte << (8 * byteIndex); // assuming little-endian
-                }
-
-                if ((x == 0 && y == 0) || (x == width / 2 && y == height / 2))
-                {
-                    DebugHelper.Logger?.Debug(
-                        "Pixel at ({X},{Y}): Raw Bytes: {RawBytes}, Combined pixel ulong: 0x{Pixel:X}, BytesPerPixel: {Bpp}",
-                        x, y,
-                        BitConverter.ToString(rawPixelBytes),
-                        pixel,
-                        bytesPerPixel
-                    );
-                    DebugHelper.Logger?.Debug(
-                        "Masks - Red: 0x{RedMask:X}, Green: 0x{GreenMask:X}, Blue: 0x{BlueMask:X}",
-                        xImage.red_mask, xImage.green_mask, xImage.blue_mask
-                    );
-                }
-
-                var r = ExtractColorComponent(pixel, xImage.red_mask);
-                var g = ExtractColorComponent(pixel, xImage.green_mask);
-                var b = ExtractColorComponent(pixel, xImage.blue_mask);
-
-                var idx = (y * width + x) * 4;
-                pixelData[idx + 0] = r;
-                pixelData[idx + 1] = g;
-                pixelData[idx + 2] = b;
-                pixelData[idx + 3] = 255;
+                DebugHelper.Logger?.Debug($"Failed to get attributes for window 0x{window.Handle:X}");
+                return null;
             }
+
+            // 2. MapState check: If it's 0 (Unmapped) or 1 (Unviewable/Minimized),
+            // XGetImage will throw a 'BadMatch' error.
+            if (attrs.map_state != MapState.IsViewable)
+            {
+                DebugHelper.Logger?.Debug($"Window 0x{window.Handle:X} is minimized or hidden (MapState: {attrs.map_state}).");
+                return null;
+            }
+
+            DebugHelper.Logger?.Debug($"Capturing Window: {window.Title} ({attrs.width}x{attrs.height})");
+
+            // 3. Reuse the core Capture logic.
+            // Note: For a window-specific handle, (0,0) is the top-left of the window itself.
+            return CaptureAreaInternal(display, window.Handle, 0, 0, attrs.width, attrs.height);
         }
-
-        var image = Image.LoadPixelData<Rgba32>(pixelData, width, height);
-
-        XDestroyImage(imagePtr);
-        XCloseDisplay(display);
-
-        return image;
+        catch (Exception ex)
+        {
+            DebugHelper.Logger?.Debug($"Exception capturing window: {ex.Message}");
+            return null;
+        }
+        finally
+        {
+            XCloseDisplay(display);
+        }
     }
 
     static byte ExtractColorComponent(ulong pixel, ulong mask)
@@ -707,36 +649,24 @@ public partial class LinuxAPI : NativeAPI
 
     [LibraryImport(LibX11)]
     internal static partial int XGetTextProperty(IntPtr display, IntPtr window, out XTextProperty textProp, IntPtr property);
-
+    private static IntPtr _netWmName;
+    private static IntPtr _utf8String;
     string GetWindowTitle(IntPtr display, IntPtr window)
     {
-        var netWmName = XInternAtom(display, "_NET_WM_NAME", false);
-        var utf8String = XInternAtom(display, "UTF8_STRING", false);
-
-        IntPtr actualType, prop;
-        int actualFormat;
-        IntPtr nItems, bytesAfter;
+        if (_netWmName == IntPtr.Zero) _netWmName = XInternAtom(display, "_NET_WM_NAME", false);
+        if (_utf8String == IntPtr.Zero) _utf8String = XInternAtom(display, "UTF8_STRING", false);
 
         int status = XGetWindowProperty(
-            display,
-            window,
-            netWmName,
-            IntPtr.Zero,
-            new IntPtr(1024),
-            false,
-            utf8String,
-            out actualType,
-            out actualFormat,
-            out nItems,
-            out bytesAfter,
-            out prop
+            display, window, _netWmName, IntPtr.Zero, new IntPtr(1024),
+            false, _utf8String, out _, out _, out IntPtr nItems, out _, out IntPtr prop
         );
 
         if (status == 0 && prop != IntPtr.Zero)
         {
             try
             {
-                return Marshal.PtrToStringUTF8(prop) ?? "Untitled";
+                if (nItems != IntPtr.Zero)
+                    return Marshal.PtrToStringUTF8(prop) ?? "Untitled";
             }
             finally
             {
@@ -744,13 +674,14 @@ public partial class LinuxAPI : NativeAPI
             }
         }
 
-        // fallback: WM_NAME
-        XTextProperty textProp;
-        if (XGetTextProperty(display, window, out textProp, XA_WM_NAME) != 0 && textProp.value != IntPtr.Zero)
+        // 2. Fallback: WM_NAME
+        // Note: XA_WM_NAME is a predefined constant (usually 39), no need to intern it.
+        if (XGetTextProperty(display, window, out var textProp, (IntPtr)39) != 0)
         {
             try
             {
-                return Marshal.PtrToStringAnsi(textProp.value) ?? "Untitled";
+                if (textProp.value != IntPtr.Zero)
+                    return Marshal.PtrToStringAnsi(textProp.value) ?? "Untitled";
             }
             finally
             {
@@ -973,19 +904,28 @@ public partial class LinuxAPI : NativeAPI
         }
     }
 
-    private static Rectangle GetWindowRectangleX11(IntPtr windowHandle)
+    private static Rectangle GetWindowRectangleX11(IntPtr display, IntPtr windowHandle)
     {
-        IntPtr display = XOpenDisplay(null);
-        if (display == IntPtr.Zero)
-            throw new InvalidOperationException("Unable to open X11 display.");
-
         var attributes = new XWindowAttributes();
         if (XGetWindowAttributes(display, windowHandle, out attributes) != 0)
         {
             return new Rectangle(attributes.x, attributes.y, attributes.width, attributes.height);
         }
-
         throw new InvalidOperationException("Unable to get window attributes.");
+    }
+    private static Rectangle GetWindowRectangleX11(IntPtr windowHandle)
+    {
+        IntPtr display = XOpenDisplay(null);
+        if (display == IntPtr.Zero)
+            throw new InvalidOperationException("Unable to open X11 display.");
+        try
+        {
+            return GetWindowRectangleX11(display, windowHandle);
+        }
+        finally
+        {
+            XCloseDisplay(display);
+        }
     }
 
     [LibraryImport(LibX11)]

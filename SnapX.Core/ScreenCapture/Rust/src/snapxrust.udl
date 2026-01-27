@@ -24,6 +24,7 @@ dictionary WindowData {
     boolean   is_focused;
 };
 namespace snapxrust {
+    ImageData capture_window_by_handle(u64 hwnd);
     ImageData capture_window(u32 x, u32 y);
     ImageData capture_monitor([ByRef]string name);
     ImageData capture_fullscreen();

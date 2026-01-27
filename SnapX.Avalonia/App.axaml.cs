@@ -1,6 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -33,7 +31,6 @@ using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Native;
-using Point = SixLabors.ImageSharp.Point;
 
 namespace SnapX.Avalonia;
 
@@ -90,14 +87,14 @@ public partial class App : Application
         {
             Orientation = Orientation.Horizontal,
             Spacing = 5,
-            HorizontalAlignment = HorizontalAlignment.Right,
+            HorizontalAlignment = HorizontalAlignment.Right
         };
 
         stackPanel.Children.Add(
             new SelectableTextBlock
             {
                 Text = ex.GetType() + ": " + ex.Message,
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Bold
                 // Padding = new Thickness(10)
             }
         );
@@ -105,7 +102,7 @@ public partial class App : Application
             new SelectableTextBlock
             {
                 Text = ex.StackTrace,
-                FontWeight = FontWeight.SemiLight,
+                FontWeight = FontWeight.SemiLight
                 // Padding = new Thickness(10),
             }
         );
@@ -116,7 +113,7 @@ public partial class App : Application
                 new SelectableTextBlock
                 {
                     Text = innerException.GetType() + ": " + innerException.Message,
-                    FontWeight = FontWeight.Bold,
+                    FontWeight = FontWeight.Bold
                     // Padding = new Thickness(10)
                 }
             );
@@ -124,11 +121,12 @@ public partial class App : Application
                 new SelectableTextBlock
                 {
                     Text = innerException.StackTrace,
-                    FontWeight = FontWeight.SemiLight,
+                    FontWeight = FontWeight.SemiLight
                     // Padding = new Thickness(10),
                 }
             );
         }
+
         var version = Assembly.GetExecutingAssembly().GetName().Version;
         var semver = version.Major + "." + version.Minor + "." + version.Revision;
         stackPanel.Children.Add(
@@ -139,7 +137,7 @@ public partial class App : Application
                 FontSize = 16,
                 FontFamily = new FontFamily("Consolas"),
                 // Padding = new Thickness(10),
-                HorizontalAlignment = HorizontalAlignment.Left,
+                HorizontalAlignment = HorizontalAlignment.Left
             }
         );
 
@@ -154,7 +152,7 @@ public partial class App : Application
             BorderThickness = new Thickness(1),
             Padding = new Thickness(10),
             FontWeight = FontWeight.Bold,
-            CornerRadius = new CornerRadius(5),
+            CornerRadius = new CornerRadius(5)
         };
         reportButton.Click += (sender, e) => OnReportErrorClicked(reportButton, ex);
 
@@ -170,7 +168,7 @@ public partial class App : Application
             FontSize = 16,
             Padding = new Thickness(10),
             FontWeight = FontWeight.Bold,
-            CornerRadius = new CornerRadius(5),
+            CornerRadius = new CornerRadius(5)
         };
         githubButton.Click += (sender, e) => OnGitHubButtonClicked(ex);
 
@@ -186,7 +184,7 @@ public partial class App : Application
             BorderThickness = new Thickness(1),
             Padding = new Thickness(10),
             FontWeight = FontWeight.Bold,
-            CornerRadius = new CornerRadius(5),
+            CornerRadius = new CornerRadius(5)
         };
 
         copyButton.Click += (sender, e) => CopyErrorToClipboard(copyButton, ex.ToString());
@@ -204,7 +202,7 @@ public partial class App : Application
             SizeToContent = SizeToContent.WidthAndHeight,
             MinWidth = 400,
             MaxWidth = 1920,
-            Padding = new Thickness(6),
+            Padding = new Thickness(6)
             // Background = new ImageBrush()
             // {
             //     Source = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("SnapX.Avalonia.SnapX_Logo.png")!),
@@ -231,6 +229,7 @@ public partial class App : Application
             DebugHelper.WriteLine("TopLevel is null");
             return;
         }
+
         topLevel.Clipboard?.SetTextAsync(errorMessage);
     }
 
@@ -278,7 +277,7 @@ public partial class App : Application
         {
             string str => new string(str.ToCharArray()),
             ICloneable cloneable => cloneable.Clone(),
-            _ => content, // For other types, we have to hope they're immutable
+            _ => content // For other types, we have to hope they're immutable
         };
     }
 
@@ -288,6 +287,7 @@ public partial class App : Application
         {
             if (SnapX != null)
             {
+                _pollingCts?.Cancel();
                 var shutdownTask = Task.Run(() => SnapX.shutdown());
 
                 if (!shutdownTask.Wait(TimeSpan.FromSeconds(10)))
@@ -303,6 +303,7 @@ public partial class App : Application
             Console.Error.WriteLine(e);
             Console.Error.WriteLine("Error shutting down SnapX.Core, continuing shut down.");
         }
+
         MyMainWindow?.Close();
         MyMainWindow = null;
 
@@ -315,12 +316,6 @@ public partial class App : Application
         Core.SnapX.EventAggregator.Subscribe<ErrorMessageEvent>(HandleErrorMessageEvent);
     }
 
-    [RequiresDynamicCode(
-        "Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)"
-    )]
-    [RequiresUnreferencedCode(
-        "Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)"
-    )]
     private async void HandleClipboardCopyEvent(NeedClipboardCopyEvent @event)
     {
         try
@@ -367,7 +362,7 @@ public partial class App : Application
                 }
                 else
                 {
-                    var json = JsonSerializer.Serialize(@event.CustomData);
+                    var json = JsonHelpers.SerializeToString(@event.CustomData);
                     dataObject.Set("CustomData", json);
                 }
             }
@@ -393,14 +388,14 @@ public partial class App : Application
                         ? @event.Exception.ToString()
                         : @event.Exception.Message,
                     TextWrapping = TextWrapping.Wrap,
-                    MaxWidth = 600,
+                    MaxWidth = 600
                 };
 
                 var scrollViewer = new ScrollViewer
                 {
                     Content = textBlock,
                     MaxHeight = 400,
-                    HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
                 };
 
                 var dialog = new ContentDialog
@@ -409,7 +404,7 @@ public partial class App : Application
                     Content = scrollViewer,
                     CloseButtonText = "Close",
                     DefaultButton = ContentDialogButton.Close,
-                    PrimaryButtonText = @event.FullError ? "Copy" : null,
+                    PrimaryButtonText = @event.FullError ? "Copy" : null
                 };
                 TaskHelpers.PlayNotificationSoundAsync(NotificationSound.Error);
                 var result = await dialog.ShowAsync();
@@ -491,6 +486,7 @@ public partial class App : Application
             return MyMainWindow.Clipboard;
         }
     }
+    CancellationTokenSource? _pollingCts = null;
 
     public override void OnFrameworkInitializationCompleted()
     {
@@ -521,339 +517,401 @@ public partial class App : Application
         switch (ApplicationLifetime)
         {
             case IClassicDesktopStyleApplicationLifetime desktop:
-            {
-                var sigintReceived = false;
-                desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-                desktop.ShutdownRequested += (_, _) =>
                 {
-                    DebugHelper.WriteLine("Received Shutdown from Avalonia");
-                    if (sigintReceived)
-                        return;
-                    sigintReceived = true;
-                    SnapX.shutdown();
-
-                    // desktop.Shutdown();
-                };
-
-                Console.CancelKeyPress += (_, ea) =>
-                {
-                    DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
-                    if (sigintReceived)
-                        return;
-                    ea.Cancel = true;
-                    sigintReceived = true;
-                    SnapX.shutdown();
-                    desktop.Shutdown();
-                };
-                // AppDomain.CurrentDomain.ProcessExit += (o, _) =>
-                // {
-                //     if (!sigintReceived)
-                //     {
-                //         sigintReceived = true;
-                //         DebugHelper.WriteLine("Received SIGTERM");
-                //         SnapX.shutdown();
-                //     }
-                //     else
-                //     {
-                //         DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
-                //     }
-                // };
-                var errorStarting = false;
-                // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
-                try
-                {
-                    Task.Run(() => SnapX.start(desktop.Args ?? [])).GetAwaiter().GetResult();
-                    var CLIManager = SnapX.GetCLIManager();
-                    Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult())
-                        .ConfigureAwait(false)
-                        .GetAwaiter()
-                        .GetResult();
-                }
-                catch (Exception ex)
-                {
-                    errorStarting = true;
-                    DebugHelper.WriteException(ex);
-                    ShowErrorDialog(Lang.SnapXFailedToStart, ex);
-                }
-
-                if (errorStarting)
-                    return;
-                ListenForEvents();
-                DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
-
-                var logoBitmap = new Bitmap(
-                    AssetLoader.Open(new Uri("avares://snapx-ui/SnapX_Logo.png"))
-                );
-                if (SnapX.GetConfiguration().ShowTray)
-                {
-                    var trayIcon = new TrayIcon
+                    var sigintReceived = false;
+                    desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                    desktop.ShutdownRequested += (_, _) =>
                     {
-                        Icon = new WindowIcon(logoBitmap),
-                        ToolTipText = Core.SnapX.AppName,
-                        Command = OpenSnapXCommand,
+                        DebugHelper.WriteLine("Received Shutdown from Avalonia");
+                        if (sigintReceived)
+                            return;
+                        sigintReceived = true;
+                        SnapX.shutdown();
+                        _pollingCts?.Cancel();
+
+                        // desktop.Shutdown();
                     };
 
-                    var menu = new NativeMenu();
-                    menu.Opening += NativeMenu_OnOpening;
-                    menu.NeedsUpdate += NativeMenu_OnNeedsUpdate;
-
-                    var about = new NativeMenuItem(TrayTitle)
+                    Console.CancelKeyPress += (_, ea) =>
                     {
-                        Icon = logoBitmap,
-                        ToolTip = Lang.AboutSnapX,
+                        DebugHelper.WriteLine("Received SIGINT (Ctrl+C)");
+                        if (sigintReceived)
+                            return;
+                        ea.Cancel = true;
+                        sigintReceived = true;
+                        SnapX.shutdown();
+                        desktop.Shutdown();
+                        _pollingCts?.Cancel();
                     };
-                    about.Click += NativeMenuItem_SnapX_OnClick;
-                    menu.Items.Add(about);
-                    menu.Items.Add(new NativeMenuItemSeparator());
-
-                    var capture = new NativeMenuItem("Capture") { Menu = new NativeMenu() };
-                    var full = new NativeMenuItem(Lang.UI_Capture_Fullscreen);
-                    full.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
-                    capture.Menu.Items.Add(full);
-                    var windowMenu = new NativeMenu();
-                    var windowPicker = new NativeMenuItem(Lang.UI_Dropdown_Window)
-                    {
-                        Menu = windowMenu,
-                    };
+                    // AppDomain.CurrentDomain.ProcessExit += (o, _) =>
+                    // {
+                    //     if (!sigintReceived)
+                    //     {
+                    //         sigintReceived = true;
+                    //         DebugHelper.WriteLine("Received SIGTERM");
+                    //         SnapX.shutdown();
+                    //     }
+                    //     else
+                    //     {
+                    //         DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
+                    //     }
+                    // };
+                    var errorStarting = false;
+                    // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
                     try
                     {
-                        var windows = Methods.GetWindowList();
-                        foreach (var window in windows)
-                        {
-                            var nativeWindowItem = new NativeMenuItem(window.Title)
-                            {
-                                Icon = logoBitmap,
-                                ToolTip = window.ProcessName,
-                            };
-                            nativeWindowItem.Click += (Sender, EA) =>
-                            {
-                                if (Sender is NativeMenuItem clickNativeWindow)
-                                {
-                                    var processName = clickNativeWindow.ToolTip;
-                                    if (processName != null)
-                                    {
-                                        var windowRect = Methods.GetWindowRectangle(window.Handle);
-                                        Task.Factory.StartNew(
-                                            () =>
-                                            {
-                                                var capturedImage = Methods
-                                                    .CaptureWindow(
-                                                        new Point(windowRect.X, windowRect.Y)
-                                                    )
-                                                    .ConfigureAwait(false)
-                                                    .GetAwaiter()
-                                                    .GetResult();
+                        Task.Run(() => SnapX.start(desktop.Args ?? [])).GetAwaiter().GetResult();
+                        var CLIManager = SnapX.GetCLIManager();
+                        Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult())
+                            .ConfigureAwait(false)
+                            .GetAwaiter()
+                            .GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        errorStarting = true;
+                        DebugHelper.WriteException(ex);
+                        ShowErrorDialog(Lang.SnapXFailedToStart, ex);
+                    }
 
+                    if (errorStarting)
+                        return;
+                    ListenForEvents();
+                    DebugHelper.WriteLine("Internal Startup time: {0} ms", SnapX.getStartupTime());
+
+                    var logoBitmap = new Bitmap(
+                        AssetLoader.Open(new Uri("avares://snapx-ui/SnapX_Logo.png"))
+                    );
+                    if (SnapX.GetConfiguration().ShowTray)
+                    {
+                        var trayIcon = new TrayIcon
+                        {
+                            Icon = new WindowIcon(logoBitmap),
+                            ToolTipText = Core.SnapX.AppName,
+                            Command = OpenSnapXCommand
+                        };
+
+                        var menu = new NativeMenu();
+                        menu.Opening += NativeMenu_OnOpening;
+                        menu.NeedsUpdate += NativeMenu_OnNeedsUpdate;
+
+                        var about = new NativeMenuItem(TrayTitle)
+                        {
+                            Icon = logoBitmap,
+                            ToolTip = Lang.AboutSnapX
+                        };
+                        about.Click += NativeMenuItem_SnapX_OnClick;
+                        menu.Items.Add(about);
+                        menu.Items.Add(new NativeMenuItemSeparator());
+
+                        var capture = new NativeMenuItem("Capture") { Menu = new NativeMenu() };
+                        var full = new NativeMenuItem(Lang.UI_Capture_Fullscreen);
+                        full.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
+                        capture.Menu.Items.Add(full);
+                        var windowMenu = new NativeMenu();
+                        // Never called on Linux!
+                        // @see https://github.com/AvaloniaUI/Avalonia/issues/8076
+                        windowMenu.NeedsUpdate += (sender, e) => { PopulateWindowMenu(windowMenu); };
+                        var windowPicker = new NativeMenuItem(Lang.UI_Dropdown_Window)
+                        {
+                            Menu = windowMenu
+                        };
+                        void StartPolling(NativeMenu windowMenu, NativeMenu screenMenu)
+                        {
+                            DebugHelper.WriteLine("SnapX has started polling for window changes and display changes. This is because Avalonia on Linux/FreeBSD does not support the NeedsUpdate event for the tray menu.");
+                            _pollingCts?.Cancel();
+                            _pollingCts = new CancellationTokenSource();
+
+                            _ = Task.Run(async () =>
+                            {
+                                using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+
+                                while (await timer.WaitForNextTickAsync(_pollingCts.Token))
+                                {
+                                    await Dispatcher.UIThread.InvokeAsync(() =>
+                                    {
+
+                                        PopulateWindowMenu(windowMenu);
+                                        PopulateMonitorMenu(screenMenu);
+                                    }, DispatcherPriority.Background);
+                                }
+                            }, _pollingCts.Token);
+                        }
+
+                        void PopulateWindowMenu(NativeMenu menu)
+                        {
+                            try
+                            {
+                                var windows = Methods.GetWindowList();
+                                var windowsById = windows.ToDictionary(w => w.Handle, w => w);
+
+                                for (var i = menu.Items.Count - 1; i >= 0; i--)
+                                {
+                                    var item = (NativeMenuItem)menu.Items[i];
+                                    if (item.CommandParameter is not IntPtr handle || !windowsById.ContainsKey(handle))
+                                    {
+                                        menu.Items.RemoveAt(i);
+                                    }
+                                }
+
+                                foreach (var window in windows)
+                                {
+                                    var existingItem = menu.Items.Cast<NativeMenuItem>()
+                                        .FirstOrDefault(item => item.CommandParameter is IntPtr handle && handle == window.Handle);
+
+                                    if (existingItem != null)
+                                    {
+                                        if (existingItem.Header != window.Title) existingItem.Header = window.Title;
+                                        continue;
+                                    }
+
+                                    var nativeWindowItem = new NativeMenuItem(window.Title)
+                                    {
+                                        Icon = logoBitmap,
+                                        ToolTip = window.ProcessName,
+                                        CommandParameter = window.Handle
+                                    };
+
+                                    nativeWindowItem.Click += (Sender, EA) =>
+                                    {
+                                        Task.Run(async () =>
+                                        {
+                                            var capturedImage = await Methods.CaptureWindow(window).ConfigureAwait(false);
+                                            if (capturedImage != null)
+                                            {
                                                 UploadManager.RunImageTask(
                                                     capturedImage,
                                                     TaskSettings.GetDefaultTaskSettings()
                                                 );
-                                            },
-                                            CancellationToken.None,
-                                            TaskCreationOptions.LongRunning,
-                                            TaskScheduler.Default
-                                        );
+                                            }
+                                        });
+                                    };
+
+                                    windowMenu.Add(nativeWindowItem);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                ShowErrorDialog(Lang.SnapXFailedToStart, ex);
+                            }
+                        }
+
+                        capture.Menu.Items.Add(windowPicker);
+                        var screens = SnapXResources.graphicsInfo?.Monitors;
+                        var screenMenu = new NativeMenu();
+                        var monitorPicker = new NativeMenuItem(Lang.UI_Dropdown_Monitor)
+                        {
+                            Menu = screenMenu
+                        };
+                        monitorPicker.Menu.NeedsUpdate += (sender, e) => { PopulateMonitorMenu(screenMenu); };
+
+                        void PopulateMonitorMenu(NativeMenu menu)
+                        {
+                            try
+                            {
+                                var currentScreens = screens?.Select((s, idx) => (s, idx)).ToList() ?? [];
+                                var screensByName = currentScreens.ToDictionary(pair => pair.s.Name, pair => pair);
+
+                                for (var i = menu.Items.Count - 1; i >= 0; i--)
+                                {
+                                    var item = (NativeMenuItem)menu.Items[i];
+                                    if (item.CommandParameter is not string screenName || !screensByName.ContainsKey(screenName))
+                                    {
+                                        menu.Items.RemoveAt(i);
                                     }
                                 }
-                            };
-                            windowMenu.Add(nativeWindowItem);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowErrorDialog(Lang.SnapXFailedToStart, ex);
-                    }
-                    capture.Menu.Items.Add(windowPicker);
-                    var screens = SnapXResources.graphicsInfo?.Monitors;
-                    var screenMenu = new NativeMenu();
-                    var monitorPicker = new NativeMenuItem(Lang.UI_Dropdown_Monitor)
-                    {
-                        Menu = screenMenu,
-                    };
-                    monitorPicker.Menu.NeedsUpdate += (sender, e) =>
-                    {
-                        PopulateMonitorMenu(screenMenu);
-                    };
-                    void PopulateMonitorMenu(NativeMenu menu)
-                    {
-                        menu.Items.Clear();
 
-                        foreach (var (screen, i) in screens!.Select((s, idx) => (s, idx)))
-                        {
-                            var item = new NativeMenuItem(
-                                $"{i}: {screen.Name} {screen.Resolution} (X: {screen.Position?.X ?? 0}, Y: {screen.Position?.Y ?? 0})"
-                            );
-                            item.Click += (s, ev) =>
-                            {
-                                Task.Factory.StartNew(
-                                    () =>
+                                foreach (var (screen, i) in currentScreens)
+                                {
+                                    var header = $"{i}: {screen.Name} {screen.Resolution} (X: {screen.Position?.X ?? 0}, Y: {screen.Position?.Y ?? 0})";
+                                    var existingItem = menu.Items.Cast<NativeMenuItem>()
+                                        .FirstOrDefault(item => item.CommandParameter is string name && name == screen.Name);
+
+                                    if (existingItem != null)
                                     {
-                                        var capturedImage = Methods
-                                            .CaptureScreen(screen.Position ?? Point.Empty)
-                                            .ConfigureAwait(false)
-                                            .GetAwaiter()
-                                            .GetResult();
+                                        if (existingItem.Header != header)
+                                        {
+                                            existingItem.Header = header;
+                                        }
+                                        continue;
+                                    }
 
-                                        if (capturedImage != null)
-                                            UploadManager.RunImageTask(
-                                                capturedImage,
-                                                TaskSettings.GetDefaultTaskSettings()
-                                            );
-                                    },
-                                    CancellationToken.None,
-                                    TaskCreationOptions.LongRunning,
-                                    TaskScheduler.Default
-                                );
-                            };
-                            menu.Items.Add(item);
+                                    var item = new NativeMenuItem(header)
+                                    {
+                                        CommandParameter = screen.Name
+                                    };
+
+                                    item.Click += (s, ev) =>
+                                    {
+                                        Task.Run(async () =>
+                                        {
+                                            var capturedImage = await Methods.CaptureScreen(screen.Name).ConfigureAwait(false);
+
+                                            if (capturedImage != null)
+                                            {
+                                                UploadManager.RunImageTask(
+                                                    capturedImage,
+                                                    TaskSettings.GetDefaultTaskSettings()
+                                                );
+                                            }
+                                        });
+                                    };
+
+                                    menu.Items.Add(item);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                ShowErrorDialog(Lang.SnapXFailedToStart, ex);
+                            }
                         }
-                    }
-                    PopulateMonitorMenu(screenMenu);
 
-                    capture.Menu.Items.Add(monitorPicker);
-                    var regionCaptureMenuItem = new NativeMenuItem(Lang.UI_Dropdown_Region);
-                    regionCaptureMenuItem.Click += (_, _) =>
-                    {
-                        new RegionSelectorWindow(new RegionSelectorViewModel()).Show();
-                    };
-                    capture.Menu.Items.Add(regionCaptureMenuItem);
-                    // capture.Menu.Items.Add(new NativeMenuItem("Region (Light)"));
-                    // capture.Menu.Items.Add(new NativeMenuItem("Region (Transparent)"));
-                    menu.Items.Add(capture);
-                    var uploadFile = new NativeMenuItem("Upload File...");
-                    uploadFile.Click += (_, _) =>
-                    {
-                        Core.SnapX.EventAggregator.Publish(
-                            new NeedFileOpenerEvent()
-                            {
-                                Title = "SnapX | Upload File",
-                                Multiselect = true,
-                            }
-                        );
-                    };
-                    var uploadFolder = new NativeMenuItem("Upload Folder...");
-                    uploadFolder.Click += (_, _) =>
-                    {
-                        Core.SnapX.EventAggregator.Publish(
-                            new NeedFileOpenerEvent()
-                            {
-                                Title = "SnapX | Upload Folder",
-                                Multiselect = false,
-                                FolderPicker = true,
-                            }
-                        );
-                    };
-                    var uploadText = new NativeMenuItem("Upload text...");
-                    uploadText.Click += (_, _) =>
-                    {
-                        var textBoxWindow = new Window();
-                        textBoxWindow.Title = "SnapX | Upload Text";
-                        var stackPanel = new StackPanel();
-                        stackPanel.Margin = new Thickness(10);
-                        textBoxWindow.Content = stackPanel;
-                        var textBox = new TextBox();
-                        textBox.MaxWidth = 450;
-                        textBox.TextWrapping = TextWrapping.Wrap;
-                        textBox.MinHeight = 150;
-                        stackPanel.Children.Add(textBox);
-                        var uploadButton = new Button();
-                        uploadButton.Content = "Upload";
-                        uploadButton.VerticalAlignment = VerticalAlignment.Bottom;
-
-                        uploadButton.Click += (_, _) =>
+                        PopulateWindowMenu(windowMenu);
+                        PopulateMonitorMenu(screenMenu);
+                        if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+                            StartPolling(windowMenu, screenMenu);
+                        capture.Menu.Items.Add(monitorPicker);
+                        var regionCaptureMenuItem = new NativeMenuItem(Lang.UI_Dropdown_Region);
+                        regionCaptureMenuItem.Click += (_, _) => { new RegionSelectorWindow().Show(); };
+                        capture.Menu.Items.Add(regionCaptureMenuItem);
+                        // capture.Menu.Items.Add(new NativeMenuItem("Region (Light)"));
+                        // capture.Menu.Items.Add(new NativeMenuItem("Region (Transparent)"));
+                        menu.Items.Add(capture);
+                        var uploadFile = new NativeMenuItem("Upload File...");
+                        uploadFile.Click += (_, _) =>
                         {
-                            UploadManager.UploadText(textBox.Text);
-                            textBoxWindow.Close();
+                            Core.SnapX.EventAggregator.Publish(
+                                new NeedFileOpenerEvent
+                                {
+                                    Title = "SnapX | Upload File",
+                                    Multiselect = true
+                                }
+                            );
                         };
-                        stackPanel.Children.Add(uploadButton);
-                        var cancelButton = new Button();
-                        cancelButton.Content = "Cancel";
-                        cancelButton.VerticalAlignment = VerticalAlignment.Bottom;
-                        cancelButton.Click += (_, _) => textBoxWindow.Close();
-                        stackPanel.Children.Add(cancelButton);
-
-                        textBoxWindow.Width = 500;
-                        textBoxWindow.Height = 800;
-                        textBoxWindow.Show();
-                    };
-                    // new NativeMenuItem("Upload from clipboard..."),
-                    var shortenURL = new NativeMenuItem("Shorten URL...");
-                    menu.Items.Add(
-                        new NativeMenuItem("Upload")
+                        var uploadFolder = new NativeMenuItem("Upload Folder...");
+                        uploadFolder.Click += (_, _) =>
                         {
-                            Menu = new NativeMenu
+                            Core.SnapX.EventAggregator.Publish(
+                                new NeedFileOpenerEvent
+                                {
+                                    Title = "SnapX | Upload Folder",
+                                    Multiselect = false,
+                                    FolderPicker = true
+                                }
+                            );
+                        };
+                        var uploadText = new NativeMenuItem("Upload text...");
+                        uploadText.Click += (_, _) =>
+                        {
+                            var textBoxWindow = new Window();
+                            textBoxWindow.Title = "SnapX | Upload Text";
+                            var stackPanel = new StackPanel();
+                            stackPanel.Margin = new Thickness(10);
+                            textBoxWindow.Content = stackPanel;
+                            var textBox = new TextBox();
+                            textBox.MaxWidth = 450;
+                            textBox.TextWrapping = TextWrapping.Wrap;
+                            textBox.MinHeight = 150;
+                            stackPanel.Children.Add(textBox);
+                            var uploadButton = new Button();
+                            uploadButton.Content = "Upload";
+                            uploadButton.VerticalAlignment = VerticalAlignment.Bottom;
+
+                            uploadButton.Click += (_, _) =>
                             {
+                                UploadManager.UploadText(textBox.Text);
+                                textBoxWindow.Close();
+                            };
+                            stackPanel.Children.Add(uploadButton);
+                            var cancelButton = new Button();
+                            cancelButton.Content = "Cancel";
+                            cancelButton.VerticalAlignment = VerticalAlignment.Bottom;
+                            cancelButton.Click += (_, _) => textBoxWindow.Close();
+                            stackPanel.Children.Add(cancelButton);
+
+                            textBoxWindow.Width = 500;
+                            textBoxWindow.Height = 800;
+                            textBoxWindow.Show();
+                        };
+                        // new NativeMenuItem("Upload from clipboard..."),
+                        var shortenURL = new NativeMenuItem("Shorten URL...");
+                        menu.Items.Add(
+                            new NativeMenuItem("Upload")
+                            {
+                                Menu = new NativeMenu
+                                {
                                 uploadFile,
                                 uploadFolder,
                                 uploadText,
-                                shortenURL,
-                            },
-                        }
-                    );
-                    var captureFullscreenMenuItem = new NativeMenuItem(Lang.UI_Capture_Fullscreen);
-                    captureFullscreenMenuItem.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
-                    var captureActiveWindowMenuItem = new NativeMenuItem("Capture active window");
-                    captureActiveWindowMenuItem.Click +=
-                        NativeMenuItem_Workflows_CaptureActiveWindow_OnClick;
-                    var captureActiveScreenMenuItem = new NativeMenuItem("Capture active screen");
-                    captureActiveScreenMenuItem.Click +=
-                        NativeMenuItem_Workflows_CaptureActiveScreen_OnClick;
-                    var workflows = new NativeMenuItem("Workflows")
-                    {
-                        Menu =
-                        [
-                            captureFullscreenMenuItem,
+                                shortenURL
+                                }
+                            }
+                        );
+                        var captureFullscreenMenuItem = new NativeMenuItem(Lang.UI_Capture_Fullscreen);
+                        captureFullscreenMenuItem.Click += NativeMenuItem_Capture_Fullscreen_OnClick;
+                        var captureActiveWindowMenuItem = new NativeMenuItem("Capture active window");
+                        captureActiveWindowMenuItem.Click +=
+                            NativeMenuItem_Workflows_CaptureActiveWindow_OnClick;
+                        var captureActiveScreenMenuItem = new NativeMenuItem("Capture active screen");
+                        captureActiveScreenMenuItem.Click +=
+                            NativeMenuItem_Workflows_CaptureActiveScreen_OnClick;
+                        var workflows = new NativeMenuItem("Workflows")
+                        {
+                            Menu =
+                            [
+                                captureFullscreenMenuItem,
                             captureActiveScreenMenuItem,
-                            captureActiveWindowMenuItem,
-                        ],
-                    };
+                            captureActiveWindowMenuItem
+                            ]
+                        };
 
-                    menu.Items.Add(workflows);
+                        menu.Items.Add(workflows);
 
-                    menu.Items.Add(new NativeMenuItemSeparator());
+                        menu.Items.Add(new NativeMenuItemSeparator());
 
-                    var open = new NativeMenuItem("Open");
-                    open.Command = OpenSnapXCommand;
-                    menu.Items.Add(open);
+                        var open = new NativeMenuItem("Open");
+                        open.Command = OpenSnapXCommand;
+                        menu.Items.Add(open);
 
-                    var quit = new NativeMenuItem("Quit");
-                    quit.Click += NativeMenuItem_Quit_OnClick;
-                    menu.Items.Add(quit);
+                        var quit = new NativeMenuItem("Quit");
+                        quit.Click += NativeMenuItem_Quit_OnClick;
+                        menu.Items.Add(quit);
 
-                    trayIcon.Menu = menu;
+                        trayIcon.Menu = menu;
 
-                    TrayIcon.SetIcons(Current, [trayIcon]);
+                        TrayIcon.SetIcons(Current, [trayIcon]);
+                    }
+
+                    if (SnapX.isSilent())
+                        return;
+                    if (SnapX.GetCLIManager().IsCommandExist("video"))
+                    {
+                        throw new NotImplementedException("LibVLC is removed from SnapX.Avalonia");
+                    }
+
+                    var Window = new MainWindow(vm);
+
+                    Window.Show();
+                    DebugHelper.WriteLine("MainWindow startup time: {0} ms", SnapX.getStartupTime());
+
+                    MyMainWindow = Window;
+                    desktop.MainWindow = Window;
+                    // MyMainWindow.Closed += (_, _) =>
+                    // {
+                    //     MyMainWindow = null;
+                    // };
+                    break;
                 }
-
-                if (SnapX.isSilent())
-                    return;
-                if (SnapX.GetCLIManager().IsCommandExist("video"))
-                {
-                    throw new NotImplementedException("LibVLC is removed from SnapX.Avalonia");
-                }
-                var Window = new MainWindow(vm);
-
-                Window.Show();
-                DebugHelper.WriteLine("MainWindow startup time: {0} ms", SnapX.getStartupTime());
-
-                MyMainWindow = Window;
-                desktop.MainWindow = Window;
-                // MyMainWindow.Closed += (_, _) =>
-                // {
-                //     MyMainWindow = null;
-                // };
-                break;
-            }
             case ISingleViewApplicationLifetime singleView when SnapX.isSilent():
                 return;
             case ISingleViewApplicationLifetime singleView:
-            {
-                var mv = new MainWindow(vm);
-                mv.Show();
-                MyMainWindow = mv;
-                singleView.MainView = mv;
-                break;
-            }
+                {
+                    var mv = new MainWindow(vm);
+                    mv.Show();
+                    MyMainWindow = mv;
+                    singleView.MainView = mv;
+                    break;
+                }
         }
     }
 
@@ -869,9 +927,11 @@ public partial class App : Application
                 DebugHelper.WriteLine("Failed to create about window, got null back from IoC");
                 return;
             }
+
             MySettingsWindow = settingsWindow;
             settingsWindow.Closed += (_, _) => MySettingsWindow = null;
         }
+
         if (MyMainWindow is not null && MyMainWindow.IsVisible)
         {
             MySettingsWindow.Show(MyMainWindow);
@@ -959,10 +1019,7 @@ public partial class App : Application
     private async void NativeMenuItem_Capture_Fullscreen_OnClick(object? Sender, EventArgs E)
     {
         await Task.Factory.StartNew(
-            () =>
-            {
-                new CaptureFullscreen().Capture();
-            },
+            () => { new CaptureFullscreen().Capture(); },
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default
@@ -975,10 +1032,7 @@ public partial class App : Application
     )
     {
         await Task.Factory.StartNew(
-            () =>
-            {
-                new CaptureActiveMonitor().Capture();
-            },
+            () => { new CaptureActiveMonitor().Capture(); },
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default
@@ -991,10 +1045,7 @@ public partial class App : Application
     )
     {
         await Task.Factory.StartNew(
-            () =>
-            {
-                new CaptureActiveWindow().Capture();
-            },
+            () => { new CaptureActiveWindow().Capture(); },
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default
@@ -1013,6 +1064,7 @@ public partial class App : Application
                 DebugHelper.WriteLine("Failed to create main window, got null back from IoC");
                 return;
             }
+
             MyMainWindow = mainWindow;
             MyMainWindow.Show();
         }
