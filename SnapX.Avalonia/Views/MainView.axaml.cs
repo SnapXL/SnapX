@@ -125,6 +125,11 @@ public partial class MainView : UserControl
                 var qrWindow = new QRCodeView();
                 qrWindow.Show();
             },
+            ["OCR"] = async () =>
+            {
+                var ocrWindow = new OCR();
+                ocrWindow.Show();
+            }
         };
 
         if (action != null && actionMap.TryGetValue(action, out var func))
