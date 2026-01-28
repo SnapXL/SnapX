@@ -5,9 +5,6 @@
     <AssemblyTitle>SnapX Core</AssemblyTitle>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Dapper.AOT</InterceptorsPreviewNamespaces>
-    <PaddleOCRVersion>3.0.1</PaddleOCRVersion>
-    <PaddleInferenceVersion>3.1.0.54</PaddleInferenceVersion>
-    <OpenCvSharp4Version>4.11.0.35</OpenCvSharp4Version>
     <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
     <MSExtensionsVersion>10.0.2</MSExtensionsVersion>
   </PropertyGroup>
@@ -23,21 +20,14 @@
   <PropertyGroup Condition="'$(DisableUploads)' == '1'">
     <DefineConstants>$(DefineConstants);DISABLE_UPLOADS</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition="'$(DisableUploads)' != '1'">
-    <TrimmerRootDescriptor Include="ILLink.Descriptors.xml" />
-    <EmbeddedResource Include="ILLink.Descriptors.xml">
-      <LogicalName>ILLink.Descriptors.xml</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
   <PropertyGroup Condition="$(RuntimeIdentifier.Contains('browser'))">
     <DefineConstants>$(DefineConstants);BROWSER</DefineConstants>
   </PropertyGroup>
-  <!-- Windows 11 ARM64, Musl based distributions, and FreeBSD are not supported for OCR -->
-  <PropertyGroup Condition="'$(DisableOCR)' == '1'&#xA;  OR $(RuntimeIdentifier.Contains('freebsd'))&#xA;  OR $(RuntimeIdentifier.Contains('browser'))&#xA;  OR $(RuntimeIdentifier.Contains('alpine'))&#xA;  OR $(RuntimeIdentifier.Contains('musl'))&#xA;  OR ($([MSBuild]::IsOsPlatform('Windows')) AND '$(PROCESSOR_ARCHITECTURE)' == 'ARM64')">
+  <PropertyGroup Condition="'$(DisableOCR)' == '1'">
     <DefineConstants>$(DefineConstants);DISABLE_OCR</DefineConstants>
   </PropertyGroup>
 
-  <!-- For packagers -->
+  <!-- For packagers, ensure PKGTYPE is in CAPITALS! -->
   <PropertyGroup Condition="'$(PKGTYPE)' != ''">
     <DefineConstants>$(DefineConstants);$(PKGTYPE)</DefineConstants>
   </PropertyGroup>
@@ -68,8 +58,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <!-- Cross platform OCR library -->
-    <PackageReference Include="Sdcb.PaddleOCR" Version="$(PaddleOCRVersion)" Condition="$(DisableOCR) != '1'" />
-    <PackageReference Include="BrycensRanch.Sdcb.PaddleOCR.Models.Online" Version="2.5.0" Condition="$(DisableOCR) != '1'" />
+    <PackageReference Include="BrycensRanch.RapidOcrNet" Version="1.0.0" Condition="$(DisableOCR) != '1'" />
 
     <!-- Crash forensics & performance analytics -->
     <PackageReference Include="Sentry.Profiling" Version="6.0.0" />
@@ -134,6 +123,7 @@
   </ItemGroup>
 <ItemGroup>
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
+  <Compile Remove=".\Tools\GenerateUploaderFactory\GenerateUploaderFactory.cs" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
   <ItemGroup Condition="'$(TargetWindows)' != 'true'">

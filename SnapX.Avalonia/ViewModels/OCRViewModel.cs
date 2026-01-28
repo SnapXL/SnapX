@@ -9,8 +9,8 @@ namespace SnapX.Avalonia.ViewModels;
 
 public partial class OCRViewModel : ViewModelBase
 {
-    public static readonly (string Display, string Code)[] _languages =
-    [
+    public static readonly (string Display, string Code)[] _languages = new[]
+    {
         ("English", "eng"),
         ("Chinese (Simplified)", "chi_sim"),
         ("Chinese (Traditional)", "chi_tra"),
@@ -27,7 +27,13 @@ public partial class OCRViewModel : ViewModelBase
         ("Kannada", "kan"),
         ("Tamil", "tam"),
         ("Turkish", "tur"),
-    ];
+        ("Thai", "tha"),
+        ("Greek", "ell"),
+        ("Cyrillic / East Slavic", "eslav"),
+        ("Latin script", "latin")
+    };
+
+
 
     [ObservableProperty]
     public int selectedLanguageIndex;
@@ -36,17 +42,19 @@ public partial class OCRViewModel : ViewModelBase
 
     public string GetLanguageCode(int index) => _languages[index].Code;
 
-    public async Task<string> RunOCRAsync(
+    public async Task<TaskHelpers.OcrResponse> RunOCRAsync(
         HistoryItem? Item = null,
+        Image? Image = null,
         string? languageCode = null,
-        Progress<TaskHelpers.OCRProgress>? progressHandler = null
+        Progress<TaskHelpers.OCRProgress>? progressHandler = null,
+        CancellationToken cts = default
     )
     {
         return await Task
             .Factory.StartNew(
                 async () =>
                 {
-                    Image? img = null;
+                    Image? img = Image;
 
                     if (img is null && Item?.BestImageSource is not null)
                     {
@@ -60,12 +68,11 @@ public partial class OCRViewModel : ViewModelBase
                         }
                     }
 
-                    return await TaskHelpers.OCRImage(
+                    return await TaskHelpers.OCRImageDetailed(
                         img,
                         Item?.BestImageSource,
                         TaskSettings.GetDefaultTaskSettings(),
-                        languageCode, progressHandler
-                    );
+                        languageCode, progressHandler, cts);
                 },
                 CancellationToken.None,
                 TaskCreationOptions.LongRunning,

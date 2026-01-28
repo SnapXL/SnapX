@@ -70,14 +70,43 @@ public class HistoryItem
     {
         get
         {
-            if (!string.Equals(Type, "image", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(Type, "video", StringComparison.OrdinalIgnoreCase)) return ThumbnailURL;
-            if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
-                return FilePath;
+            string? SafeString(string? value)
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    return null;
 
-            return ThumbnailURL ?? URL;
+                return value.Trim();
+            }
+            try
+            {
+                var isVisual =
+                    string.Equals(Type, "image", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(Type, "video", StringComparison.OrdinalIgnoreCase);
+
+                if (!isVisual)
+                    return SafeString(ThumbnailURL);
+
+                // Prefer a real local file only if it is unquestionably valid
+                if (!string.IsNullOrWhiteSpace(FilePath))
+                {
+                    // Reject invalid paths early
+                    if (!Path.IsPathFullyQualified(FilePath))
+                        goto fallback;
+
+                    if (File.Exists(FilePath))
+                        return FilePath;
+                }
+
+                fallback:
+                return SafeString(ThumbnailURL) ?? SafeString(URL);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
+
 
 
     public override bool Equals(object? obj)

@@ -1,8 +1,3 @@
 <Project>
-  <ItemGroup Condition="$(DisableOCR) != '1'">
-    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.linux-x64" Version="$(OpenCvSharp4Version)"  />
-    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.linux-arm64" Version="$(OpenCvSharp4Version)"  />
-    <PackageReference Include="Sdcb.PaddleInference.runtime.linux-x64.openblas" Version="$(PaddleInferenceVersion)" />
-    <PackageReference Include="Sdcb.PaddleInference.runtime.linux-arm64" Version="$(PaddleInferenceVersion)" />
-  </ItemGroup>
+  <!-- This project used to have packages for Linux OCR. It will likely be useful in the future. -->
 </Project>

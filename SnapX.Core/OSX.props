@@ -4,7 +4,7 @@
     <PropertyGroup>
       <!-- Since snapxrust is written in a completely different programming language, this props file can also be ran on Linux for development -->
       <RustLibName Condition="'$(TargetMacOS)' == 'true'">libsnapxrust.dylib</RustLibName>
-      <RustLibName Condition="'$(TargetLinux)' == 'true'">libsnapxrust.so</RustLibName>
+      <RustLibName Condition="'$(TargetLinux)' == 'true' or '$(TargetFreeBSD)' == 'true'">libsnapxrust.so</RustLibName>
       <RustLibName Condition="'$(TargetWindows)' == 'true'">snapxrust.dll</RustLibName>
       <RustDir>ScreenCapture/Rust</RustDir>
       <RustConfig>release</RustConfig>
@@ -18,10 +18,4 @@
     </None>
   </ItemGroup>
   </Target>
-  <ItemGroup Condition="$(DisableOCR) != '1'">
-    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.osx-x64" Version="$(OpenCvSharp4Version)"  />
-    <PackageReference Include="Sdcb.PaddleInference.runtime.osx-x64" Version="$(PaddleInferenceVersion)" />
-    <PackageReference Include="Sdcb.OpenCvSharp4.mini.runtime.osx-arm64" Version="$(OpenCvSharp4Version)"  />
-    <PackageReference Include="Sdcb.PaddleInference.runtime.osx-arm64" Version="$(PaddleInferenceVersion)" />
-  </ItemGroup>
 </Project>

@@ -4,10 +4,10 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using NeoSolve.ImageSharp.AVIF;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Gif;
@@ -38,11 +38,7 @@ using ZXing.QrCode;
 using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode;
 using Size = SixLabors.ImageSharp.Size;
 #if !DISABLE_OCR
-using OpenCvSharp;
-using Sdcb.PaddleInference;
-using Sdcb.PaddleOCR;
-using Sdcb.PaddleOCR.Models;
-using Sdcb.PaddleOCR.Models.Online;
+using RapidOcrNet;
 #endif
 
 namespace SnapX.Core.Job;
@@ -884,139 +880,284 @@ public static class TaskHelpers
     }
 
 #if !DISABLE_OCR
-    public async static Task<FullOcrModel> GetModelForLanguage(string languageCode)
+    public async static Task<OcrModel> GetModelForLanguage(string languageCode)
     {
         return languageCode switch
         {
-            "eng" => await OnlineFullModels.EnglishV4.DownloadAsync(),
-            "chi_sim" => await OnlineFullModels.ChineseV5.DownloadAsync(),
-            "chi_tra" => await OnlineFullModels.ChineseV3.DownloadAsync(),
-            "jpn" => await OnlineFullModels.JapanV4.DownloadAsync(),
-            "kor" => await OnlineFullModels.KoreanV4.DownloadAsync(),
-            "tel" => await OnlineFullModels.TeluguV4.DownloadAsync(),
-            "kan" => await OnlineFullModels.KannadaV4.DownloadAsync(),
-            "tam" => await OnlineFullModels.TamilV4.DownloadAsync(),
-            "ara" => await OnlineFullModels.ArabicV4.DownloadAsync(),
-            "hin" => await OnlineFullModels.DevanagariV4.DownloadAsync(),
-            _ => await OnlineFullModels.EnglishV4.DownloadAsync(),
+            "eng" => OnnxModels.V5.EnglishMobile,
+            "chi_sim" => OnnxModels.V5.ChineseMobile,
+            "chi_tra" => OnnxModels.V4.ChineseTraditional,
+            "jpn" or "ja" => OnnxModels.V4.JapaneseMobile,
+            "kor" => OnnxModels.V5.KoreanMobile,
+            "tel" => OnnxModels.V5.TeluguMobile,
+            "kan" => OnnxModels.V4.KannadaMobile,
+            "tam" => OnnxModels.V5.TamilMobile,
+            "ara" or "fas" or "urd" => OnnxModels.V5.ArabicMobile,
+            "hin" or "mar" or "nep" => OnnxModels.V5.DevanagariMobile,
+            "rus" or "ukr" or "bel" or "eslav" =>
+                OnnxModels.V5.EastSlavicMobile,
+            "bul" =>
+                OnnxModels.V5.CyrillicMobile,
+            "ell" =>
+                OnnxModels.V5.GreekMobile,
+            "tha" =>
+                OnnxModels.V5.ThaiMobile,
+            _ => OnnxModels.V5.LatinMobile,
         };
     }
-    // private static LocalRecognizationModel GetClosestRecognitionModel(string languageCode)
-    // {
-    //     return languageCode switch
-    //     {
-    //         "spa" => LocalRecognizationModel.EnglishV4, // Spanish → Latin script
-    //         "fra" => LocalRecognizationModel.EnglishV4, // French → Latin
-    //         "deu" => LocalRecognizationModel.EnglishV4, // German → Latin
-    //         "por" => LocalRecognizationModel.EnglishV4, // Portuguese → Latin
-    //         "tur" => LocalRecognizationModel.EnglishV4, // Turkish → Latin with diacritics
-    //         "rus" => LocalRecognizationModel.CyrillicV3, // Russian → Cyrillic
-    //         _ => LocalRecognizationModel.EnglishV4, // Fallback to English
-    //     };
-    // }
 #endif
 
-    public record OCRProgress(double Percent, string Status);
 
-    public static async Task<string> OCRImage(
+    public class OcrResponse : IDisposable, IAsyncDisposable
+    {
+        public string FullText { get; set; } = string.Empty;
+        public Image? AnnotatedImage { get; set; }
+        public List<OcrTextLine> Lines { get; set; } = new();
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeAsyncCore().ConfigureAwait(false);
+            Dispose(false);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                AnnotatedImage?.Dispose();
+            }
+
+            AnnotatedImage = null;
+        }
+
+        protected virtual ValueTask DisposeAsyncCore()
+        {
+            if (AnnotatedImage is IAsyncDisposable asyncDisposable)
+            {
+                return asyncDisposable.DisposeAsync();
+            }
+
+            AnnotatedImage?.Dispose();
+            return ValueTask.CompletedTask;
+        }
+    }
+
+    public class OcrTextLine
+    {
+        public string Text { get; set; } = string.Empty;
+        public float Confidence { get; set; }
+
+        // The raw data from the engine: [[x,y], [x,y], [x,y], [x,y]]
+        public float[][] BoundingBox { get; set; } = Array.Empty<float[]>();
+
+        // Returns the 4 points as ImageSharp PointF objects for drawing
+        public PointF[] BoxPoints => BoundingBox
+            .Select(p => new PointF(p[0], p[1]))
+            .ToArray();
+
+        // Helper properties for absolute positioning on a Canvas
+        public float MinX => BoundingBox.Length > 0 ? BoundingBox.Min(p => p[0]) : 0;
+        public float MaxX => BoundingBox.Length > 0 ? BoundingBox.Max(p => p[0]) : 0;
+        public float MinY => BoundingBox.Length > 0 ? BoundingBox.Min(p => p[1]) : 0;
+        public float MaxY => BoundingBox.Length > 0 ? BoundingBox.Max(p => p[1]) : 0;
+
+        public float Width => MaxX - MinX;
+        public float Height => MaxY - MinY;
+    }
+
+#if !DISABLE_OCR
+    public record OCRProgress(double Percent, string Status);
+    // Internal helper to convert RapidOcr types to our clean DTOs
+    private static OcrResponse MapToResponse(OcrResult result, Image visualImage)
+    {
+        return new OcrResponse
+        {
+            FullText = result.StrRes,
+            AnnotatedImage = visualImage,
+            Lines = result.TextBlocks.Select(block => new OcrTextLine
+            {
+                Text = block.GetText(),
+                Confidence = block.BoxScore,
+                BoundingBox = block.BoxPoints.Select(p => new[] { p.X, p.Y }).ToArray()
+            }).ToList()
+        };
+    }
+#endif
+
+    public static async Task<OcrResponse> OCRImageDetailed(
         Image? image = null,
         string? filePath = null,
         TaskSettings? taskSettings = null,
         string? languageCode = null,
-        IProgress<OCRProgress>? progress = null
+        IProgress<OCRProgress>? progress = null,
+        CancellationToken cts = default
     )
+
     {
 #if DISABLE_OCR
-        DebugHelper.WriteException(
-            new Exception("This build of SnapX was built with DISABLE_OCR build time constant.")
-        );
-        return string.Empty;
+DebugHelper.WriteException(
+
+new Exception("This build of SnapX was built with DISABLE_OCR build time constant.")
+
+);
+
+return new OcrResponse { FullText = "OCR Disabled in this build." };
+
 #else
+
         progress?.Report(
             new OCRProgress(
                 10,
                 $"Loading model for {languageCode}... (This may take awhile, I MAY download model files from internet)"
             )
         );
+
         await Task.Yield();
-        Sdcb.PaddleOCR.Models.Online.Settings.GlobalModelDirectory = Path.Combine(
-            BaseDirectory.CacheHome,
-            SnapX.AppName,
-            "PaddleOCRModels"
-        );
-        Sdcb.PaddleOCR.Models.Online.Settings.HttpClient = HttpClientFactory.Get();
-        var model = await GetModelForLanguage(languageCode ?? "eng");
+
         progress?.Report(new OCRProgress(40, "Running OCR inference..."));
+
         await Task.Yield();
-        using var ms = new MemoryStream();
+
 
         var imageConfig = Configuration.Default;
+
         imageConfig.ImageFormatsManager.SetEncoder(AVIFFormat.Instance, AVIFEncoder.Instance);
+
         imageConfig.ImageFormatsManager.SetDecoder(AVIFFormat.Instance, AVIFDecoder.Instance);
+
         imageConfig.ImageFormatsManager.AddImageFormatDetector(
             new PatchedAVIFImageFormatDetector()
         );
 
+
         try
+
         {
             if (filePath is not null && image is null)
+
             {
                 progress?.Report(new OCRProgress(45, "Reading image from disk..."));
+
                 await Task.Yield();
-                image = await Image.LoadAsync(filePath);
+
+                image = await Image.LoadAsync(filePath, cts);
             }
         }
+
         catch (Exception ex)
+
         {
             var issue = "Failed to load image for OCR";
+
             DebugHelper.Logger?.Warning(issue);
+
             DebugHelper.WriteException(ex);
-            return issue + Environment.NewLine + ex.Message;
+
+            return new OcrResponse
+            {
+                FullText = issue + Environment.NewLine + ex.Message
+            };
         }
+
         if (image is null)
-            return "SNAPX ERROR: PASSED NULL IMAGE AND NULL FILEPATH.";
+
+            return new OcrResponse
+            {
+                FullText = "SNAPX ERROR: PASSED NULL IMAGE AND NULL FILEPATH."
+            };
+
         progress?.Report(new OCRProgress(55, "Preprocessing image for Paddle..."));
+
         await Task.Yield();
-        using (image)
-        {
-            await image.SaveAsWebpAsync(ms, new WebpEncoder());
-        }
+
         DebugHelper.WriteLine(filePath);
 
-        progress?.Report(new OCRProgress(65, "Initializing Paddle Inference device..."));
-        await Task.Yield();
-        // ARM64 does not support ONNX yet.
-        var config =
-            model.DetectionModel.Version == ModelVersion.V4
-            && !(RuntimeInformation.OSArchitecture == Architecture.Arm64)
-                ? PaddleDevice.Onnx()
-                : PaddleDevice.Blas();
 
-        using var all = new PaddleOcrAll(model, config)
-        {
-            AllowRotateDetection = false,
-            Enable180Classification = false,
-        };
-        // Load local file by following code:
-        // using (Mat src2 = Cv2.ImRead(@"C:\test.jpg"))
-        DebugHelper.WriteLine($"OCR image bytes: {ms.Length}");
+        progress?.Report(new OCRProgress(65, "Initializing Paddle Inference device..."));
+
+        await Task.Yield();
+
+        DebugHelper.WriteLine($"OCR image bytes: ??");
+
         progress?.Report(new OCRProgress(75, "Performing Text Detection & Recognition..."));
+
         await Task.Yield();
-        using var src = Cv2.ImDecode(ms.ToArray(), ImreadModes.Color);
-        var result = all.Run(src);
-        progress?.Report(new OCRProgress(95, "Finalizing results..."));
-        await Task.Yield();
-        DebugHelper.WriteLine("Detected all texts: \n" + result.Text);
-        foreach (var region in result.Regions)
-        {
-            DebugHelper.WriteLine(
-                $"Text: {region.Text}, Score: {region.Score}, RectCenter: {region.Rect.Center}, RectSize:    {region.Rect.Size}, Angle: {region.Rect.Angle}"
+
+        var ocrEngine = new RapidOcr();
+        var modelDir = Path.Combine(
+
+            BaseDirectory.CacheHome,
+
+            SnapX.AppName,
+
+            "PaddleOCRModels"
+
             );
+        var model = await GetModelForLanguage(languageCode ?? "eng");
+
+        await ocrEngine.LoadModelAsync(model, modelDir, HttpClientFactory.Get(), ct: cts);
+        var originalLongSide = Math.Max(image.Width, image.Height);
+        var targetLimit = 1504;
+
+        // This logic ensures we don't upscale tiny images,
+        // but we still snap the result to a multiple of 32.
+        var finalResize = originalLongSide < targetLimit
+            ? (int)(Math.Ceiling(originalLongSide / 32.0) * 32)
+            : targetLimit;
+
+        var ocrResult = ocrEngine.Detect(image, new RapidOcrOptions
+        {
+            BoxScoreThresh = 0.5f,
+            BoxThresh = 0.3f,
+            DoAngle = true,
+            MostAngle = true,
+            UnClipRatio = 1.6f,
+            ImgResize = finalResize,
+            Padding = 10, // Reduced to keep text from getting lost in margins
+        });
+        var visualDebugImage = image.Clone(_ => { });
+
+
+        foreach (var block in ocrResult.TextBlocks)
+
+        {
+            DebugHelper.WriteLine(block.ToString());
+
+            var points = block.BoxPoints;
+
+
+            visualDebugImage.Mutate(ctx => { ctx.DrawPolygon(Color.Red, 4f, points); });
         }
-        progress?.Report(new OCRProgress(100, "OCR Complete."));
+
+
+        progress?.Report(new OCRProgress(95, "Finalizing results..."));
+
         await Task.Yield();
-        return result.Text;
+
+        DebugHelper.WriteLine("Detected all texts: \n" + ocrResult.StrRes);
+
+        return MapToResponse(ocrResult, visualDebugImage);
+
 #endif
+    }
+
+    // Keep API Compatibility
+    public static async Task<string> OCRImage(
+        Image? image = null,
+        string? filePath = null,
+        TaskSettings? taskSettings = null,
+        string? languageCode = null,
+        IProgress<OCRProgress>? progress = null)
+    {
+        var result = await OCRImageDetailed(image, filePath, taskSettings, languageCode, progress);
+        return result.FullText;
     }
 
     public static void PinToScreen(TaskSettings taskSettings = null)

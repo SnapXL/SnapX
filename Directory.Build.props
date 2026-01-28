@@ -92,7 +92,6 @@
 ">
     <TargetFreeBSD>true</TargetFreeBSD>
     <DefineConstants>$(DefineConstants);FREEBSD</DefineConstants>
-    <DisableOCR>1</DisableOCR>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetMacOS)' == 'true' and ( '$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe' )">
     <LinkerArg Include="-Wl,-ld_classic" />
