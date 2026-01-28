@@ -44,6 +44,7 @@
       <Output TaskParameter="ConsoleOutput" PropertyName="GeneratorOutput" />
     </Exec>
     <ItemGroup>
+      <Compile Remove="Upload/UploaderFactory.cs" />
       <Compile Include="Upload/UploaderFactory.cs" />
     </ItemGroup>
     <Message Text="Generator output: $(GeneratorOutput)" Importance="normal" />
