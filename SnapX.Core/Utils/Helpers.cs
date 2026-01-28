@@ -486,23 +486,6 @@ Operating System: {OsInfo.GetFancyOSNameAndVersion()}");
 
         return true;
     }
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-    [RequiresUnreferencedCode("Uploader")]
-    public static IEnumerable<T?> GetInstances<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>() where T : class
-    {
-        return FindSubclassesOf<T>()
-            .Where(t => t.GetConstructor(Type.EmptyTypes) != null)
-            .Select(t => Activator.CreateInstance(t) as T)
-            .Where(x => x != null);
-    }
-
-    [RequiresUnreferencedCode("Uploader")]
-    public static IEnumerable<Type> FindSubclassesOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>()
-    {
-        var baseType = typeof(T);
-        var assembly = baseType.Assembly;
-        return assembly.GetTypes().Where(t => t.IsSubclassOf(baseType));
-    }
 
     public static string GetOperatingSystemProductName(bool includeArch = false)
     {

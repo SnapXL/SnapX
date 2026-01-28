@@ -31,7 +31,23 @@
   <PropertyGroup Condition="'$(PKGTYPE)' != ''">
     <DefineConstants>$(DefineConstants);$(PKGTYPE)</DefineConstants>
   </PropertyGroup>
-
+  <!-- WHO NEEDS SOURCE GENERATORS WHEN YOU HAVE A SCRIPT IN NORMAL C# -->
+  <Target Name="GenerateUploaders" BeforeTargets="BeforeBuild" Condition="'$(DisableUploads)' != '1'">
+    <PropertyGroup>
+      <GenerateScriptPath>$(MSBuildProjectDirectory)/Tools/GenerateUploaderFactory/app.cs</GenerateScriptPath>
+    </PropertyGroup>
+    <Exec Command="dotnet $(GenerateScriptPath)"
+          ConsoleToMSBuild="true"
+          WorkingDirectory="$(MSBuildProjectDirectory)"
+          StandardOutputImportance="high"
+          IgnoreExitCode="false">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GeneratorOutput" />
+    </Exec>
+    <ItemGroup>
+      <Compile Include="Upload/UploaderFactory.cs" />
+    </ItemGroup>
+    <Message Text="Generator output: $(GeneratorOutput)" Importance="normal" />
+  </Target>
   <ItemGroup>
     <!-- Google Photos Library from Microsoft employee -->
     <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
@@ -123,7 +139,7 @@
   </ItemGroup>
 <ItemGroup>
   <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
-  <Compile Remove=".\Tools\GenerateUploaderFactory\GenerateUploaderFactory.cs" />
+  <Compile Remove=".\Tools\GenerateUploaderFactory\app.cs" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->
   <ItemGroup Condition="'$(TargetWindows)' != 'true'">
