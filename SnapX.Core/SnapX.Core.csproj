@@ -40,13 +40,16 @@
           ConsoleToMSBuild="true"
           WorkingDirectory="$(MSBuildProjectDirectory)"
           StandardOutputImportance="high"
-          IgnoreExitCode="false">
+          IgnoreExitCode="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="GeneratorOutput" />
+      <Output TaskParameter="ExitCode" PropertyName="GeneratorExitCode" />
     </Exec>
     <ItemGroup>
       <Compile Remove="Upload/UploaderFactory.cs" />
       <Compile Include="Upload/UploaderFactory.cs" />
     </ItemGroup>
+    <Warning Text="Uploader Generator failed with exit code $(GeneratorExitCode). Using existing or no factory file."
+             Condition="'$(GeneratorExitCode)' != '0'" />
     <Message Text="Generator output: $(GeneratorOutput)" Importance="normal" />
   </Target>
   <ItemGroup>
