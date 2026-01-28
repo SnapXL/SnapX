@@ -32,9 +32,16 @@ public partial class RegionSelectorWindow : Window
     private Stream? _imageStream;
     private Rect _imageBounds;
     private List<Window> windowsHiddenByUs = [];
-    public RegionSelectorWindow(RegionSelectorViewModel vm)
+    private TaskCompletionSource<Image?> _resultImg = new();
+    private TaskCompletionSource<SixLabors.ImageSharp.Rectangle?> _resultRect = new();
+    private bool IsSilentMode { get; set; } = false;
+
+    private bool TakeScreenshot { get; set; } = true;
+    public RegionSelectorWindow(RegionSelectorViewModel vm, bool IsSilent = false, bool takeScreenshot = true)
     {
         DataContext = vm;
+        IsSilentMode = IsSilent;
+        TakeScreenshot = takeScreenshot;
         InitializeComponent();
 
         _selectionRect = this.FindControl<Rectangle>("SelectionRect");
@@ -53,9 +60,21 @@ public partial class RegionSelectorWindow : Window
 
         Opacity = 1;
     }
+    public static async Task<Image?> SelectRegionAsync()
+    {
+        var selector = new RegionSelectorWindow(true);
+        selector.Show();
+        return await selector._resultImg.Task;
+    }
+    public static async Task<SixLabors.ImageSharp.Rectangle?> SelectRegionRectAsync()
+    {
+        var selector = new RegionSelectorWindow(true, false);
+        selector.Show();
+        return await selector._resultRect.Task;
+    }
     private async Task SetupWindowBoundsAsync()
     {
-        var bounds = await Task.Run(async() =>
+        var bounds = await Task.Run(async () =>
         {
             var (x, y, width, height) = await Methods.GetActiveScreen();
             DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
@@ -82,6 +101,7 @@ public partial class RegionSelectorWindow : Window
         });
     }
     public RegionSelectorWindow() : this(new RegionSelectorViewModel()) { }
+    public RegionSelectorWindow(bool IsSilent, bool takeScreenShot = true) : this(new RegionSelectorViewModel(), IsSilent, takeScreenShot) { }
     private void OnPointerPressed(object? Sender, PointerPressedEventArgs E)
     {
         _startPoint = E.GetPosition(this);
@@ -175,7 +195,11 @@ public partial class RegionSelectorWindow : Window
         _selectionRect.IsVisible = false;
         _infoBox.IsVisible = false;
         var selectedRegion = _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
+        var sixLaborsRect = new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X,
+            (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height);
+        _resultRect.TrySetResult(sixLaborsRect);
         DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {selectedRegion}");
+        if (!TakeScreenshot) return;
         try
         {
             await Task.Run(() =>
@@ -191,14 +215,16 @@ public partial class RegionSelectorWindow : Window
                     DebugHelper.WriteLine("RegionSelectorWindow.OnPointerReleased: _image is null");
                     return;
                 }
-                _image.Mutate(Context => Context.Crop(new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X,
-                    (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height)));
+                _image.Mutate(Context => Context.Crop(sixLaborsRect));
+                _resultImg.TrySetResult(_image);
+                if (IsSilentMode) return;
                 DebugHelper.WriteLine("Running image task");
                 UploadManager.RunImageTask(_image, TaskSettings.GetDefaultTaskSettings());
             });
         }
         catch (Exception ex)
         {
+            _resultImg.TrySetException(ex);
             ShowErrorDialog(ex);
         }
         App.MyMainWindow?.Show();
@@ -238,24 +264,30 @@ public partial class RegionSelectorWindow : Window
 
     private async void OnInit(object? Sender, EventArgs EventArgs)
     {
-        foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != this && w.IsVisible) ?? [])
+        if (!IsSilentMode)
         {
-            _ownershipMap[win] = win.Owner; // Save original owner
-            win.Hide();
-            windowsHiddenByUs.Add(win);
-        }
-        if (App.MyMainWindow != null && App.MyMainWindow.IsVisible)
-        {
-            _ownershipMap[App.MyMainWindow] = App.MyMainWindow.Owner;
-            App.MyMainWindow.Hide(); // Hide makes it lose relationship with child windows.
-            windowsHiddenByUs.Add(App.MyMainWindow);
+            foreach (var win in App.MyMainWindow?.OwnedWindows.Where(w => w != this && w.IsVisible) ?? [])
+            {
+                _ownershipMap[win] = win.Owner; // Save original owner
+                win.Hide();
+                windowsHiddenByUs.Add(win);
+            }
+
+            if (App.MyMainWindow != null && App.MyMainWindow.IsVisible)
+            {
+                _ownershipMap[App.MyMainWindow] = App.MyMainWindow.Owner;
+                App.MyMainWindow.Hide(); // Hide makes it lose relationship with child windows.
+                windowsHiddenByUs.Add(App.MyMainWindow);
+            }
         }
 
+        if (!TakeScreenshot) return;
         // Screenshotting can sometimes take time and block the UI thread.
         // It can also fail, so we have to handle it gracefully.
         try
         {
-            var captureTask = Task.Factory.StartNew(async () => await TaskHelpers.GetScreenshot().CaptureActiveMonitor(),
+            var captureTask = Task.Factory.StartNew(
+                async () => await TaskHelpers.GetScreenshot().CaptureActiveMonitor(),
                 TaskCreationOptions.LongRunning).Unwrap();
 
 
@@ -282,7 +314,8 @@ public partial class RegionSelectorWindow : Window
         await _image.SaveAsPngAsync(_imageStream);
         _imageStream.Position = 0;
         _imageBounds = new Rect(_image.Bounds.X, _image.Bounds.Y, _image.Bounds.Width, _image.Bounds.Height);
-        DebugHelper.WriteLine($"_imageStream {_imageStream.Length} (Readable? {_imageStream.CanRead}) bytes raw image bounds {_image.Bounds}");
+        DebugHelper.WriteLine(
+            $"_imageStream {_imageStream.Length} (Readable? {_imageStream.CanRead}) bytes raw image bounds {_image.Bounds}");
         try
         {
             Background = new ImageBrush
@@ -323,23 +356,29 @@ public partial class RegionSelectorWindow : Window
     }
     private void OnClosed(object? Sender, EventArgs E)
     {
+        _resultRect.TrySetResult(null);
+        _resultImg.TrySetResult(null);
         _imageStream?.Dispose();
         _imageStream = null;
-        var sortedWindows = TopoSortWindows(windowsHiddenByUs);
-
-        foreach (var win in sortedWindows)
+        if (!IsSilentMode)
         {
-            if (_ownershipMap.TryGetValue(win, out var owner) && owner?.IsVisible == true)
+            var sortedWindows = TopoSortWindows(windowsHiddenByUs);
+
+            foreach (var win in sortedWindows)
             {
-                win.Show(owner as Window);
+                if (_ownershipMap.TryGetValue(win, out var owner) && owner?.IsVisible == true)
+                {
+                    win.Show(owner as Window);
+                }
+                else
+                {
+                    win.Show();
+                }
             }
-            else
-            {
-                win.Show();
-            }
+
+            _ownershipMap.Clear();
+            windowsHiddenByUs.Clear();
         }
-        _ownershipMap.Clear();
-        windowsHiddenByUs.Clear();
     }
     private void OnLostFocus(object? Sender, RoutedEventArgs E)
     {
