@@ -64,7 +64,7 @@ public partial class AboutWindowViewModel : ViewModelBase
         "Microcom",
         "Color",
     ];
-    public static readonly string[] excludedKeywords = ["mscorlib", "Mono", "netstandard"];
+    public static readonly string[] excludedKeywords = ["mscorlib", "Mono", "netstandard", "Newtonsoft"];
     public static IEnumerable<Assembly> CombinedLoadedAssemblies =>
         AppDomain.CurrentDomain.GetAssemblies().Concat(App.SnapX.GetAssemblies()).Distinct();
 

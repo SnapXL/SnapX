@@ -27,44 +27,6 @@
         SelectionChanged="NavigationView_OnSelectionChanged"
         UseLayoutRounding="True">
         <controls:NavigationView.MenuItems>
-            <!-- <controls:MenuFlyoutSubItem Text="Destinations"> -->
-            <!--     <controls:MenuFlyoutSubItem.IconSource> -->
-            <!--  <fluent:FluentIconSource  -->
-            <!--  Icon="GlobeLocation"  -->
-            <!--  IconSize="Size32"  -->
-            <!--  IconVariant="Regular" />  -->
-            <!--     </controls:MenuFlyoutSubItem.IconSource> -->
-            <!-- <controls:MenuFlyoutSubItem Text="Image uploader: Unknown"> -->
-            <!--     <controls:MenuFlyoutSubItem.IconSource> -->
-            <!--  <fluent:FluentIconSource  -->
-            <!--  Icon="Image"  -->
-            <!--  IconSize="Size32"  -->
-            <!--  IconVariant="Regular" />  -->
-            <!--     </controls:MenuFlyoutSubItem.IconSource> -->
-            <!--     <controls:RadioMenuFlyoutItem Text="Imgur" /> -->
-            <!--     <controls:RadioMenuFlyoutItem Text="ImgBB" /> -->
-            <!--    -->
-            <!-- </controls:MenuFlyoutSubItem> -->
-            <!-- <controls:NavigationViewItem Content="Custom uploader"> -->
-            <!--     <controls:NavigationViewItem.IconSource> -->
-            <!--  <fluent:FluentIconSource  -->
-            <!--  Icon="GlobeLocation"  -->
-            <!--  IconSize="Size32"  -->
-            <!--  IconVariant="Regular" />  -->
-            <!--     </controls:NavigationViewItem.IconSource> -->
-            <!--    -->
-            <!-- </controls:NavigationViewItem> -->
-            <!-- </controls:MenuFlyoutSubItem> -->
-            <!-- <controls:NavigationViewItemBase> -->
-            <!--     <MenuBar> -->
-            <!--         <MenuBarItem Title="Destinations"> -->
-            <!--  ~1~  Image uploader horizontal submenu  @1@  -->
-            <!--             <controls:MenuFlyoutItem Text="Imgur" /> -->
-            <!--             <controls:MenuFlyoutItem Text="ImgBB" /> -->
-            <!--             <controls:MenuFlyoutItem Text="Custom uploader" /> -->
-            <!--         </MenuBarItem> -->
-            <!--     </MenuBar> -->
-            <!-- </controls:NavigationViewItemBase> -->
             <controls:NavigationViewItem Content="Application">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
@@ -85,7 +47,7 @@
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="DarkTheme"
-                                IconSize="Size32"
+                                IconSize="Size24"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                     </controls:NavigationViewItem>
@@ -93,7 +55,7 @@
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="CalligraphyPen"
-                                IconSize="Size32"
+                                IconSize="Size24"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                     </controls:NavigationViewItem>
@@ -109,7 +71,7 @@
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="BroomSparkle"
-                                IconSize="Size32"
+                                IconSize="Size20"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                         <ToolTip.Tip>Previously, Main window</ToolTip.Tip>
@@ -118,8 +80,8 @@
                     <controls:NavigationViewItem Content="View">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
-                                Icon="DarkTheme"
-                                IconSize="Size32"
+                                Icon="SquareHintApps"
+                                IconSize="Size24"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                     </controls:NavigationViewItem>
@@ -151,7 +113,7 @@
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="ShieldPerson"
-                                IconSize="Size32"
+                                IconSize="Size20"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                     </controls:NavigationViewItem>
@@ -169,7 +131,7 @@
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="TaskList"
-                        IconSize="Size32"
+                        IconSize="Size24"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
                 <controls:NavigationView.MenuItems>
@@ -185,7 +147,7 @@
                                 <controls:NavigationViewItem.IconSource>
                                     <fluent:FluentIconSource
                                         Icon="ImageSparkle"
-                                        IconSize="Size32"
+                                        IconSize="Size24"
                                         IconVariant="Regular" />
                                 </controls:NavigationViewItem.IconSource>
                             </controls:NavigationViewItem>
@@ -193,7 +155,7 @@
                                 <controls:NavigationViewItem.IconSource>
                                     <fluent:FluentIconSource
                                         Icon="TabDesktopImage"
-                                        IconSize="Size32"
+                                        IconSize="Size24"
                                         IconVariant="Regular" />
                                 </controls:NavigationViewItem.IconSource>
                             </controls:NavigationViewItem>
@@ -202,8 +164,8 @@
                     <controls:NavigationViewItem Content="Capture">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
-                                Icon="Camera"
-                                IconSize="Size32"
+                                Icon="CameraEdit"
+                                IconSize="Size20"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                         <controls:NavigationViewItem.MenuItems>
@@ -219,7 +181,7 @@
                                 <controls:NavigationViewItem.IconSource>
                                     <fluent:FluentIconSource
                                         Icon="VideoRecording"
-                                        IconSize="Size32"
+                                        IconSize="Size20"
                                         IconVariant="Regular" />
                                 </controls:NavigationViewItem.IconSource>
                             </controls:NavigationViewItem>
@@ -227,7 +189,7 @@
                                 <controls:NavigationViewItem.IconSource>
                                     <fluent:FluentIconSource
                                         Icon="ImageAltText"
-                                        IconSize="Size32"
+                                        IconSize="Size24"
                                         IconVariant="Regular" />
                                 </controls:NavigationViewItem.IconSource>
                             </controls:NavigationViewItem>
@@ -244,8 +206,8 @@
                             <controls:NavigationViewItem Content="File naming">
                                 <controls:NavigationViewItem.IconSource>
                                     <fluent:FluentIconSource
-                                        Icon="Rename"
-                                        IconSize="Size32"
+                                        Icon="RenameA"
+                                        IconSize="Size20"
                                         IconVariant="Regular" />
                                 </controls:NavigationViewItem.IconSource>
                             </controls:NavigationViewItem>
@@ -253,7 +215,7 @@
                                 <controls:NavigationViewItem.IconSource>
                                     <fluent:FluentIconSource
                                         Icon="ClipboardSettings"
-                                        IconSize="Size32"
+                                        IconSize="Size24"
                                         IconVariant="Regular" />
                                 </controls:NavigationViewItem.IconSource>
                             </controls:NavigationViewItem>
@@ -270,8 +232,8 @@
                     <controls:NavigationViewItem Content="Actions">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
-                                Icon="TaskList"
-                                IconSize="Size32"
+                                Icon="TaskListSquareSettings"
+                                IconSize="Size20"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                     </controls:NavigationViewItem>
@@ -279,7 +241,7 @@
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="FolderSearch"
-                                IconSize="Size32"
+                                IconSize="Size24"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                     </controls:NavigationViewItem>
@@ -305,7 +267,7 @@
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="KeyboardShiftUppercase"
-                        IconSize="Size32"
+                        IconSize="Size24"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>
@@ -313,15 +275,15 @@
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="GlobeLocation"
-                        IconSize="Size32"
+                        IconSize="Size24"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
                 <controls:NavigationViewItem.MenuItems>
                     <controls:NavigationViewItem Content="Image uploaders">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
-                                Icon="VideoRecording"
-                                IconSize="Size32"
+                                Icon="ImageCopy"
+                                IconSize="Size24"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                         <controls:NavigationViewItem.MenuItems>
@@ -342,7 +304,7 @@
                         <controls:NavigationViewItem.MenuItems>
                             <controls:NavigationViewItem Content="Pastebin" />
                             <controls:NavigationViewItem Content="Paste.ee" />
-                            <controls:NavigationViewItem Content="GitHUb Gist" />
+                            <controls:NavigationViewItem Content="GitHub Gist" />
                             <controls:NavigationViewItem Content="uPaste" />
                             <controls:NavigationViewItem Content="Hastebin" />
                             <controls:NavigationViewItem Content="OneTimeSecret" />
@@ -354,7 +316,7 @@
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="DataFunnel"
-                                IconSize="Size32"
+                                IconSize="Size24"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                         <controls:NavigationViewItem.MenuItems>
@@ -393,7 +355,7 @@
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="LinkEdit"
-                                IconSize="Size32"
+                                IconSize="Size24"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                         <controls:NavigationViewItem.MenuItems>
@@ -433,7 +395,7 @@
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="DatabaseWindow"
-                        IconSize="Size32"
+                        IconSize="Size20"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>

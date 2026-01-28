@@ -20,9 +20,6 @@
 <!--  <PropertyGroup Condition="'$(TargetWindows)' == 'true'">-->
 <!--    <AvaloniaVersion>11.3.4</AvaloniaVersion>-->
 <!--  </PropertyGroup>-->
-    <PropertyGroup Condition="'$(TargetFreeBSD)' == 'true'">
-    <AvaloniaVersion>11.3.9</AvaloniaVersion>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetDesktop)' == 'true'">
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
@@ -54,8 +51,8 @@
     <PackageReference Condition="'$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.Contains('browser'))" Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
     <PackageReference Condition="!$(RuntimeIdentifier.Contains('browser'))" Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="FluentAvaloniaUI" Version="2.4.1" />
-    <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="1.2.315" />
+    <PackageReference Include="FluentAvaloniaUI" Version="2.5.0" />
+    <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="2.0.317" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
     <PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />

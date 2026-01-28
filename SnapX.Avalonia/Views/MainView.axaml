@@ -21,20 +21,17 @@
         Background="{DynamicResource SolidBackgroundFillColorBase}"
         IsPaneOpen="{Binding IsPaneOpen}"
         IsSettingsVisible="False"
+        Name="MainNavView"
         OpenPaneLength="220"
         PaneDisplayMode="Left"
         PaneTitle="SnapX"
-        UseLayoutRounding="True"
-        Name="MainNavView">
+        UseLayoutRounding="True">
 
         <controls:NavigationView.MenuItems>
-            <controls:NavigationViewItem Content="Region" x:Name="CaptureSplitButton">
-                <controls:NavigationViewItem.IconSource>
-                    <fluent:FluentIconSource
-                        Icon="Camera"
-                        IconSize="Size32"
-                        IconVariant="Regular" />
-                </controls:NavigationViewItem.IconSource>
+            <controls:NavigationViewItem
+                Content="Region"
+                IconSource="Camera"
+                x:Name="CaptureSplitButton">
 
                 <controls:NavigationViewItem.MenuItems>
                     <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Capture_Fullscreen}" IconSource="Camera" />
@@ -42,19 +39,22 @@
                     <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_Monitor}" IconSource="Camera" />
                     <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_Region}" IconSource="Camera" />
                     <!-- <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_RegionLight}" IconSource="Camera" />
-                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" IconSource="Camera" /> -->
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_RegionTransparent}" IconSource="Camera" />-->
                     <!-- <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_ScreenRecording}" IconSource="Camera" />
-                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_ScreenRecordingGIF}" IconSource="Camera" /> -->
+                    <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Dropdown_ScreenRecordingGIF}" IconSource="Camera" />-->
 
                     <!--  Delay submenu  -->
-                    <controls:NavigationViewItem Content="Delay" IconSource="Clock" Name="DelayMenuItem">
+                    <controls:NavigationViewItem
+                        Content="Delay"
+                        IconSource="Clock"
+                        Name="DelayMenuItem">
                         <controls:NavigationViewItem.MenuItems>
 
                             <controls:NavigationViewItem
                                 Content="1 second"
+                                PointerPressed="DelayOption_Checked"
                                 Tag="1"
-                                Tapped="DelayOption_Checked"
-                                PointerPressed="DelayOption_Checked" />
+                                Tapped="DelayOption_Checked" />
                             <controls:NavigationViewItem
                                 Content="5 seconds"
                                 Tag="5"
@@ -84,6 +84,14 @@
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="QrCode"
+                                IconSize="Size28"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="OCR" PointerPressed="ToolClicked">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="ScanText"
                                 IconSize="Size32"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
@@ -124,7 +132,7 @@
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="BoxSearch"
-                        IconSize="Size32"
+                        IconSize="Size24"
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
                 <controls:NavigationView.MenuItems>
@@ -136,7 +144,7 @@
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="ImageGlobe"
-                                IconSize="Size32"
+                                IconSize="Size24"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                     </controls:NavigationViewItem>
@@ -161,8 +169,8 @@
                     <controls:NavigationViewItem Content="{x:Static utils:Lang.UI_Debug_TestURLShortener}" PointerPressed="DynamicDebugPressed">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
-                                Icon="WebAsset"
-                                IconSize="Size32"
+                                Icon="LinkMultiple"
+                                IconSize="Size24"
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
 
