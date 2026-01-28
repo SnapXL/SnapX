@@ -30,6 +30,8 @@ build() {
     # Build logic requires being on a known branch
     git checkout -B develop
     ./build.sh --configuration Release
+    # We are going to use the system provided AVIF for now on
+    find Output -type f -name 'avif*' -delete
 }
 
 check() {
@@ -50,6 +52,7 @@ package_snapx() {
         'libxcb'
         'dbus'
         'xdg-utils'
+        'libavif'
     )
     optdepends=(
         'mesa-utils: Graphics hardware information'
