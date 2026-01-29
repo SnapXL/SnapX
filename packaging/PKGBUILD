@@ -1,8 +1,8 @@
 # Maintainer: Brycen Granville <brycengranville@outlook.com>
 pkgbase=snapx
 pkgname=(snapx snapx-ui)
-pkgver=0.4.0~alpha.r705.g5c6ddf7
-pkgrel=2
+pkgver=0.4.0~alpha.r817.g6ae9e2e
+pkgrel=1
 pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX)"
 arch=('x86_64' 'aarch64')
 url="https://github.com/SnapXL/SnapX"
@@ -32,6 +32,8 @@ build() {
     ./build.sh --configuration Release
     # We are going to use the system provided AVIF for now on
     find Output -type f -name 'avif*' -delete
+    # Use system onnxruntime
+       find Output -type f -name 'libonnxruntime*' -delete
 }
 
 check() {
@@ -53,6 +55,7 @@ package_snapx() {
         'dbus'
         'xdg-utils'
         'libavif'
+        'onnxruntime'
     )
     optdepends=(
         'mesa-utils: Graphics hardware information'
