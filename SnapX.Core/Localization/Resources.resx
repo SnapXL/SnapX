@@ -221,7 +221,7 @@
   <value>OCR Image...</value>
  </data>
  <data name="UI_OCRImage_ToolTip">
-  <value>Analyzes images using optical character recognition powered by PaddleOCR.</value>
+  <value>Analyzes images using optical character recognition powered by RapidOcrNet.</value>
  </data>
  <data name="UI_EditImage">
   <value>Edit Image...</value>
