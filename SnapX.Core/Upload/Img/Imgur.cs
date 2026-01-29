@@ -89,8 +89,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return URLHelpers.CreateQueryString("https://api.imgur.com/oauth2/authorize", args);
     }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
     public bool GetAccessToken(string? pin)
     {
         var args = new Dictionary<string, string?>
@@ -113,8 +111,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return true;
     }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
     public bool RefreshAccessToken()
     {
         if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token))
@@ -151,7 +147,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return headers;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool CheckAuthorization()
     {
         if (!OAuth2Info.CheckOAuth(AuthInfo))
@@ -169,7 +164,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return true;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public List<ImgurAlbumData> GetAlbums(int maxPage = 10, int perPage = 100)
     {
         var albums = new List<ImgurAlbumData>();
@@ -190,7 +184,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return albums;
     }
 
-    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private List<ImgurAlbumData> GetAlbumsPage(int page, int perPage)
     {
         if (!CheckAuthorization())
@@ -221,7 +214,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return null;
     }
 
-    [RequiresUnreferencedCode("Uploader")]
     public List<ImgurImageData> GetAlbumImages(string albumID)
     {
         if (!CheckAuthorization())
@@ -240,13 +232,11 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return null;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public override UploadResult Upload(Stream stream, string? fileName)
     {
         return InternalUpload(stream, fileName, true);
     }
 
-    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private UploadResult InternalUpload(Stream stream, string? fileName, bool refreshTokenOnError)
     {
         Dictionary<string, string?> args = [];
@@ -319,7 +309,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return $"https://i.imgur.com/{imageData.id}{thumbnail}.jpg";
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private UploadResult HandleUploadError(ImgurResponse imgurResponse, Stream stream, string? fileName, bool refreshTokenOnError)
     {
         var errorData = ParseError(imgurResponse);
@@ -336,7 +325,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return new UploadResult();
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private void HandleErrors(ImgurResponse response)
     {
         ImgurErrorData errorData = ParseError(response);
@@ -347,7 +335,6 @@ public sealed class Imgur : ImageUploader, IOAuth2
         }
     }
 
-    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(String, JsonSerializerOptions)")]
     private ImgurErrorData ParseError(ImgurResponse response)
     {
         ImgurErrorData errorData = JsonSerializer.Deserialize<ImgurErrorData>(response.data.ToString());
@@ -360,21 +347,18 @@ public sealed class Imgur : ImageUploader, IOAuth2
         return errorData;
     }
 }
-[JsonSerializable(typeof(ImgurResponse))]
-internal partial class ImgurResponse
+internal class ImgurResponse
 {
     public object data { get; set; }
     public bool success { get; set; }
     public int status { get; set; }
 }
-[JsonSerializable(typeof(ImgurErrorData))]
-internal partial class ImgurErrorData
+internal class ImgurErrorData
 {
     public object error { get; set; }
     public string request { get; set; }
     public string method { get; set; }
 }
-[JsonSerializable(typeof(ImgurError))]
 internal class ImgurError
 {
     public int code { get; set; }
@@ -382,7 +366,6 @@ internal class ImgurError
     public string type { get; set; }
     //public string[] exception { get; set; }
 }
-[JsonSerializable(typeof(ImgurImageData))]
 public class ImgurImageData
 {
     public string id { get; set; }
@@ -409,7 +392,6 @@ public class ImgurImageData
     public string vote { get; set; }
     public string comment_preview { get; set; }
 }
-[JsonSerializable(typeof(ImgurAlbumData))]
 public class ImgurAlbumData
 {
     public string id { get; set; }
