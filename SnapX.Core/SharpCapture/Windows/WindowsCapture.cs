@@ -12,6 +12,7 @@ using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
+using SnapX.Core.Media;
 using SnapX.Core.Utils.Native;
 using WinRT;
 
@@ -166,11 +167,7 @@ public class WindowsCapture : BaseCapture
 
         var outputs = EnumerateOutputs(adapters);
 
-        var targetOutput = outputs.FirstOrDefault(o => 
-        {
-            o.Output.GetDesc(out var desc);
-            return desc.DeviceName.ToString() == screenName;
-        });
+        var targetOutput = outputs.FirstOrDefault(o => o.Output.Description.DeviceName == screenName);
 
         if (targetOutput.Equals(default) || targetOutput.Output == null)
         {
@@ -179,7 +176,7 @@ public class WindowsCapture : BaseCapture
         }
 
         var bounds = new Rectangle(targetOutput.X, targetOutput.Y, targetOutput.Width, targetOutput.Height);
-    
+
         return await CaptureOutputImage(targetOutput.Output, targetOutput.Adapter, bounds);
     }
     [DllImport(
@@ -237,22 +234,23 @@ public class WindowsCapture : BaseCapture
     public override async Task<Image?> CaptureWindow(Point pos)
     {
         var hwnd = PInvoke.WindowFromPoint(new System.Drawing.Point(pos.X, pos.Y));
-        if (hwnd == IntPtr.Zero)
-        {
-            DebugHelper.WriteLine("WindowsCapture was provided a invalid window handle");
-            return null;
-        }
+        if (hwnd != IntPtr.Zero)
+            return await CaptureWindow(new WindowInfo()
+            {
+                Handle = hwnd,
+            });
+        DebugHelper.WriteLine("WindowsCapture was provided a invalid window handle");
+        return null;
 
-        return await CaptureWindow(hwnd);
     }
 
-    public override async Task<Image?> CaptureWindow(IntPtr hwnd)
+    public override async Task<Image?> CaptureWindow(WindowInfo WindowInfo)
     {
         if (!GraphicsCaptureSession.IsSupported())
         {
             throw new ExternalException("WindowsCapture: GraphicsCaptureSession is not supported on this device. Perhaps update your Windows?");
         }
-
+        var hwnd = new HWND(WindowInfo.Handle);
         var capacity = PInvoke.GetWindowTextLength(hwnd);
         var buffer = new char[capacity + 1];
         var length = PInvoke.GetWindowText(hwnd, buffer);
