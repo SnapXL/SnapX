@@ -32,26 +32,26 @@
     <DefineConstants>$(DefineConstants);$(PKGTYPE)</DefineConstants>
   </PropertyGroup>
   <!-- WHO NEEDS SOURCE GENERATORS WHEN YOU HAVE A SCRIPT IN NORMAL C# -->
-  <Target Name="GenerateUploaders" BeforeTargets="BeforeBuild" Condition="'$(DisableUploads)' != '1'">
-    <PropertyGroup>
-      <GenerateScriptPath>$(MSBuildProjectDirectory)/Tools/GenerateUploaderFactory/app.cs</GenerateScriptPath>
-    </PropertyGroup>
-    <Exec Command="dotnet $(GenerateScriptPath)"
-          ConsoleToMSBuild="true"
-          WorkingDirectory="$(MSBuildProjectDirectory)"
-          StandardOutputImportance="high"
-          IgnoreExitCode="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="GeneratorOutput" />
-      <Output TaskParameter="ExitCode" PropertyName="GeneratorExitCode" />
-    </Exec>
-    <ItemGroup>
-      <Compile Remove="Upload/UploaderFactory.cs" />
-      <Compile Include="Upload/UploaderFactory.cs" />
-    </ItemGroup>
-    <Warning Text="Uploader Generator failed with exit code $(GeneratorExitCode). Using existing or no factory file."
-             Condition="'$(GeneratorExitCode)' != '0'" />
-    <Message Text="Generator output: $(GeneratorOutput)" Importance="normal" />
-  </Target>
+<!--  <Target Name="GenerateUploaders" BeforeTargets="BeforeBuild" Condition="'$(DisableUploads)' != '1'">-->
+<!--    <PropertyGroup>-->
+<!--      <GenerateScriptPath>$(MSBuildProjectDirectory)/Tools/GenerateUploaderFactory/app.cs</GenerateScriptPath>-->
+<!--    </PropertyGroup>-->
+<!--    <Exec Command="dotnet $(GenerateScriptPath)"-->
+<!--          ConsoleToMSBuild="true"-->
+<!--          WorkingDirectory="$(MSBuildProjectDirectory)"-->
+<!--          StandardOutputImportance="high"-->
+<!--          IgnoreExitCode="true">-->
+<!--      <Output TaskParameter="ConsoleOutput" PropertyName="GeneratorOutput" />-->
+<!--      <Output TaskParameter="ExitCode" PropertyName="GeneratorExitCode" />-->
+<!--    </Exec>-->
+<!--    <ItemGroup>-->
+<!--      <Compile Remove="Upload/UploaderFactory.cs" />-->
+<!--      <Compile Include="Upload/UploaderFactory.cs" />-->
+<!--    </ItemGroup>-->
+<!--    <Warning Text="Uploader Generator failed with exit code $(GeneratorExitCode). Using existing or no factory file."-->
+<!--             Condition="'$(GeneratorExitCode)' != '0'" />-->
+<!--    <Message Text="Generator output: $(GeneratorOutput)" Importance="normal" />-->
+<!--  </Target>-->
   <ItemGroup>
     <!-- Google Photos Library from Microsoft employee -->
     <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
