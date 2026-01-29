@@ -1,6 +1,5 @@
 using System.Reflection;
 using SnapX.CLI;
-using SnapX.Core;
 using SnapX.Core.Utils;
 
 if (args.Length != 0 && (args[0] == "--version" || args[0] == "-v"))
@@ -11,32 +10,26 @@ if (args.Length != 0 && (args[0] == "--version" || args[0] == "-v"))
 }
 
 var snapx = new SnapX.Core.SnapX();
-#if RELEASE
-snapx.silenceLogging();
-#elif DEBUG
-#else
-snapx.silenceLogging();
-#endif
+snapx.IdentifyAsCLI();
 snapx.start(args);
 
 var CLIManager = snapx.GetCLIManager();
 
-Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult()).ConfigureAwait(false).GetAwaiter().GetResult();
+await CLIManager.UseCommandLineArgs();
 
 var version = Helpers.GetApplicationVersion();
 if (args.Length == 0 || args[0] == "--help" || args[0] == "-h")
 {
     var changelog = new CLIChangelog(version);
     changelog.Display();
+    var about = new CLIAbout();
+    about.Show();
+
+    Console.WriteLine();
+    Console.WriteLine("SnapX.CLI is an empty project to dedicated to the developer feedback loop.");
+    Console.WriteLine("It makes running SnapX's CLI faster than running Avalonia and it's more simple & universal.");
+    Console.WriteLine("You can use ShareX's documentation found here. https://getsharex.com/docs/command-line-arguments to test SnapX.Core");
 }
-
-var about = new CLIAbout();
-about.Show();
-
-Console.WriteLine();
-Console.WriteLine("SnapX.CLI is an empty project to dedicated to the developer feedback loop.");
-Console.WriteLine("It makes running SnapX's CLI faster than running Avalonia and it's more simple & universal.");
-Console.WriteLine("You can use ShareX's documentation found here. https://getsharex.com/docs/command-line-arguments to test SnapX.Core");
 var sigintReceived = false;
 
 
@@ -47,20 +40,18 @@ Console.CancelKeyPress += (_, ea) =>
     sigintReceived = true;
     Console.WriteLine("Received SIGINT (Ctrl+C)");
     snapx.shutdown();
-    Environment.Exit(0);
 };
 AppDomain.CurrentDomain.ProcessExit += (_, _) =>
 {
     if (!sigintReceived)
     {
         sigintReceived = true;
-        DebugHelper.WriteLine("Received SIGTERM");
+        Console.WriteLine("Received SIGTERM");
         snapx.shutdown();
-        Environment.Exit(0);
     }
     else
     {
-        DebugHelper.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
+        Console.WriteLine("Received SIGTERM, ignoring it because already processed SIGINT");
     }
 };
-snapx.shutdown();
+if (!sigintReceived) snapx.shutdown();

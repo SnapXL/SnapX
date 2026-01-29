@@ -11,7 +11,7 @@ public class SnapXCLIManager : CLIManager
     {
     }
 
-    public async Task UseCommandLineArgs() => UseCommandLineArgs(Commands);
+    public async Task UseCommandLineArgs() => await UseCommandLineArgs(Commands);
 
     public async Task UseCommandLineArgs(List<CLICommand> commands)
     {

@@ -115,7 +115,7 @@ public class SnapX
     }
     public static bool MultiInstance { get; private set; }
     public static bool Portable { get; private set; }
-    public static bool LogToConsole { get; private set; } = true;
+    public static bool IsCLI { get; private set; } = false;
     public static bool SilentRun { get; private set; }
     public static bool Sandbox { get; private set; }
     public static bool IsAdmin { get; private set; }
@@ -258,9 +258,9 @@ public class SnapX
         start([]);
     }
 
-    public void silenceLogging()
+    public void IdentifyAsCLI()
     {
-        LogToConsole = false;
+        IsCLI = true;
     }
 
     public void shutdown()
@@ -291,7 +291,7 @@ public class SnapX
         if (CheckAdminTasks()) return; // If SnapX opened just for be able to execute a task as Admin
 
         UpdatePersonalPath();
-        if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
+        if (CLIManager.IsCommandExist("noconsole")) IsCLI = false;
 
         DebugHelper.Init(LogsFilePath);
 
@@ -406,7 +406,7 @@ public class SnapX
         };
         SettingManager.LoadInitialSettings();
         if (TelemetryEnabled()) InitTelemetryServices();
-        if (CLIManager.IsCommandExist("noconsole")) LogToConsole = false;
+        if (CLIManager.IsCommandExist("noconsole")) IsCLI = false;
         // CleanupManager.CleanupAsync();
     }
     static void RunWithTimeout(Func<Task> taskFactory, string description = "SQLite Code", int timeoutSeconds = 10)
@@ -593,10 +593,11 @@ public class SnapX
             DbConnection.Close();
             DbConnection.Dispose();
         }
-
+        _optimizeTimer.Dispose();
         if (TelemetryEnabled())
         {
             aptabaseClient?.DisposeAsync().GetAwaiter().GetResult();
+            SentrySdk.Close();
         }
 
         DebugHelper.WriteLine("SnapX closed.");

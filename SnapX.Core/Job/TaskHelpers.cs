@@ -64,7 +64,7 @@ public static class TaskHelpers
         if (job == HotkeyType.None)
             return;
 
-        DebugHelper.WriteLine("Executing: " + job.GetLocalizedDescription());
+        DebugHelper.WriteAlways("Executing: " + job.GetLocalizedDescription());
 
         var safeTaskSettings = TaskSettings.GetSafeTaskSettings(taskSettings);
 
@@ -277,7 +277,7 @@ public static class TaskHelpers
                 // OpenHashCheck();
                 break;
             case HotkeyType.IndexFolder:
-                DebugHelper.WriteException("HotkeyType.PinToScreenFromScreen is NOT implemented.");
+                DebugHelper.WriteException("HotkeyType.IndexFolder is NOT implemented.");
                 // UploadManager.IndexFolder();
                 break;
             case HotkeyType.ClipboardViewer:
@@ -1141,7 +1141,7 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
 
         await Task.Yield();
 
-        DebugHelper.WriteLine("Detected all texts: \n" + ocrResult.StrRes);
+        DebugHelper.WriteAlways("Detected all texts: \n" + ocrResult.StrRes);
 
         return MapToResponse(ocrResult, visualDebugImage);
 
