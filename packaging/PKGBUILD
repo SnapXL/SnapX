@@ -1,6 +1,6 @@
 # Maintainer: Brycen Granville <brycengranville@outlook.com>
-pkgbase=snapx
-pkgname=(snapx snapx-ui)
+pkgbase=snapx-core
+pkgname=(snapx snapx-core snapx-ui)
 pkgver=0.4.0~alpha.r817.g6ae9e2e
 pkgrel=1
 pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX)"
@@ -33,15 +33,33 @@ build() {
     # We are going to use the system provided AVIF for now on
     find Output -type f -name 'avif*' -delete
     # Use system onnxruntime
-       find Output -type f -name 'libonnxruntime*' -delete
+    find Output -type f -name 'libonnxruntime*' -delete
 }
 
 check() {
     cd "$pkgbase"
     Output/snapx/snapx --version
+    timeout 5s Output/snapx/snapx -OCR ".github/Screenshot.png" > test_output.log 2>&1 || true
+
+    ONNX_TROUBLESHOOT="
+    💡 TROUBLESHOOTING STEPS:
+    1. Ensure 'onnxruntime-cpu' is installed: sudo pacman -S onnxruntime-cpu
+    2. Check for missing symlinks: /usr/lib/libonnxruntime.so should point to the actual library.
+    3. Version Mismatch: If the library is present but OCR still fails, the version provided
+       by Arch may be newer/older than what SnapX expects. Ensure your system is up to date."
+
+    if grep -q "Unable to load shared library 'onnxruntime'" test_output.log; then
+        echo "❌ TEST FAILED: onnxruntime could not be loaded."
+        echo "$ONNX_TROUBLESHOOT"
+        exit 1
+    elif grep -q "TypeInitializationException" test_output.log; then
+        echo "❌ TEST FAILED: A type initializer threw an exception (likely ONNX)."
+        echo "$ONNX_TROUBLESHOOT"
+        exit 1
+    fi
 }
 
-package_snapx() {
+package_snapx-core() {
     depends=(
         'ffmpeg'
         'fontconfig'
@@ -55,7 +73,9 @@ package_snapx() {
         'dbus'
         'xdg-utils'
         'libavif'
-        'onnxruntime'
+        # NOTE: Our OCR backend is currently hardcoded for the CPU Execution Provider.
+        # Installing onnxruntime-cuda will NOT enable GPU acceleration
+        'onnxruntime-cpu'
     )
     optdepends=(
         'mesa-utils: Graphics hardware information'
@@ -64,11 +84,31 @@ package_snapx() {
 
     cd "$pkgbase"
     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --assembly snapx --skip compile
+    rm -f "${pkgdir}/usr/lib/snapx/snapx"
+    rm -f "${pkgdir}/usr/bin/snapx"
 }
+package_snapx() {
+    pkgdesc="CLI-only interface for SnapX, a feature-rich screenshot and screencast tool (ShareX fork)"
+    depends=('snapx-core')
 
+    local _temp_dir="${srcdir}/temp_install"
+    mkdir -p "$_temp_dir"
+
+    cd "$pkgbase"
+    ./build.sh install --prefix /usr --dest-dir "$_temp_dir" --assembly snapx --skip compile
+
+    install -d "${pkgdir}/usr/lib/snapx"
+    install -d "${pkgdir}/usr/bin"
+
+    cp -a "$_temp_dir/usr/lib/snapx/snapx" "${pkgdir}/usr/lib/snapx/"
+
+    if [ -f "$_temp_dir/usr/bin/snapx" ]; then
+        install -m 755 "$_temp_dir/usr/bin/snapx" "${pkgdir}/usr/bin/snapx"
+    fi
+}
 package_snapx-ui() {
     pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX). SnapX Avalonia-based UI (works best on X11)"
-    depends=('snapx')
+    depends=('snapx-core')
 
     cd "$pkgbase"
     ./build.sh install --prefix /usr --dest-dir "${pkgdir}" --assembly snapx-ui --skip compile
