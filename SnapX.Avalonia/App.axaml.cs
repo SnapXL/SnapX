@@ -488,7 +488,8 @@ public partial class App : Application
     }
     CancellationTokenSource? _pollingCts = null;
 
-    public override void OnFrameworkInitializationCompleted()
+    // ReSharper disable once AsyncVoidMethod
+    public override async void OnFrameworkInitializationCompleted()
     {
         // Crashes must be contained, AT ALL COSTS!
         Dispatcher.UIThread.UnhandledException += (s, e) =>
@@ -560,12 +561,9 @@ public partial class App : Application
                     // DebugHelper.Logger.Debug($"Avalonia Args: {desktop.Args}");
                     try
                     {
-                        Task.Run(() => SnapX.start(desktop.Args ?? [])).GetAwaiter().GetResult();
+                        SnapX.start(desktop.Args ?? []);
                         var CLIManager = SnapX.GetCLIManager();
-                        Task.Run(() => CLIManager.UseCommandLineArgs().GetAwaiter().GetResult())
-                            .ConfigureAwait(false)
-                            .GetAwaiter()
-                            .GetResult();
+                        await CLIManager.UseCommandLineArgs();
                     }
                     catch (Exception ex)
                     {
