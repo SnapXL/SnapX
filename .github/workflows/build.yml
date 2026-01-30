@@ -515,8 +515,7 @@ jobs:
           [
             ubuntu-24.04,
             ubuntu-24.04-arm,
-            # macos-26, not used anymore, new linker is on some bullshit.
-            macos-15,
+            macos-26,
             macos-15-intel,
             windows-2025,
             windows-11-arm,
@@ -527,8 +526,6 @@ jobs:
         exclude:
           - os: windows-11-arm
             configuration: Debug
-          # - os: macos-26
-          #   configuration: Debug
     env:
       SOLUTION_FILE_PATH: SnapX.slnx
       ASSEMBLY_INFO_PATH: Directory.build.props
