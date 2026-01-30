@@ -118,6 +118,31 @@ private static void Register<T>(T service) where T : IUploaderService
     Register(new Paste_eeTextUploaderService());
     Register(new PastieTextUploaderService());
     Register(new PastebinTextUploaderService());
+    Register(new YourlsURLShortenerService());
+    Register(new ZeroWidthURLShortenerService());
+    Register(new VURLShortenerService());
+    Register(new CustomURLShortenerService());
+    Register(new VgdURLShortenerService());
+    Register(new PolrURLShortenerService());
+    Register(new QRnetURLShortenerService());
+    Register(new KuttURLShortenerService());
+    Register(new TinyURLShortenerService());
+    Register(new IsgdURLShortenerService());
+    Register(new FirebaseDynamicLinksURLShortenerService());
+    Register(new TwoGPURLShortenerService());
+    Register(new CustomURLSharingService());
+    Register(new BingVisualSearchSharingService());
+    Register(new DeliciousSharingService());
+    Register(new EmailSharingService());
+    Register(new FacebookSharingService());
+    Register(new GoogleLensSharingService());
+    Register(new LinkedInSharingService());
+    Register(new PinterestSharingService());
+    Register(new PushbulletSharingService());
+    Register(new RedditSharingService());
+    Register(new StumbleUponSharingService());
+    Register(new TumblrSharingService());
+    Register(new VkSharingService());
     }
 }
 // </auto-generated>
