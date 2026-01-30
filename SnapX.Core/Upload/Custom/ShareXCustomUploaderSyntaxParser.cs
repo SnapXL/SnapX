@@ -12,8 +12,6 @@ namespace SnapX.Core.Upload.Custom;
 
 public class ShareXCustomUploaderSyntaxParser : ShareXSyntaxParser
 {
-    private static IEnumerable<CustomUploaderFunction> Functions =>
-        CustomUploaderFunctionRegistry.Functions;
 
 
     public string? FileName { get; set; }
@@ -23,26 +21,9 @@ public class ShareXCustomUploaderSyntaxParser : ShareXSyntaxParser
     public bool UseNameParser { get; set; }
     public NameParserType NameParserType { get; set; } = NameParserType.Text;
 
-    private void r(CustomUploaderFunction func)
-    {
-        CustomUploaderFunctionRegistry.Register(func);
-    }
+
     public ShareXCustomUploaderSyntaxParser()
     {
-        // Must manually do this shit wtf
-       r(new CustomUploaderFunctionBase64());
-       r(new CustomUploaderFunctionFileName());
-       r(new CustomUploaderFunctionHeader());
-       r(new CustomUploaderFunctionInput());
-       r(new CustomUploaderFunctionInputBox());
-       r(new CustomUploaderFunctionJson());
-       r(new CustomUploaderFunctionOutputBox());
-       r(new CustomUploaderFunctionRandom());
-       r(new CustomUploaderFunctionRegex());
-       r(new CustomUploaderFunctionResponse());
-       r(new CustomUploaderFunctionResponseURL());
-       r(new CustomUploaderFunctionSelect());
-       r(new CustomUploaderFunctionXml());
     }
 
     public ShareXCustomUploaderSyntaxParser(CustomUploaderInput input)
@@ -71,7 +52,7 @@ public class ShareXCustomUploaderSyntaxParser : ShareXSyntaxParser
             throw new Exception("Function name cannot be empty.");
         }
 
-        foreach (CustomUploaderFunction function in Functions)
+        foreach (CustomUploaderFunction function in CustomUploaderFunctionRegistry.Functions)
         {
             if (!function.Name.Equals(functionName, StringComparison.OrdinalIgnoreCase) &&
                 (function.Aliases == null ||

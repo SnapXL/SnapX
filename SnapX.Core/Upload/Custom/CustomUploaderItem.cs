@@ -41,7 +41,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
     public bool ShouldSerializeName() =>
         !string.IsNullOrEmpty(Name) && Name != URLHelpers.GetHostName(RequestURL);
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<CustomUploaderDestinationType>))]
     [DefaultValue(CustomUploaderDestinationType.None)]
     public CustomUploaderDestinationType DestinationType
     {
@@ -94,7 +94,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
 
     public bool ShouldSerializeHeaders() => Headers is { Count: > 0 };
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<CustomUploaderBody>))]
     [DefaultValue(CustomUploaderBody.None)]
     public CustomUploaderBody Body { get; set; } = CustomUploaderBody.None;
 
@@ -120,7 +120,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
         (Body == CustomUploaderBody.JSON || Body == CustomUploaderBody.XML)
         && !string.IsNullOrEmpty(Data);
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<ResponseType>))]
     // TEMP: For backward compatibility
     public ResponseType ResponseType { private get; set; }
 
@@ -260,11 +260,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
         return result;
     }
 
-    [UnconditionalSuppressMessage(
-        "Trimming",
-        "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
-        Justification = "<Pending>"
-    )]
+
     private string? EncodeBodyData(string? input)
     {
         if (!string.IsNullOrEmpty(input))
