@@ -245,51 +245,7 @@ jobs:
          run: ./build.sh --configuration ${{ matrix.configuration }}
          shell: alpine.sh {0}
        - name: Embed ONNXRuntime
-         run: |
-          echo "Looking for ONNX Runtime libraries..."
-          
-          LIBRARIES=(
-            "libonnxruntime.so"
-            "libonnxruntime_providers_shared.so"
-          )
-          
-          ERROR_COUNT=0
-          
-          for lib in "${LIBRARIES[@]}"; do
-            SOURCE_PATH="/usr/lib/$lib"
-            DEST_PATH="Output/snapx-ui/$lib"
-          
-            if [ -f "$SOURCE_PATH" ]; then
-              echo "Copying $lib..."
-              cp -pv "$SOURCE_PATH" "$DEST_PATH"
-          
-              if [ -f "$DEST_PATH" ]; then
-                echo "✓ Successfully copied $lib"
-              else
-                echo "✗ Failed to copy $lib"
-                ERROR_COUNT=$((ERROR_COUNT + 1))
-              fi
-            else
-              echo "✗ $lib not found at $SOURCE_PATH"
-          
-              echo "Searching for $lib in system..."
-              ALT_PATH=$(find /usr -name "$lib" 2>/dev/null | head -1)
-              if [ -n "$ALT_PATH" ] && [ -f "$ALT_PATH" ]; then
-                echo "Found at alternative location: $ALT_PATH"
-                cp -pv "$ALT_PATH" "$DEST_PATH"
-              else
-                echo "✗ $lib not found anywhere in /usr"
-                ERROR_COUNT=$((ERROR_COUNT + 1))
-              fi
-            fi
-          done
-          
-          if [ $ERROR_COUNT -gt 0 ]; then
-            echo "ERROR: Failed to copy $ERROR_COUNT library/ies"
-            exit 1
-          fi
-          
-          echo "✓ All ONNX Runtime libraries copied successfully"
+         run: cp -pv /usr/lib/libonnxruntime.so /usr/lib/libonnxruntime_providers_shared.so Output/snapx-ui/
          shell: alpine.sh {0}
        - name: Tarball
          run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
