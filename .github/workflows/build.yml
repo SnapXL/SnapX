@@ -188,7 +188,7 @@ jobs:
           name: SnapX-Avalonia-${{ matrix.configuration }}-FreeBSD-${{ runner.arch }}
           path: "SnapX-UI*"
           if-no-files-found: error
-   alpine:
+  alpine:
      name: Alpine Build
      runs-on: ${{matrix.os}}
      needs: build
@@ -251,7 +251,7 @@ jobs:
          run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
          shell: alpine.sh {0}
        - name: Upload artifact
-         uses: actions/upload-artifact@v5
+         uses: actions/upload-artifact@v6
          with:
            name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-musl-${{ runner.arch }}
            path: "SnapX-UI*"
