@@ -188,68 +188,74 @@ jobs:
           name: SnapX-Avalonia-${{ matrix.configuration }}-FreeBSD-${{ runner.arch }}
           path: "SnapX-UI*"
           if-no-files-found: error
-  # alpine:
-  #   name: Alpine Build
-  #   runs-on: ${{matrix.os}}
-  #   needs: build
-  #   timeout-minutes: 360
-  #   env:
-  #     ALLOW_DOTNET_DOWNLOAD: 1
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: [ ubuntu-24.04, ubuntu-24.04-arm ]
-  #       configuration:
-  #         - Release
-  #         - Debug
-  #   steps:
-  #     - uses: actions/checkout@v6
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Setup Alpine Linux
-  #       uses: bgilbert/setup-alpine@aarch64
-  #       with:
-  #         packages: >
-  #           clang
-  #           curl
-  #           bash
-  #           build-base
-  #           sudo
-  #           git
-  #           libunwind-dev
-  #           libunwind-static
-  #           xz-dev
-  #           xz-static
-  #           zlib-dev
-  #           icu-libs
-  #           patchelf
-  #           zstd
-  #           tar
-  #           uutils-coreutils
-
-  #     - name: Download API keys
-  #       env:
-  #         API_KEYS: ${{ secrets.API_KEYS }}
-  #       if: env.API_KEYS != ''
-  #       shell: alpine.sh {0}
-  #       run: |
-  #         set -euo pipefail
-  #         curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-  #     - name: Remove version requirement
-  #       run: rm global.json
-  #       shell: alpine.sh {0}
-  #     - name: Publish
-  #       run: ./build.sh --configuration ${{ matrix.configuration }}
-  #       shell: alpine.sh {0}
-  #     - name: Tarball
-  #       run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
-  #       shell: alpine.sh {0}
-  #     - name: Upload artifact
-  #       uses: actions/upload-artifact@v5
-  #       with:
-  #         name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-musl-${{ runner.arch }}
-  #         path: "SnapX-UI*"
-  #         if-no-files-found: error
+   alpine:
+     name: Alpine Build
+     runs-on: ${{matrix.os}}
+     needs: build
+     timeout-minutes: 360
+     env:
+       ALLOW_DOTNET_DOWNLOAD: 1
+     strategy:
+       fail-fast: false
+       matrix:
+         os: [ ubuntu-24.04, ubuntu-24.04-arm ]
+         configuration:
+           - Release
+           - Debug
+     steps:
+       - uses: actions/checkout@v6
+         with:
+           fetch-depth: 0
+       - name: Setup Alpine Linux
+         uses: bgilbert/setup-alpine@aarch64
+         with:
+           packages: >
+             clang
+             curl
+             bash
+             build-base
+             sudo
+             git
+             libunwind-dev
+             libunwind-static
+             xz-dev
+             xz-static
+             zlib-dev
+             icu-libs
+             patchelf
+             zstd
+             tar
+             uutils-coreutils
+             onnxruntime
+       - name: Symlink ONNXRuntime
+         run: sudo ln -sf /usr/lib/libonnxruntime.so.1 /usr/lib/libonnxruntime.so
+         shell: alpine.sh {0}
+       - name: Download API keys
+         env:
+           API_KEYS: ${{ secrets.API_KEYS }}
+         if: env.API_KEYS != ''
+         shell: alpine.sh {0}
+         run: |
+           set -euo pipefail
+           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
+       - name: Remove version requirement
+         run: rm global.json
+         shell: alpine.sh {0}
+       - name: Publish
+         run: ./build.sh --configuration ${{ matrix.configuration }}
+         shell: alpine.sh {0}
+       - name: Embed ONNXRuntime
+         run: cp -pv /usr/lib/{libonnxruntime.so,libonnxruntime_providers_shared.so} Output/snapx-ui/
+         shell: alpine.sh {0}
+       - name: Tarball
+         run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
+         shell: alpine.sh {0}
+       - name: Upload artifact
+         uses: actions/upload-artifact@v5
+         with:
+           name: SnapX-Avalonia-${{ matrix.configuration }}-${{ runner.os }}-musl-${{ runner.arch }}
+           path: "SnapX-UI*"
+           if-no-files-found: error
   rpms:
     name: RPMs
     runs-on: ${{matrix.os}}
