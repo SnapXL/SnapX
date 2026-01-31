@@ -271,7 +271,7 @@ jobs:
       matrix:
         os: [ubuntu-24.04, ubuntu-24.04-arm]
 
-        container: [fedora:41]
+        container: [fedora:42]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -398,6 +398,7 @@ jobs:
   generate-sources:
     name: Generate Flatpak Sources (${{ matrix.variant.arch }})
     runs-on: ${{ matrix.variant.runner }}
+    needs: build
     permissions:
       contents: write
     strategy:
