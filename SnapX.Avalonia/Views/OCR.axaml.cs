@@ -27,13 +27,15 @@ public partial class OCR : AppWindow
 
     public OCR(HistoryItem? item, OCRViewModel viewModel, SixLabors.ImageSharp.Image? image = null)
     {
+
         DataContext = viewModel;
         _ocrViewModel = viewModel;
-        DataContext = viewModel;
+
         _item = item;
         _img = image;
-        // XAML will overwrite the title if it's put here
         InitializeComponent();
+
+        // XAML will overwrite the title if it's put here
         if (_item is not null)
         {
             Title = $"OCR Result for {_item.FileName}";

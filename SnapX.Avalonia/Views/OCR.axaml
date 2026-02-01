@@ -18,9 +18,9 @@
 
     <Grid
         Margin="20"
-        Name="OCRGrid"
         RowDefinitions="Auto,Auto,Auto,Auto"
-        RowSpacing="15">
+        RowSpacing="15"
+        x:Name="OCRGrid">
 
         <!--  Language Selection Row  -->
         <Grid
