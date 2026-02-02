@@ -1,9 +1,9 @@
 [
   {
     "dest": "vendor",
-    "dest-filename": "asyncimageloader.avalonia.3.5.0.nupkg",
-    "sha512": "de5aa4c7e9a9b294089481fd1248c8a5cb71395455b8be5b3f0f38c139588158cc178783fffdd572ca13f1ca78ca4aa93269c2acd40ca713c4fbf00be0841f69",
-    "url": "https://api.nuget.org/v3-flatcontainer/asyncimageloader.avalonia/3.5.0/asyncimageloader.avalonia.3.5.0.nupkg",
+    "dest-filename": "asyncimageloader.avalonia.3.6.0.nupkg",
+    "sha512": "669b5c9e22bccf9fad89dcd1fc9cca4e73b3446144bad8d2c7e0651218c341da3c89c78a6beb054db8dafd5d9a9784281533d13c5bc0c4779358b41030c52f87",
+    "url": "https://api.nuget.org/v3-flatcontainer/asyncimageloader.avalonia/3.6.0/asyncimageloader.avalonia.3.6.0.nupkg",
     "type": "file"
   },
   {
@@ -393,16 +393,16 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "json.more.net.2.2.0.nupkg",
-    "sha512": "f14f3c5aeffdf3e7cf4b58e5bc2416b400e294edf30a2f53a35c10bedfd45c92be8bb7f984af2cdf5be10927c8e54f16af9687c8c8748785ae0a2447e3c75a79",
-    "url": "https://api.nuget.org/v3-flatcontainer/json.more.net/2.2.0/json.more.net.2.2.0.nupkg",
+    "dest-filename": "json.more.net.3.0.0.nupkg",
+    "sha512": "86b63b6a6a289c937721f7f2f435e888863b016c59edd384651413050a8f4a5c3917b241e1d54aa489f2ba3103e916e35b2c20f4742bac84f3be11b267593c48",
+    "url": "https://api.nuget.org/v3-flatcontainer/json.more.net/3.0.0/json.more.net.3.0.0.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "jsonpath.net.2.2.0.nupkg",
-    "sha512": "305e82ff2eaf7d40e58207b7e484d857f1920b77b2e0d9103da4883714d7cf895c2934560447b1655b6816428969bda7ec1366a5bcc1ac71c57af62d5e37e13f",
-    "url": "https://api.nuget.org/v3-flatcontainer/jsonpath.net/2.2.0/jsonpath.net.2.2.0.nupkg",
+    "dest-filename": "jsonpath.net.3.0.0.nupkg",
+    "sha512": "d3de7f99809ac1a84709eaad0fb973986154267771f16deb85ff2288211f142f679925f1cb92f253a0118f1480b69c34ef86b2c783997e7f96e5a049a9ac1368",
+    "url": "https://api.nuget.org/v3-flatcontainer/jsonpath.net/3.0.0/jsonpath.net.3.0.0.nupkg",
     "type": "file"
   },
   {
