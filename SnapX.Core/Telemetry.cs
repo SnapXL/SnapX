@@ -43,7 +43,6 @@ public sealed class Telemetry(SqliteConnection Connection, AptabaseClient Aptaba
         });
     }
 
-    [RequiresUnreferencedCode("Uses reflection to access properties that may be removed by the trimmer.")]
     public void TrackEvent(string EventName, Dictionary<string, object>? Envelope = null)
     {
         if (string.IsNullOrWhiteSpace(EventName)) return;
