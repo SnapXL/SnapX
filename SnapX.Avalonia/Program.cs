@@ -66,9 +66,12 @@ internal static class Program
         var x11Options = new X11PlatformOptions
         {
 #if FREEBSD
-            RenderingMode = [X11RenderingMode.Software],
-            UseGLibMainLoop = true,
-            ShouldRenderOnUIThread = false,
+            RenderingMode = [
+                //X11RenderingMode.Vulkan, // For some reason, I could not get Vulkan Rendering mode working on my FreeBSD VM
+                X11RenderingMode.Egl,
+                X11RenderingMode.Glx,
+                X11RenderingMode.Software],
+            UseGLibMainLoop = true, // If I don't enable this, the app freezes after startup. It's really weird.
 #else
             RenderingMode =
             [
