@@ -279,8 +279,12 @@ public static class SettingManager
             {
                 // Handle case where migration file name doesn't follow expected format
                 // This might indicate a malformed log entry, or an unexpected file name.
-                // For now, let's just log and proceed carefully, or throw a more specific error.
-                DebugHelper.WriteLine($"Warning: Could not parse migration version from '{currentMigrationsInDb}'. Proceeding carefully.");
+                throw new FormatException(
+                    $"Unable to verify database version from '{currentMigrationsInDb}'. " +
+                    "To protect your data, migrations will not run. " +
+                    "Please ensure you are using the latest version of SnapX or contact support if the issue persists. " +
+                    "Manual intervention is required."
+                );
             }
         }
 
