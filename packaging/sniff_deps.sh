@@ -20,7 +20,7 @@ cleanup() {
 trap cleanup EXIT
 
 timeout 15s xvfb-run -w 5 sh -c '
-env LD_DEBUG=libs "$1" >/dev/null 2>"$2"
+env LD_DEBUG=libs SNAPX_SHOWTRAY=false "$1" >/dev/null 2>"$2"
 ' sh "$EXE" "$TMP" || true
 
 echo "Last 20 lines of output:"
@@ -40,16 +40,15 @@ PROGRAMS_EXTRACTED=$(
     ' "$TMP" | sort -u
 )
 PROGRAMS_KNOWN="
-lspci
-dmidecode
-grep
-bash
 ffmpeg
 "
 
 LIBRARIES_KNOWN="
 libmsquic
 "
+
+# libLLVM is large
+LIB_BLACKLIST="libLLVM.so|ld*.so*"
 
 # Coreutils will be provided by cool Rust implementation
 # Bash will be replaced with BRUSH! (Rust compatible bash shell)
@@ -89,41 +88,61 @@ resolve_lib() {
     fi
 }
 
-LIBS=$(
+RAW_LIBS=$(
     {
-        printf '%s\n' $LIBS_EXTRACTED
+        printf '%s\n' "$LIBS_EXTRACTED"
 
         for lib in $LIBRARIES_KNOWN; do
             resolved="$(resolve_lib "$lib")"
             [ -n "$resolved" ] && printf '%s\n' "$resolved"
         done
-    } | sort -u
+    } | sort -r | grep -vE "$LIB_BLACKLIST"
 )
+
+seen=""
+final_list=""
+
+for lib in $RAW_LIBS; do
+    base=$(echo "$lib" | sed 's/\.so.*/.so/')
+
+    case "$seen" in
+        *" $base "*)
+            # Already seen this library family, skip it
+            ;;
+        *)
+            # New library family, add to final output
+            final_list=$(printf '%s\n%s' "$final_list" "$lib")
+            seen="$seen $base "
+            ;;
+    esac
+done
+
+LIBS=$(echo "$final_list" | sed '/^$/d')
 
 rm -f "$BLACKLIST_FILE"
 SCRIPT_DIR="$(cd -- "$(dirname -- "$0")" && pwd -P)"
 
 INTERPRETER=""
-if [ -x "$(command -v patchelf)" ]; then
-    for f in "$DEST"/ld*.so*; do
-        [ -e "$f" ] || continue
-        INTERPRETER="$(basename "$f")"
-        break
-    done
-    if [ -z "$INTERPRETER" ]; then
-        echo "WARNING: No dynamic linker found (This is normal on FreeBSD, the dynamic linker is tied to the kernel) in $DEST"
-    fi
-fi
-
-for lib in $LIBS; do
-    if [ -n "$lib" ] && [ -f "$lib" ]; then
-        echo "Copying library: $lib"
-        $SCRIPT_DIR/copy_deps.sh "$lib" "$DEST/"
-        if [ -x "$(command -v patchelf)" ]; then
-            patchelf --force-rpath --set-rpath "\$ORIGIN" "$DEST/$(basename "$lib")" || echo "WARNING: Could not patchelf $DEST/$(basename "$lib")"
-        fi
-    fi
-done
+#if [ -x "$(command -v patchelf)" ]; then
+#    for f in "$DEST"/ld*.so*; do
+#        [ -e "$f" ] || continue
+#        INTERPRETER="$(basename "$f")"
+#        break
+#    done
+#    if [ -z "$INTERPRETER" ]; then
+#        echo "WARNING: No dynamic linker found (This is normal on FreeBSD, the dynamic linker is tied to the kernel) in $DEST"
+#    fi
+#fi
+#
+#for lib in $LIBS; do
+#    if [ -n "$lib" ] && [ -f "$lib" ]; then
+#        echo "Copying library: $lib"
+#        $SCRIPT_DIR/copy_deps.sh "$lib" "$DEST/"
+#        if [ -x "$(command -v patchelf)" ]; then
+#            patchelf --force-rpath --set-rpath "\$ORIGIN" "$DEST/$(basename "$lib")" || echo "WARNING: Could not patchelf $DEST/$(basename "$lib")"
+#        fi
+#    fi
+#done
 
 for program in $PROGRAMS; do
     [ -n "$program" ] || continue

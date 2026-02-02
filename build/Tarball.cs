@@ -152,26 +152,8 @@ public class Tarball(
             }
 
             await FileSystem.TryDeleteFile("/tmp/processed_deps.lockfile");
-            var snapxfiles = Directory.EnumerateFiles(
-                config.LibDir,
-                "*snapx*",
-                SearchOption.AllDirectories
-            );
-            var interpreterFile = Directory
-                .EnumerateFiles(config.LibDir, "ld-*.so.*", SearchOption.TopDirectoryOnly)
-                .Select(Path.GetFileName)
-                .FirstOrDefault(f => f.StartsWith("ld"));
 
-            string interpreterArgs = string.Empty;
 
-            if (
-                !config.ShouldSkip("set_interpreter") && !string.IsNullOrWhiteSpace(interpreterFile)
-            )
-            {
-                var relativeLibPath = Path.GetRelativePath(config.Tarballdir, config.LibDir);
-                interpreterArgs =
-                    $"--set-interpreter {Path.Combine(relativeLibPath, interpreterFile)} ";
-            }
             if (!config.ShouldSkip("sniff_deps"))
             {
                 var usesWrapperScript = config.DisableWrapperScript is false;
@@ -183,32 +165,6 @@ public class Tarball(
                     args
                 );
             }
-
-            foreach (var file in snapxfiles)
-            {
-                try
-                {
-                    await CommandRunner.RunAsync(
-                        "patchelf",
-                        $"--set-rpath \"$ORIGIN\" --force-rpath {interpreterArgs} {file}"
-                    );
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error($"Error patching {file}: {ex.Message}");
-                }
-            }
-            File.WriteAllText(
-                Path.Combine(config.LibDir, "README"),
-                """
-                The ELF binaries in this directory expect to be run from the root of the tarball. Additionally, they are not intended to be used outside of the tarball. They are patched for this tarball and may not work correctly if moved.
-
-
-                You can undo the patching with 'patchelf --remove-rpath --set-interpreter $(readelf -l "$(command -v uname)" | awk '/Requesting program interpreter/ {print $NF}' | tr -d '[]') <file>'.
-
-
-                """
-            );
         }
 
         if (!config.ShouldSkip("archive"))
