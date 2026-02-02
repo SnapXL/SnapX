@@ -228,6 +228,7 @@ public partial class OCR : AppWindow
         catch (Exception ex)
         {
             ResultText?.Text = ex.ToString();
+            DebugHelper.Logger?.Error(ex.ToString());
         }
         finally
         {
