@@ -242,27 +242,29 @@ jobs:
          run: rm global.json
          shell: alpine.sh {0}
        - name: Publish
-         run: ./build.sh --configuration ${{ matrix.configuration }}
+         # NativeAOT builds on Alpine Linux seem to be broken and complain about Call from invalid thread
+         # I do not have enough time on my deadline to deal with this properly, so...
+         run: ./build.sh --configuration ${{ matrix.configuration }} --extra-args="-p:PublishAot=false"
          shell: alpine.sh {0}
        - name: Embed ONNXRuntime
          run: |
           echo "Looking for ONNX Runtime libraries..."
-          
+
           LIBRARIES=(
             "libonnxruntime.so"
             "libonnxruntime_providers_shared.so"
           )
-          
+
           ERROR_COUNT=0
-          
+
           for lib in "${LIBRARIES[@]}"; do
             SOURCE_PATH="/usr/lib/$lib"
             DEST_PATH="Output/snapx-ui/$lib"
-          
+
             if [ -f "$SOURCE_PATH" ]; then
               echo "Copying $lib..."
               cp -pv "$SOURCE_PATH" "$DEST_PATH"
-          
+
               if [ -f "$DEST_PATH" ]; then
                 echo "✓ Successfully copied $lib"
               else
@@ -271,7 +273,7 @@ jobs:
               fi
             else
               echo "✗ $lib not found at $SOURCE_PATH"
-          
+
               echo "Searching for $lib in system..."
               ALT_PATH=$(find /usr -name "$lib" 2>/dev/null | head -1)
               if [ -n "$ALT_PATH" ] && [ -f "$ALT_PATH" ]; then
@@ -283,12 +285,12 @@ jobs:
               fi
             fi
           done
-          
+
           if [ $ERROR_COUNT -gt 0 ]; then
             echo "ERROR: Failed to copy $ERROR_COUNT library/ies"
             exit 1
           fi
-          
+
           echo "✓ All ONNX Runtime libraries copied successfully"
          shell: alpine.sh {0}
        - name: Tarball
