@@ -91,105 +91,12 @@ SnapX is packaged on:
 
 Additionally, you can download nightly builds from [here](https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview).
 
-## Development Dependencies
+## Building & Contributions
 
-- `git`
-- `dotnet-sdk-10.0`
-- `ffmpeg` (<7)
-- `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
-- `clang`
-- `zlib-devel`
+Contributions are welcome.
+See [BUILDING.md](./.github/BUILDING.md) for build instructions.
 
-#### IDE of Choice
-
-JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. It's free for noncommercial use.
-
-<a href="https://www.jetbrains.com/rider/" target="_blank">
-  <img
-    src="https://github.com/user-attachments/assets/96b8e44e-47b3-4850-b4f3-c4e7ed8dd385"
-    alt="JetBrains Rider - The world's most loved .NET and game dev IDE"
-    title="JetBrains Rider - The world's most loved .NET and game dev IDE"
-    style="width: 400px; height: auto;"
-  />
-</a>
-
-### Fedora 41+ 🌟
-
-```bash
-sudo dnf in -y git dotnet-sdk-aot-10.0 /usr/bin/ffmpeg
-```
-
-### Ubuntu 24.04+ ⚡
-
-```bash
-sudo apt update && sudo apt install -y software-properties-common
-sudo add-apt-repository ppa:dotnet/backports -y # Ubuntu 24.04 doesn't have .NET 10 packaged. Do not add this PPA on Ubuntu 24.10+
-sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg8 -y # Ubuntu 24.04 doesn't have FFMPEG 7 packaged.
-sudo apt install -y git dotnet-sdk-10.0 ffmpeg clang zlib1g-dev libsm6
-```
-
-### Windows 10 22H2+ 🪟
-
-End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and, thus, unsupported.
-
-SnapX now uses the Windows SDK to generate C# Windows API binding code.
-You need the Windows 11 SDK `10.0.26100.0`.
-It works on Windows 10, too.
-
-```shell
-# Installing Visual Studio Community
-# You cannot build with NativeAOT without it on Windows. It has the linker program. However, you can compile on Rider or whatever your favorite IDE is after you've installed Visual Studio.
-# See https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot
-winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Component.Windows11SDK.26100 --includeRecommended"
-winget install -e --id Git.Git
-# Install Rider (optional)
-winget install -e --id JetBrains.Rider
-```
-
-### macOS 14 Sonoma+ 🍎
-
-End of life macOS versions are not supported. For example, macOS 13 Ventura is at its EOL and thus, unsupported.
-
-> Using the script to install the .NET SDK from the .NET team ensures you don't run into issues of Rider not detecting it.
-
-```zsh
-xcode-select --install
-brew install ffmpeg@8 rust
-git --version # If prompted to install Git, do it.
-exec $SHELL -l
-```
-
-> [!TIP]
-> If you're using MacPorts, run this instead of `brew install`:
->
-> ```zsh
-> sudo port selfupdate
-> sudo port install ffmpeg8 cargo
-> ```
-
-## Building from Source
-
-### System Requirements for Compiling
-
-To successfully compile SnapX from source, ensure your system meets the following requirements:
-
-* **Memory (RAM):** A minimum of **8 GiB** free memory is required during the compilation process.
-* **Disk Space:** At least **15 GiB** of free disk space is recommended, preferably on a Solid State Drive (SSD) for optimal compilation speed.
-
-```bash
-git clone https://github.com/SnapXL/SnapX
-cd SnapX
-./build.sh # Linux/macOS
-.\build.ps1 # Windows
-Output/snapx-ui/snapx-ui # Run SnapX.Avalonia
-# Nothing is stopping you from using regular .NET building tools.
-# dotnet publish -c Release ./SnapX.sln
-# SnapX.Avalonia/bin/Release/net10.0/linux-x64/publish/snapx-ui
-```
-
-## Contributions
-
-Contributions are welcome. The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
+The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
 
 ## Donators 💖
 
