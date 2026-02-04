@@ -109,11 +109,26 @@ public sealed class VersionEnforcer : IDisposable
 
     private void HandleExistingVersion(LockFileContent? lockFileInfo, string existingVersion)
     {
-        if (existingVersion != _currentVersion)
+        if (Version.TryParse(existingVersion, out var existing) &&
+            Version.TryParse(_currentVersion, out var current))
         {
+            // Only trigger a mismatch if Major, Minor, or Build (Patch) differ.
+            // This ignores the 4th digit (Revision/CommitsSinceVersionSource).
+            if (existing.Major != current.Major ||
+                existing.Minor != current.Minor ||
+                existing.Build != current.Build)
+            {
+                _lockFileStream?.Dispose();
+                throw new InvalidOperationException(
+                    $"Fatal version mismatch: Found {existingVersion}, but running {_currentVersion}. " +
+                    "Core versions must match to share a lock file.");
+            }
+        }
+        else if (existingVersion != _currentVersion)
+        {
+            // Fallback for non-numeric versions (like "1.0-beta")
             _lockFileStream?.Dispose();
-            throw new InvalidOperationException(
-                $"Found existing instance with version '{existingVersion}', but current version is '{_currentVersion}'. Version mismatch detected.");
+            throw new InvalidOperationException($"Version mismatch detected: {existingVersion} vs {_currentVersion}");
         }
 
         var previousInstance = lockFileInfo?.ProcessId;

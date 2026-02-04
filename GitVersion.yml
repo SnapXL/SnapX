@@ -1,4 +1,6 @@
 assembly-informational-format: '{SemVer}+g{ShortSha}'
+assembly-versioning-format: '{Major}.{Minor}.{Patch}.{CommitsSinceVersionSource}'
+assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{CommitsSinceVersionSource}'
 commit-date-format: "yyyy-MM-dd HH:mm:ss zzzz"
 update-build-number: true
 semantic-version-format: Strict
