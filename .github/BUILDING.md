@@ -104,6 +104,7 @@ rm /tmp/dotnet.tar.gz
 
 sudo ln -sf /usr/lib/dotnet/dotnet /usr/local/bin/dotnet
 sudo ln -sf /usr/lib/dotnet/dnx /usr/local/bin/dnx 2>/dev/null || true
+sudo find /usr/lib/dotnet/packs \( -name "ilc" -o -name "crossgen2" \) -exec chmod +x {} +
 
 # Add the FreeBSD-specific NuGet source for runtime compatibility
 dotnet nuget add source https://pkgs.dev.azure.com/IFailAt/freebsd-dotnet-runtime-nightly/_packaging/freebsd-dotnet/nuget/v3/index.json --name freebsd-dotnet
