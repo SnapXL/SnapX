@@ -399,6 +399,12 @@ jobs:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
           path: "*.snap"
           if-no-files-found: error
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: edge
   generate-sources:
     name: Generate Flatpak Sources (${{ matrix.variant.arch }})
     runs-on: ${{ matrix.variant.runner }}
