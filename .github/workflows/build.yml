@@ -383,6 +383,7 @@ jobs:
           $BUILD_DEB_COMMANDS
       - name: Build Snap
         if: matrix.pretty_arch == ''
+        working-directory: packaging
         run: |
           $BUILD_SNAP_COMMANDS
 

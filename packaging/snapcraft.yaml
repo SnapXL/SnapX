@@ -105,7 +105,7 @@ parts:
       - x11-xserver-utils  # for `xrandr`
       - pciutils           # for `lspci`
       - mesa-utils         # for `glxinfo
-    source: .
+    source: ../
     override-pull: |
       craftctl default
       version=$(./build.sh --version | tail -n1)
