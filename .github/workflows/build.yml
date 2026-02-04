@@ -597,6 +597,7 @@ jobs:
 #          sudo cmake --install build
       - name: Install Rust toolchain
         if: runner.os == 'macOS'
+        timeout-minutes: 5
         run: brew install rust
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
