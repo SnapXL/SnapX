@@ -91,12 +91,12 @@ SnapX is packaged on:
 
 Additionally, you can download nightly builds from [here](https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview).
 
-## Building & Contributions
+## Building & Contributing
 
 Contributions are welcome.
 See [BUILDING.md](./.github/BUILDING.md) for build instructions.
 
-The documentation for contributing is a work in progress, but here is a [rough draft](./.github/CONTRIBUTING.md).
+The documentation for contributing can be found [here](./.github/CONTRIBUTING.md).
 
 ## Donators 💖
 
