@@ -730,7 +730,7 @@
   {
     "dest": "vendor",
     "dest-filename": "microsoft.extensions.http.diagnostics.9.0.0.nupkg",
-    "sha512": "9fe90bdc6b30b1fafb6d2c89598d2c4f14338eb4a7ec41a4d0de652425d2eb60f5a0908318b4cca808940a9893d3fe092a6dc09641c752cee920f53c1921ba6d",
+    "sha512": "53c9282e89f4eaee75a50746f998498f5377ae46b25604f06742b635a96bd009e52d6775b9643081ace7307331d7d2e0e25083adaf37242a8bd02591b7c71d16",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.http.diagnostics/9.0.0/microsoft.extensions.http.diagnostics.9.0.0.nupkg",
     "type": "file"
   },
@@ -1199,7 +1199,7 @@
   {
     "dest": "vendor",
     "dest-filename": "skiasharp.nativeassets.webassembly.3.119.1.nupkg",
-    "sha512": "86df84d457f6af13adbce38ec61f40891d4230effc25011138f12fba0daba5be575ea99b246bfdb6f1054583deb25c96f5e2c1a393f049fe70b75eb31115be67",
+    "sha512": "224be9c46fbff2d9425e3f53af44fc154ce5c2c2e1b886437ccf0e44aaa3651452d52e9821f76d33f9d13fb66e7fce1600e5297098dedac3bc28bb656b197442",
     "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.webassembly/3.119.1/skiasharp.nativeassets.webassembly.3.119.1.nupkg",
     "type": "file"
   },
