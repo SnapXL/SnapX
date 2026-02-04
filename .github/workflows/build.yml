@@ -313,7 +313,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
-          path: /github/home/rpmbuild/**/*.rpm
+          path: /github/home/rpmbuild/RPMS/**/*.rpm
           if-no-files-found: error
   ubuntu:
     name: DEB/Snap Build
