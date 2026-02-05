@@ -78,7 +78,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <!-- Cross platform OCR library -->
-    <PackageReference Include="BrycensRanch.RapidOcrNet" Version="1.0.0" Condition="$(DisableOCR) != '1'" />
+    <PackageReference Include="BrycensRanch.RapidOcrNet" Version="1.0.1" Condition="$(DisableOCR) != '1'" />
 
     <!-- Crash forensics & performance analytics -->
     <PackageReference Include="Sentry.Profiling" Version="6.0.0" />
@@ -97,7 +97,7 @@
     <!-- Wayland support,
     while these are only useful for Linux,
     hiding them behind a compiler conditional makes debugging more difficult. -->
-    <PackageReference Include="Tmds.DBus.Protocol" Version="0.90.0" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.90.2" />
 <!--    <PackageReference Include="WaylandSharper" Version="0.1.3">-->
 <!--      <IncludeAssets>build; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
 <!--      <PrivateAssets>all</PrivateAssets>-->
