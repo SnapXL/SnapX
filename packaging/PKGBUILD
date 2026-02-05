@@ -1,7 +1,7 @@
 # Maintainer: Brycen Granville <brycengranville@outlook.com>
 pkgbase=snapx-core
-pkgname=(snapx snapx-core snapx-ui)
-pkgver=0.4.0~alpha.r817.g6ae9e2e
+pkgname=(snapx-core snapx snapx-ui)
+pkgver=0.4.0~alpha.r863.g133c8dc
 pkgrel=1
 pkgdesc="Screenshot tool that handles images, text, and video (fork of ShareX)"
 arch=('x86_64' 'aarch64')
