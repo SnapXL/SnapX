@@ -72,7 +72,17 @@ public class LinuxCapture : BaseCapture
         var uri = new Uri(Response.Results["uri"].GetString());
         var fileURL = Uri.UnescapeDataString(uri.LocalPath);
         var img = await Image.LoadAsync(fileURL);
-        _ = Task.Run(() => File.Delete(fileURL));
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                if (File.Exists(fileURL)) File.Delete(fileURL);
+            }
+            catch
+            {
+                // The Snap package is given a path to a file it cannot delete.
+            }
+        });
 
         return img;
     }
