@@ -63,14 +63,52 @@ public partial class RegionSelectorWindow : Window
     public static async Task<Image?> SelectRegionAsync()
     {
         var selector = new RegionSelectorWindow(true);
-        selector.Show();
-        return await selector._resultImg.Task;
+        var windowClosedTask = new TaskCompletionSource<Image?>();
+
+        selector.Closing += (s, e) => windowClosedTask.TrySetResult(null);
+        try
+        {
+            selector.Show();
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine($"RegionSelectorWindow: Show() failed or aborted: {ex.Message}");
+            return null;
+        }
+
+        await Task.WhenAny(selector._resultImg.Task, windowClosedTask.Task);
+
+        if (selector._resultImg.Task.IsCompleted)
+        {
+            return await selector._resultImg.Task;
+        }
+
+        return null;
     }
     public static async Task<SixLabors.ImageSharp.Rectangle?> SelectRegionRectAsync()
     {
         var selector = new RegionSelectorWindow(true, false);
-        selector.Show();
-        return await selector._resultRect.Task;
+        var windowClosedTask = new TaskCompletionSource<SixLabors.ImageSharp.Rectangle?>();
+
+        selector.Closing += (s, e) => windowClosedTask.TrySetResult(null);
+        try
+        {
+            selector.Show();
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine($"RegionSelectorWindow: Show() failed or aborted: {ex.Message}");
+            return null;
+        }
+
+        await Task.WhenAny(selector._resultRect.Task, windowClosedTask.Task);
+
+        if (selector._resultRect.Task.IsCompleted)
+        {
+            return await selector._resultRect.Task;
+        }
+
+        return null;
     }
     private async Task SetupWindowBoundsAsync()
     {
@@ -171,7 +209,7 @@ public partial class RegionSelectorWindow : Window
             try
             {
                 await Task.Delay(TimeSpan.FromSeconds(20), autoCloseCts.Token);
-                await Dispatcher.UIThread.InvokeAsync(() => dialog.Hide());
+                await Dispatcher.UIThread.InvokeAsync(dialog.Hide);
             }
             catch (TaskCanceledException)
             {
@@ -306,6 +344,8 @@ public partial class RegionSelectorWindow : Window
         if (_image == null)
         {
             DebugHelper.WriteLine("RegionSelectorWindow.OnOpened: _image is null");
+            _resultImg.TrySetResult(_image);
+            _resultRect.TrySetResult(null);
             Close();
             return;
         }
