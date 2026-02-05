@@ -3,14 +3,14 @@ title: SnapX
 # More specifically, when a package starts with those four letters.
 # I surely hope this package rename won't confuse users.
 name: ui-snapx
-summary: Screenshot tool that handles images, text, and video (fork of ShareX)
+summary: Lightning-fast successor to ShareX. Handles images, text, and video captures.
 description: |
   SnapX is a free, open-source, cross-platform tool that lets you capture or record any area of your screen and instantly share it with a single keypress.
   Upload images, videos, text, and more to multiple supported destinations—all with ease
   This is a port of the original ShareX application to Linux.
   It is not an official release and is not affiliated with the original ShareX project.
   This project is under development and is *not* ready for use.
-  Supports PNG (including animated variant), WEBP (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
+  Supports PNG (including animated variant), WEBP (including animated variant), AVIF (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
   Cross-platform OCR powered by PaddleOCR that rivals PowerToys OCR, TesseractOCR, & Windows 10 built in OCR in accuracy
 version: '0.4.0'
 license: GPL-3.0-or-later
@@ -22,7 +22,7 @@ confinement: strict
 compression: lzo
 contact: "brycengranville+snapcraft.snapx@outlook.com"
 issues: "https://github.com/SnapXL/SnapX/issues"
-icon: "./packaging/usr/share/icons/256x256/apps/io.github.SnapXL.SnapX.png"
+icon: "./usr/share/icons/256x256/apps/io.github.SnapXL.SnapX.png"
 donation:
   - https://liberapay.com/BrycensRanch
   - https://ko-fi.com/BrycensRanch
@@ -105,9 +105,11 @@ parts:
       - x11-xserver-utils  # for `xrandr`
       - pciutils           # for `lspci`
       - mesa-utils         # for `glxinfo
-    source: ../
+    source: ..
+#    source-subdir: ..
     override-pull: |
       craftctl default
+      ln -s "$CRAFT_PROJECT_DIR" ./packaging
       version=$(./build.sh --version | tail -n1)
 
       # Truncate the version to a maximum of 32 characters
