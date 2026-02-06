@@ -263,7 +263,7 @@ jobs:
     name: RPMs
     runs-on: ${{matrix.os}}
     # Building the RPMs causes Ubuntu runner starvation due to it triggering multiple jobs. Normal builds take priority.
-    needs: build
+#    needs: build
     timeout-minutes: 360
     container:
       image: ${{ matrix.container }}
@@ -315,10 +315,31 @@ jobs:
           name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
           path: /github/home/rpmbuild/RPMS/**/*.rpm
           if-no-files-found: error
+      - name: Upload RPM to Package Repository
+        env:
+          OVERWRITE_EXISTING: "true"
+        run: |
+          if [[ "$GITHUB_REF_NAME" == "master" || "$GITHUB_REF_NAME" == "main" ]]; then
+            REPO_SLUG="snapx-rpm"
+            echo "Targeting PRODUCTION repo: $REPO_SLUG"
+          else
+            REPO_SLUG="snapx-rpm-nightly"
+            echo "Targeting NIGHTLY repo: $REPO_SLUG"
+          fi
+
+          for rpm in /github/home/rpmbuild/RPMS/**/*.rpm; do
+            [ -e "$rpm" ] || continue
+            echo "Uploading $rpm to $REPO_SLUG"
+
+            curl -f -X POST "https://pkg.brycen.app/api/$REPO_SLUG/upload/" \
+                 -H "Authorization: Token ${{ secrets.PKG_API_TOKEN }}" \
+                 -F "package_file=@$rpm" \
+                 -F "overwrite=$OVERWRITE_EXISTING"
+          done
   ubuntu:
     name: DEB/Snap Build
     runs-on: ${{matrix.os}}
-    needs: build
+#    needs: build
     timeout-minutes: 65
     permissions:
       packages: write
@@ -396,6 +417,27 @@ jobs:
           name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.arch }}
           path: packaging/*.deb
           if-no-files-found: error
+      - name: Upload DEB to Package Repository
+        env:
+          OVERWRITE_EXISTING: "true"
+        run: |
+          if [[ "$GITHUB_REF_NAME" == "master" || "$GITHUB_REF_NAME" == "main" ]]; then
+            REPO_SLUG="snapx-deb"
+            echo "Targeting PRODUCTION repo: $REPO_SLUG"
+          else
+            REPO_SLUG="snapx-deb-nightly"
+            echo "Targeting NIGHTLY repo: $REPO_SLUG"
+          fi
+
+          for deb in packaging/*.deb; do
+            [ -e "$deb" ] || continue
+            echo "Uploading $deb to $REPO_SLUG"
+
+            curl -f -X POST "https://pkg.brycen.app/api/$REPO_SLUG/upload/" \
+                 -H "Authorization: Token ${{ secrets.PKG_API_TOKEN }}" \
+                 -F "package_file=@$deb" \
+                 -F "overwrite=$OVERWRITE_EXISTING"
+          done
       - name: Upload artifact (Snap)
         uses: actions/upload-artifact@v6
         with:
@@ -411,7 +453,7 @@ jobs:
   generate-sources:
     name: Generate Flatpak Sources (${{ matrix.variant.arch }})
     runs-on: ${{ matrix.variant.runner }}
-    needs: build
+#    needs: build
     permissions:
       contents: write
     strategy:
@@ -459,7 +501,6 @@ jobs:
           message: "build(flathub): update nuget vendor sources [skip ci]"
   flatpak:
     name: Flatpak (${{ matrix.variant.arch }})
-#    needs: [build, generate-sources]
     needs: generate-sources
     runs-on: ${{ matrix.variant.runner }}
     container:
@@ -514,14 +555,14 @@ jobs:
           bundle: io.github.SnapXL.SnapX.flatpak
           manifest-path: io.github.SnapXL.SnapX.yml
           cache-key: flatpak-builder-${{ matrix.variant.arch }}-${{ github.sha }}
-  #      - uses: flatpak/flatpak-github-actions/flat-manager@v6
-  #        name: Deploy
-  #        with:
-  #          repository: elementary
-  #          flat-manager-url: https://flatpak-api.elementary.io
-  #          token: some_very_hidden_token
-  #          end-of-life: "The application has been renamed to..."
-  #          end-of-life-rebase: "org.zbrown.Palette"
+      - uses: flatpak/flatpak-github-actions/flat-manager@v6
+        name: Upload to Flatpak Repopsitory
+        with:
+          repository: ${{ (github.ref_name == 'main' || github.ref_name == 'master') && 'snapx' || 'snapx-nightly' }}
+          flat-manager-url: https://flats.brycen.app
+          token: ${{ secrets.FLATPAK_REPO_TOKEN }}
+#          end-of-life: "The application has been renamed to..."
+#          end-of-life-rebase: "org.zbrown.Palette"
   build:
     name: Build
     runs-on: ${{matrix.os}}
