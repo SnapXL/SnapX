@@ -34,7 +34,7 @@ public class Tarball(
                 installConfig.BinDir = destDir;
             }
 
-            if (!OperatingSystem.IsWindows())
+            if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
             {
                 if (
                     installConfig.LibDir == Path.Join(config.DestDir, config.Prefix, "lib", "snapx")
@@ -53,6 +53,7 @@ public class Tarball(
                 }
                 var junkDirectoryInfo = Directory.CreateTempSubdirectory("BUILD_SNAPX");
                 var junkDir = junkDirectoryInfo.FullName;
+                installConfig.SetSkippedSteps(["sniff_deps", "copy_deps"]);
                 installConfig.Applicationsdir = junkDir;
                 installConfig.Icondir = junkDir;
                 installConfig.Metainfodir = junkDir;
@@ -102,21 +103,17 @@ public class Tarball(
             {
                 var fileName = Path.GetFileNameWithoutExtension(libFile);
 
-                if (config.knownAssemblyNames.Contains(fileName))
-                {
-                    if (
-                        !string.Equals(
-                            fileName,
-                            TargetInstallAssembly,
-                            StringComparison.OrdinalIgnoreCase
-                        )
-                    )
-                    {
-                        Logger.Debug($"Removing unwanted assembly '{fileName}'");
-                        await FileSystem.TryDeleteFile(libFile);
-                        await FileSystem.TryDeleteFile(Path.Join(config.BinDir, fileName));
-                    }
-                }
+                if (!config.knownAssemblyNames.Contains(fileName) &&
+                    (!fileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
+                     !config.knownAssemblyNames.Contains(fileName.Substring(0, fileName.Length - 4)))) continue;
+                if (string.Equals(
+                        fileName,
+                        TargetInstallAssembly,
+                        StringComparison.OrdinalIgnoreCase
+                    )) continue;
+                Logger.Debug($"Removing unwanted assembly '{fileName}'");
+                await FileSystem.TryDeleteFile(libFile);
+                await FileSystem.TryDeleteFile(Path.Join(config.BinDir, fileName));
             }
         }
         if (
@@ -174,12 +171,19 @@ public class Tarball(
             var uname = config.Uname;
             var suffix = !string.IsNullOrEmpty(edition) ? $"-{edition}" : "";
 
+            var (ext, flags) = OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD()
+                ? ("tar.zst", "--zstd -cf")
+                : OperatingSystem.IsMacOS()
+                    ? ("zip", "-a -cf")
+                    : ("tar.xz", "-cJf");
+
             var tarballName = Path.Combine(
                 config.RootDirectory,
-                $"SnapX{suffix}-{config.Configuration}-{uname}-{version}-{arch}.tar.zst"
+                $"SnapX{suffix}-{config.Configuration}-{uname}-{version}-{arch}.{ext}"
             );
+
             await CommandRunner.RunInstallCommand(
-                $"--zstd -cf {tarballName} -C {config.Tarballdir} .",
+                $"{flags} {tarballName} -C {config.Tarballdir} .",
                 "tar"
             );
         }

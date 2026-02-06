@@ -123,26 +123,26 @@ rm -f "$BLACKLIST_FILE"
 SCRIPT_DIR="$(cd -- "$(dirname -- "$0")" && pwd -P)"
 
 INTERPRETER=""
-#if [ -x "$(command -v patchelf)" ]; then
-#    for f in "$DEST"/ld*.so*; do
-#        [ -e "$f" ] || continue
-#        INTERPRETER="$(basename "$f")"
-#        break
-#    done
-#    if [ -z "$INTERPRETER" ]; then
-#        echo "WARNING: No dynamic linker found (This is normal on FreeBSD, the dynamic linker is tied to the kernel) in $DEST"
-#    fi
-#fi
-#
-#for lib in $LIBS; do
-#    if [ -n "$lib" ] && [ -f "$lib" ]; then
-#        echo "Copying library: $lib"
-#        $SCRIPT_DIR/copy_deps.sh "$lib" "$DEST/"
-#        if [ -x "$(command -v patchelf)" ]; then
-#            patchelf --force-rpath --set-rpath "\$ORIGIN" "$DEST/$(basename "$lib")" || echo "WARNING: Could not patchelf $DEST/$(basename "$lib")"
-#        fi
-#    fi
-#done
+if [ -x "$(command -v patchelf)" ]; then
+    for f in "$DEST"/ld*.so*; do
+        [ -e "$f" ] || continue
+        INTERPRETER="$(basename "$f")"
+        break
+    done
+    if [ -z "$INTERPRETER" ]; then
+        echo "WARNING: No dynamic linker found (This is normal on FreeBSD, the dynamic linker is tied to the kernel) in $DEST"
+    fi
+fi
+
+for lib in $LIBS; do
+    if [ -n "$lib" ] && [ -f "$lib" ]; then
+        echo "Copying library: $lib"
+        $SCRIPT_DIR/copy_deps.sh "$lib" "$DEST/"
+        if [ -x "$(command -v patchelf)" ]; then
+            patchelf --force-rpath --set-rpath "\$ORIGIN" "$DEST/$(basename "$lib")" || echo "WARNING: Could not patchelf $DEST/$(basename "$lib")"
+        fi
+    fi
+done
 
 for program in $PROGRAMS; do
     [ -n "$program" ] || continue
