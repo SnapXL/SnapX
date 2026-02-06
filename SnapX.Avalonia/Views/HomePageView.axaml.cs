@@ -103,11 +103,10 @@ public partial class HomePageView : UserControl
 
     private void Control_OnLoaded(object? Sender, RoutedEventArgs E)
     {
-        Task.Run(() => ViewModel.Initialize()).ConfigureAwait(false);
     }
-    private void Control_OnInitialized(object? Sender, EventArgs E)
+    private async void Control_OnInitialized(object? Sender, EventArgs E)
     {
-
+        await ViewModel.Initialize();
     }
 
     private void DeleteLocallyButton_OnClick(object? Sender, RoutedEventArgs E)
