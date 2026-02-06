@@ -685,21 +685,12 @@ jobs:
         shell: bash
         run: ./build.sh --configuration ${{ matrix.configuration }}
       - name: Assemble SnapX UI Tarball
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+        shell: bash
         run: "./build.sh tarball --assembly snapx-ui"
 
-      - name: Upload artifact (Avalonia - Release on Linux)
-        if: matrix.configuration == 'Release' && runner.os == 'Linux'
+      - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: SnapX-UI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "SnapX-UI*"
-          if-no-files-found: error
-
-      - name: Upload artifact (Avalonia - Non-Release or non-Linux)
-        if: matrix.configuration != 'Release' || runner.os != 'Linux'
-        uses: actions/upload-artifact@v6
-        with:
-          name: SnapX-UI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
-          path: "Output/snapx-ui"
           if-no-files-found: error
