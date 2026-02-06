@@ -176,9 +176,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "brycensranch.rapidocrnet.1.0.0.nupkg",
-    "sha512": "5b10615de19b28dc4d64de13c5d1d10ad305cdbebef469d0fba4eb2116867b1e3a3675815f4f2f22a647236ad0fed066bece2c4f7ba463d39748e317fd9a2653",
-    "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.rapidocrnet/1.0.0/brycensranch.rapidocrnet.1.0.0.nupkg",
+    "dest-filename": "brycensranch.rapidocrnet.1.0.1.nupkg",
+    "sha512": "ebc6f5e4f97ae70e3c7985f6ca2077f19332d992c31f7483d354e1845149088d1f78a2004e8272414cc2bcb00c7c47c77f9477f716d7f3af8aecff64ab6da4c4",
+    "url": "https://api.nuget.org/v3-flatcontainer/brycensranch.rapidocrnet/1.0.1/brycensranch.rapidocrnet.1.0.1.nupkg",
     "type": "file"
   },
   {
@@ -1338,9 +1338,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "tmds.dbus.protocol.0.90.0.nupkg",
-    "sha512": "8c60e940eb68dfe4e4567e5577738b0d55d91bf41c4071487bca3ea3c8168cc7e907802273644e5dbb17df9c0eb772439416de14f8b1836eeefa204d54a90348",
-    "url": "https://api.nuget.org/v3-flatcontainer/tmds.dbus.protocol/0.90.0/tmds.dbus.protocol.0.90.0.nupkg",
+    "dest-filename": "tmds.dbus.protocol.0.90.2.nupkg",
+    "sha512": "2991a8fdbfa79add2b357f8e5401e8d20c2d6db906ebe5c265496038d08f2d2b5b13b9861e99a736d7d4ae0618241255e27d1534d5c4ccd76e7b5807ff9ba42f",
+    "url": "https://api.nuget.org/v3-flatcontainer/tmds.dbus.protocol/0.90.2/tmds.dbus.protocol.0.90.2.nupkg",
     "type": "file"
   },
   {
