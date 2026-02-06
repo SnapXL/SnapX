@@ -250,7 +250,7 @@
                                         <controls:MenuFlyoutItem.IconSource>
                                             <fluent:FluentIconSource
                                                 Icon="LinkEdit"
-                                                IconSize="Size32"
+                                                IconSize="Size24"
                                                 IconVariant="Regular" />
                                         </controls:MenuFlyoutItem.IconSource>
                                     </controls:MenuFlyoutItem>
