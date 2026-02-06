@@ -48,6 +48,7 @@ public class ListTaskTemplate(Type modelType, HistoryItem task) : INotifyPropert
         {
             // DebugHelper.Logger?.Debug($"ListTaskTemplate: Error resolving image source: {ex.Message}");
             _uiDisplaySource = originalSource;
+            OnPropertyChanged(nameof(UIDisplaySource));
         }
         finally
         {
