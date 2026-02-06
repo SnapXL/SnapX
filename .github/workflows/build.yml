@@ -382,10 +382,13 @@ jobs:
         run: |
           $BUILD_DEB_COMMANDS
       - name: Build Snap
+        id: build_snap  # Add this ID
         if: matrix.pretty_arch == ''
         working-directory: packaging
         run: |
           $BUILD_SNAP_COMMANDS
+          SNAP_PATH=$(ls *.snap | head -n 1)
+          echo "snap_file=packaging/$SNAP_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload artifact (DEB)
         uses: actions/upload-artifact@v6
@@ -397,13 +400,13 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
-          path: "*.snap"
+          path: packaging/*.snap
           if-no-files-found: error
       - uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
-          snap: ${{ steps.build.outputs.snap }}
+          snap: ${{ steps.build_snap.outputs.snap_file }}
           release: edge
   generate-sources:
     name: Generate Flatpak Sources (${{ matrix.variant.arch }})
