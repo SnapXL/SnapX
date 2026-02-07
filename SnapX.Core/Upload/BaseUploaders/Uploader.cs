@@ -5,6 +5,7 @@
 using System.Collections.Specialized;
 using System.Net;
 using System.Net.Http.Handlers;
+using System.Net.Http.Headers;
 using System.Text;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
@@ -161,7 +162,18 @@ public class Uploader
             fileContent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(
                 mimeType
             );
-            multipartContent.Add(fileContent, fileFormName, fileName);
+            fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+            {
+                Name = $"\"{fileFormName}\"",
+                FileName = $"\"{fileName}\"",
+                // @see https://github.com/dotnet/runtime/issues/121484
+                // This filename*= star violates the RFC and makes Bun parsers upset as they're strict.
+                // Example: img.fish
+                FileNameStar = null,
+            };
+            // Intent: Ensuring browser-like behavior.
+            fileContent.Headers.ContentDisposition.Parameters.First(p => p.Name == "filename").Value = $"\"{fileName}\"";
+            multipartContent.Add(fileContent);
         }
         return multipartContent;
     }
