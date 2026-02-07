@@ -893,12 +893,12 @@ public partial class CustomUploaderVM : ViewModelBase
             AddDetailRow(stack, "Errors", res.ErrorsToString());
         }
 
-        AddDetailRow(stack, "Response", res.ResponseInfo.ToReadableString(true));
+        AddDetailRow(stack, "Response", res.ResponseInfo?.ToReadableString(true));
 
         return stack;
     }
 
-    private void AddDetailRow(StackPanel parent, string label, string value)
+    private void AddDetailRow(StackPanel parent, string label, string? value)
     {
         var panel = new DockPanel { LastChildFill = true };
         panel.Children.Add(new TextBlock
@@ -910,7 +910,7 @@ public partial class CustomUploaderVM : ViewModelBase
         });
         panel.Children.Add(new SelectableTextBlock
         {
-            Text = value,
+            Text = value ?? "???, Please check the debug log, this shouldn't be happening.",
             TextWrapping = TextWrapping.Wrap,
             FontSize = 12
         });
