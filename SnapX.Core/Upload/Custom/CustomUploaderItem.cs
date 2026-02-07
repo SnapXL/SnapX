@@ -65,8 +65,8 @@ public class CustomUploaderItem : INotifyPropertyChanged
     // we must explicitly declare [JsonConverter(typeof(HttpMethodConverter))] on the property or type.
     public HttpMethod RequestMethod
     {
-        get => field;
-        set => field = value;
+        get => field ?? HttpMethod.Post;
+        set => field = value ?? HttpMethod.Post;
     } = HttpMethod.Post;
 
     [DefaultValue("")]
