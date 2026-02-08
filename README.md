@@ -60,8 +60,8 @@ If you have any issues with this project or would like us to add any new feature
 
 This project is built on Ubuntu 24.04 and is tested on the following distributions:
 
-- **Fedora 41+**
-- **Ubuntu 24.04+**
+- **Fedora 42+** <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Fedora_icon_%282021%29.svg/960px-Fedora_icon_%282021%29.svg.png" alt="Fedora Logo" height="25" width="25"/>
+- **Ubuntu 24.04+** <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Ubuntu_logoib.svg/960px-Ubuntu_logoib.svg.png" alt="Ubuntu Logo" height="25" width="25"/>
 
 > [!NOTE]
 > If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
