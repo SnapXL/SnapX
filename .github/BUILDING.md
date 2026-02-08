@@ -80,8 +80,14 @@ exec $SHELL -l
 
 ```bash
 sudo apk update
+# Add the edge repository (required for onnxruntime)
+echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" | sudo tee -a /etc/apk/repositories
+
 # Only need to install dependencies of .NET, the build script installs the .NET version we're using automatically.
-sudo apk add bash icu-libs krb5-libs libgcc libintl libssl3 libstdc++ zlib
+sudo apk add bash icu-libs krb5-libs libgcc libintl libssl3 libstdc++ zlib onnxruntime
+# !!!IMPORTANT!!!
+# Alpine's onnxruntime package doesn't provide libonnxruntime.so, only versioned files
+sudo ln -sf /usr/lib/libonnxruntime.so.1 /usr/lib/libonnxruntime.so
 ```
 
 ### FreeBSD 14+
