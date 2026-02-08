@@ -312,7 +312,7 @@ jobs:
 
             install: |
               dnf -y upgrade --refresh
-              dnf -y install git rpmdevtools rpm-build dnf-plugins-core awk
+              dnf -y install git rpmdevtools rpm-build dnf-plugins-core awk libicu
 
             run: |
               cd packaging
