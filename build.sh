@@ -1,5 +1,29 @@
 #!/usr/bin/env sh
 
+if [ -n "${BASH_SOURCE+x}" ]; then
+  # shellcheck disable=SC3054
+  SCRIPT_PATH="${BASH_SOURCE[0]}"
+else
+  SCRIPT_PATH="$0"
+fi
+SCRIPT_DIR=$(cd "$(dirname "$SCRIPT_PATH")" && pwd)
+GITVERSION_FILE="$SCRIPT_DIR/SnapX.Core/obj/gitversion.json"
+
+for arg in "$@"; do
+    case "$arg" in
+        --version)
+            if [ -f "$GITVERSION_FILE" ]; then
+                # Using grep/sed to avoid dependency on 'jq' inside minimal containers
+                V=$(grep '"InformationalVersion":' "$GITVERSION_FILE" | cut -d '"' -f 4 | head -n 1)
+                if [ -n "$V" ]; then
+                    printf '%s\n' "$V"
+                    exit 0
+                fi
+            fi
+            ;;
+    esac
+done
+
 if [ -n "$BASH_VERSION" ]; then
     bash --version | head -n1
 elif [ -n "$ZSH_VERSION" ]; then
@@ -18,13 +42,6 @@ else
 fi
 
 set -eu
-if [ -n "${BASH_SOURCE+x}" ]; then
-  # shellcheck disable=SC3054
-  SCRIPT_PATH="${BASH_SOURCE[0]}"
-else
-  SCRIPT_PATH="$0"
-fi
-SCRIPT_DIR=$(cd "$(dirname "$SCRIPT_PATH")" && pwd)
 
 os_name=$(uname -o 2>/dev/null || echo "unknown")
 
@@ -38,7 +55,6 @@ fi
 
 BUILD_PROJECT_FILE="$SCRIPT_DIR/build/build.csproj"
 TEMP_DIRECTORY="$SCRIPT_DIR/build/temp"
-
 
 DOTNET_INSTALL_URL="https://dot.net/v1/dotnet-install.sh"
 DOTNET_CHANNEL="LTS"
