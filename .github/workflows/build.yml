@@ -435,7 +435,7 @@ jobs:
             echo "prettyOSName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
             find -name "*.deb" -exec cp {} ../artifacts/ \;
       - name: Set up QEMU for multi-arch builds
-        expect: matrix.pretty_arch == 'ARM32'
+        if: matrix.pretty_arch == 'ARM32'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static binfmt-support
