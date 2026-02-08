@@ -610,7 +610,10 @@ jobs:
       - uses: flatpak/flatpak-github-actions/flat-manager@v6
         name: Upload to Flatpak Repopsitory
         with:
-          repository: ${{ (github.ref_name == 'main' || github.ref_name == 'master') && 'stable' || 'nightly' }}
+          # I have completely given up seperating nightly feeds in our Flatpak repository.
+          # I admit defeat.
+          # Once SnapX is actually stable, I will EOL this Flatpak repository.
+          repository: stable
           flat-manager-url: https://flats.brycen.app
           token: ${{ secrets.FLATPAK_REPO_TOKEN }}
 #          end-of-life: "The application has been renamed to..."
