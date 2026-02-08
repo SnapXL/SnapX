@@ -424,7 +424,7 @@ jobs:
 
           install: |
             apt update
-            apt -y install git gpg snapd
+            apt -y install git gpg snapd curl
 
           run: |
             cd packaging
