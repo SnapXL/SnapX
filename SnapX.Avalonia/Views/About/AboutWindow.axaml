@@ -59,12 +59,56 @@
                                     <SelectableTextBlock
                                         FontSize="28"
                                         FontWeight="SemiBold"
-                                        Foreground="{DynamicResource AccentFillColorDefaultBrush}"
                                         Grid.Column="1"
                                         Margin="4,0,0,2"
+                                        Name="VersionText"
                                         Text="{Binding Version}"
                                         ToolTip.Tip="{Binding BuildInformation}"
-                                        VerticalAlignment="Bottom" />
+                                        VerticalAlignment="Bottom">
+
+                                        <SelectableTextBlock.Foreground>
+                                            <LinearGradientBrush EndPoint="100%,50%" StartPoint="0%,50%">
+                                                <GradientStop Color="{DynamicResource SystemAccentColor}" Offset="0" />
+                                                <GradientStop Color="{DynamicResource SystemAccentColorLight3}" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </SelectableTextBlock.Foreground>
+
+                                        <SelectableTextBlock.Styles>
+                                            <Style Selector="SelectableTextBlock#VersionText">
+                                                <Style.Animations>
+                                                    <Animation
+                                                        Duration="0:0:4"
+                                                        IterationCount="Infinite"
+                                                        PlaybackDirection="Alternate">
+                                                        <KeyFrame KeyTime="0:0:0">
+                                                            <Setter Property="Foreground">
+                                                                <Setter.Value>
+                                                                    <LinearGradientBrush EndPoint="100%,50%" StartPoint="0%,50%">
+                                                                        <GradientStop Color="{DynamicResource SystemAccentColor}" Offset="0" />
+                                                                        <GradientStop Color="{DynamicResource SystemAccentColorDark1}" Offset="1" />
+                                                                        <GradientStop Color="{DynamicResource SystemAccentColorDark2}" Offset="2" />
+                                                                        <GradientStop Color="{DynamicResource SystemAccentColorDark3}" Offset="3" />
+                                                                    </LinearGradientBrush>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </KeyFrame>
+                                                        <KeyFrame KeyTime="0:0:2">
+                                                            <Setter Property="Foreground">
+                                                                <Setter.Value>
+                                                                    <LinearGradientBrush EndPoint="100%,50%" StartPoint="0%,50%">
+                                                                        <GradientStop Color="{DynamicResource SystemAccentColorDark3}" Offset="0" />
+                                                                        <GradientStop Color="{DynamicResource SystemAccentColorDark2}" Offset="1" />
+                                                                        <GradientStop Color="{DynamicResource SystemAccentColorDark1}" Offset="2" />
+                                                                        <GradientStop Color="{DynamicResource SystemAccentColor}" Offset="3" />
+                                                                    </LinearGradientBrush>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </KeyFrame>
+                                                    </Animation>
+                                                </Style.Animations>
+                                            </Style>
+                                        </SelectableTextBlock.Styles>
+                                    </SelectableTextBlock>
                                 </Grid>
                                 <TextBlock
                                     Foreground="{DynamicResource TextBoxDisabledForegroundThemeBrush}"
