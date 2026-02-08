@@ -7,7 +7,7 @@ else
   SCRIPT_PATH="$0"
 fi
 SCRIPT_DIR=$(cd "$(dirname "$SCRIPT_PATH")" && pwd)
-GITVERSION_FILE="$SCRIPT_DIR/SnapX.Core/obj/gitversion.json"
+GITVERSION_FILE="$SCRIPT_DIR/build/obj/gitversion.json"
 
 for arg in "$@"; do
     case "$arg" in
