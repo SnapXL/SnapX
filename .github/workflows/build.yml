@@ -567,7 +567,7 @@ jobs:
       - uses: flatpak/flatpak-github-actions/flat-manager@v6
         name: Upload to Flatpak Repopsitory
         with:
-          repository: ${{ (github.ref_name == 'main' || github.ref_name == 'master') && 'snapx' || 'snapx-nightly' }}
+          repository: ${{ (github.ref_name == 'main' || github.ref_name == 'master') && 'stable' || 'nightly' }}
           flat-manager-url: https://flats.brycen.app
           token: ${{ secrets.FLATPAK_REPO_TOKEN }}
 #          end-of-life: "The application has been renamed to..."
