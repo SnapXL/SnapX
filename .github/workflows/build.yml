@@ -304,6 +304,7 @@ jobs:
               GITHUB_REF_NAME: ${{ github.ref_name }}
               GITHUB_REPOSITORY: ${{ github.repository }}
               GITHUB_SHA: ${{ github.sha }}
+              ALLOW_DOTNET_DOWNLOAD: ${{env.ALLOW_DOTNET_DOWNLOAD}}
             setup: |
               mkdir -p "${PWD}/artifacts"
             dockerRunArgs: |
@@ -368,6 +369,7 @@ jobs:
             pretty_arch: ARM32
             os: ubuntu-latest
     env:
+      ALLOW_DOTNET_DOWNLOAD: 1
       API_KEYS: ${{ secrets.API_KEYS }}
       BUILD_DEB_COMMANDS: |
         pacstall -B -K -I -P -Q snapx.pacscript
@@ -413,6 +415,7 @@ jobs:
             API_KEYS: ${{ secrets.API_KEYS }}
             BUILD_DEB_COMMANDS: ${{ env.BUILD_DEB_COMMANDS }}
             BUILD_SNAP_COMMANDS: ${{ env.BUILD_SNAP_COMMANDS }}
+            ALLOW_DOTNET_DOWNLOAD: ${{env.ALLOW_DOTNET_DOWNLOAD }}
           setup: |
             mkdir -p "${PWD}/artifacts"
           dockerRunArgs: |
