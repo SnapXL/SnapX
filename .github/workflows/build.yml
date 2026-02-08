@@ -422,12 +422,12 @@ jobs:
           install: |
             apt update
             apt -y install git gpg snapd
-            snap install snapcraft --classic
             bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
 
           run: |
             cd packaging
             $BUILD_DEB_COMMANDS
+            snap install snapcraft --classic
             $BUILD_SNAP_COMMANDS
             SNAP_PATH=$(ls *.snap | head -n 1)
             echo "snap_file=packaging/$SNAP_PATH" >> $GITHUB_OUTPUT
