@@ -431,8 +431,6 @@ jobs:
             cd packaging
             bash -c "$(curl -fsSL https://pacstall.dev/q/install)" < /dev/null
             $BUILD_DEB_COMMANDS
-            . /etc/os-release
-            echo "prettyOSName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
             find -name "*.deb" -exec cp {} ../artifacts/ \;
       - name: Set up QEMU for multi-arch builds
         if: matrix.pretty_arch == 'ARM32'
@@ -456,7 +454,7 @@ jobs:
       - name: Upload artifact (DEB)
         uses: actions/upload-artifact@v6
         with:
-          name: SnapX-DEB-${{steps.build.outputs.prettyOSName}}-${{ matrix.pretty_arch }}
+          name: SnapX-DEB-Ubuntu-24.04-${{ matrix.pretty_arch }}
           path: artifacts/*.deb
           if-no-files-found: error
       - name: Upload DEB to Package Repository
