@@ -1463,8 +1463,15 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
 
     public static Image? GenerateQRCode(string text, int size)
     {
+        var result = GenerateQRCodeWithMatrix(text, size);
+        return result.Image;
+    }
+
+    public static (Image? Image, BitMatrix? Matrix) GenerateQRCodeWithMatrix(string text, int size)
+    {
         if (!CheckQRCodeContent(text))
-            return null;
+            return (null, null);
+
         try
         {
             var writer = new ZXing.ImageSharp.BarcodeWriter<Rgba32>
@@ -1482,14 +1489,17 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
                 Renderer = new ImageSharpRenderer<Rgba32>(),
             };
 
-            return writer.Write(text);
+            var matrix = writer.Encode(text);
+            var image = writer.Write(matrix);
+
+            return (image, matrix);
         }
         catch (Exception e)
         {
             e.ShowError();
         }
 
-        return null;
+        return (null, null);
     }
 
     public static string[] BarcodeScan(Image<Rgba32> img, bool scanQRCodeOnly = false)

@@ -1,79 +1,250 @@
 <windowing:AppWindow
+    DragDrop.AllowDrop="True"
+    MinHeight="550"
+    MinWidth="900"
+    Opened="InitVM"
     Title="QR Code"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
+    d:DesignHeight="600"
+    d:DesignWidth="1000"
     mc:Ignorable="d"
     x:Class="SnapX.Avalonia.Views.QRCodeView"
+    x:DataType="viewModels:QRCodeViewModel"
     xmlns="https://github.com/avaloniaui"
     xmlns:controls="clr-namespace:SnapX.Avalonia.Views.Controls"
+    xmlns:controls1="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:miscellaneous="clr-namespace:SnapX.Core.Utils.Miscellaneous;assembly=SnapX.Core"
+    xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
     xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <DockPanel>
-        <StackPanel Margin="10" Spacing="8">
-            <Label>Text:</Label>
+    <Design.DataContext>
+        <viewModels:QRCodeViewModel />
+    </Design.DataContext>
+    <Grid ColumnDefinitions="*, 450" Margin="20">
+        <Grid
+            Grid.Column="0"
+            Margin="0,0,20,0"
+            RowDefinitions="Auto, *, Auto">
+            <StackPanel
+                Grid.Row="0"
+                HorizontalAlignment="Stretch"
+                Margin="8"
+                Orientation="Horizontal">
+                <Label Content="Text" VerticalAlignment="Center" />
+                <Separator Margin="10,0" />
+                <SplitButton
+                    Click="ScanRegionButtonPressed"
+                    Margin="8"
+                    Name="RegionSplitButton"
+                    Tag="Default">
+                    <SplitButton.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedRight">
+                            <MenuItem
+                                Click="SelectRegionDelay_Click"
+                                CommandParameter="Default"
+                                Header="Select with Configured Delay">
+                                <MenuItem.Icon>
+                                    <controls1:SymbolIcon Symbol="Clock" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem
+                                Click="SelectRegionDelay_Click"
+                                CommandParameter="3"
+                                Header="3 Second Delay" />
+                            <MenuItem
+                                Click="SelectRegionDelay_Click"
+                                CommandParameter="5"
+                                Header="5 Second Delay" />
+                            <MenuItem
+                                Click="SelectRegionDelay_Click"
+                                CommandParameter="10"
+                                Header="10 Second Delay" />
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Name="RegionIcon" Symbol="ScreenCut" />
+                        <TextBlock Name="RegionText" Text="Scan from Region" />
+                    </StackPanel>
+                </SplitButton>
+                <SplitButton Click="QrClipboard_Click" ToolTip.Tip="Only supports one file/paste at once.">
+                    <SplitButton.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedRight">
+                            <MenuItem Click="QrFile_Click" Header="Select Image File...">
+                                <MenuItem.Icon>
+                                    <controls1:SymbolIcon Symbol="OpenFile" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="ClipboardPaste" />
+                        <TextBlock Text="Paste from Clipboard" />
+                    </StackPanel>
+                </SplitButton>
+            </StackPanel>
+
             <TextBox
                 AcceptsReturn="True"
-                Height="650"
+                Grid.Row="1"
+                HorizontalAlignment="Stretch"
                 Name="QRText"
-                Text="{x:Static miscellaneous:Links.GitHub}"
-                TextChanged="TextBox_OnTextChanged"
+                Text="{Binding QrText, Mode=TwoWay}"
                 TextWrapping="Wrap"
-                Width="800" />
-        </StackPanel>
-        <StackPanel
-            DockPanel.Dock="Bottom"
-            HorizontalAlignment="Right"
-            Margin="10"
-            Orientation="Vertical"
-            Spacing="8"
-            VerticalAlignment="Center">
-            <StackPanel
-                Orientation="Horizontal"
-                Spacing="4"
-                VerticalAlignment="Center">
-                <Label>QR code size:</Label>
-                <NumericUpDown
-                    FormatString="F0"
-                    MaxWidth="300"
-                    Maximum="200000"
-                    Minimum="64"
-                    Name="QRSize"
-                    Value="64"
-                    ValueChanged="NumericUpDown_OnValueChanged" />
-                <TextBlock
-                    Text="px"
-                    TextTrimming="WordEllipsis"
-                    TextWrapping="Wrap"
-                    VerticalAlignment="Center" />
-            </StackPanel>
-            <Border
-                Background="White"
-                Height="550"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Width="550">
-                <controls:SmartImage
-                    HorizontalAlignment="Center"
-                    Name="QRImage"
-                    Stretch="Uniform"
-                    VerticalAlignment="Center" />
-            </Border>
-            <StackPanel
-                HorizontalAlignment="Center"
-                Margin="10"
-                Orientation="Horizontal"
-                Spacing="8"
-                VerticalAlignment="Center">
+                VerticalAlignment="Stretch">
+                <ToolTip.Tip>
+                    <TextBlock MaxWidth="300" TextWrapping="Wrap">
+                        This text box is designed for maximum flexibility and user control.
+                        As such, it allows you to input as much text as you desire.
+                        Warning: Inputting excessive amounts of data or spamming the input may result
+                        in the operating system forcefully terminating the application due to resource exhaustion.
+                    </TextBlock>
+                </ToolTip.Tip>
+            </TextBox>
 
-                <Button Click="CopyImageButtonPressed" Width="170">Copy image</Button>
-                <Button Click="SaveImageButtonPressed" Width="170">Save image</Button>
-                <Button Click="UploadImageButtonPressed" Width="170">Upload image</Button>
-            </StackPanel>
-        </StackPanel>
+            <TextBlock
+                FontSize="11"
+                Grid.Row="2"
+                Margin="0,5,0,0"
+                Opacity="0.6"
+                Text="Enter text or URL to generate code" />
+        </Grid>
 
-    </DockPanel>
+        <Border
+            Background="{DynamicResource CardBackgroundFillColorDefault}"
+            BorderBrush="{DynamicResource CardStrokeColorDefault}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Grid.Column="1"
+            Padding="20">
+            <Grid RowDefinitions="Auto, *, Auto">
+
+                <StackPanel
+                    Grid.Row="0"
+                    Margin="0,0,0,15"
+                    Spacing="8">
+                    <Label Content="QR code size (px):" />
+                    <NumericUpDown
+                        FormatString="F0"
+                        HorizontalAlignment="Stretch"
+                        Maximum="16384"
+                        Minimum="64"
+                        Name="QRSize"
+                        Value="{Binding DesiredSize, Mode=TwoWay}">
+                        <ToolTip.Tip>
+                            <StackPanel MaxWidth="350" Spacing="5">
+                                <TextBlock FontWeight="Bold" Text="Resolution Overdrive" />
+                                <TextBlock TextWrapping="Wrap">
+                                    • Tested Stable: Up to 8192 (8K)
+                                    • Experimental: 8,193 to 16,384
+                                </TextBlock>
+                                <TextBlock
+                                    FontSize="11"
+                                    FontStyle="Italic"
+                                    TextWrapping="Wrap">
+                                    Note: The preview is math-based, but generating a physical image at these scales
+                                    will consume massive amounts of system memory. Pushing toward 8k can
+                                    exceed your RAM capacity and cause a system-enforced "crash".
+                                </TextBlock>
+                            </StackPanel>
+                        </ToolTip.Tip>
+                    </NumericUpDown>
+                </StackPanel>
+
+                <Viewbox
+                    Grid.Row="1"
+                    MaxHeight="550"
+                    MaxWidth="550"
+                    Stretch="Uniform">
+                    <Border
+                        Background="White"
+                        BoxShadow="0 4 10 0 #30000000"
+                        CornerRadius="4"
+                        Padding="10">
+                        <Path
+                            Data="{Binding QrGeometry}"
+                            Fill="Black"
+                            Height="500"
+                            Name="QRPath"
+                            Opacity="{Binding QrOpacity}"
+                            RenderTransform="{Binding QrTransform}"
+                            RenderTransformOrigin="50%,50%"
+                            Stretch="Uniform"
+                            Width="500">
+                            <ToolTip.Tip>
+                                <StackPanel Spacing="5">
+                                    <TextBlock FontWeight="Bold" Text="Vector Preview" />
+                                    <TextBlock Text="{Binding DesiredSize, StringFormat='Output Resolution: {0}x{0}px'}" />
+                                    <TextBlock
+                                        FontSize="11"
+                                        Opacity="0.7"
+                                        Text="The preview is rendered as a sharp vector for clarity," />
+                                    <TextBlock
+                                        FontSize="11"
+                                        Opacity="0.7"
+                                        Text="but your exported file will be as you'd expect." />
+                                </StackPanel>
+                            </ToolTip.Tip>
+                            <Path.Transitions>
+                                <Transitions>
+                                    <TransformOperationsTransition
+                                        Duration="0:0:0.4"
+                                        Easing="BackEaseOut"
+                                        Property="RenderTransform" />
+
+                                    <DoubleTransition
+                                        Duration="0:0:0.25"
+                                        Easing="SineEaseOut"
+                                        Property="Opacity" />
+                                </Transitions>
+                            </Path.Transitions>
+                        </Path>
+                    </Border>
+                </Viewbox>
+
+                <StackPanel
+                    Grid.Row="2"
+                    Margin="0,20,0,0"
+                    Spacing="8">
+                    <Button
+                        Click="CopyImageButtonPressed"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <fluent:SymbolIcon Symbol="ImageCopy" />
+                            <TextBlock Text="Copy Image" />
+                        </StackPanel>
+                    </Button>
+                    <Grid ColumnDefinitions="*, *">
+                        <Button
+                            Click="SaveImageButtonPressed"
+                            Grid.Column="0"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Margin="0,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <fluent:SymbolIcon Symbol="SaveImage" />
+                                <TextBlock Text="Save..." />
+                            </StackPanel>
+                        </Button>
+                        <Button
+                            Click="UploadImageButtonPressed"
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Margin="4,0,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <fluent:SymbolIcon Symbol="ImageGlobe" />
+                                <TextBlock Text="Upload" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+    </Grid>
+
 </windowing:AppWindow>
-
