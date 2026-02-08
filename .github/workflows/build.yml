@@ -378,8 +378,6 @@ jobs:
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
       API_KEYS: ${{ secrets.API_KEYS }}
-      BUILD_DEB_COMMANDS: |
-        pacstall -B -K -I -P -Q snapx.pacscript
     steps:
       - uses: actions/checkout@v6
         with:
@@ -418,7 +416,6 @@ jobs:
 
           env: |
             API_KEYS: ${{ secrets.API_KEYS }}
-            BUILD_DEB_COMMANDS: ${{ env.BUILD_DEB_COMMANDS }}
             ALLOW_DOTNET_DOWNLOAD: ${{env.ALLOW_DOTNET_DOWNLOAD }}
           setup: |
             mkdir -p "${PWD}/artifacts"
@@ -435,7 +432,12 @@ jobs:
           run: |
             cd packaging
             bash -c "$(curl -fsSL https://pacstall.dev/q/install)" < /dev/null
-            $BUILD_DEB_COMMANDS
+            EXTRA_FLAGS=""
+            # Sandboxing on ARM32 seems to be broken.
+            if [[ "${{ matrix.pretty_arch }}" == "ARM32" ]]; then
+              EXTRA_FLAGS="-Ns"
+            fi
+            pacstall -B -K -I -P -Q $EXTRA_FLAGS snapx.pacscript
             find -name "*.deb" -exec cp {} ../artifacts/ \;
       - name: Set up QEMU for multi-arch builds
         if: matrix.pretty_arch == 'ARM32'
