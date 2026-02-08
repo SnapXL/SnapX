@@ -1,5 +1,4 @@
-
-## Development Dependencies
+# Development Dependencies
 
 - `git`
 - `dotnet-sdk-10.0`
@@ -21,13 +20,13 @@ JetBrains Rider is the recommended IDE. It works on Linux, Windows, and macOS. I
   />
 </a>
 
-### Fedora 42+ 🌟
+### Fedora 42+ <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Fedora_icon_%282021%29.svg/960px-Fedora_icon_%282021%29.svg.png" alt="Fedora Logo" height="25" width="25"/>
 
 ```bash
 sudo dnf in -y git dotnet-sdk-aot-10.0 /usr/bin/ffmpeg
 ```
 
-### Ubuntu 24.04+ ⚡
+### Ubuntu 24.04+ <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Ubuntu_logoib.svg/960px-Ubuntu_logoib.svg.png" alt="Ubuntu Logo" height="25" width="25"/>
 
 ```bash
 sudo apt update && sudo apt install -y software-properties-common
@@ -37,7 +36,7 @@ sudo apt install -y git dotnet-sdk-10.0 ffmpeg clang zlib1g-dev libsm6
 ```
 
 
-### Windows 10 22H2+ 🪟
+### Windows 10 22H2+ <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Windows_logo_-_2012.svg/250px-Windows_logo_-_2012.svg.png" alt="Windows Logo" height="20" width="20"/>
 
 End of life Windows versions are not supported. For example, Windows 11 22H2 is at its EOL and, thus, unsupported.
 
@@ -55,7 +54,7 @@ winget install -e --id Git.Git
 winget install -e --id JetBrains.Rider
 ```
 
-### macOS 14 Sonoma+ 🍎
+### macOS 14 Sonoma+ <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Apple_logo_grey.svg/500px-Apple_logo_grey.svg.png" alt="Apple Logo" height="25" width="20"/>
 
 End of life macOS versions are not supported. For example, macOS 13 Ventura is at its EOL and thus, unsupported.
 
@@ -76,7 +75,8 @@ exec $SHELL -l
 > sudo port install ffmpeg8 cargo
 > ```
 
-### Alpine Linux 3.23+
+### Alpine Linux 3.23+ <img src="https://github.com/user-attachments/assets/a44c5039-017c-4547-8598-8adafeae214b" alt="Alpine Linux Logo" height="25" width="25"/>
+
 
 ```bash
 sudo apk update
@@ -90,7 +90,8 @@ sudo apk add bash icu-libs krb5-libs libgcc libintl libssl3 libstdc++ zlib onnxr
 sudo ln -sf /usr/lib/libonnxruntime.so.1 /usr/lib/libonnxruntime.so
 ```
 
-### FreeBSD 14+
+### FreeBSD 14+ <img width="25" height="25" alt="FreeBSD Logo" src="https://github.com/user-attachments/assets/3909625f-91be-4abc-bde6-e222921119ad" />
+
 
 ```bash
 # Install required system dependencies
@@ -131,7 +132,7 @@ sudo chmod +x /usr/local/bin/xvfb-run
 dotnet --info
 ```
 
-## Building from Source
+# Building from Source
 
 ### System Requirements for Compiling
 
