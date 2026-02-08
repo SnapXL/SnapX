@@ -373,8 +373,6 @@ jobs:
       API_KEYS: ${{ secrets.API_KEYS }}
       BUILD_DEB_COMMANDS: |
         pacstall -B -K -I -P -Q snapx.pacscript
-      BUILD_SNAP_COMMANDS: |
-        snapcraft pack --destructive-mode
     steps:
       - uses: actions/checkout@v6
         with:
@@ -402,7 +400,7 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-      - name: Build and Upload RPMs
+      - name: Build DEBs
         uses: uraimo/run-on-arch-action@v3
         id: build
         with:
@@ -414,30 +412,45 @@ jobs:
           env: |
             API_KEYS: ${{ secrets.API_KEYS }}
             BUILD_DEB_COMMANDS: ${{ env.BUILD_DEB_COMMANDS }}
-            BUILD_SNAP_COMMANDS: ${{ env.BUILD_SNAP_COMMANDS }}
             ALLOW_DOTNET_DOWNLOAD: ${{env.ALLOW_DOTNET_DOWNLOAD }}
           setup: |
             mkdir -p "${PWD}/artifacts"
           dockerRunArgs: |
             --privileged
+            --cap-add=SYS_ADMIN
+            --security-opt seccomp=unconfined
             --volume "${PWD}/artifacts:/artifacts"
 
           install: |
             apt update
-            apt -y install git gpg snapd curl
+            apt -y install git gpg curl
 
           run: |
             cd packaging
             bash -c "$(curl -fsSL https://pacstall.dev/q/install)" < /dev/null
             $BUILD_DEB_COMMANDS
-            snap install snapcraft --classic
-            $BUILD_SNAP_COMMANDS
-            SNAP_PATH=$(ls *.snap | head -n 1)
-            echo "snap_file=packaging/$SNAP_PATH" >> $GITHUB_OUTPUT
             . /etc/os-release
             echo "prettyOSName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
             find -name "*.deb" -exec cp {} ../artifacts/ \;
-            find -name "*.snap" -exec cp {} ../artifacts/ \;
+      - name: Set up QEMU for multi-arch builds
+        expect: matrix.pretty_arch == 'ARM32'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support
+      - name: Build Snap
+        id: build_snap
+        working-directory: packaging
+        run: |
+          ARCH=$(dpkg --print-architecture)
+
+          if [[ "${{ matrix.pretty_arch }}" == "ARM32" ]]; then
+            ARCH="armhf"
+          fi
+
+          sudo snapcraft pack --destructive-mode --build-for=$ARCH
+
+          SNAP_PATH=$(ls *.snap | head -n 1)
+          echo "snap_file=packaging/$SNAP_PATH" >> $GITHUB_OUTPUT
       - name: Upload artifact (DEB)
         uses: actions/upload-artifact@v6
         with:
@@ -469,13 +482,13 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
-          path: artifacts/*.snap
+          path: ${{ steps.build_snap.outputs.snap_file }}
           if-no-files-found: error
       - uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
-          snap: ${{ steps.build.outputs.snap_file }}
+          snap: ${{ steps.build_snap.outputs.snap_file }}
           release: edge
   generate-sources:
     name: Generate Flatpak Sources (${{ matrix.variant.arch }})
