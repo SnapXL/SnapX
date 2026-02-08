@@ -397,6 +397,11 @@ jobs:
           large-packages: false
           docker-images: false
           swap-storage: false
+      - name: Setup environment
+        run: |
+          sudo apt update
+          sudo apt -y install git gpg snapd
+          sudo snap install snapcraft --classic
       - name: Download API keys
         env:
           API_KEYS: ${{ secrets.API_KEYS }}
