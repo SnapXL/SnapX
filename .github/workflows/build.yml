@@ -311,12 +311,12 @@ jobs:
 
             install: |
               dnf -y upgrade --refresh
-              dnf -y install git rpmdevtools rpm-build libicu dnf-plugins-core awk
-              dnf builddep -y packaging/snapx.spec
+              dnf -y install git rpmdevtools rpm-build dnf-plugins-core awk
 
             run: |
               cd packaging
               spectool -g -R snapx.spec --define "github_repo ${GITHUB_REPOSITORY}" --define "github_sha ${GITHUB_SHA}"
+              dnf builddep -y snapx.spec
               rpmdev-setuptree
 
               rpmbuild -ba snapx.spec --define "github_repo ${GITHUB_REPOSITORY}" --define "github_sha ${GITHUB_SHA}" | tee rpmbuild.log
