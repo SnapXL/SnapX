@@ -316,11 +316,13 @@ jobs:
 
             run: |
               cd packaging
-              dnf builddep -y snapx.spec
-              spectool -g -R snapx.spec --define "github_repo ${GITHUB_REPOSITORY}" --define "github_sha ${GITHUB_SHA}"
+              VERSION_STRING=$(../build.sh --version | tail -n1 | tr -d '\n')
+              DEFINES="--define 'passed_version ${VERSION_STRING}' --define 'github_repo ${GITHUB_REPOSITORY}' --define 'github_sha ${GITHUB_SHA}'"
+              dnf builddep -y snapx.spec $DEFINES
+              spectool -g -R snapx.spec $DEFINES
               rpmdev-setuptree
 
-              rpmbuild -ba snapx.spec --define "github_repo ${GITHUB_REPOSITORY}" --define "github_sha ${GITHUB_SHA}" | tee rpmbuild.log
+              rpmbuild -ba snapx.spec $DEFINES | tee rpmbuild.log
 
               if [[ "$GITHUB_REF_NAME" == "master" || "$GITHUB_REF_NAME" == "main" ]]; then
                 REPO_SLUG="snapx-rpm"
