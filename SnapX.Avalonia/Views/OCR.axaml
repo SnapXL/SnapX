@@ -153,8 +153,55 @@
             HorizontalAlignment="Right"
             Orientation="Horizontal"
             Spacing="10">
+            <SplitButton
+                Click="OcrClipboard_Click"
+                Content="Paste from Clipboard"
+                ToolTip.Tip="Only supports one file/paste at once.">
+                <SplitButton.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuItem Click="OcrFile_Click" Header="Select Image File...">
+                            <MenuItem.Icon>
+                                <controls:SymbolIcon Symbol="OpenFile" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuFlyout>
+                </SplitButton.Flyout>
+            </SplitButton>
             <Button Click="CopyResult_Click" Content="Copy" />
-            <Button Click="SelectRegion_Click" Content="Select region" />
+            <SplitButton
+                Click="SelectRegion_Click"
+                Name="RegionSplitButton"
+                Tag="Default">
+                <SplitButton.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuItem
+                            Click="SelectRegionDelay_Click"
+                            CommandParameter="Default"
+                            Header="Select with Configured Delay">
+                            <MenuItem.Icon>
+                                <controls:SymbolIcon Symbol="Clock" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem
+                            Click="SelectRegionDelay_Click"
+                            CommandParameter="3"
+                            Header="3 Second Delay" />
+                        <MenuItem
+                            Click="SelectRegionDelay_Click"
+                            CommandParameter="5"
+                            Header="5 Second Delay" />
+                        <MenuItem
+                            Click="SelectRegionDelay_Click"
+                            CommandParameter="10"
+                            Header="10 Second Delay" />
+                    </MenuFlyout>
+                </SplitButton.Flyout>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <fluent:SymbolIcon Name="RegionIcon" Symbol="ScreenCut" />
+                    <TextBlock Name="RegionText" Text="Select region" />
+                </StackPanel>
+            </SplitButton>
         </StackPanel>
 
     </Grid>

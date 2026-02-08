@@ -2,13 +2,17 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Media.TextFormatting;
+using Avalonia.Platform.Storage;
 using Avalonia.Styling;
+using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
@@ -228,6 +232,7 @@ public partial class OCR : AppWindow
         catch (Exception ex)
         {
             ResultText?.Text = ex.ToString();
+            OnToggleView(ShowTextBtn, new RoutedEventArgs());
             DebugHelper.Logger?.Error(ex.ToString());
         }
         finally
@@ -359,4 +364,148 @@ public partial class OCR : AppWindow
             ResultText.Text = ResultText.Text?.Replace("\r", "").Replace("\n", "");
         }
     }
+
+    private async void OcrClipboard_Click(object? Sender, RoutedEventArgs E)
+    {
+        Stream? ms = null;
+        try
+        {
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+            if (clipboard is null) return;
+
+            using var data = await clipboard.TryGetDataAsync();
+            Bitmap? bitmap = null;
+            if (data != null)
+            {
+                bitmap = await data.TryGetValueAsync(DataFormat.Bitmap);
+            }
+            else
+            {
+                DebugHelper.WriteAlways("OCR clipboard did not get back data");
+                await new ContentDialog { Title = "Error", Content = "Clipboard is empty.", CloseButtonText = "OK" }.ShowAsync(this);
+                return;
+            }
+
+            if (bitmap is null)
+            {
+                DebugHelper.WriteAlways("OCR clipboard did not get back a Bitmap");
+                var file = await data.TryGetValueAsync(DataFormat.File);
+                if (file is null)
+                {
+                    DebugHelper.WriteAlways("OCR clipboard did not get an image file");
+                    await new ContentDialog { Title = "Error", Content = "No image or file found on clipboard.", CloseButtonText = "OK" }.ShowAsync(this);
+                    return;
+                }
+
+                ms = new FileStream(file.Path.LocalPath, FileMode.Open, FileAccess.Read);
+            }
+            else
+            {
+                ms = new MemoryStream();
+                bitmap.Save(ms);
+                bitmap.Dispose();
+                ms.Position = 0;
+            }
+
+            _img = await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(ms);
+
+            if (LanguageSelector?.SelectedIndex is not (>= 0 and var index))
+                return;
+
+            Title = $"OCR Result for clipboard image {_img.Metadata.DecodedImageFormat?.Name}";
+            var code = _ocrViewModel.GetLanguageCode(index);
+            await RunOCRAsync(code);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteAlways($"OCR Error: {ex.Message}");
+            await new ContentDialog { Title = "OCR Error", Content = ex.Message, CloseButtonText = "OK" }.ShowAsync(this);
+        }
+        finally
+        {
+            if (ms is not null) await ms.DisposeAsync();
+        }
+    }
+
+    private async void OcrFile_Click(object? Sender, RoutedEventArgs E)
+    {
+        Stream? ms = null;
+        try
+        {
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel is null) return;
+
+            var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = "Select Image for OCR",
+                AllowMultiple = false,
+                FileTypeFilter = [FilePickerFileTypes.ImageAll]
+            });
+
+            var file = files.FirstOrDefault();
+            if (file is null) return;
+
+            ms = await file.OpenReadAsync();
+            _img = await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(ms);
+
+            if (LanguageSelector?.SelectedIndex is not (>= 0 and var index))
+                return;
+
+            Title = $"OCR Result for file {_img.Metadata.DecodedImageFormat?.Name}";
+            var code = _ocrViewModel.GetLanguageCode(index);
+            await RunOCRAsync(code);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteAlways($"OCR File Error: {ex.Message}");
+            await new ContentDialog
+            {
+                Title = "OCR Error",
+                Content = ex.Message,
+                CloseButtonText = "OK"
+            }.ShowAsync(this);
+        }
+        finally
+        {
+            if (ms is not null) await ms.DisposeAsync();
+        }
+    }
+    private async void SelectRegionDelay_Click(object? Sender, RoutedEventArgs E)
+    {
+        try
+        {
+            if (Sender is MenuItem { CommandParameter: string param } source)
+            {
+                var delay = param == "Default" ? (int)App.SnapX.GetConfiguration().DefaultTaskSettings.CaptureSettings.ScreenshotDelay : int.Parse(param);
+                await Task.Delay(TimeSpan.FromSeconds(delay));
+                RegionSplitButton.Tag = delay;
+
+                if (param == "Default")
+                {
+                    RegionText.Text = "Select region";
+                    RegionIcon.Symbol = FluentIcons.Common.Symbol.ScreenCut;
+                    source.Click += OcrClipboard_Click;
+                }
+                else
+                {
+                    RegionText.Text = $"Select region ({delay}s Delay)";
+                    RegionIcon.Symbol = FluentIcons.Common.Symbol.Clock;
+                    source.Click += SelectRegionDelay_Click;
+                }
+                SelectRegion_Click(Sender, E);
+
+            }
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteAlways($"Delay Selection Error: {ex.Message}");
+            await new ContentDialog
+            {
+                Title = "Selection Error",
+                Content = ex.Message,
+                CloseButtonText = "OK"
+            }.ShowAsync(this);
+        }
+    }
+
 }

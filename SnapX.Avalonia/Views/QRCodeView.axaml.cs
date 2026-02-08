@@ -138,7 +138,7 @@ public partial class QRCodeView : AppWindow
                             return Task.CompletedTask;
                         });
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ex.ShowError();
                     }
@@ -158,7 +158,8 @@ public partial class QRCodeView : AppWindow
             var scanImage = await RegionSelectorWindow.SelectRegionAsync();
             if (scanImage is null) return;
 
-            await ScanImage(scanImage, () => {
+            await ScanImage(scanImage, () =>
+            {
                 ScanRegionButtonPressed(Sender, E);
                 return Task.CompletedTask;
             });
@@ -233,97 +234,97 @@ public partial class QRCodeView : AppWindow
         }
     }
 
-private async Task ShowResult(Result resultData)
-{
-    var content = resultData.Text;
-    var rawBytes = resultData.RawBytes;
-
-    bool isBase45 = content.StartsWith("HC1:");
-    bool isBase64 = !isBase45 && content.Length > 20 && (content.Length % 4 == 0)
-                    && System.Text.RegularExpressions.Regex.IsMatch(content, @"^[a-zA-Z0-9\+/]*={0,2}$");
-
-    bool hasReplacementChars = content.Contains('\uFFFD');
-
-    bool hasControlChars = content.Any(c => char.IsControl(c) && c != '\r' && c != '\n' && c != '\t');
-
-    bool isBinary = isBase45 || isBase64 || hasReplacementChars || hasControlChars;
-    bool isUrl = !isBinary && Uri.TryCreate(content, UriKind.Absolute, out var uriResult);
-    Bitmap? qrImage = null;
-    if (rawBytes != null)
+    private async Task ShowResult(Result resultData)
     {
-        try
+        var content = resultData.Text;
+        var rawBytes = resultData.RawBytes;
+
+        bool isBase45 = content.StartsWith("HC1:");
+        bool isBase64 = !isBase45 && content.Length > 20 && (content.Length % 4 == 0)
+                        && System.Text.RegularExpressions.Regex.IsMatch(content, @"^[a-zA-Z0-9\+/]*={0,2}$");
+
+        bool hasReplacementChars = content.Contains('\uFFFD');
+
+        bool hasControlChars = content.Any(c => char.IsControl(c) && c != '\r' && c != '\n' && c != '\t');
+
+        bool isBinary = isBase45 || isBase64 || hasReplacementChars || hasControlChars;
+        bool isUrl = !isBinary && Uri.TryCreate(content, UriKind.Absolute, out var uriResult);
+        Bitmap? qrImage = null;
+        if (rawBytes != null)
         {
-            using var ms = new MemoryStream(rawBytes);
-            qrImage = new Bitmap(ms);
+            try
+            {
+                using var ms = new MemoryStream(rawBytes);
+                qrImage = new Bitmap(ms);
+            }
+            catch { /* Not a valid image format */ }
         }
-        catch { /* Not a valid image format */ }
-    }
 
-    var contentStack = new StackPanel { Spacing = 10, Width = 400 };
+        var contentStack = new StackPanel { Spacing = 10, Width = 400 };
 
-    if (qrImage != null)
-    {
-        contentStack.Children.Add(new Image()
+        if (qrImage != null)
         {
-            Source = qrImage,
-            MaxHeight = 300,
-            HorizontalAlignment = HorizontalAlignment.Center
+            contentStack.Children.Add(new Image()
+            {
+                Source = qrImage,
+                MaxHeight = 300,
+                HorizontalAlignment = HorizontalAlignment.Center
+            });
+        }
+
+        contentStack.Children.Add(new SelectableTextBlock
+        {
+            Text = isBinary ? $"Binary payload: {rawBytes!.Length} bytes." : content,
+            TextWrapping = TextWrapping.Wrap,
+            FontSize = 14
         });
-    }
 
-    contentStack.Children.Add(new SelectableTextBlock
-    {
-        Text = isBinary ? $"Binary payload: {rawBytes!.Length} bytes." : content,
-        TextWrapping = TextWrapping.Wrap,
-        FontSize = 14
-    });
+        var dialog = new ContentDialog
+        {
+            Title = isUrl ? "External Link Found" : isBinary ? "Binary Data Found" : "Text Content Found",
+            Content = contentStack,
+            CloseButtonText = "Dismiss",
+            DefaultButton = ContentDialogButton.Close
+        };
 
-    var dialog = new ContentDialog
-    {
-        Title = isUrl ? "External Link Found" : isBinary ? "Binary Data Found" : "Text Content Found",
-        Content = contentStack,
-        CloseButtonText = "Dismiss",
-        DefaultButton = ContentDialogButton.Close
-    };
-
-    if (isBinary && qrImage == null)
-    {
-        dialog.PrimaryButtonText = "Save Binary";
-    }
-    else
-    {
-        dialog.PrimaryButtonText = isUrl ? "Open Link" : "Copy Text";
-        dialog.SecondaryButtonText = isUrl ? "Copy URL" : null;
-    }
-
-    var dialogResult = await dialog.ShowAsync(this);
-    var topLevel = TopLevel.GetTopLevel(this);
-
-    if (dialogResult == ContentDialogResult.Primary)
-    {
         if (isBinary && qrImage == null)
         {
-            var storageFile = await topLevel!.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions { Title = "Save Binary QR Content" });
-            if (storageFile != null)
+            dialog.PrimaryButtonText = "Save Binary";
+        }
+        else
+        {
+            dialog.PrimaryButtonText = isUrl ? "Open Link" : "Copy Text";
+            dialog.SecondaryButtonText = isUrl ? "Copy URL" : null;
+        }
+
+        var dialogResult = await dialog.ShowAsync(this);
+        var topLevel = TopLevel.GetTopLevel(this);
+
+        if (dialogResult == ContentDialogResult.Primary)
+        {
+            if (isBinary && qrImage == null)
             {
-                await using var stream = await storageFile.OpenWriteAsync();
-                await stream.WriteAsync(rawBytes);
+                var storageFile = await topLevel!.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions { Title = "Save Binary QR Content" });
+                if (storageFile != null)
+                {
+                    await using var stream = await storageFile.OpenWriteAsync();
+                    await stream.WriteAsync(rawBytes);
+                }
+            }
+            else if (isUrl && content is not null)
+            {
+                URLHelpers.OpenURL(content);
+            }
+            else if (topLevel?.Clipboard is not null)
+            {
+                await topLevel.Clipboard.SetTextAsync(content);
             }
         }
-        else if (isUrl && content is not null)
-        {
-            URLHelpers.OpenURL(content);
-        }
-        else if (topLevel?.Clipboard is not null)
+        else if (dialogResult == ContentDialogResult.Secondary && isUrl && topLevel?.Clipboard is not null)
         {
             await topLevel.Clipboard.SetTextAsync(content);
         }
     }
-    else if (dialogResult == ContentDialogResult.Secondary && isUrl && topLevel?.Clipboard is not null)
-    {
-        await topLevel.Clipboard.SetTextAsync(content);
-    }
-}
 
     private Result[]? ScanInTiles(Image<L8> fullImage, ZXing.ImageSharp.BarcodeReader<L8> reader)
     {
@@ -384,7 +385,7 @@ private async Task ShowResult(Result resultData)
                             return Task.CompletedTask;
                         });
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ex.ShowError();
                     }
@@ -430,7 +431,8 @@ private async Task ShowResult(Result resultData)
                     {
                         await using var stream = await file.OpenReadAsync();
                         using var img = await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(stream, ct);
-                        await ScanImage(img, () => {
+                        await ScanImage(img, () =>
+                        {
                             QrFile_Click(Sender, E);
                             return Task.CompletedTask;
                         });
@@ -450,7 +452,7 @@ private async Task ShowResult(Result resultData)
         {
             if (Sender is MenuItem { CommandParameter: string param } source)
             {
-                var delay = param == "Default" ? 3 : int.Parse(param);
+                var delay = param == "Default" ? (int)App.SnapX.GetConfiguration().DefaultTaskSettings.CaptureSettings.ScreenshotDelay : int.Parse(param);
                 await Task.Delay(TimeSpan.FromSeconds(delay));
                 RegionSplitButton.Tag = delay;
 
