@@ -291,7 +291,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Build and Upload RPMs
-        uses: uraimo/run-on-arch-action@v2
+        uses: uraimo/run-on-arch-action@v3
         with:
             arch: ${{ matrix.arch }}
             distro: ${{matrix.distro}}
@@ -401,7 +401,7 @@ jobs:
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
       - name: Build and Upload RPMs
-        uses: uraimo/run-on-arch-action@v2
+        uses: uraimo/run-on-arch-action@v3
         id: build
         with:
           arch: ${{ matrix.arch }}
