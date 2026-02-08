@@ -372,7 +372,7 @@ jobs:
       BUILD_DEB_COMMANDS: |
         pacstall -B -K -I -P -Q snapx.pacscript
       BUILD_SNAP_COMMANDS: |
-        sudo snapcraft pack --destructive-mode
+        snapcraft pack --destructive-mode
     steps:
       - uses: actions/checkout@v6
         with:
@@ -422,10 +422,10 @@ jobs:
           install: |
             apt update
             apt -y install git gpg snapd
-            bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
 
           run: |
             cd packaging
+            bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
             $BUILD_DEB_COMMANDS
             snap install snapcraft --classic
             $BUILD_SNAP_COMMANDS
