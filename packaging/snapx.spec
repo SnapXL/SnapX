@@ -55,7 +55,7 @@ Source:         %{url}/archive/%{git_ref}.tar.gz
 # RISCV64 support is coming soon. Maybe .NET 10 will add it?
 ExclusiveArch:  x86_64 aarch64 ppc64le s390x armhf armv7hl armv7l
 
-BuildRequires:  dotnet-sdk-10.0
+BuildRequires:  pkgconfig(icu-i18n)
 
 %if "%{build_with_aot}" == "true"
 # When installing AOT support, also install all dependencies needed to build
@@ -78,6 +78,7 @@ Specifically, it is the CLI tool.
 Summary:        Shared libraries and core logic for SnapX
 
 %if "%{build_with_aot}" != "true"
+BuildRequires:  dotnet-sdk-10.0
 Requires:       dotnet-runtime-10.0
 %endif
 
