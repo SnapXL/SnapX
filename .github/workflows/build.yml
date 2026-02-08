@@ -317,7 +317,10 @@ jobs:
             run: |
               cd packaging
               chmod +x ../build.sh
+              set -x
               VERSION_STRING=$(../build.sh --version | tail -n1 | tr -d '\n')
+              VERSION_STRING=$(../build.sh --version | tail -n1 | tr -d '\n')
+              set +x
               DEFINES=(
               --define "passed_version ${VERSION_STRING}"
               --define "github_repo ${GITHUB_REPOSITORY}"
