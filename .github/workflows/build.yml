@@ -265,8 +265,6 @@ jobs:
     # Building the RPMs causes Ubuntu runner starvation due to it triggering multiple jobs. Normal builds take priority.
 #    needs: build
     timeout-minutes: 360
-    container:
-      image: ${{ matrix.container }}
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
     strategy:
@@ -278,7 +276,7 @@ jobs:
             pretty_arch: X64
             base_image: fedora:42
             os: ubuntu-latest
-          - arch: aarch64
+          - arch: none
             distro: none
             base_image: fedora:42
             pretty_arch: ARM64
@@ -318,7 +316,6 @@ jobs:
 
             run: |
               cd packaging
-              dnf builddep -y snapx.spec
               spectool -g -R snapx.spec --define "github_repo ${GITHUB_REPOSITORY}" --define "github_sha ${GITHUB_SHA}"
               rpmdev-setuptree
 
@@ -355,12 +352,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [ ubuntu-latest, ubuntu-24.04-arm ]
         include:
-          - os: ubuntu-latest
-            arch: X64
-          - os: ubuntu-24.04-arm
-            arch: ARM64
+          - arch: none
+            distro: none
+            pretty_arch: X64
+            base_image: ubuntu:noble
+            os: ubuntu-latest
+          - arch: none
+            distro: none
+            base_image: ubuntu:noble
+            pretty_arch: ARM64
+            os: ubuntu-24.04-arm
+          - arch: armv7
+            distro: ubuntu24.04
+            pretty_arch: ARM32
+            os: ubuntu-latest
     env:
       API_KEYS: ${{ secrets.API_KEYS }}
       BUILD_DEB_COMMANDS: |
@@ -376,12 +382,12 @@ jobs:
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
-          tool-cache: false
+          tool-cache: true
 
           # all of these default to true, but feel free to set to
           # "false" if necessary for your workflow
           android: true
-          dotnet: false
+          dotnet: true
           haskell: true
           large-packages: false
           docker-images: false
@@ -394,37 +400,46 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-      - name: Grab pretty OS name
-        id: osname
-        run: |
-          . /etc/os-release
-          echo "prettyName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
-      - name: Setup environment
-        if: matrix.pretty_arch == ''
-        run: |
-          sudo apt update
-          sudo apt -y install git gpg snapd
-          sudo snap install snapcraft --classic
-          sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
-      - name: Build Deb
-        if: matrix.pretty_arch == ''
-        working-directory: packaging
-        run: |
-          $BUILD_DEB_COMMANDS
-      - name: Build Snap
-        id: build_snap  # Add this ID
-        if: matrix.pretty_arch == ''
-        working-directory: packaging
-        run: |
-          $BUILD_SNAP_COMMANDS
-          SNAP_PATH=$(ls *.snap | head -n 1)
-          echo "snap_file=packaging/$SNAP_PATH" >> $GITHUB_OUTPUT
+      - name: Build and Upload RPMs
+        uses: uraimo/run-on-arch-action@v2
+        id: build
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{matrix.distro}}
+          base_image: ${{ matrix.base_image }}
+          githubToken: ${{ github.token }}
 
+          env: |
+            API_KEYS: ${{ secrets.API_KEYS }}
+            BUILD_DEB_COMMANDS: ${{ env.BUILD_DEB_COMMANDS }}
+            BUILD_SNAP_COMMANDS: ${{ env.BUILD_SNAP_COMMANDS }}
+          setup: |
+            mkdir -p "${PWD}/artifacts"
+          dockerRunArgs: |
+            --privileged
+            --volume "${PWD}/artifacts:/artifacts"
+
+          install: |
+            apt update
+            apt -y install git gpg snapd
+            snap install snapcraft --classic
+            bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
+
+          run: |
+            cd packaging
+            $BUILD_DEB_COMMANDS
+            $BUILD_SNAP_COMMANDS
+            SNAP_PATH=$(ls *.snap | head -n 1)
+            echo "snap_file=packaging/$SNAP_PATH" >> $GITHUB_OUTPUT
+            . /etc/os-release
+            echo "prettyOSName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
+            find -name "*.deb" -exec cp {} ../artifacts/ \;
+            find -name "*.snap" -exec cp {} ../artifacts/ \;
       - name: Upload artifact (DEB)
         uses: actions/upload-artifact@v6
         with:
-          name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.arch }}
-          path: packaging/*.deb
+          name: SnapX-DEB-${{steps.build.outputs.prettyOSName}}-${{ matrix.pretty_arch }}
+          path: artifacts/*.deb
           if-no-files-found: error
       - name: Upload DEB to Package Repository
         env:
@@ -438,7 +453,7 @@ jobs:
             echo "Targeting NIGHTLY repo: $REPO_SLUG"
           fi
 
-          for deb in packaging/*.deb; do
+          for deb in artifacts/*.deb; do
             [ -e "$deb" ] || continue
             echo "Uploading $deb to $REPO_SLUG"
 
@@ -451,13 +466,13 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
-          path: packaging/*.snap
+          path: artifacts/*.snap
           if-no-files-found: error
       - uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
-          snap: ${{ steps.build_snap.outputs.snap_file }}
+          snap: ${{ steps.build.outputs.snap_file }}
           release: edge
   generate-sources:
     name: Generate Flatpak Sources (${{ matrix.variant.arch }})
