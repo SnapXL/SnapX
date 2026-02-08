@@ -316,8 +316,8 @@ jobs:
 
             run: |
               cd packaging
-              spectool -g -R snapx.spec --define "github_repo ${GITHUB_REPOSITORY}" --define "github_sha ${GITHUB_SHA}"
               dnf builddep -y snapx.spec
+              spectool -g -R snapx.spec --define "github_repo ${GITHUB_REPOSITORY}" --define "github_sha ${GITHUB_SHA}"
               rpmdev-setuptree
 
               rpmbuild -ba snapx.spec --define "github_repo ${GITHUB_REPOSITORY}" --define "github_sha ${GITHUB_SHA}" | tee rpmbuild.log
