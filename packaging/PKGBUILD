@@ -39,7 +39,7 @@ build() {
 check() {
     cd "$pkgbase"
     Output/snapx/snapx --version
-    timeout 5s Output/snapx/snapx -OCR ".github/Screenshot.png" > test_output.log 2>&1 || true
+    timeout 5s Output/snapx/snapx -OCR ".github/discordarchexample.png" > test_output.log 2>&1 || true
 
     ONNX_TROUBLESHOOT="
     💡 TROUBLESHOOTING STEPS:
