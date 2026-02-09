@@ -263,123 +263,99 @@ jobs:
     name: RPMs
     runs-on: ${{matrix.os}}
     # Building the RPMs causes Ubuntu runner starvation due to it triggering multiple jobs. Normal builds take priority.
-#    needs: build
+    #    needs: build
     timeout-minutes: 360
+    container:
+      image: ${{ matrix.container }}
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: none
-            distro: none
-            pretty_arch: X64
-            base_image: fedora:42
-            os: ubuntu-latest
-          - arch: none
-            distro: none
-            base_image: fedora:42
-            pretty_arch: ARM64
-            os: ubuntu-24.04-arm
-          - arch: armv7
-            distro: none
-            base_image: --platform=linux/arm/v7 mageia:9
-            pretty_arch: ARM32
-            os: ubuntu-latest
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+
+        container: [fedora:42]
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Build and Upload RPMs
-        uses: uraimo/run-on-arch-action@v3
-        with:
-            arch: ${{ matrix.arch }}
-            distro: ${{matrix.distro}}
-            base_image: ${{ matrix.base_image }}
-            githubToken: ${{ github.token }}
+      - name: Setup environment
+        run: |
+          dnf -y upgrade --refresh
+          dnf -y install git rpmdevtools rpm-build libicu
+      - name: Build RPM
+        id: build_rpm
+        env:
+          API_KEYS: ${{ secrets.API_KEYS }}
+        run: |
+          cd packaging
+          VERSION_STRING=$(../build.sh --version | tail -n1 | tr -d '\n')
+          DEFINES=(
+          --define "passed_version ${VERSION_STRING}"
+          --define "github_repo ${{ github.repository }}"
+          --define "github_sha ${{ github.sha }}"
+          )
+          dnf builddep -y snapx.spec "${DEFINES[@]}"
+          spectool -g -R snapx.spec "${DEFINES[@]}"
+          rpmdev-setuptree
+          rpmbuild -ba snapx.spec "${DEFINES[@]}" | tee rpmbuild.log
+          grep '^Wrote:' rpmbuild.log | awk '{print $2}' > rpm_files.txt
 
-            env: |
-              API_KEYS: ${{ secrets.API_KEYS }}
-              PKG_API_TOKEN: ${{ secrets.PKG_API_TOKEN }}
-              GITHUB_REF_NAME: ${{ github.ref_name }}
-              GITHUB_REPOSITORY: ${{ github.repository }}
-              GITHUB_SHA: ${{ github.sha }}
-              ALLOW_DOTNET_DOWNLOAD: ${{env.ALLOW_DOTNET_DOWNLOAD}}
-            setup: |
-              mkdir -p "${PWD}/artifacts"
-            dockerRunArgs: |
-              --volume "${PWD}/artifacts:/artifacts"
+          cat rpm_files.txt
 
-            install: |
-              dnf -y upgrade --refresh
-              dnf -y install git rpmdevtools rpm-build dnf-plugins-core awk libicu
-
-            run: |
-              cd packaging
-              chmod +x ../build.sh
-              set -x
-              VERSION_STRING=$(../build.sh --version | tail -n1 | tr -d '\n')
-              VERSION_STRING=$(../build.sh --version | tail -n1 | tr -d '\n')
-              set +x
-              DEFINES=(
-              --define "passed_version ${VERSION_STRING}"
-              --define "github_repo ${GITHUB_REPOSITORY}"
-              --define "github_sha ${GITHUB_SHA}"
-              )
-              dnf builddep -y snapx.spec "${DEFINES[@]}"
-              spectool -g -R snapx.spec "${DEFINES[@]}"
-              rpmdev-setuptree
-
-              rpmbuild -ba snapx.spec "${DEFINES[@]}" | tee rpmbuild.log
-
-              if [[ "$GITHUB_REF_NAME" == "master" || "$GITHUB_REF_NAME" == "main" ]]; then
-                REPO_SLUG="snapx-rpm"
-              else
-                REPO_SLUG="snapx-rpm-nightly"
-              fi
-
-              RPM_DIR="/root/rpmbuild/RPMS"
-              for rpm in $(find "$RPM_DIR" -name "*.rpm"); do
-                echo "Uploading $rpm to $REPO_SLUG"
-                curl -f -X POST "https://pkg.brycen.app/api/$REPO_SLUG/upload/" \
-                     -H "Authorization: Token $PKG_API_TOKEN" \
-                     -F "package_file=@$rpm" \
-                     -F "overwrite=true"
-              done
-              find $RPM_DIR -name "*.rpm" -exec cp {} ../artifacts/ \;
+          echo "rpm_paths=$(paste -sd ' ' rpm_files.txt)" >> $GITHUB_OUTPUT
+      - name: Format Container Name
+        id: format
+        run: |
+          CONTAINER_NAME="${{ matrix.container }}"
+          formattedName=$(echo "${CONTAINER_NAME}" | awk -F: '{
+            printf "%s", toupper(substr($1,1,1)) tolower(substr($1,2)) "-" toupper(substr($2,1,1)) tolower(substr($2,2))
+          }')
+          echo "formattedName=${formattedName}" >> "$GITHUB_OUTPUT"
       - name: Upload artifact (RPM - Release on Linux)
         uses: actions/upload-artifact@v6
         with:
-          name: SnapX-RPM-Fedora-42-${{ matrix.pretty_arch}}
-          path: artifacts/*.rpm
+          name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
+          path: /github/home/rpmbuild/RPMS/**/*.rpm
           if-no-files-found: error
+      - name: Upload RPM to Package Repository
+        env:
+          OVERWRITE_EXISTING: "true"
+        run: |
+          if [[ "$GITHUB_REF_NAME" == "master" || "$GITHUB_REF_NAME" == "main" ]]; then
+            REPO_SLUG="snapx-rpm"
+            echo "Targeting PRODUCTION repo: $REPO_SLUG"
+          else
+            REPO_SLUG="snapx-rpm-nightly"
+            echo "Targeting NIGHTLY repo: $REPO_SLUG"
+          fi
+
+          for rpm in /github/home/rpmbuild/RPMS/**/*.rpm; do
+            [ -e "$rpm" ] || continue
+            echo "Uploading $rpm to $REPO_SLUG"
+
+            curl -f -X POST "https://pkg.brycen.app/api/$REPO_SLUG/upload/" \
+                 -H "Authorization: Token ${{ secrets.PKG_API_TOKEN }}" \
+                 -F "package_file=@$rpm" \
+                 -F "overwrite=$OVERWRITE_EXISTING"
+          done
   ubuntu:
     name: DEB/Snap Build
     runs-on: ${{matrix.os}}
-#    needs: build
+    #    needs: build
     timeout-minutes: 65
     permissions:
       packages: write
     strategy:
       fail-fast: false
       matrix:
+        # os: [ ubuntu-latest, ubuntu-24.04-arm ]
         include:
-          - arch: none
-            distro: none
-            pretty_arch: X64
-            base_image: ubuntu:noble
-            os: ubuntu-latest
-          - arch: none
-            distro: none
-            base_image: ubuntu:noble
-            pretty_arch: ARM64
-            os: ubuntu-24.04-arm
-          - arch: armv7
-            distro: ubuntu24.04
-            pretty_arch: ARM32
-            os: ubuntu-latest
+          - os: ubuntu-latest
+            arch: X64
+          - os: ubuntu-24.04-arm
+            arch: ARM64
     env:
-      ALLOW_DOTNET_DOWNLOAD: 1
       API_KEYS: ${{ secrets.API_KEYS }}
     steps:
       - uses: actions/checkout@v6
@@ -390,21 +366,16 @@ jobs:
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
-          tool-cache: true
+          tool-cache: false
 
           # all of these default to true, but feel free to set to
           # "false" if necessary for your workflow
           android: true
-          dotnet: true
+          dotnet: false
           haskell: true
           large-packages: false
           docker-images: false
           swap-storage: false
-      - name: Setup environment
-        run: |
-          sudo apt update
-          sudo apt -y install git gpg snapd
-          sudo snap install snapcraft --classic
       - name: Download API keys
         env:
           API_KEYS: ${{ secrets.API_KEYS }}
@@ -413,64 +384,37 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL "$API_KEYS" -o SnapX.Core/Upload/APIKeysLocal.cs
-      - name: Build DEBs
-        uses: uraimo/run-on-arch-action@v3
-        id: build
-        with:
-          arch: ${{ matrix.arch }}
-          distro: ${{matrix.distro}}
-          base_image: ${{ matrix.base_image }}
-          githubToken: ${{ github.token }}
-
-          env: |
-            API_KEYS: ${{ secrets.API_KEYS }}
-            ALLOW_DOTNET_DOWNLOAD: ${{env.ALLOW_DOTNET_DOWNLOAD }}
-          setup: |
-            mkdir -p "${PWD}/artifacts"
-          dockerRunArgs: |
-            --privileged
-            --cap-add=SYS_ADMIN
-            --security-opt seccomp=unconfined
-            --volume "${PWD}/artifacts:/artifacts"
-
-          install: |
-            apt update
-            apt -y install git gpg curl
-
-          run: |
-            cd packaging
-            bash -c "$(curl -fsSL https://pacstall.dev/q/install)" < /dev/null
-            EXTRA_FLAGS=""
-            # Sandboxing on ARM32 seems to be broken.
-            if [[ "${{ matrix.pretty_arch }}" == "ARM32" ]]; then
-              EXTRA_FLAGS="-Ns"
-            fi
-            pacstall -B -K -I -P -Q $EXTRA_FLAGS snapx.pacscript
-            find -name "*.deb" -exec cp {} ../artifacts/ \;
-      - name: Set up QEMU for multi-arch builds
-        if: matrix.pretty_arch == 'ARM32'
+      - name: Grab pretty OS name
+        id: osname
         run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support
-      - name: Build Snap
-        id: build_snap
+          . /etc/os-release
+          echo "prettyName=${NAME// /-}-${VERSION_ID}" >> "$GITHUB_OUTPUT"
+      - name: Setup environment
+        if: matrix.pretty_arch == ''
+        run: |
+          sudo apt update
+          sudo apt -y install git gpg snapd
+          sudo snap install snapcraft --classic
+          sudo bash -c "$(curl -fsSL https://pacstall.dev/q/install)"
+      - name: Build Deb
+        if: matrix.pretty_arch == ''
         working-directory: packaging
         run: |
-          ARCH=$(dpkg --print-architecture)
-
-          if [[ "${{ matrix.pretty_arch }}" == "ARM32" ]]; then
-            ARCH="armhf"
-          fi
-
-          sudo snapcraft pack --destructive-mode --build-for=$ARCH
-
+          pacstall -B -K -I -P -Q snapx.pacscript
+      - name: Build Snap
+        id: build_snap  # Add this ID
+        if: matrix.pretty_arch == ''
+        working-directory: packaging
+        run: |
+          sudo snapcraft pack --destructive-mode
           SNAP_PATH=$(ls *.snap | head -n 1)
           echo "snap_file=packaging/$SNAP_PATH" >> $GITHUB_OUTPUT
+
       - name: Upload artifact (DEB)
         uses: actions/upload-artifact@v6
         with:
-          name: SnapX-DEB-Ubuntu-24.04-${{ matrix.pretty_arch }}
-          path: artifacts/*.deb
+          name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.arch }}
+          path: packaging/*.deb
           if-no-files-found: error
       - name: Upload DEB to Package Repository
         env:
@@ -484,7 +428,7 @@ jobs:
             echo "Targeting NIGHTLY repo: $REPO_SLUG"
           fi
 
-          for deb in artifacts/*.deb; do
+          for deb in packaging/*.deb; do
             [ -e "$deb" ] || continue
             echo "Uploading $deb to $REPO_SLUG"
 
@@ -610,15 +554,16 @@ jobs:
           bundle: io.github.SnapXL.SnapX.flatpak
           manifest-path: io.github.SnapXL.SnapX.yml
           cache-key: flatpak-builder-${{ matrix.variant.arch }}-${{ github.sha }}
-      - uses: flatpak/flatpak-github-actions/flat-manager@v6
-        name: Upload to Flatpak Repopsitory
-        with:
-          # I have completely given up seperating nightly feeds in our Flatpak repository.
-          # I admit defeat.
-          # Once SnapX is actually stable, I will EOL this Flatpak repository.
-          repository: stable
-          flat-manager-url: https://flats.brycen.app
-          token: ${{ secrets.FLATPAK_REPO_TOKEN }}
+#      - uses: flatpak/flatpak-github-actions/flat-manager@v6
+#        name: Upload to Flathub
+#        with:
+#          # I have completely given up seperating nightly feeds in our Flatpak repository.
+#          # I admit defeat.
+#          # Once SnapX is actually stable, I will EOL this Flatpak repository.
+#          repository: stable
+#          flat-manager-url: https://hub.flathub.org/
+#          token: ${{ secrets.FLATPAK_REPO_TOKEN }}
+#          build-log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 #          end-of-life: "The application has been renamed to..."
 #          end-of-life-rebase: "org.zbrown.Palette"
   build:

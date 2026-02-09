@@ -43,7 +43,7 @@ platforms:
     build-for: [arm64]
   # For the time being, Microsoft hasn't removed support for Arm32 NativeAOT... yet
   armhf:
-    build-on: [amd64, arm64, armhf]
+    build-on: [armhf]
     build-for: [armhf]
 
 # for screen capture & sounds
