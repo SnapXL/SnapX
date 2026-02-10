@@ -31,22 +31,22 @@
 - Elegance in user interfaces by separating essential settings from advanced or intermediate functionality
 - Supporting high DPI screens
 - Screenshots on an HDR monitor aren't blown out<sup>[1]</sup>
-- Cross-platform OCR powered by [**PaddleOCR**](https://github.com/PaddlePaddle/PaddleOCR) for industry-leading precision. Experience accuracy that [**outperforms**](https://github.com/opendatalab/OmniDocBench?tab=readme-ov-file#end-to-end-evaluation) PowerToys OCR, ShareX, Tesseract, and Window's built in OCR.
+- Cross-platform OCR powered by [**PaddleOCR**](https://github.com/PaddlePaddle/PaddleOCR) for industry-leading precision. Experience accuracy that [**outperforms**](https://github.com/opendatalab/OmniDocBench?tab=readme-ov-file#end-to-end-evaluation) PowerToys OCR, ShareX, Tesseract, and Windows' built in OCR.
 
 > [1] When tested on KDE Plasma Wayland 6.2.90 with HDR, the resulting screenshots' colors were not blown out. Your mileage may vary.
 
 ## Technical Details
 
-- It uses [.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
+- It uses [.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview) and [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
 - It uses [SQLite](https://www.sqlite.org/about.html) for [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28).
 - The UI is now defined in a more modern, declarative style using MVVM and XAML, providing a clear improvement over the older WinForms approach.
-- UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU).
+- UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS.
 - Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), AVIF, JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!).
 - Supports Google Photos Image Uploader after the [new API change](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/).
-- The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
+- Allows you to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Additionally, all uploaders are now encouraged to use HTTPS <2.0 & *optionally* use TLS 1.3.
 - Keeps compatibility with the custom uploader configuration format (.sxcu).
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, macOS, or FreeBSD.
@@ -60,8 +60,8 @@ If you have any issues with this project or would like us to add any new feature
 
 This project is built on Ubuntu 24.04 and is tested on the following distributions:
 
-- **Fedora 42+** <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Fedora_icon_%282021%29.svg/960px-Fedora_icon_%282021%29.svg.png" alt="Fedora Logo" height="25" width="25"/>
-- **Ubuntu 24.04+** <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Ubuntu_logoib.svg/960px-Ubuntu_logoib.svg.png" alt="Ubuntu Logo" height="25" width="25"/>
+- **Fedora 42+** <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Fedora_icon_%282021%29.svg" alt="Fedora Logo" height="25" width="25"/>
+- **Ubuntu 24.04+** <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Ubuntu_logoib.svg" alt="Ubuntu Logo" height="25" width="25"/>
 
 > [!NOTE]
 > If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
@@ -70,11 +70,11 @@ This project is built on Ubuntu 24.04 and is tested on the following distributio
 
 This application relies on XDG portals to handle screenshots in a secure and desktop-agnostic way. It is actively tested on:
 
-- **KDE Plasma**
-- **GNOME**
+- **KDE Plasma** <img src="https://kde.org/images/plasma.svg" alt="KDE Plasma Logo" height="25" width="25"/>
+- **GNOME** <img src="https://foundation.gnome.org/assets/images/trademarks/GnomeLogoVertical.svg" alt="GNOME Logo" height="25" width="25"/>
 
 > [!TIP]
-> Other desktop environments or Wayland compositors—such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal—should also work, but are not officially tested.
+> Other desktop environments or Wayland compositors — such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal — should also work, but are not officially tested.
 
 ## Testing
 
@@ -84,19 +84,19 @@ See our guide here to learn [how to test](https://github.com/SnapXL/SnapX/wiki/T
 
 SnapX is packaged on:
 
-- [AUR](https://aur.archlinux.org/packages/snapx-ui)
-<!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) [PENDING] -->
-- [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo)
-- [Snapcraft](https://snapcraft.io/ui-snapx)
+- [AUR](https://aur.archlinux.org/packages/snapx-ui) <img src="https://github.com/user-attachments/assets/e9e43ff4-118a-4db1-8f71-9489adafcbf9" alt="Arch Linux Logo" height="30" width="30"/>
+<!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) <img src="https://github.com/user-attachments/assets/cb95b73e-8201-4750-b8b9-25b066574e12" alt="Flathub Logo" height="25" width="25"/> [PENDING] -->
+- [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo) <img src="https://raw.githubusercontent.com/Homebrew/brew.sh/main/assets/img/homebrew.svg" alt="Homebrew Logo" height="25" width="25"/>
+- [Snapcraft](https://snapcraft.io/ui-snapx) <img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Snapcraft-logo-bird.svg" alt="Snapcraft Logo" height="25" width="25"/>
 
 Additionally, you can download nightly builds from [here](https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview).
 
 ## Building & Contributing
 
 Contributions are welcome.
-See [BUILDING.md](./.github/BUILDING.md) for build instructions.
+See [`BUILDING.md`](./.github/BUILDING.md) for build instructions.
 
-The documentation for contributing can be found [here](./.github/CONTRIBUTING.md).
+The documentation for contributing can be found at [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md).
 
 ## Donators 💖
 
