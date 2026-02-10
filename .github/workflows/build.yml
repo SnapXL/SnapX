@@ -319,6 +319,13 @@ jobs:
           path: /github/home/rpmbuild/RPMS/**/*.rpm
           if-no-files-found: error
       - name: Upload RPM to Package Repository
+        if: |
+          github.repository == 'SnapXL/SnapX' &&
+          (github.ref_name == 'main' ||
+           github.ref_name == 'master' ||
+           github.ref_name == 'develop' ||
+           startsWith(github.ref_name, 'alpha') ||
+           startsWith(github.ref_name, 'beta'))
         env:
           OVERWRITE_EXISTING: "true"
         run: |
@@ -417,6 +424,13 @@ jobs:
           path: packaging/*.deb
           if-no-files-found: error
       - name: Upload DEB to Package Repository
+        if: |
+          github.repository == 'SnapXL/SnapX' &&
+          (github.ref_name == 'main' ||
+           github.ref_name == 'master' ||
+           github.ref_name == 'develop' ||
+           startsWith(github.ref_name, 'alpha') ||
+           startsWith(github.ref_name, 'beta'))
         env:
           OVERWRITE_EXISTING: "true"
         run: |
