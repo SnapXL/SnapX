@@ -14,45 +14,21 @@
 
 <br>
 <div align="center">
-  <a href="https://github.com/SnapXL/SnapX/actions/workflows/build.yml">
-    <img src="https://badgen.net/github/checks/SnapXL/SnapX/develop?label=Build" alt="GitHub Workflow Status" />
-  </a>
-  <a href="./LICENSE.md">
-    <img src="https://badgen.net/github/license/SnapXL/SnapX?color=green" alt="License" />
-  </a>
-  <a href="https://github.com/SnapXL/SnapX/releases/latest">
-    <img src="https://badgen.net/github/release/SnapXL/SnapX?label=Release&color=green" alt="Release" />
-  </a>
-  <a href="https://github.com/SnapXL/SnapX/releases/latest">
-    <img src="https://badgen.net/github/assets-dl/SnapXL/SnapX?label=Downloads&color=green" alt="Downloads" />
-  </a>
+  <a href="https://github.com/SnapXL/SnapX/actions/workflows/build.yml"><img src="https://badgen.net/github/checks/SnapXL/SnapX/develop?label=Build" alt="GitHub Workflow Status" /></a>
+  <a href="./LICENSE.md"><img src="https://badgen.net/github/license/SnapXL/SnapX?color=green" alt="License" /></a>
+  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://badgen.net/github/release/SnapXL/SnapX?label=Release&color=green" alt="Release" /></a>
+  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://badgen.net/github/assets-dl/SnapXL/SnapX?label=Downloads&color=green" alt="Downloads" /></a>
   <br>
   <br>
-  <a href="https://aur.archlinux.org/pkgbase/snapx">
-    <img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base" />
-  </a>
-  <a href="https://github.com/BrycensRanch/homebrew-repo">
-    <img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap" />
-  </a>
-  <a href="https://snapcraft.io/ui-snapx">
-    <img src="https://img.shields.io/badge/Available on Snapcraft-E95420?style=flat&logo=snapcraft&logoColor=white&labelColor=5E2750" height="40" width="244" alt="Get it from the Snap Store" />
-  </a>
-  <a href="https://github.com/SnapXL/SnapX/wiki/Adding-DEB-RPM-repository">
-    <img src="https://img.shields.io/badge/RPMs%2FDEBs_repository-51A2DA?style=flat&logo=linux&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" />
-  </a>
-  <a href="https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview">
-    <img src="https://img.shields.io/badge/Flatpak available-51A2DA?style=flat&logo=flatpak&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" />
-  </a>
+  <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base" /></a>
+  <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap" /></a>
+  <a href="https://snapcraft.io/ui-snapx"><img src="https://img.shields.io/badge/Available on Snapcraft-E95420?style=flat&logo=snapcraft&logoColor=white&labelColor=5E2750" height="40" width="244" alt="Get it from the Snap Store" /></a>
+  <a href="https://github.com/SnapXL/SnapX/wiki/Adding-DEB-RPM-repository"><img src="https://img.shields.io/badge/RPMs%2FDEBs_repository-51A2DA?style=flat&logo=linux&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" /></a>
+  <a href="https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview"><img src="https://img.shields.io/badge/Flatpak available-51A2DA?style=flat&logo=flatpak&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" /></a>
   <br>
-  <a href="https://discord.gg/ys3ZCzttVQ">
-    <img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord" />
-  </a>
-  <a href="https://ko-fi.com/BrycensRanch">
-    <img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/kofi-singular_vector.svg" height="40" alt="Support me on Ko-fi" />
-  </a>
-  <a href="https://paypal.me/BrycensRanch">
-    <img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/paypal-singular_vector.svg" height="40" alt="Support me on PayPal" />
-  </a>
+  <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord" /></a>
+  <a href="https://ko-fi.com/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/kofi-singular_vector.svg" height="40" alt="Support me on Ko-fi" /></a>
+  <a href="https://paypal.me/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/paypal-singular_vector.svg" height="40" alt="Support me on PayPal" /></a>
 </div>
 <br>
 
@@ -65,7 +41,7 @@
 [//]: # (- Elegance in user interfaces by separating essential settings from advanced or intermediate functionality)
 - Supporting high DPI screens
 - Screenshots on an HDR monitor aren't blown out<sup>[1]</sup>
-- Cross-platform OCR powered by [**PaddleOCR**](https://github.com/PaddlePaddle/PaddleOCR) for industry-leading precision. Experience accuracy that [**outperforms**](https://intuitionlabs.ai/articles/non-llm-ocr-technologies#paddleocr--industrial-grade-deep-ocr-baidu) PowerToys OCR, ShareX, Tesseract, and Window's built in OCR.
+- Cross-platform OCR powered by [**PaddleOCR**](https://github.com/PaddlePaddle/PaddleOCR) for industry-leading precision. Experience accuracy that [**outperforms**](https://intuitionlabs.ai/articles/non-llm-ocr-technologies#paddleocr--industrial-grade-deep-ocr-baidu) PowerToys OCR, ShareX, Tesseract, and Windows' built in OCR.
 
 > [1] When tested on KDE Plasma Wayland 6.2.90 with HDR, the resulting screenshots' colors were not blown out. Your mileage may vary.
 
@@ -73,8 +49,8 @@
 
 This application relies on XDG portals to handle screenshots in a secure and desktop-agnostic way. It is actively tested on:
 
-- **KDE Plasma**
-- **GNOME**
+- **KDE Plasma** <img src="https://kde.org/images/plasma.svg" alt="KDE Plasma Logo" height="25" width="25"/>
+- **GNOME** <img src="https://foundation.gnome.org/assets/images/trademarks/GnomeLogoVertical.svg" alt="GNOME Logo" height="25" width="25"/>
 
 We also use direct X11 screenshot capture on X based environments.
 
@@ -87,11 +63,11 @@ See our quick start testing guide here to learn [how to test](https://github.com
 
 SnapX is packaged on:
 
-<!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) [PENDING] -->
+<!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) <img src="https://github.com/user-attachments/assets/cb95b73e-8201-4750-b8b9-25b066574e12" alt="Flathub Logo" height="25" width="25" /> [PENDING] -->
 
-- **AUR:** [`snapx-ui`](https://aur.archlinux.org/packages/snapx-ui)
-- **Snapcraft:** [`ui-snapx`](https://snapcraft.io/ui-snapx)
-- **Homebrew:**  [BrycensRanch/homebrew-repo](https://github.com/BrycensRanch/homebrew-repo)
+- **AUR:** [`snapx-ui`](https://aur.archlinux.org/packages/snapx-ui) <img src="https://github.com/user-attachments/assets/e9e43ff4-118a-4db1-8f71-9489adafcbf9" alt="Arch Linux Logo" height="30" width="30" />
+- **Snapcraft:** [`ui-snapx`](https://snapcraft.io/ui-snapx) <img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Snapcraft-logo-bird.svg" alt="Snapcraft Logo" height="25" width="25"/>
+- **Homebrew:**  [BrycensRanch/homebrew-repo](https://github.com/BrycensRanch/homebrew-repo) <img src="https://raw.githubusercontent.com/Homebrew/brew.sh/main/assets/img/homebrew.svg" alt="Homebrew Logo" height="25" width="25" />
 - **DEB/RPM Repo:** [Setup Instructions](https://github.com/SnapXL/SnapX/wiki/Adding-DEB-RPM-repository)
 
 **Flatpak** (Flathub pending)
@@ -103,14 +79,14 @@ Additionally, you can download nightly builds from [here](https://nightly.link/S
 
 ## Technical Details
 
-- It uses [.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
+- It uses [.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview) and [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
 - It uses [SQLite](https://www.sqlite.org/about.html) for [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28).
-- UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU).
+- UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS.
 - Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
 - Supports PNG (including animated variant), WEBP (including animated variant), AVIF, JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
 - Supports 95% of ShareX uploaders (we're a fork!).
-- The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
+- Allows you to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
 - Keeps compatibility with the custom uploader configuration format (.sxcu).
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, macOS, or FreeBSD.
 
@@ -124,9 +100,9 @@ If you have any issues with this project or would like us to add any new feature
 ## Building & Contributing
 
 Contributions are welcome.
-See [BUILDING.md](./.github/BUILDING.md) for build instructions.
+See [`BUILDING.md`](./.github/BUILDING.md) for build instructions.
 
-The documentation for contributing can be found [here](./.github/CONTRIBUTING.md).
+The documentation for contributing can be found at [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md).
 
 ## 🤝 Real People. Real Code. Soul. 💖
 
@@ -142,7 +118,7 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
         <a href="https://github.com/BrycensRanch">
           <b>BrycensRanch (Lead)</b>
           <br>
-          <img src="https://github.com/BrycensRanch?size=100" width="85" style="border-radius:50%">
+          <img src="https://github.com/BrycensRanch.png?size=100" width="85" style="border-radius:50%">
         </a>
       </td>
       <td align="center" width="150">
@@ -237,7 +213,7 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
       <a href="https://discord.com/users/182674215424622592">
         <b>トミー (tommy.sama)</b>
         <br>
-        <img src="https://cdn.discordapp.com/avatars/182674215424622592/a_702f394eb560bfb04fa64aaf371720cd.gif?size=80&animated=true" width="70" style="border-radius:50%">
+        <img src="https://cdn.discordapp.com/avatars/182674215424622592/702f394eb560bfb04fa64aaf371720cd.webp?size=80" width="70" style="border-radius:50%">
       </a>
     </td>
     <td align="center" width="120">
