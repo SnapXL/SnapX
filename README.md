@@ -50,7 +50,7 @@
 This application relies on XDG portals to handle screenshots in a secure and desktop-agnostic way. It is actively tested on:
 
 - **KDE Plasma** <img src="https://kde.org/images/plasma.svg" alt="KDE Plasma Logo" height="25" width="25"/>
-- **GNOME** <img src="https://foundation.gnome.org/assets/images/trademarks/GnomeLogoVertical.svg" alt="GNOME Logo" height="25" width="25"/>
+- **GNOME** <img src="https://github.com/user-attachments/assets/97fe5498-ea11-42af-ab09-f4c5f46ef4b0" alt="GNOME Logo" height="25" width="25"/>
 
 We also use direct X11 screenshot capture on X based environments.
 
