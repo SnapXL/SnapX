@@ -118,7 +118,7 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
         <a href="https://github.com/BrycensRanch">
           <b>BrycensRanch (Lead)</b>
           <br>
-          <img src="https://github.com/BrycensRanch?size=100" width="85" style="border-radius:50%">
+          <img src="https://github.com/BrycensRanch.png?size=100" width="85" style="border-radius:50%">
         </a>
       </td>
       <td align="center" width="150">
