@@ -9,6 +9,9 @@
 <p align="center">
   <b>Everything you love, engineered for speed. User-centric. Native. Powerful. </b>
 </p>
+
+<p align="center"><a href="https://github.com/SnapXL/SnapX"><img src="./.github/Screenshot.webp" alt="SnapX Interface" /></a></p>
+
 <br>
 <div align="center">
   <a href="https://github.com/SnapXL/SnapX/actions/workflows/build.yml">
@@ -52,7 +55,6 @@
   </a>
 </div>
 <br>
-<p align="center"><a href="https://github.com/SnapXL/SnapX"><img src="./.github/Screenshot.webp" alt="SnapX Interface" /></a></p>
 
 > [!CAUTION]
 > SnapX is in **_Early Access_**.
@@ -66,26 +68,6 @@
 - Cross-platform OCR powered by [**PaddleOCR**](https://github.com/PaddlePaddle/PaddleOCR) for industry-leading precision. Experience accuracy that [**outperforms**](https://intuitionlabs.ai/articles/non-llm-ocr-technologies#paddleocr--industrial-grade-deep-ocr-baidu) PowerToys OCR, ShareX, Tesseract, and Window's built in OCR.
 
 > [1] When tested on KDE Plasma Wayland 6.2.90 with HDR, the resulting screenshots' colors were not blown out. Your mileage may vary.
-
-## Technical Details
-
-- It uses [.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
-- It uses [SQLite](https://www.sqlite.org/about.html) for [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28).
-- UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU).
-- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS.
-- Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
-- Supports PNG (including animated variant), WEBP (including animated variant), AVIF, JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
-- Supports 95% of ShareX uploaders (we're a fork!).
-- The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
-- Keeps compatibility with the custom uploader configuration format (.sxcu).
-- As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, macOS, or FreeBSD.
-
-[//]: # (- Supports Google Photos Image Uploader after the [new API change]&#40;https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/&#41;.)
-
-What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
-
-You will *not* receive any support from the ShareX project for this software. \
-If you have any issues with this project or would like us to add any new feature, please **open an issue** in this repository or use the [`#development`](https://discord.com/channels/1267996919922430063/1404876855861051562) channel in our [Discord](https://discord.gg/ys3ZCzttVQ).
 
 ## Supported Desktop Environments
 
@@ -117,6 +99,27 @@ SnapX is packaged on:
 - **aarch64:** [Download](https://nightly.link/SnapXL/SnapX/workflows/build/develop/io.github.SnapXL.SnapX-aarch64.flatpak)
 
 Additionally, you can download nightly builds from [here](https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview).
+
+
+## Technical Details
+
+- It uses [.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview), [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
+- It uses [SQLite](https://www.sqlite.org/about.html) for [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28).
+- UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU).
+- Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS.
+- Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
+- Supports PNG (including animated variant), WEBP (including animated variant), AVIF, JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
+- Supports 95% of ShareX uploaders (we're a fork!).
+- The ability to fully configure SnapX via the Command Line via command flags & environment variables. Additionally, you can configure SnapX using the Windows Registry.
+- Keeps compatibility with the custom uploader configuration format (.sxcu).
+- As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, macOS, or FreeBSD.
+
+[//]: # (- Supports Google Photos Image Uploader after the [new API change]&#40;https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/&#41;.)
+
+What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
+
+You will *not* receive any support from the ShareX project for this software. \
+If you have any issues with this project or would like us to add any new feature, please **open an issue** in this repository or use the [`#development`](https://discord.com/channels/1267996919922430063/1404876855861051562) channel in our [Discord](https://discord.gg/ys3ZCzttVQ).
 
 ## Building & Contributing
 
