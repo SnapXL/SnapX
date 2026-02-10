@@ -213,7 +213,7 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
       <a href="https://discord.com/users/182674215424622592">
         <b>トミー (tommy.sama)</b>
         <br>
-        <img src="https://cdn.discordapp.com/avatars/182674215424622592/702f394eb560bfb04fa64aaf371720cd.webp?size=1024" width="70" style="border-radius:50%">
+        <img src="https://cdn.discordapp.com/avatars/182674215424622592/702f394eb560bfb04fa64aaf371720cd.webp?size=80" width="70" style="border-radius:50%">
       </a>
     </td>
     <td align="center" width="120">
