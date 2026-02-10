@@ -11,8 +11,6 @@ public enum ImageDestination
     ImageShack,
     [Description("Flickr")]
     Flickr,
-    [Description("Photobucket")]
-    Photobucket,
     [Description("Google Photos")]
     Picasa,
     [Description("Chevereto")]

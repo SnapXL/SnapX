@@ -108,7 +108,6 @@ private static void Register<T>(T service) where T : IUploaderService
     Register(new FlickrImageUploaderService());
     Register(new ImageShackImageUploaderService());
     Register(new ImgurImageUploaderService());
-    Register(new PhotobucketImageUploaderService());
     Register(new VgymeImageUploaderService());
     Register(new CustomTextUploaderService());
     Register(new GitHubGistTextUploaderService());

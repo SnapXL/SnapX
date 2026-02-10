@@ -42,13 +42,6 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     #endregion Flickr
 
-    #region Photobucket
-
-    public OAuthInfo PhotobucketOAuthInfo { get; set; } = null;
-    public PhotobucketAccountInfo PhotobucketAccountInfo { get; set; } = null;
-
-    #endregion Photobucket
-
     #region Google Photos
 
     public OAuth2Info GooglePhotosOAuth2Info { get; set; } = null;
