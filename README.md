@@ -14,45 +14,21 @@
 
 <br>
 <div align="center">
-  <a href="https://github.com/SnapXL/SnapX/actions/workflows/build.yml">
-    <img src="https://badgen.net/github/checks/SnapXL/SnapX/develop?label=Build" alt="GitHub Workflow Status" />
-  </a>
-  <a href="./LICENSE.md">
-    <img src="https://badgen.net/github/license/SnapXL/SnapX?color=green" alt="License" />
-  </a>
-  <a href="https://github.com/SnapXL/SnapX/releases/latest">
-    <img src="https://badgen.net/github/release/SnapXL/SnapX?label=Release&color=green" alt="Release" />
-  </a>
-  <a href="https://github.com/SnapXL/SnapX/releases/latest">
-    <img src="https://badgen.net/github/assets-dl/SnapXL/SnapX?label=Downloads&color=green" alt="Downloads" />
-  </a>
+  <a href="https://github.com/SnapXL/SnapX/actions/workflows/build.yml"><img src="https://badgen.net/github/checks/SnapXL/SnapX/develop?label=Build" alt="GitHub Workflow Status" /></a>
+  <a href="./LICENSE.md"><img src="https://badgen.net/github/license/SnapXL/SnapX?color=green" alt="License" /></a>
+  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://badgen.net/github/release/SnapXL/SnapX?label=Release&color=green" alt="Release" /></a>
+  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://badgen.net/github/assets-dl/SnapXL/SnapX?label=Downloads&color=green" alt="Downloads" /></a>
   <br>
   <br>
-  <a href="https://aur.archlinux.org/pkgbase/snapx">
-    <img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base" />
-  </a>
-  <a href="https://github.com/BrycensRanch/homebrew-repo">
-    <img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap" />
-  </a>
-  <a href="https://snapcraft.io/ui-snapx">
-    <img src="https://img.shields.io/badge/Available on Snapcraft-E95420?style=flat&logo=snapcraft&logoColor=white&labelColor=5E2750" height="40" width="244" alt="Get it from the Snap Store" />
-  </a>
-  <a href="https://github.com/SnapXL/SnapX/wiki/Adding-DEB-RPM-repository">
-    <img src="https://img.shields.io/badge/RPMs%2FDEBs_repository-51A2DA?style=flat&logo=linux&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" />
-  </a>
-  <a href="https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview">
-    <img src="https://img.shields.io/badge/Flatpak available-51A2DA?style=flat&logo=flatpak&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" />
-  </a>
+  <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base" /></a>
+  <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap" /></a>
+  <a href="https://snapcraft.io/ui-snapx"><img src="https://img.shields.io/badge/Available on Snapcraft-E95420?style=flat&logo=snapcraft&logoColor=white&labelColor=5E2750" height="40" width="244" alt="Get it from the Snap Store" /></a>
+  <a href="https://github.com/SnapXL/SnapX/wiki/Adding-DEB-RPM-repository"><img src="https://img.shields.io/badge/RPMs%2FDEBs_repository-51A2DA?style=flat&logo=linux&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" /></a>
+  <a href="https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview"><img src="https://img.shields.io/badge/Flatpak available-51A2DA?style=flat&logo=flatpak&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" /></a>
   <br>
-  <a href="https://discord.gg/ys3ZCzttVQ">
-    <img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord" />
-  </a>
-  <a href="https://ko-fi.com/BrycensRanch">
-    <img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/kofi-singular_vector.svg" height="40" alt="Support me on Ko-fi" />
-  </a>
-  <a href="https://paypal.me/BrycensRanch">
-    <img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/paypal-singular_vector.svg" height="40" alt="Support me on PayPal" />
-  </a>
+  <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord" /></a>
+  <a href="https://ko-fi.com/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/kofi-singular_vector.svg" height="40" alt="Support me on Ko-fi" /></a>
+  <a href="https://paypal.me/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/paypal-singular_vector.svg" height="40" alt="Support me on PayPal" /></a>
 </div>
 <br>
 
@@ -73,8 +49,8 @@
 
 This application relies on XDG portals to handle screenshots in a secure and desktop-agnostic way. It is actively tested on:
 
-- **KDE Plasma**
-- **GNOME**
+- **KDE Plasma** <img src="https://kde.org/images/plasma.svg" alt="KDE Plasma Logo" height="25" width="25"/>
+- **GNOME** <img src="https://foundation.gnome.org/assets/images/trademarks/GnomeLogoVertical.svg" alt="GNOME Logo" height="25" width="25"/>
 
 We also use direct X11 screenshot capture on X based environments.
 
@@ -87,11 +63,11 @@ See our quick start testing guide here to learn [how to test](https://github.com
 
 SnapX is packaged on:
 
-<!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) [PENDING] -->
+<!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) <img src="https://github.com/user-attachments/assets/cb95b73e-8201-4750-b8b9-25b066574e12" alt="Flathub Logo" height="25" width="25" /> [PENDING] -->
 
-- **AUR:** [`snapx-ui`](https://aur.archlinux.org/packages/snapx-ui)
-- **Snapcraft:** [`ui-snapx`](https://snapcraft.io/ui-snapx)
-- **Homebrew:**  [BrycensRanch/homebrew-repo](https://github.com/BrycensRanch/homebrew-repo)
+- **AUR:** [`snapx-ui`](https://aur.archlinux.org/packages/snapx-ui) <img src="https://github.com/user-attachments/assets/e9e43ff4-118a-4db1-8f71-9489adafcbf9" alt="Arch Linux Logo" height="30" width="30" />
+- **Snapcraft:** [`ui-snapx`](https://snapcraft.io/ui-snapx) <img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Snapcraft-logo-bird.svg" alt="Snapcraft Logo" height="25" width="25"/>
+- **Homebrew:**  [BrycensRanch/homebrew-repo](https://github.com/BrycensRanch/homebrew-repo) <img src="https://raw.githubusercontent.com/Homebrew/brew.sh/main/assets/img/homebrew.svg" alt="Homebrew Logo" height="25" width="25" />
 - **DEB/RPM Repo:** [Setup Instructions](https://github.com/SnapXL/SnapX/wiki/Adding-DEB-RPM-repository)
 
 **Flatpak** (Flathub pending)
@@ -120,35 +96,6 @@ What does this all mean? It means you'll be able to have a more **performant**, 
 
 You will *not* receive any support from the ShareX project for this software. \
 If you have any issues with this project or would like us to add any new feature, please **open an issue** in this repository or use the [`#development`](https://discord.com/channels/1267996919922430063/1404876855861051562) channel in our [Discord](https://discord.gg/ys3ZCzttVQ).
-
-## Supported Linux Distributions
-
-This project is built on Ubuntu 24.04 and is tested on the following distributions:
-
-- **Fedora 42+** <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Fedora_icon_%282021%29.svg" alt="Fedora Logo" height="25" width="25"/>
-- **Ubuntu 24.04+** <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Ubuntu_logoib.svg" alt="Ubuntu Logo" height="25" width="25"/>
-
-> [!NOTE]
-> If you're using a different distribution, there will be a Flatpak package available when possible. If you're using a distribution that doesn't support Flatpak, you can [build the project from source](#building-from-source).
-
-## Supported Desktop Environments
-
-This application relies on XDG portals to handle screenshots in a secure and desktop-agnostic way. It is actively tested on:
-
-- **KDE Plasma** <img src="https://kde.org/images/plasma.svg" alt="KDE Plasma Logo" height="25" width="25"/>
-- **GNOME** <img src="https://foundation.gnome.org/assets/images/trademarks/GnomeLogoVertical.svg" alt="GNOME Logo" height="25" width="25"/>
-
-> [!TIP]
-> Other desktop environments or Wayland compositors — such as Budgie, Cinnamon, MATE, Hyprland, and any others that implement the necessary screenshot portal — should also work, but are not officially tested.
-
-## Testing
-
-SnapX is not yet in a usable state. Packages are provided for making testing easier.
-
-- [AUR](https://aur.archlinux.org/packages/snapx-ui) <img src="https://github.com/user-attachments/assets/e9e43ff4-118a-4db1-8f71-9489adafcbf9" alt="Arch Linux Logo" height="30" width="30"/>
-<!-- - [Flathub](https://flathub.org/en/apps/io.github.SnapXL.SnapX) <img src="https://github.com/user-attachments/assets/cb95b73e-8201-4750-b8b9-25b066574e12" alt="Flathub Logo" height="25" width="25"/> [PENDING] -->
-- [My Homebrew Tap](https://github.com/BrycensRanch/homebrew-repo) <img src="https://raw.githubusercontent.com/Homebrew/brew.sh/main/assets/img/homebrew.svg" alt="Homebrew Logo" height="25" width="25"/>
-- [Snapcraft](https://snapcraft.io/ui-snapx) <img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Snapcraft-logo-bird.svg" alt="Snapcraft Logo" height="25" width="25"/>
 
 ## Building & Contributing
 
