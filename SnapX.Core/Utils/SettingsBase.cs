@@ -366,18 +366,6 @@ public abstract partial class SettingsBase<T>
         return new T();
     }
 
-    private static void Serializer_Error(
-        object sender,
-        Newtonsoft.Json.Serialization.ErrorEventArgs e
-    )
-    {
-        // Handle missing enum values
-        if (e.ErrorContext.Error.Message.StartsWith("Error converting value"))
-        {
-            e.ErrorContext.Handled = true;
-        }
-    }
-
     [GeneratedRegex(@"\""\$type\""\s*:\s*\""(?:[\w\.]+\.)?(\w+)(?:,\s*[\w\.]+)?\""")]
     private static partial Regex AssemblyTypeRegex();
 }

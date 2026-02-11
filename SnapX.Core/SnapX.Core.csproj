@@ -53,8 +53,6 @@
 <!--    <Message Text="Generator output: $(GeneratorOutput)" Importance="normal" />-->
 <!--  </Target>-->
   <ItemGroup>
-    <!-- Google Photos Library from Microsoft employee -->
-    <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
     <!-- Privacy friendly user/feature analytics -->
     <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.5" />
     <PackageReference Include="Dapper" Version="2.1.66" />
@@ -62,7 +60,6 @@
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
     <PackageReference Include="JsonPath.Net" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
     <PackageReference Include="Microsoft.Data.Sqlite" Version="$(MSExtensionsVersion)" />
     <!-- Builds are notably not provided for FreeBSD. Dynamic loading of normal system sqlite3 supported. -->
@@ -122,8 +119,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\OAuthCallbackPage.html" />
-    <Content Include="Resources\jira_sharex.pfx" />
+    <EmbeddedResource Include="Resources\OAuthCallbackPage.html" />
     <EmbeddedResource Include="Resources\*.flac" />
     <EmbeddedResource Include="Migrations\*.sql" />
     <EmbeddedResource Include="Resources\*.png" />

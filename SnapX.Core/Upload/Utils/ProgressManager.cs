@@ -9,33 +9,28 @@ namespace SnapX.Core.Upload.Utils;
 
 public class ProgressManager
 {
+    private readonly Stopwatch startTimer = new();
+    private readonly Stopwatch smoothTimer = new();
+    private readonly FixedSizedQueue<double> averageSpeed = new(10);
+    private const int smoothTime = 250;
+    private long speedTest;
+    private double smoothedSpeed;
+
     public long Position { get; private set; }
     public long Length { get; set; }
-
-    public double Percentage => (double)Position / Length * 100;
-
-    public double Speed { get; private set; }
-
+    public double Percentage => Length > 0 ? Math.Min(100, (double)Position / Length * 100) : 0;
+    public double Speed => smoothedSpeed;
     public TimeSpan Elapsed => startTimer.Elapsed;
-
     public TimeSpan Remaining
     {
         get
         {
-            if (Speed > 0)
-            {
-                return TimeSpan.FromSeconds((Length - Position) / Speed);
-            }
-
-            return TimeSpan.Zero;
+            var currentSpeed = Speed;
+            if (!(currentSpeed > 0) || Position >= Length) return TimeSpan.Zero;
+            var seconds = (Length - Position) / currentSpeed;
+            return seconds > 86400 ? TimeSpan.FromHours(24) : TimeSpan.FromSeconds(seconds);
         }
     }
-
-    private Stopwatch startTimer = new();
-    private Stopwatch smoothTimer = new();
-    private int smoothTime = 250;
-    private long speedTest;
-    private FixedSizedQueue<double> averageSpeed = new(10);
 
     public ProgressManager(long length, long position = 0)
     {
@@ -47,67 +42,53 @@ public class ProgressManager
 
     public bool UpdateProgress(long bytesRead)
     {
-        Position += bytesRead;
-        speedTest += bytesRead;
-
-        if (Position >= Length)
-        {
-            startTimer.Stop();
-            Speed = Length / Math.Max(startTimer.Elapsed.TotalSeconds, 1);
-            return true;
-        }
-
-        if (smoothTimer.ElapsedMilliseconds < smoothTime)
-            return false;
-
-        double intervalSeconds = smoothTimer.Elapsed.TotalSeconds;
-        if (intervalSeconds > 0)
-        {
-            double currentSpeed = speedTest / intervalSeconds;
-            averageSpeed.Enqueue(currentSpeed);
-            while (averageSpeed.Count > 5)
-                averageSpeed.Dequeue();
-            Speed = averageSpeed.Average();
-        }
-
-        speedTest = 0;
-        smoothTimer.Restart();
-
-        return true;
+        return ProcessUpdate(bytesRead, false);
     }
 
     public bool UpdateAbsoluteProgress(long totalBytesTransferred)
     {
-        long bytesDelta = totalBytesTransferred - Position;
-        if (bytesDelta < 0)
-            bytesDelta = 0;
+        var bytesDelta = Math.Max(0, totalBytesTransferred - Position);
+        return ProcessUpdate(bytesDelta, true, totalBytesTransferred);
+    }
+    private bool ProcessUpdate(long delta, bool isAbsolute, long absoluteValue = 0)
+    {
+        if (isAbsolute)
+            Position = absoluteValue;
+        else
+            Position += delta;
 
-        Position = totalBytesTransferred;
-        speedTest += bytesDelta;
+        speedTest += delta;
 
         if (Position >= Length)
         {
             startTimer.Stop();
-            Speed = Length / Math.Max(startTimer.Elapsed.TotalSeconds, 1);
+            smoothTimer.Stop();
+            if (smoothedSpeed <= 0)
+            {
+                var totalSeconds = startTimer.Elapsed.TotalSeconds;
+                // Prevent division by zero for near-instant transfers
+                smoothedSpeed = totalSeconds > 0 ? Position / totalSeconds : Position;
+            }
             return true;
         }
 
         if (smoothTimer.ElapsedMilliseconds < smoothTime)
             return false;
 
-        double intervalSeconds = smoothTimer.Elapsed.TotalSeconds;
+        var intervalSeconds = smoothTimer.Elapsed.TotalSeconds;
         if (intervalSeconds > 0)
         {
-            double currentSpeed = speedTest / intervalSeconds;
+            var currentSpeed = speedTest / intervalSeconds;
             averageSpeed.Enqueue(currentSpeed);
-            while (averageSpeed.Count > 5)
+
+            while (averageSpeed.Count > 8)
                 averageSpeed.Dequeue();
-            Speed = averageSpeed.Average();
+
+            smoothedSpeed = averageSpeed.Average();
         }
 
         speedTest = 0;
         smoothTimer.Restart();
-
         return true;
     }
 

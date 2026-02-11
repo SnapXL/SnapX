@@ -90,7 +90,6 @@ Additionally, you can download nightly builds from [here](https://nightly.link/S
 - Keeps compatibility with the custom uploader configuration format (.sxcu).
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, macOS, or FreeBSD.
 
-[//]: # (- Supports Google Photos Image Uploader after the [new API change]&#40;https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/&#41;.)
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
 
