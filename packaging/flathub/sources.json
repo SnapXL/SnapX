@@ -1058,16 +1058,16 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "sentry.6.0.0.nupkg",
-    "sha512": "833450accd62acc2c5e72c40bed95ece75438d849a3888e285ef4a524ad269211e07d2b1625f8dd6de5a68ca6564ecccc723d6f1f1599171641c065c96214f9e",
-    "url": "https://api.nuget.org/v3-flatcontainer/sentry/6.0.0/sentry.6.0.0.nupkg",
+    "dest-filename": "sentry.6.1.0.nupkg",
+    "sha512": "28fa4cdbbbcdf2f74f21194b6d15bd6a51103389d078cdc0f3a75c591e21bc38e287a646a2915c02f77e692449ea25673fe86278c875f5c1f268e3d5bbc41d02",
+    "url": "https://api.nuget.org/v3-flatcontainer/sentry/6.1.0/sentry.6.1.0.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "sentry.profiling.6.0.0.nupkg",
-    "sha512": "dfee6a3546dcba85973389aa6e26f08ab30c4a908ce26fddc9b956787810effc2f101deddfbc10c53bcc91a11ab197fd66dcad870c923377fec241ce194c7e82",
-    "url": "https://api.nuget.org/v3-flatcontainer/sentry.profiling/6.0.0/sentry.profiling.6.0.0.nupkg",
+    "dest-filename": "sentry.profiling.6.1.0.nupkg",
+    "sha512": "210a91d6e746c54267b06b2fbc35bfba0e824ed73144a7af263824b0ded8c5d589caa0fff8921ba84b7fe2bc082d4737b85f64081651871dd187092224e06360",
+    "url": "https://api.nuget.org/v3-flatcontainer/sentry.profiling/6.1.0/sentry.profiling.6.1.0.nupkg",
     "type": "file"
   },
   {
