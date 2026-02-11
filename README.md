@@ -175,8 +175,8 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
       </td>
     </tr>
   </table>
-<a href="https://github.com/sponsors/BrycensRanch"><img src="https://img.shields.io/github/sponsors/BrycensRanch?logo=github&logoColor=pink&label=GitHub Sponsors" alt="GitHub Sponsors"></a>
-<a href="https://liberapay.com/BrycensRanch"><img src="https://badgen.net/liberapay/receives/BrycensRanch?label=Liberapay" alt="Liberapay Receive Badge" /></a>
+<a href="https://github.com/sponsors/BrycensRanch"><img src="https://img.shields.io/github/sponsors/BrycensRanch?logo=github&logoColor=pink&label=GitHub%20Sponsors" alt="GitHub Sponsors"></a>
+<a href="https://liberapay.com/BrycensRanch"><img src="https://img.shields.io/liberapay/receives/BrycensRanch?logo=liberapay&label=Liberapay" alt="Liberapay Receive Badge" /></a>
 <a href="https://ko-fi.com/BrycensRanch"><img src="https://badgen.net/badge/KoFi/Buy%20me%20a%20coffee/ff5f5f?icon=kofi" alt="Ko-fi" /></a>
 </div>
 
