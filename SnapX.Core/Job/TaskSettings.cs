@@ -5,6 +5,7 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using FastCloner.SourceGenerator.Shared;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SnapX.Core.ImageEffects;
@@ -21,6 +22,7 @@ using SnapX.Core.Watch;
 
 namespace SnapX.Core.Job;
 
+[FastClonerClonable]
 public class TaskSettings
 {
     [JsonIgnore]
@@ -152,13 +154,13 @@ public class TaskSettings
 
         if (taskSettings.IsUsingDefaultSettings && SnapX.DefaultTaskSettings != null)
         {
-            safeTaskSettings = SnapX.DefaultTaskSettings.Copy();
+            safeTaskSettings = SnapX.DefaultTaskSettings.FastDeepClone();
             safeTaskSettings.Description = taskSettings.Description;
             safeTaskSettings.Job = taskSettings.Job;
         }
         else
         {
-            safeTaskSettings = taskSettings.Copy();
+            safeTaskSettings = taskSettings.FastDeepClone();
             safeTaskSettings.SetDefaultSettings();
         }
 
@@ -170,7 +172,7 @@ public class TaskSettings
     {
         if (SnapX.DefaultTaskSettings != null)
         {
-            TaskSettings defaultTaskSettings = SnapX.DefaultTaskSettings.Copy();
+            TaskSettings defaultTaskSettings = SnapX.DefaultTaskSettings.FastDeepClone();
 
             if (UseDefaultAfterCaptureJob)
             {

@@ -38,8 +38,6 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
     public bool IsPublic { get; set; }
 
     public GooglePhotosOptions GPOptions { get; set; }
-    // Most things should be using the shared HttpClient but in this scenario, we are modifying the baseURL so instead we copy it.
-    public HttpClient Client { get; private set; } = HttpClientFactory.Get().Copy();
     public GooglePhotosService GooglePhotosService { get; private set; }
 
     public GooglePhotos(OAuth2Info oauth)
@@ -50,9 +48,9 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
         };
         GPOptions = new()
         {
-            User = OAuth2.AuthInfo.Email,
-            ClientId = OAuth2.AuthInfo.Client_ID,
-            ClientSecret = OAuth2.AuthInfo.Client_Secret,
+            User = OAuth2.AuthInfo?.Email,
+            ClientId = OAuth2.AuthInfo?.Client_ID,
+            ClientSecret = OAuth2.AuthInfo?.Client_Secret,
             Scopes = new[]
             {
                 GooglePhotosScope.AppCreatedData,
@@ -61,13 +59,14 @@ public sealed class GooglePhotos : ImageUploader, IOAuth2
             }
 
         };
+        // Most things should be using the shared HttpClient but in this scenario, we are modifying the baseURL so instead we copy it.
+        var Client = HttpClientFactory.GetCopy();
         Client.BaseAddress = new Uri(GPOptions.BaseAddress);
         var logger = new LoggerFactory().CreateLogger<GooglePhotosService>();
 
         GooglePhotosService = new GooglePhotosService(logger, Options.Create(GPOptions), Client);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool RefreshAccessToken()
     {
         return OAuth2.RefreshAccessToken();

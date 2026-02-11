@@ -63,5 +63,30 @@ public static class HttpClientFactory
 
 
     public static HttpClient Get() => _lazyClient.Value;
+    public static HttpClient GetCopy()
+    {
+        var source = _lazyClient.Value;
+        var handler = CreateHandler();
+
+        HttpMessageHandler finalHandler = handler;
+#if DEBUG
+        finalHandler = new LoggingHttpMessageHandler(handler, DebugHelper.Logger);
+#endif
+        var ph = new ProgressMessageHandler(finalHandler);
+        var newClient = new HttpClient(ph)
+        {
+            DefaultRequestVersion = source.DefaultRequestVersion,
+            DefaultVersionPolicy = source.DefaultVersionPolicy,
+            BaseAddress = source.BaseAddress,
+            Timeout = source.Timeout
+        };
+
+        foreach (var header in source.DefaultRequestHeaders)
+        {
+            newClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+        }
+
+        return newClient;
+    }
 }
 

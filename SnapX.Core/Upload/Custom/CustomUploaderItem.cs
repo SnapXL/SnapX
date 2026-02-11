@@ -4,10 +4,10 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FastCloner.SourceGenerator.Shared;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Converters;
@@ -17,6 +17,7 @@ using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.Custom;
 
+[FastClonerClonable]
 public class CustomUploaderItem : INotifyPropertyChanged
 {
     [DefaultValue("")]
@@ -122,7 +123,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
 
     [JsonConverter(typeof(JsonStringEnumConverter<ResponseType>))]
     // TEMP: For backward compatibility
-    public ResponseType ResponseType { private get; set; }
+    public ResponseType ResponseType { get; set; }
 
     [DefaultValue("")]
     public string? URL { get; set; }

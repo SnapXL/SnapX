@@ -52,8 +52,6 @@ public class GoogleOAuth2 : IOAuth2Loopback
         return URLHelpers.CreateQueryString(AuthorizationEndpoint, args);
     }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
     public bool GetAccessToken(string? code)
     {
         var args = new Dictionary<string, string?>
@@ -77,8 +75,6 @@ public class GoogleOAuth2 : IOAuth2Loopback
         return true;
     }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
     public bool RefreshAccessToken()
     {
         if (!OAuth2Info.CheckOAuth(AuthInfo) || string.IsNullOrEmpty(AuthInfo.Token.refresh_token))
@@ -108,7 +104,6 @@ public class GoogleOAuth2 : IOAuth2Loopback
         return true;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public bool CheckAuthorization()
     {
         if (OAuth2Info.CheckOAuth(AuthInfo))
@@ -138,7 +133,6 @@ public class GoogleOAuth2 : IOAuth2Loopback
         return headers;
     }
 
-    [RequiresUnreferencedCode("Uploader")]
     public OAuthUserInfo GetUserInfo()
     {
         var response = GoogleUploader.SendRequest(HttpMethod.Get, UserInfoEndpoint, null, GetAuthHeaders());

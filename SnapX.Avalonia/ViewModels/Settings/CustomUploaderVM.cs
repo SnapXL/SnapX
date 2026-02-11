@@ -969,8 +969,7 @@ public partial class CustomUploaderVM : ViewModelBase
             counter++;
         }
 
-        var json = JsonHelpers.SerializeToString(uploader);
-        var newItem = JsonHelpers.DeserializeFromString<CustomUploaderItem>(json);
+        var newItem = uploader.FastDeepClone();
         newItem.Name = newName;
         Uploaders.Add(newItem);
         SelectedUploader = newItem;

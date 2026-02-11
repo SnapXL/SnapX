@@ -3,6 +3,7 @@
 
 
 using System.Diagnostics;
+using FastCloner.Code;
 
 namespace SnapX.Core.Utils.Miscellaneous;
 
@@ -16,6 +17,7 @@ public class ExternalProgram
     public string Extensions { get; set; }
     public bool HiddenWindow { get; set; }
     public bool DeleteInputFile { get; set; }
+    [FastClonerIgnore]
 
     private string? pendingInputFilePath;
     private string userInput { get; set; }
