@@ -300,7 +300,7 @@ public partial class RegionSelectorWindow : Window
     }
     private readonly Dictionary<Window, WindowBase?> _ownershipMap = new();
 
-    private async void OnInit(object? Sender, EventArgs EventArgs)
+    private async void OnInit(object? Sender, RoutedEventArgs EventArgs)
     {
         if (!IsSilentMode)
         {
