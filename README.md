@@ -177,6 +177,14 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
 <a href="https://github.com/sponsors/BrycensRanch"><img src="https://img.shields.io/github/sponsors/BrycensRanch?logo=github&logoColor=pink&label=GitHub Sponsors" alt="GitHub Sponsors"></a>
 <a href="https://liberapay.com/BrycensRanch"><img src="https://badgen.net/liberapay/receives/BrycensRanch?label=Liberapay" alt="Liberapay Receive Badge" /></a>
 <a href="https://ko-fi.com/BrycensRanch"><img src="https://badgen.net/badge/KoFi/Buy%20me%20a%20coffee/ff5f5f?icon=kofi" alt="Ko-fi" /></a>
+
+<p>
+  <i>Your support translates directly into development time:</i>
+</p>
+<a href="https://wakatime.com/badge/user/98380b95-655e-40aa-bd54-064929ac4eb0/project/47ad010c-c5a6-4a79-af64-277af9ae982f">
+  <img src="https://wakatime.com/badge/user/98380b95-655e-40aa-bd54-064929ac4eb0/project/47ad010c-c5a6-4a79-af64-277af9ae982f.svg" alt="wakatime">
+</a>
+<img alt="GitHub commit activity by BrycensRanch" src="https://img.shields.io/github/commit-activity/m/SnapXL/SnapX?authorFilter=BrycensRanch&logo=github">
 </div>
 
 <br>
