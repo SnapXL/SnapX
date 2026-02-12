@@ -4,13 +4,13 @@
 
 using System.Collections.Specialized;
 using System.Net;
-using System.Net.Http.Handlers;
 using System.Net.Http.Headers;
 using System.Text;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Miscellaneous;
 using Math = System.Math;
 
 namespace SnapX.Core.Upload.BaseUploaders;
@@ -25,7 +25,8 @@ public class Uploader
     public bool IsUploading { get; protected set; }
     public UploaderErrorManager Errors { get; private set; } = new UploaderErrorManager();
     public bool IsError => !StopUploadRequested && Errors is { Count: > 0 };
-    public int BufferSize { get; set; } = 8192;
+    // SFTP and Dropbox uploaders use this. According to my research, 8KiB is very small for 2026 networking.
+    public int BufferSize { get; set; } = 65536;
 
     protected bool StopUploadRequested { get; set; }
     protected bool AllowReportProgress { get; set; } = true;
