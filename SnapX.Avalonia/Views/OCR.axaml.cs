@@ -238,7 +238,7 @@ public partial class OCR : AppWindow
         {
             ResultText?.Text = ex.ToString();
             OnToggleView(ShowTextBtn, new RoutedEventArgs());
-            DebugHelper.Logger?.Error(ex.ToString());
+            DebugHelper.WriteException(ex);
         }
         finally
         {
