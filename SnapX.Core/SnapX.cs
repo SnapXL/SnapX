@@ -486,18 +486,7 @@ public class SnapX
                 options.Environment = "production";
                 options.CreateHttpMessageHandler = () => HttpClientFactory.Handler;
 #endif
-                  options.ConfigureClient = client =>
-                  {
-                      var snapXHttpClient = HttpClientFactory.Get();
-
-                      foreach (var header in snapXHttpClient.DefaultRequestHeaders)
-                      {
-                          client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-                      }
-
-                      client.DefaultRequestVersion = snapXHttpClient.DefaultRequestVersion;
-                      client.DefaultVersionPolicy = snapXHttpClient.DefaultVersionPolicy;
-                  };
+                  options.ConfigureClient = HttpClientFactory.ConfigureClient;
                   // VLCException includes multiple paths with username
                   // For full transparency, I discovered this issue on my computer.
                   // No other users are effected to my knowledge.

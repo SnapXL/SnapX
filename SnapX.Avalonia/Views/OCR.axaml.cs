@@ -12,6 +12,7 @@ using Avalonia.Styling;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Avalonia.ViewModels;
@@ -134,7 +135,11 @@ public partial class OCR : AppWindow
 
                 // Resize the image to match the Canvas exactly otherwise text boxes aren't where they should be.
                 response.AnnotatedImage.Mutate(x => x.Resize((int)TextOverlayCanvas.Width, (int)TextOverlayCanvas.Height, KnownResamplers.Bicubic));
-                await response.AnnotatedImage.SaveAsWebpAsync(ms, cts).ConfigureAwait(true);
+                await response.AnnotatedImage.SaveAsWebpAsync(ms, new WebpEncoder()
+                {
+                    Quality = 85
+                },
+                    cts).ConfigureAwait(true);
 
                 ms.Seek(0, SeekOrigin.Begin);
                 var bitmap = new Bitmap(ms);
