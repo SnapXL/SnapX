@@ -512,7 +512,6 @@ public partial class App : Application
         var provider = services.BuildServiceProvider();
 
         Ioc.Default.ConfigureServices(provider);
-        Ioc.Default.AddStaticLogging();
         var vm = Ioc.Default.GetRequiredService<MainViewModel>();
 
         switch (ApplicationLifetime)
