@@ -5,7 +5,7 @@
 namespace SnapX.Core.Upload;
 
 // ReSharper disable once PartialTypeWithSinglePart
-internal static partial class APIKeys
+public static partial class APIKeys
 {
     // Image uploaders
     public static readonly string? ImgurClientID = "";
