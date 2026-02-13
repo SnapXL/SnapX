@@ -36,8 +36,6 @@ public enum TextDestination
     Hastebin,
     [Description("OneTimeSecret")]
     OneTimeSecret,
-    [Description("Pastie")]
-    Pastie,
     CustomTextUploader, // Localized
     FileUploader // Localized
 }

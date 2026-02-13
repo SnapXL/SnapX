@@ -105,12 +105,6 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     #endregion OneTimeSecret
 
-    #region Pastie
-
-    public bool PastieIsPublic { get; set; } = false;
-
-    #endregion Pastie
-
     #endregion Text uploaders
 
     #region File uploaders
