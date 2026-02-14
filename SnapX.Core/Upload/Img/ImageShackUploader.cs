@@ -122,7 +122,31 @@ public sealed class ImageShackUploader(string DeveloperKey, ImageShackOptions? C
     {
         public bool success { get; set; }
         public int process_time { get; set; }
-        public ImageShackLogin result { get; set; }
+        [JsonConverter(typeof(ImageShackResultConverter))]
+        public ImageShackLogin? result { get; set; }
+    }
+    public class ImageShackResultConverter : JsonConverter<ImageShackLogin?>
+    {
+        public override ImageShackLogin? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.False || reader.TokenType == JsonTokenType.True)
+            {
+                reader.GetBoolean();
+                return null;
+            }
+
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                return JsonSerializer.Deserialize<ImageShackLogin>(ref reader, options);
+            }
+
+            return null;
+        }
+
+        public override void Write(Utf8JsonWriter writer, ImageShackLogin? value, JsonSerializerOptions options)
+        {
+            JsonSerializer.Serialize(writer, value, options);
+        }
     }
 
     public class ImageShackLogin
