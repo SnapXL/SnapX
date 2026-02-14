@@ -58,22 +58,17 @@ For application analytics, we use [Aptabase](https://aptabase.io), and their pri
 
 Go into the application's settings menu or config file
 
-- On Linux, its `~/.config/SnapX/ApplicationConfig.json`
-- On Windows, its `%USERPROFILE%\Documents\SnapX\ApplicationConfig.json`
-- On macOS, its `~/Library/Application Support/SnapX/ApplicationConfig.json`
+- On Linux, its `~/.config/SnapX/ApplicationConfig.yaml`
+- On Windows, its `%USERPROFILE%\Documents\SnapX\ApplicationConfig.yaml`
+- On macOS, its `~/Library/Application Support/SnapX/ApplicationConfig.yaml`
 
-[Never used JSON before?](https://www.w3schools.com/whatis/whatis_json.asp)
+[Never used YAML before?](https://circleci.com/blog/what-is-yaml-a-beginner-s-guide/)
 
 You should be adding a key that looks like this:
 
-```json
-{
-  "DisableTelemetry": true
-}
+```yaml
+DisableTelemetry: true
 ```
-
-Ensure there are no extra commas at the end of the last item. Do not add the beginning & ending curly braces if the config file already has them.
-
 
 You can additionally disable it with an environment variable. With `SNAPX_DISABLETELEMETRY=true` or the [failed standard](https://consoledonottrack.com/) `DO_NOT_TRACK=1`
 
