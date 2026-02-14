@@ -54,21 +54,17 @@ public class FTPFileUploaderService : FileUploaderService
             }
         }
 
-        var account = config.FTPAccountList.ReturnIfValidIndex(index);
+        var account = config.FTPAccountList.ReturnIfValidIndex(index) ?? new FTPAccount();
 
-        if (account != null)
+
+        if (account.Protocol is FTPProtocol.FTP or FTPProtocol.FTPS)
         {
-            if (account.Protocol == FTPProtocol.FTP || account.Protocol == FTPProtocol.FTPS)
-            {
-                return new FTP(account);
-            }
-            else if (account.Protocol == FTPProtocol.SFTP)
-            {
-                return new SFTP(account);
-            }
+            return new FTP(account);
         }
-
-        return null;
+        else
+        {
+            return new SFTP(account);
+        }
     }
 }
 
