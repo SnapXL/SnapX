@@ -1,7 +1,7 @@
 # SnapX's Privacy Policy
 
 > Authored on 2/8/2025 \
-> Last updated on 8/22/2025 7:51 AM EST
+> Last updated on 2/14/2025 11:37 AM EST (MM/DD/YYYY)
 
 By default, SnapX collects telemetry data about how the application is performing in two ways:
 
@@ -14,7 +14,7 @@ By default, SnapX collects telemetry data about how the application is performin
 - How much overall memory your computer has to understand better the "headroom space" left.
 - Application environment, i.e., running it on Linux with AppImage, Flatpak, Snap, or running the portable version of my application on Windows.
 - Application crash data with stack traces that have had any PII removed & anonymized
-- General Region, ie, `United States`
+- Geographic region (never precise location; only country, state, or city).
 
 All this data helps to improve SnapX as it is [free software](https://www.fsf.org/about/what-is-free-software).
 
@@ -38,7 +38,7 @@ All this data helps to improve SnapX as it is [free software](https://www.fsf.or
 
 ## Services Used
 
-All the services used for telemetry are open source. [None of our telemetry code is secret](https://github.com/SnapXL/SnapX/blob/2b1843d973424d737c195664efdadc75f21122a4/SnapX.Core/SnapX.cs#L326).
+All the services used for telemetry are transparent about their code. [None of our telemetry code is secret](https://github.com/SnapXL/SnapX/blob/2b1843d973424d737c195664efdadc75f21122a4/SnapX.Core/SnapX.cs#L326).
 
 - [Sentry](https://github.com/getsentry/sentry) - Application crash information & traces & performance analytics, i.e., specific code function taking a long time)
 - [Aptabase](https://github.com/aptabase/aptabase) - Usage analytics, i.e., how many users are using a specific function, such as uploading)
