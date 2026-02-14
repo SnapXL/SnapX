@@ -145,7 +145,8 @@ public class Uploader
         {
             foreach (var arg in args)
             {
-                multipartContent.Add(new StringContent(arg.Value), arg.Key);
+                var contentValue = arg.Value ?? string.Empty;
+                multipartContent.Add(new StringContent(contentValue), arg.Key);
             }
         }
 
