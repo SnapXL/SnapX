@@ -7,11 +7,12 @@ namespace SnapX.Core.Utils.Miscellaneous;
 public static class Links
 {
     public const string Website = "https://snapx.brycen.app";
+    public const string ShareXWebsite = "https://getsharex.com";
     public const string Repo = "SnapXL/SnapX";
     public const string ApiGitHub = $"https://api.github.com/repos/{Repo}";
     public const string GitHub = $"https://github.com/{Repo}";
     public const string GitHubIssues = GitHub + "/issues?q=is%3Aissue";
-    public const string Callback = Website + "/callback/";
+    public const string Callback = ShareXWebsite + "/callback/";
     public const string Changelog = GitHub + "/releases/";
     public const string Donate = "https://ko-fi.com/BrycensRanch";
     public const string PrivacyPolicy = Website + "/privacy-policy";
