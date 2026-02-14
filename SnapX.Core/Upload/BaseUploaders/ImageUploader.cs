@@ -8,6 +8,7 @@ namespace SnapX.Core.Upload.BaseUploaders;
 
 public abstract class ImageUploader : FileUploader
 {
+    public override UploaderCategory Category => UploaderCategory.ImageUploaders;
     public UploadResult UploadImage(Image image, string? fileName)
     {
         using var stream = new MemoryStream();

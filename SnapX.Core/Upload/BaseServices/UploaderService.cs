@@ -9,7 +9,7 @@ namespace SnapX.Core.Upload.BaseServices;
 public abstract class UploaderService<T> : IUploaderService
 {
     public abstract T EnumValue { get; }
-
+    public object EnumValueObject => EnumValue;
     // Unique identifier
     public string ServiceIdentifier => EnumValue.ToString();
 

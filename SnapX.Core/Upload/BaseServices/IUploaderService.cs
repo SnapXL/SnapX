@@ -9,7 +9,7 @@ public interface IUploaderService
     string ServiceIdentifier { get; }
 
     string ServiceName { get; }
+    object EnumValueObject { get; }
 
     bool CheckConfig(UploadersConfig config);
-
 }
