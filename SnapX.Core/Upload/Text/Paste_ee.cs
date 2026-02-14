@@ -48,8 +48,6 @@ public sealed class Paste_ee : TextUploader
         APIKey = apiKey;
     }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
     public override UploadResult UploadText(string? text, string? fileName)
     {
         if (string.IsNullOrEmpty(APIKey))
