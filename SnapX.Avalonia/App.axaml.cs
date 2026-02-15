@@ -47,7 +47,7 @@ public partial class App : Application
 
     // There is no limit of what chaos could occur if two settings windows exist.
     // We must keep track of it.
-    private static SettingsWindow? MySettingsWindow { get; set; }
+    public static SettingsWindow? MySettingsWindow { get; set; }
     public static string TrayTitle => $"SnapX v{SimpleVersion()}";
 
     private static Lock _windowLock = new();

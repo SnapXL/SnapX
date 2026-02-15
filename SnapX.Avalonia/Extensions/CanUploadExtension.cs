@@ -6,6 +6,6 @@ public class CanUploadExtension : MarkupExtension
 {
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        return Core.SnapX.CanUpload();
+        return Core.SnapXL.CanUpload();
     }
 }

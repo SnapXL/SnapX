@@ -7,7 +7,7 @@ public class CLIAbout : AboutDialog
 
     public override void Show()
     {
-        SnapX.Core.SnapX.Qualifier = " CLI";
+        SnapX.Core.SnapXL.Qualifier = " CLI";
         Console.WriteLine($"===============  {GetTitle()}     ================");
         Console.WriteLine($"{GetDescription()}");
         Console.WriteLine($"Version: {GetVersion()}");

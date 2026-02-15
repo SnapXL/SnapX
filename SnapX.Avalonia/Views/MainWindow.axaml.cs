@@ -22,7 +22,7 @@ namespace SnapX.Avalonia.Views;
 
 public partial class MainWindow : AppWindow
 {
-    public static string MainWindowName => Core.SnapX.Title + " " + Core.SnapX.VersionText;
+    public static string MainWindowName => Core.SnapXL.Title + " " + Core.SnapXL.VersionText;
     public static string LogoResourcePath => OperatingSystem.IsWindows() ? "/Assets/SnapX_Icon.ico" : "avares://snapx-ui/SnapX_Logo.png";
     public MainWindow(MainViewModel vm)
     {
@@ -59,8 +59,8 @@ public partial class MainWindow : AppWindow
 
     public void ListenForEvents()
     {
-        Core.SnapX.EventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
-        Core.SnapX.EventAggregator.Subscribe<NeedMainWindowHandle>(HandleMainWindowHandleRequested);
+        Core.SnapXL.EventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
+        Core.SnapXL.EventAggregator.Subscribe<NeedMainWindowHandle>(HandleMainWindowHandleRequested);
 
         void HandleMainWindowHandleRequested(NeedMainWindowHandle Obj)
         {
@@ -183,8 +183,8 @@ public partial class MainWindow : AppWindow
     private void TopLevel_OnOpened(object? Sender, EventArgs E)
     {
         DebugHelper.WriteLine("MainWindow Opened");
-        if (Core.SnapX.Settings.FirstTimeRunDate != DateTime.MinValue &&
-            Core.SnapX.Settings.FirstTimeRunDate != null) return;
+        if (Core.SnapXL.Settings.FirstTimeRunDate != DateTime.MinValue &&
+            Core.SnapXL.Settings.FirstTimeRunDate != null) return;
         var changelogDialog = new ContentDialog
         {
             Title = Title,

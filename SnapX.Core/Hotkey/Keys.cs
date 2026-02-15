@@ -151,7 +151,6 @@ public enum Keys
     Noname = 0xFC,
     Pa1 = 0xFD,
     OemClear = 0xFE,
-    ControlKey = 0xFF,
     Alt = 0xFF6,
     PrintScreen = 0xFF7,
     KeyCode = 0xFFFF, // Mask to isolate the key code part of the hotkey combination

@@ -151,7 +151,7 @@ public partial class MainView : UserControl
             return;
 
         delay = TimeSpan.FromSeconds(long.Parse(item.Tag as string));
-        Core.SnapX.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay = (decimal)
+        Core.SnapXL.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay = (decimal)
             delay.Value.TotalSeconds;
         var DelayMenuItem = this.FindControl<NavigationViewItem>("DelayMenuItem");
         if (DelayMenuItem == null || DelayMenuItem.MenuItems == null)
@@ -179,7 +179,7 @@ public partial class MainView : UserControl
                 }
             }
         }
-        Core.SnapX.Settings.SaveAsync();
+        Core.SnapXL.Settings.SaveAsync();
     }
 
     [RelayCommand]
@@ -249,7 +249,7 @@ public partial class MainView : UserControl
     private void MainView_OnInit(object? Sender, EventArgs E)
     {
         delay = TimeSpan.FromSeconds(
-            (long)Core.SnapX.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay
+            (long)Core.SnapXL.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay
         );
 
         var MainNavView = this.FindControl<NavigationView>("MainNavView");

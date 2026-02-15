@@ -7,6 +7,7 @@ using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Miscellaneous;
+using YamlDotNet.Serialization;
 
 namespace SnapX.Core;
 
@@ -18,14 +19,18 @@ public class WindowState
     public Size Size { get; set; }
     public bool IsMaximized { get; set; }
 }
-
+[YamlSerializable]
 public class ApplicationConfig : SettingsBase<ApplicationConfig>
 {
     public TaskSettings DefaultTaskSettings { get; set; } = new();
     public DateTime FirstTimeRunDate { get; set; } = DateTime.Now;
     public string FileUploadDefaultDirectory { get; set; } = "";
     public int NameParserAutoIncrementNumber { get; set; } = 0;
-    public List<QuickTaskInfo> QuickTaskPresets { get; set; } = QuickTaskInfo.DefaultPresets;
+    public List<QuickTaskInfo> QuickTaskPresets
+    {
+        get => field;
+        set => field = value ?? QuickTaskInfo.DefaultPresets;
+    } = QuickTaskInfo.DefaultPresets;
     // Main window
     public bool FirstTimeMinimizeToTray { get; set; } = true;
     public List<int> TaskListViewColumnWidths { get; set; } = [];
@@ -50,7 +55,13 @@ public class ApplicationConfig : SettingsBase<ApplicationConfig>
     // TEMP: For backward compatibility
     public bool CheckPreReleaseUpdates { get; set; } = false;
     public bool UseCustomTheme { get; set; }
-    public List<Theme> Themes { get; set; } = Theme.GetDefaultThemes();
+
+    public List<Theme> Themes
+    {
+        get => field ??= Theme.GetDefaultThemes();
+        set;
+    } = null!;
+
     public int SelectedTheme { get; set; }
     public bool UseCustomScreenshotsPath { get; set; } = false;
     public string? CustomScreenshotsPath { get; set; } = "";

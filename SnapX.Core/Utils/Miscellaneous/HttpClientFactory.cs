@@ -105,7 +105,7 @@ public static class HttpClientFactory
             Proxy = HelpersOptions.CurrentProxy.GetWebProxy(),
         };
 
-        if (SnapX.Settings?.AcceptInvalidSSLCertificates ?? false)
+        if (SnapXL.Settings?.AcceptInvalidSSLCertificates ?? false)
         {
             clientHandler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => true;
         }

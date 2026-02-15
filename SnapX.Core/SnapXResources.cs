@@ -26,7 +26,7 @@ public static class SnapXResources
 
     public static string fancyOsName => _fancyOsName.Value;
     private static readonly Lazy<string> _userAgent =
-        new(() => $"{SnapX.AppName}/{Helpers.GetApplicationVersion()} (+{Links.GitHub})");
+        new(() => $"{SnapXL.AppName}/{Helpers.GetApplicationVersion()} (+{Links.GitHub})");
 
     public static string UserAgent => _userAgent.Value;
     public static (long, long) MemoryInfo => OsInfo.GetMemoryInfo();
@@ -131,7 +131,12 @@ public class Theme
 
     [TypeConverter(typeof(MyColorConverter))]
     public Color MenuCheckBackgroundColor { get; set; }
-    public record UIFont(string Name, float Size);
+    [TypeConverter(typeof(UIFontTypeConverter))]
+    public class UIFont(string Name, float Size)
+    {
+        public string Name { get; set; } = Name;
+        public float Size { get; set; } = Size;
+    }
     public UIFont MenuFont { get; set; } = new("Inter", 11f);
 
     public UIFont ContextMenuFont { get; set; } = new("Inter", 11f);

@@ -4,6 +4,7 @@
 
 
 using System.Text.Json.Serialization;
+using YamlDotNet.Serialization;
 
 namespace SnapX.Core.Upload.OAuth;
 
@@ -17,7 +18,7 @@ public class OAuth2Token
 
     public DateTime ExpireDate { get; set; }
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public bool IsExpired
     {
         get

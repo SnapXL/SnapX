@@ -48,7 +48,7 @@ public static class TaskHelpers
 {
     public static async Task ExecuteJob(HotkeyType job, CLICommand command = null)
     {
-        await ExecuteJob(SnapX.DefaultTaskSettings, job, command);
+        await ExecuteJob(SnapXL.DefaultTaskSettings, job, command);
     }
 
     public static async Task ExecuteJob(TaskSettings taskSettings)
@@ -337,7 +337,7 @@ public static class TaskHelpers
                 // ToggleTrayMenu();
                 break;
             case HotkeyType.ExitShareX:
-                SnapX.quit();
+                SnapXL.quit();
                 break;
         }
     }
@@ -469,7 +469,7 @@ public static class TaskHelpers
                     $"Unsupported image format: {imageFormat} {typeof(EImageFormat)}"
                 ),
             };
-            if (SnapX.Settings.PNGStripColorSpaceInformation)
+            if (SnapXL.Settings.PNGStripColorSpaceInformation)
             {
                 image.Metadata.IccProfile = null;
             }
@@ -603,7 +603,7 @@ public static class TaskHelpers
 
         NameParser nameParser = new NameParser(NameParserType.FileName)
         {
-            AutoIncrementNumber = SnapX.Settings.NameParserAutoIncrementNumber,
+            AutoIncrementNumber = SnapXL.Settings.NameParserAutoIncrementNumber,
             MaxNameLength = taskSettings.AdvancedSettings.NamePatternMaxLength,
             MaxTitleLength = taskSettings.AdvancedSettings.NamePatternMaxTitleLength,
             CustomTimeZone = taskSettings.UploadSettings.UseCustomTimeZone
@@ -635,7 +635,7 @@ public static class TaskHelpers
             fileName = nameParser.Parse(taskSettings.UploadSettings.NameFormatPattern);
         }
 
-        SnapX.Settings.NameParserAutoIncrementNumber = nameParser.AutoIncrementNumber;
+        SnapXL.Settings.NameParserAutoIncrementNumber = nameParser.AutoIncrementNumber;
 
         if (!string.IsNullOrEmpty(extension))
         {
@@ -682,19 +682,19 @@ public static class TaskHelpers
             string? subFolderPattern;
 
             if (
-                !string.IsNullOrEmpty(SnapX.Settings.SaveImageSubFolderPatternWindow)
+                !string.IsNullOrEmpty(SnapXL.Settings.SaveImageSubFolderPatternWindow)
                 && !string.IsNullOrEmpty(nameParser.WindowText)
             )
             {
-                subFolderPattern = SnapX.Settings.SaveImageSubFolderPatternWindow;
+                subFolderPattern = SnapXL.Settings.SaveImageSubFolderPatternWindow;
             }
             else
             {
-                subFolderPattern = SnapX.Settings.SaveImageSubFolderPattern;
+                subFolderPattern = SnapXL.Settings.SaveImageSubFolderPattern;
             }
 
             string? subFolderPath = nameParser.Parse(subFolderPattern, dt);
-            screenshotsFolder = Path.Combine(SnapX.ScreenshotsParentFolder, subFolderPath);
+            screenshotsFolder = Path.Combine(SnapXL.ScreenshotsParentFolder, subFolderPath);
         }
 
         return FileHelpers.GetAbsolutePath(screenshotsFolder);
@@ -776,7 +776,7 @@ public static class TaskHelpers
         }
         else
         {
-            FileHelpers.OpenFolder(SnapX.ScreenshotsParentFolder);
+            FileHelpers.OpenFolder(SnapXL.ScreenshotsParentFolder);
         }
     }
 
@@ -1030,7 +1030,7 @@ public static class TaskHelpers
 
         if (image is null) return new OcrResponse { FullText = "SNAPX ERROR: PASSED NULL IMAGE AND NULL FILEPATH." };
 
-        var modelDir = Path.Combine(BaseDirectory.CacheHome, SnapX.AppName, "PaddleOCRModels");
+        var modelDir = Path.Combine(BaseDirectory.CacheHome, SnapXL.AppName, "PaddleOCRModels");
         var model = await GetModelForLanguage(languageCode ?? "eng");
         var ocrEngine = new RapidOcr();
 
@@ -1157,15 +1157,15 @@ public static class TaskHelpers
 
     public static bool ToggleHotkeys()
     {
-        bool disableHotkeys = !SnapX.Settings.DisableHotkeys;
+        bool disableHotkeys = !SnapXL.Settings.DisableHotkeys;
         ToggleHotkeys(disableHotkeys);
         return disableHotkeys;
     }
 
     public static void ToggleHotkeys(bool disableHotkeys)
     {
-        SnapX.Settings.DisableHotkeys = disableHotkeys;
-        SnapX.HotkeyManager.ToggleHotkeys(disableHotkeys);
+        SnapXL.Settings.DisableHotkeys = disableHotkeys;
+        SnapXL.HotkeyManager.ToggleHotkeys(disableHotkeys);
     }
 
     public static bool CheckFFmpeg(TaskSettings taskSettings)
@@ -1207,7 +1207,7 @@ public static class TaskHelpers
 
     public static void ImportCustomUploaderJson(IEnumerable<string> jsonContents)
     {
-        if (SnapX.UploadersConfig == null)
+        if (SnapXL.UploadersConfig == null)
             return;
 
         foreach (var json in jsonContents)
@@ -1244,35 +1244,35 @@ public static class TaskHelpers
                     }
 
                     cui.CheckBackwardCompatibility();
-                    SnapX.UploadersConfig.CustomUploadersList.Add(cui);
+                    SnapXL.UploadersConfig.CustomUploadersList.Add(cui);
 
                     if (activate)
                     {
-                        int index = SnapX.UploadersConfig.CustomUploadersList.Count - 1;
+                        int index = SnapXL.UploadersConfig.CustomUploadersList.Count - 1;
                         if (
                             cui.DestinationType.HasFlag(CustomUploaderDestinationType.ImageUploader)
                         )
                         {
-                            SnapX.UploadersConfig.CustomImageUploaderSelected = index;
-                            SnapX.DefaultTaskSettings.ImageDestination =
+                            SnapXL.UploadersConfig.CustomImageUploaderSelected = index;
+                            SnapXL.DefaultTaskSettings.ImageDestination =
                                 ImageDestination.CustomImageUploader;
                         }
                         if (cui.DestinationType.HasFlag(CustomUploaderDestinationType.TextUploader))
                         {
-                            SnapX.UploadersConfig.CustomTextUploaderSelected = index;
-                            SnapX.DefaultTaskSettings.TextDestination =
+                            SnapXL.UploadersConfig.CustomTextUploaderSelected = index;
+                            SnapXL.DefaultTaskSettings.TextDestination =
                                 TextDestination.CustomTextUploader;
                         }
                         if (cui.DestinationType.HasFlag(CustomUploaderDestinationType.FileUploader))
                         {
-                            SnapX.UploadersConfig.CustomFileUploaderSelected = index;
-                            SnapX.DefaultTaskSettings.FileDestination =
+                            SnapXL.UploadersConfig.CustomFileUploaderSelected = index;
+                            SnapXL.DefaultTaskSettings.FileDestination =
                                 FileDestination.CustomFileUploader;
                         }
                         if (cui.DestinationType.HasFlag(CustomUploaderDestinationType.URLShortener))
                         {
-                            SnapX.UploadersConfig.CustomURLShortenerSelected = index;
-                            SnapX.DefaultTaskSettings.URLShortenerDestination =
+                            SnapXL.UploadersConfig.CustomURLShortenerSelected = index;
+                            SnapXL.DefaultTaskSettings.URLShortenerDestination =
                                 UrlShortenerType.CustomURLShortener;
                         }
                         if (
@@ -1281,8 +1281,8 @@ public static class TaskHelpers
                             )
                         )
                         {
-                            SnapX.UploadersConfig.CustomURLSharingServiceSelected = index;
-                            SnapX.DefaultTaskSettings.URLSharingServiceDestination =
+                            SnapXL.UploadersConfig.CustomURLSharingServiceSelected = index;
+                            SnapXL.DefaultTaskSettings.URLSharingServiceDestination =
                                 URLSharingServices.CustomURLSharingService;
                         }
                     }
@@ -1512,7 +1512,7 @@ public static class TaskHelpers
 
     public static bool IsUploadAllowed()
     {
-        if (SnapX.Settings.DisableUpload)
+        if (SnapXL.Settings.DisableUpload)
         {
             return false;
         }

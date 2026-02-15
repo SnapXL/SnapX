@@ -53,7 +53,7 @@ public static class UploadManager
 
     private static bool IsUploadConfirmed(int length)
     {
-        if (SnapX.Settings.ShowMultiUploadWarning)
+        if (SnapXL.Settings.ShowMultiUploadWarning)
         {
             // using (MyMessageBox msgbox = new MyMessageBox(string.Format(Resources.UploadManager_IsUploadConfirmed_Are_you_sure_you_want_to_upload__0__files_, length),
             //     "SnapX - " + Resources.UploadManager_IsUploadConfirmed_Upload_files,
@@ -76,12 +76,12 @@ public static class UploadManager
         {
             Title = Lang.UploadManagerUploadFile,
             Multiselect = true,
-            Directory = IsValidDirectory(SnapX.Settings.FileUploadDefaultDirectory) ? SnapX.Settings.FileUploadDefaultDirectory : UserDirectory.DesktopDir,
+            Directory = IsValidDirectory(SnapXL.Settings.FileUploadDefaultDirectory) ? SnapXL.Settings.FileUploadDefaultDirectory : UserDirectory.DesktopDir,
             TaskSettings = taskSettings
         };
         DebugHelper.WriteLine("Need file to upload. Asking UI for file.");
         // The UI will now do the rest.
-        SnapX.EventAggregator.Publish(data);
+        SnapXL.EventAggregator.Publish(data);
     }
 
     public static bool IsValidDirectory(string? dir)
@@ -426,7 +426,7 @@ public static class UploadManager
         if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath)) return;
 
         taskSettings ??= TaskSettings.GetDefaultTaskSettings();
-        taskSettings.ToolsSettings.IndexerSettings.BinaryUnits = SnapX.Settings.BinaryUnits;
+        taskSettings.ToolsSettings.IndexerSettings.BinaryUnits = SnapXL.Settings.BinaryUnits;
 
         string? source = null;
 

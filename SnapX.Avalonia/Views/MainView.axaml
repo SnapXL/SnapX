@@ -102,7 +102,7 @@
             <controls:NavigationViewItem
                 Content="Screenshot Folder"
                 PointerPressed="DynamicURL_OnPointerPressed"
-                ToolTip.Tip="{x:Static core:SnapX.ScreenshotsParentFolder}">
+                ToolTip.Tip="{x:Static core:SnapXL.ScreenshotsParentFolder}">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="Folder"

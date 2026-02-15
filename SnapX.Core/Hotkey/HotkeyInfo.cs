@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using YamlDotNet.Serialization;
 
 namespace SnapX.Core.Hotkey;
 
@@ -7,10 +8,10 @@ public class HotkeyInfo
 {
     public Keys Hotkey { get; set; }
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public ushort ID { get; set; }
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public HotkeyStatus Status { get; set; }
 
     public Keys KeyCode => Hotkey & Keys.KeyCode;
@@ -40,7 +41,7 @@ public class HotkeyInfo
         }
     }
 
-    public bool IsOnlyModifiers => KeyCode == Keys.ControlKey || KeyCode == Keys.ShiftKey || KeyCode == Keys.Menu || (KeyCode == Keys.None && Win);
+    public bool IsOnlyModifiers => KeyCode == Keys.Control || KeyCode == Keys.ShiftKey || KeyCode == Keys.Menu || (KeyCode == Keys.None && Win);
 
     public bool IsValidHotkey => KeyCode != Keys.None && !IsOnlyModifiers;
 

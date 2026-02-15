@@ -22,7 +22,9 @@ public class ViewLocator : IDataTemplate
         RegisterViewFactory<SettingsMainViewVM, SettingsWindow>();
         RegisterViewFactory<CustomUploaderVM, CustomUploaderView>();
         RegisterViewFactory<ImportExportVM, ImportExportView>();
-
+        // RegisterViewFactory<ScreenRecordOptionsVM, ScreenRecordOptionsView>();
+        RegisterViewFactory<DatabaseVM, DatabaseView>();
+        RegisterViewFactory<CoreUploaderVM, BuiltInUploaderSettingsView>();
         RegisterViewFactory<SettingsHomePageViewVM, SettingsHomePageView>();
 
     }

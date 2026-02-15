@@ -34,7 +34,7 @@ public class X11ClipboardHandler : IDisposable
             throw new Exception("Unable to open X11 display for clipboard handler.");
 
         var request = new NeedMainWindowHandle();
-        SnapX.EventAggregator.Publish(request);
+        SnapXL.EventAggregator.Publish(request);
 
         var mainWindowHandle = request.ResultHandle;
 

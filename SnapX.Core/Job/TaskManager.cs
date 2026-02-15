@@ -64,7 +64,7 @@ public static class TaskManager
         if (inQueueTasks.Length <= 0) return;
         int len;
 
-        len = SnapX.Settings.UploadLimit == 0 ? inQueueTasks.Length : (SnapX.Settings.UploadLimit - workingTasksCount).Clamp(0, inQueueTasks.Length);
+        len = SnapXL.Settings.UploadLimit == 0 ? inQueueTasks.Length : (SnapXL.Settings.UploadLimit - workingTasksCount).Clamp(0, inQueueTasks.Length);
 
         for (var i = 0; i < len; i++)
         {
@@ -106,9 +106,9 @@ public static class TaskManager
         if (task.Status != TaskStatus.Working) return;
         var info = task.Info;
         DebugHelper.Logger?.Debug("{0:0.0}%", info.Progress.Percentage);
-        DebugHelper.Logger?.Debug("{0} / {1}", info.Progress.Position.ToSizeString(SnapX.Settings.BinaryUnits),
-            info.Progress.Length.ToSizeString(SnapX.Settings.BinaryUnits));
-        DebugHelper.Logger?.Debug(((long)info.Progress.Speed).ToSizeString(SnapX.Settings.BinaryUnits) + "/s");
+        DebugHelper.Logger?.Debug("{0} / {1}", info.Progress.Position.ToSizeString(SnapXL.Settings.BinaryUnits),
+            info.Progress.Length.ToSizeString(SnapXL.Settings.BinaryUnits));
+        DebugHelper.Logger?.Debug(((long)info.Progress.Speed).ToSizeString(SnapXL.Settings.BinaryUnits) + "/s");
         DebugHelper.Logger?.Debug(Helpers.ProperTimeSpan(info.Progress.Elapsed));
         DebugHelper.Logger?.Debug(Helpers.ProperTimeSpan(info.Progress.Remaining));
     }
@@ -179,7 +179,7 @@ public static class TaskManager
 
                         if (!task.StopRequested && !string.IsNullOrEmpty(result))
                         {
-                            if (SnapX.Settings.HistorySaveTasks && (!SnapX.Settings.HistoryCheckURL ||
+                            if (SnapXL.Settings.HistorySaveTasks && (!SnapXL.Settings.HistoryCheckURL ||
                                (!string.IsNullOrEmpty(info.Result.URL) || !string.IsNullOrEmpty(info.Result.ShortenedURL))))
                             {
                                 HistoryItem historyItem = info.GetHistoryItem();
@@ -217,7 +217,7 @@ public static class TaskManager
         {
             StartTasks();
 
-            if (SnapX.Settings.SaveSettingsAfterTaskCompleted && !IsBusy)
+            if (SnapXL.Settings.SaveSettingsAfterTaskCompleted && !IsBusy)
             {
                 SettingManager.SaveAllSettingsAsync();
             }
@@ -237,7 +237,7 @@ public static class TaskManager
     public static void InitHistoryManager()
     {
         if (History == null)
-            History = new HistoryManagerSQLite(SnapX.DbConnection)
+            History = new HistoryManagerSQLite(SnapXL.DbConnection)
             {
                 BackupFolder = SettingManager.SnapshotFolder,
                 CreateBackup = true,

@@ -97,7 +97,7 @@ public class HistoryItem
                         return FilePath;
                 }
 
-                fallback:
+            fallback:
                 return SafeString(ThumbnailURL) ?? SafeString(URL);
             }
             catch

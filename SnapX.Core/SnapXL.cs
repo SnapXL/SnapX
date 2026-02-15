@@ -25,7 +25,7 @@ using Xdg.Directories;
 
 namespace SnapX.Core;
 
-public class SnapX
+public class SnapXL
 {
     public const string AppName = "SnapX";
     public static string Qualifier { get; set; } = "";
@@ -248,6 +248,36 @@ public class SnapX
             return Path.Combine(PersonalFolder, HistoryFileNameOld);
         }
     }
+    public const string ApplicationConfigOld = "ApplicationConfig.json";
+    public static string? ApplicationConfigPathOld
+    {
+        get
+        {
+            if (Sandbox) return null;
+
+            return Path.Combine(ConfigFolder, ApplicationConfigOld);
+        }
+    }
+    public const string UploadersConfigOld = "UploadersConfig.json";
+    public static string? UploadersConfigPathOld
+    {
+        get
+        {
+            if (Sandbox) return null;
+
+            return Path.Combine(ConfigFolder, UploadersConfigOld);
+        }
+    }
+    public const string HotkeyConfigOld = "HotkeysConfig.json";
+    public static string? HotkeyConfigPathOld
+    {
+        get
+        {
+            if (Sandbox) return null;
+
+            return Path.Combine(ConfigFolder, HotkeyConfigOld);
+        }
+    }
 
     #endregion Paths
 
@@ -377,7 +407,7 @@ public class SnapX
             raw.SetProvider(new SQLite3Provider_e_sqlite3());
         }
 
-        var dataSource = SnapX.Sandbox ? ":memory:" : DBPath;
+        var dataSource = SnapXL.Sandbox ? ":memory:" : DBPath;
 
         var connectionString = new SqliteConnectionStringBuilder { DataSource = dataSource, Mode = SqliteOpenMode.ReadWriteCreate, ForeignKeys = true }.ToString();
         DbConnection = new SqliteConnection(connectionString);
@@ -442,7 +472,7 @@ public class SnapX
 #endif
         }, logger);
         TelemetryHandler = new Telemetry(DbConnection, aptabaseClient);
-        SnapX.aptabaseClient = aptabaseClient;
+        SnapXL.aptabaseClient = aptabaseClient;
         var (totalMemory, usedMemory) = SnapXResources.MemoryInfo;
         TelemetryHandler.TrackEvent("app_started", new Dictionary<string, object>
         {
@@ -562,6 +592,7 @@ public class SnapX
         }
     }
     public SnapXCLIManager GetCLIManager() => CLIManager;
+    public SqliteConnection GetDB() => DbConnection;
     public ApplicationConfig GetConfiguration() => Settings;
     public UploadersConfig GetUploadersConfig() => UploadersConfig;
     public HotkeysConfig GetHotkeysConfig() => HotkeysConfig;

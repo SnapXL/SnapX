@@ -19,16 +19,17 @@ using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Watch;
+using YamlDotNet.Serialization;
 
 namespace SnapX.Core.Job;
 
 [FastClonerClonable]
 public class TaskSettings
 {
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public TaskSettings TaskSettingsReference { get; private set; }
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public bool IsSafeTaskSettings => TaskSettingsReference != null;
 
     public string Description { get; set; } = "";
@@ -65,14 +66,14 @@ public class TaskSettings
     public bool UseDefaultImageSettings { get; set; } = true;
     public TaskSettingsImage ImageSettings { get; set; } = new();
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public TaskSettingsImage ImageSettingsReference
     {
         get
         {
             if (UseDefaultImageSettings)
             {
-                return SnapX.DefaultTaskSettings.ImageSettings;
+                return SnapXL.DefaultTaskSettings.ImageSettings;
             }
 
             return TaskSettingsReference.ImageSettings;
@@ -82,14 +83,14 @@ public class TaskSettings
     public bool UseDefaultCaptureSettings { get; set; } = true;
     public TaskSettingsCapture CaptureSettings { get; set; } = new();
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public TaskSettingsCapture CaptureSettingsReference
     {
         get
         {
             if (UseDefaultCaptureSettings)
             {
-                return SnapX.DefaultTaskSettings.CaptureSettings;
+                return SnapXL.DefaultTaskSettings.CaptureSettings;
             }
 
             return TaskSettingsReference.CaptureSettings;
@@ -105,14 +106,14 @@ public class TaskSettings
     public bool UseDefaultToolsSettings { get; set; } = true;
     public TaskSettingsTools ToolsSettings { get; set; } = new();
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public TaskSettingsTools ToolsSettingsReference
     {
         get
         {
             if (UseDefaultToolsSettings)
             {
-                return SnapX.DefaultTaskSettings.ToolsSettings;
+                return SnapXL.DefaultTaskSettings.ToolsSettings;
             }
 
             return TaskSettingsReference.ToolsSettings;
@@ -144,7 +145,7 @@ public class TaskSettings
     {
         TaskSettings taskSettings = new TaskSettings();
         taskSettings.SetDefaultSettings();
-        taskSettings.TaskSettingsReference = SnapX.DefaultTaskSettings;
+        taskSettings.TaskSettingsReference = SnapXL.DefaultTaskSettings;
         return taskSettings;
     }
 
@@ -152,9 +153,9 @@ public class TaskSettings
     {
         TaskSettings safeTaskSettings;
 
-        if (taskSettings.IsUsingDefaultSettings && SnapX.DefaultTaskSettings != null)
+        if (taskSettings.IsUsingDefaultSettings && SnapXL.DefaultTaskSettings != null)
         {
-            safeTaskSettings = SnapX.DefaultTaskSettings.FastDeepClone();
+            safeTaskSettings = SnapXL.DefaultTaskSettings.FastDeepClone();
             safeTaskSettings.Description = taskSettings.Description;
             safeTaskSettings.Job = taskSettings.Job;
         }
@@ -170,9 +171,9 @@ public class TaskSettings
 
     public void SetDefaultSettings()
     {
-        if (SnapX.DefaultTaskSettings != null)
+        if (SnapXL.DefaultTaskSettings != null)
         {
-            TaskSettings defaultTaskSettings = SnapX.DefaultTaskSettings.FastDeepClone();
+            TaskSettings defaultTaskSettings = SnapXL.DefaultTaskSettings.FastDeepClone();
 
             if (UseDefaultAfterCaptureJob)
             {
@@ -317,7 +318,7 @@ public class ServiceLink
 {
     public string Name { get; set; }
     public string URL { get; set; }
-
+    public ServiceLink() { }
     public ServiceLink(string name, string url)
     {
         Name = name;
@@ -534,13 +535,13 @@ public class BackgroundGradient
 {
     public string Type { get; set; }
     public List<GradientStop> Colors { get; set; }
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public bool IsValid => Colors != null && Colors.Count > 0;
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public bool IsVisible => IsValid && Colors.Any(x => x.Color.ToPixel<Rgba32>().A > 0);
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public bool IsTransparent => IsValid && Colors.Any(x => x.Color.IsTransparent());
     public BackgroundGradient(string type)
     {

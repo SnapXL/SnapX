@@ -110,7 +110,7 @@ public partial class AboutWindowViewModel : ViewModelBase
                     new
                     {
                         Name = "SQLite",
-                        Version = new Version(Core.SnapX.DbConnection.ServerVersion),
+                        Version = new Version(Core.SnapXL.DbConnection.ServerVersion),
                         sourceURL = "https://www.nuget.org/packages/Microsoft.Data.Sqlite",
                     }
                 )

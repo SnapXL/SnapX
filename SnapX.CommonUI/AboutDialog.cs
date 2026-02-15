@@ -14,12 +14,12 @@ public class AboutDialog
     {
         return Core.Utils.OsInfo.GetFancyOSNameAndVersion();
     }
-    public virtual string GetTitle() => Core.SnapX.Title;
+    public virtual string GetTitle() => Core.SnapXL.Title;
     public virtual string GetLicense() => "GPL v3 or Later";
 
     public virtual string GetLicenseURL() =>
         $"{Core.Utils.Miscellaneous.Links.GitHub}/blob/develop/LICENSE.md";
-    public virtual string GetVersion() => Core.SnapX.VersionText;
+    public virtual string GetVersion() => Core.SnapXL.VersionText;
     public virtual string GetWebsite() => Core.Utils.Miscellaneous.Links.GitHub;
     public virtual string GetDocumentation() => Core.Utils.Miscellaneous.Links.Docs;
     public virtual string GetIssues() => Core.Utils.Miscellaneous.Links.GitHubIssues;
@@ -36,7 +36,7 @@ public class AboutDialog
     public virtual string GetBuildInformation()
     {
         var title = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? Assembly.GetExecutingAssembly().FullName;
-        var flags = string.Join(", ", Core.SnapX.Flags);
+        var flags = string.Join(", ", Core.SnapXL.Flags);
         var informationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
         var fileVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version ?? "Unknown";
         var type = Type.GetType("GitVersionInformation");
@@ -49,7 +49,7 @@ public class AboutDialog
 
         return $"{title} v{fileVersion}{Environment.NewLine}" +
                $"Flags: {flags}{Environment.NewLine}" +
-               $"Build: {Core.SnapX.Build}{Environment.NewLine}" +
+               $"Build: {Core.SnapXL.Build}{Environment.NewLine}" +
                $"Informational Version: {informationalVersion} (Branch: {branchName}){Environment.NewLine}" +
                $"Commit {gitCommitId} ({gitCommitDate.ToLocalTime()})";
     }
