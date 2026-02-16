@@ -1,0 +1,75 @@
+<UserControl
+    x:Class="SnapX.Avalonia.Views.Settings.Views.TextUploaders.GithubGistUploaderSettingsView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Margin="12" Spacing="12">
+
+            <controls:SettingsExpander
+                Header="Account Authentication"
+                IconSource="Contact"
+                IsExpanded="True">
+
+                <controls:SettingsExpanderItem Content="Account Status">
+                    <controls:SettingsExpanderItem.Footer>
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="12"
+                            VerticalAlignment="Center">
+                            <TextBlock
+                                Text="Status: ???"
+                                VerticalAlignment="Center"
+                                x:Name="LoginStatus" />
+                            <Button
+                                Click="ConnectButton_OnClick"
+                                Content="Connect..."
+                                Width="120"
+                                x:Name="ConnectButton" />
+                        </StackPanel>
+                    </controls:SettingsExpanderItem.Footer>
+                </controls:SettingsExpanderItem>
+
+                <controls:SettingsExpanderItem Content="Authorization Code" Description="Paste the code from GitHub after authorizing.">
+
+                    <controls:SettingsExpanderItem.Footer>
+                        <TextBox
+                            PastingFromClipboard="PasswordTextBox_OnPastingFromClipboard"
+                            Watermark="Paste authorization code here"
+                            Width="400"
+                            x:Name="PasswordTextBox" />
+                    </controls:SettingsExpanderItem.Footer>
+
+                </controls:SettingsExpanderItem>
+
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander Header="Gist Options" IsExpanded="True">
+
+                <controls:SettingsExpanderItem Content="Use Raw URL">
+                    <controls:SettingsExpanderItem.Footer>
+                        <CheckBox x:Name="cbGistUseRawURL" />
+                    </controls:SettingsExpanderItem.Footer>
+                </controls:SettingsExpanderItem>
+
+                <controls:SettingsExpanderItem Content="Publish Gist as Public">
+                    <controls:SettingsExpanderItem.Footer>
+                        <CheckBox x:Name="cbGistPublishPublic" />
+                    </controls:SettingsExpanderItem.Footer>
+                </controls:SettingsExpanderItem>
+
+                <controls:SettingsExpanderItem Content="Custom URL">
+                    <controls:SettingsExpanderItem.Footer>
+                        <TextBox
+                            Watermark="Optional custom URL"
+                            Width="400"
+                            x:Name="txtGistCustomURL" />
+                    </controls:SettingsExpanderItem.Footer>
+                </controls:SettingsExpanderItem>
+
+            </controls:SettingsExpander>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
