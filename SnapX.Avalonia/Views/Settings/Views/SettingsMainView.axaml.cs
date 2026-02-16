@@ -1,9 +1,12 @@
+using System.Collections;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
+using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
+using SnapX.Core.Upload;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
@@ -55,7 +58,23 @@ public partial class SettingsMainView : UserControl
                 $"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!");
         }
     }
+    private NavigationViewItem? GetParentItem(IEnumerable? items, NavigationViewItem target)
+    {
+        if (items == null) return null;
 
+        foreach (var obj in items)
+        {
+            if (obj is not NavigationViewItem parent) continue;
+            if (parent.MenuItems.Cast<object>().Contains(target))
+            {
+                return parent;
+            }
+            var found = GetParentItem(parent.MenuItems, target);
+            if (found != null) return found;
+        }
+
+        return null;
+    }
     private void NavigationView_OnSelectionChanged(object? Sender, NavigationViewSelectionChangedEventArgs E)
     {
         try
@@ -68,12 +87,18 @@ public partial class SettingsMainView : UserControl
                 return;
             }
             DebugHelper.WriteLine($"{nameof(NavigationView_OnSelectionChanged)}: {item}");
-            if (item.Tag is not string ItemTag)
+            var ItemTag = item.Tag?.ToString();
+            if (item.Tag is Enum and not UploaderCategory) ItemTag = "!" + item.Tag;
+
+            if (string.IsNullOrEmpty(ItemTag))
             {
-                DebugHelper.WriteLine($"NavigationView_OnSelectionChanged.Tag is not string. value: {item.Tag}");
+                DebugHelper.WriteLine("NavigationView_OnSelectionChanged: Tag is null or empty");
                 return;
             }
-            _vm?.Navigate(ItemTag);
+            var parentItem = GetParentItem(SettingsNavigationView.MenuItems, item);
+            var categoryTag = parentItem?.Tag?.ToString();
+            _vm?.Navigate(categoryTag, ItemTag);
+            WeakReferenceMessenger.Default.Send(new ChangeWindowTitleRequest(_vm?.PageTitle));
             navigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
         }
         catch (Exception e)
@@ -103,5 +128,10 @@ public partial class SettingsMainView : UserControl
         }
         MyNavigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
     }
+}
+
+public class ChangeWindowTitleRequest(string? Title)
+{
+    public string? Title { get; set; } = Title;
 }
 

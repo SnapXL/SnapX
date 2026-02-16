@@ -10,6 +10,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:upload="clr-namespace:SnapX.Core.Upload;assembly=SnapX.Core"
     xmlns:viewModels1="clr-namespace:SnapX.Avalonia.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.DataContext>
@@ -23,6 +24,7 @@
         IsBackEnabled="False"
         IsPaneOpen="True"
         IsSettingsVisible="False"
+        Name="SettingsNavigationView"
         PaneDisplayMode="Left"
         SelectionChanged="NavigationView_OnSelectionChanged"
         UseLayoutRounding="True">
@@ -279,7 +281,7 @@
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
                 <controls:NavigationViewItem.MenuItems>
-                    <controls:NavigationViewItem Content="Image uploaders">
+                    <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UploaderCategory.ImageUploaders}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UploaderCategory.ImageUploaders}">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="ImageCopy"
@@ -287,14 +289,16 @@
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                         <controls:NavigationViewItem.MenuItems>
-                            <controls:NavigationViewItem Content="Imgur" />
-                            <controls:NavigationViewItem Content="ImageShack" />
-                            <controls:NavigationViewItem Content="Photobucket" />
-                            <controls:NavigationViewItem Content="Chevereto" />
-                            <controls:NavigationViewItem Content="vgy.me" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:ImageDestination.Imgur}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:ImageDestination.Imgur}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:ImageDestination.ImageShack}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:ImageDestination.ImageShack}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:ImageDestination.Flickr}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:ImageDestination.Flickr}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:ImageDestination.Picasa}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:ImageDestination.Picasa}" />
+
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:ImageDestination.Chevereto}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:ImageDestination.Chevereto}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:ImageDestination.Vgyme}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:ImageDestination.Vgyme}" />
                         </controls:NavigationViewItem.MenuItems>
                     </controls:NavigationViewItem>
-                    <controls:NavigationViewItem Content="Text uploaders">
+                    <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UploaderCategory.TextUploaders}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UploaderCategory.TextUploaders}">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="DocumentText"
@@ -302,17 +306,16 @@
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                         <controls:NavigationViewItem.MenuItems>
-                            <controls:NavigationViewItem Content="Pastebin" />
-                            <controls:NavigationViewItem Content="Paste.ee" />
-                            <controls:NavigationViewItem Content="GitHub Gist" />
-                            <controls:NavigationViewItem Content="uPaste" />
-                            <controls:NavigationViewItem Content="Hastebin" />
-                            <controls:NavigationViewItem Content="OneTimeSecret" />
-                            <controls:NavigationViewItem Content="Pastie" />
-
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:TextDestination.Pastebin}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:TextDestination.Pastebin}" />
+                            <!--  Paste2 has no config  -->
+                            <!-- <controls:NavigationViewItem Content="{Binding Source={x:Static upload:TextDestination.Paste2}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:TextDestination.Paste2}" /> -->
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:TextDestination.Paste_ee}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:TextDestination.Paste_ee}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:TextDestination.Gist}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:TextDestination.Gist}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:TextDestination.Hastebin}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:TextDestination.Hastebin}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:TextDestination.OneTimeSecret}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:TextDestination.OneTimeSecret}" />
                         </controls:NavigationViewItem.MenuItems>
                     </controls:NavigationViewItem>
-                    <controls:NavigationViewItem Content="File uploaders">
+                    <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UploaderCategory.FileUploaders}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UploaderCategory.FileUploaders}">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="DataFunnel"
@@ -320,38 +323,38 @@
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                         <controls:NavigationViewItem.MenuItems>
-                            <controls:NavigationViewItem Content="FTP / FTPS / SFTP" />
-                            <controls:NavigationViewItem Content="Dropbox" />
-                            <controls:NavigationViewItem Content="OneDrive" />
-                            <controls:NavigationViewItem Content="Google Drive" />
-                            <controls:NavigationViewItem Content="puush" />
-                            <controls:NavigationViewItem Content="Box" />
-                            <controls:NavigationViewItem Content="Amazon S3" />
-                            <controls:NavigationViewItem Content="Google Cloud Storage" />
-                            <controls:NavigationViewItem Content="Azure Storage" />
-                            <controls:NavigationViewItem Content="Backblaze B2" />
-                            <controls:NavigationViewItem Content="Mega" />
-                            <controls:NavigationViewItem Content="ownCloud / Nextcloud" />
-                            <controls:NavigationViewItem Content="MediaFire" />
-                            <controls:NavigationViewItem Content="Pushbullet" />
-                            <controls:NavigationViewItem Content="SendSpace" />
-                            <controls:NavigationViewItem Content="Hostr" />
-                            <controls:NavigationViewItem Content="Lambda" />
-                            <controls:NavigationViewItem Content="Pomf" />
-                            <controls:NavigationViewItem Content="Seafile" />
-                            <controls:NavigationViewItem Content="Streamable" />
-                            <controls:NavigationViewItem Content="s-ul" />
-                            <controls:NavigationViewItem Content="LobFile" />
-                            <controls:NavigationViewItem Content="Plik" />
-                            <controls:NavigationViewItem Content="YouTube" />
-                            <controls:NavigationViewItem Content="Shared folder" />
-                            <controls:NavigationViewItem Content="Email" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.FTP}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.FTP}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Dropbox}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Dropbox}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.GoogleDrive}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.GoogleDrive}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.GoogleCloudStorage}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.GoogleCloudStorage}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.OneDrive}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.OneDrive}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Puush}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Puush}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Box}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Box}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.AmazonS3}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.AmazonS3}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.AzureStorage}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.AzureStorage}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.BackblazeB2}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.BackblazeB2}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Mega}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Mega}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.OwnCloud}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.OwnCloud}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.MediaFire}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.MediaFire}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Pushbullet}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Pushbullet}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.SendSpace}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.SendSpace}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Localhostr}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Localhostr}" />
+                            <!-- <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Lambda}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Lambda}" /> -->
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Pomf}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Pomf}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Seafile}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Seafile}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Streamable}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Streamable}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Sul}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Sul}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Lithiio}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Lithiio}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Plik}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Plik}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.YouTube}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.YouTube}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.SharedFolder}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.SharedFolder}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Email}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Email}" />
 
 
 
                         </controls:NavigationViewItem.MenuItems>
                     </controls:NavigationViewItem>
-                    <controls:NavigationViewItem Content="URL shorteners">
+                    <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UploaderCategory.URLShorteners}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UploaderCategory.URLShorteners}">
                         <controls:NavigationViewItem.IconSource>
                             <fluent:FluentIconSource
                                 Icon="LinkEdit"
@@ -359,11 +362,12 @@
                                 IconVariant="Regular" />
                         </controls:NavigationViewItem.IconSource>
                         <controls:NavigationViewItem.MenuItems>
-                            <controls:NavigationViewItem Content="YOURLS" />
-                            <controls:NavigationViewItem Content="Polr" />
-                            <controls:NavigationViewItem Content="Firebase Dynamic Links" />
-                            <controls:NavigationViewItem Content="Kutt" />
-                            <controls:NavigationViewItem Content="Zero Width Shortener" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UrlShortenerType.YOURLS}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UrlShortenerType.YOURLS}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UrlShortenerType.Polr}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UrlShortenerType.Polr}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UrlShortenerType.FirebaseDynamicLinks}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UrlShortenerType.FirebaseDynamicLinks}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UrlShortenerType.Kutt}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UrlShortenerType.Kutt}" />
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UrlShortenerType.ZeroWidthShortener}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UrlShortenerType.ZeroWidthShortener}" />
+
 
                         </controls:NavigationViewItem.MenuItems>
                     </controls:NavigationViewItem>
@@ -378,12 +382,54 @@
                 </controls:NavigationViewItem.MenuItems>
             </controls:NavigationViewItem>
         </controls:NavigationView.MenuItems>
+        <controls:NavigationView.PaneFooter>
+            <StackPanel
+                HorizontalAlignment="Center"
+                Margin="0,50,0,0"
+                Spacing="20"
+                VerticalAlignment="Top">
+                <DropDownButton Content="Destinations">
+                    <DropDownButton.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                            <MenuItem Header="Image Uploaders" Name="MenuImages">
+                                <MenuItem Header="Imgur" Name="ServiceImgur" />
+                                <MenuItem Header="ImageShack" Name="ServiceImageShack" />
+                                <MenuItem Header="Twitter" Name="ServiceTwitter" />
+                            </MenuItem>
 
+                            <MenuItem Header="Text Uploaders" Name="MenuText">
+                                <MenuItem Header="Pastebin" x:Name="ServicePastebin" />
+                                <MenuItem Header="GitHub Gist" x:Name="ServiceGist" />
+                            </MenuItem>
+                            <MenuItem Header="File Uploaders" Name="MenuFile">
+                                <MenuItem Header="MEGA" x:Name="ServiceMega" />
+                                <MenuItem Header="what the fuck" x:Name="Servicwtf" />
+                            </MenuItem>
+
+                            <MenuItem Header="URL Shorteners" Name="MenuShorteners">
+                                <MenuItem Header="bit.ly" Name="ServiceBitly" />
+                                <MenuItem Header="TinyURL" Name="ServiceTinyUrl" />
+                            </MenuItem>
+
+                            <MenuItem Header="URL Sharing Service" Name="MenuSharing">
+                                <MenuItem Header="Email" Name="ServiceEmail" />
+                                <MenuItem Header="Twitter" Name="ServiceTwitterShare" />
+                            </MenuItem>
+                        </MenuFlyout>
+                    </DropDownButton.Flyout>
+                </DropDownButton>
+
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    Theme="{StaticResource BodyStrongTextBlockStyle}"
+                    x:Name="SelectedStatus" />
+            </StackPanel>
+        </controls:NavigationView.PaneFooter>
         <controls:NavigationView.FooterMenuItems>
             <controls:NavigationViewItem
                 Content="Config Folder"
                 PointerPressed="DynamicURL_OnPointerPressed"
-                ToolTip.Tip="{x:Static core:SnapX.ConfigFolder}">
+                ToolTip.Tip="{x:Static core:SnapXL.ConfigFolder}">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="Folder"
@@ -391,7 +437,7 @@
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>
-            <controls:NavigationViewItem Content="Database">
+            <controls:NavigationViewItem Content="Database" Tag="Database">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="DatabaseWindow"
