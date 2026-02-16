@@ -1,0 +1,26 @@
+<UserControl
+    x:Class="SnapX.Avalonia.Views.Settings.Views.OAuth2ListenerView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel
+        HorizontalAlignment="Center"
+        Spacing="20"
+        VerticalAlignment="Center">
+        <controls:ProgressRing
+            Height="50"
+            IsIndeterminate="True"
+            Width="50" />
+
+        <TextBlock
+            HorizontalAlignment="Center"
+            Text="Waiting for authentication in your browser..."
+            Theme="{StaticResource BodyTextBlockStyle}" />
+
+        <Button
+            Content="Cancel"
+            HorizontalAlignment="Center"
+            Name="CancelButton" />
+    </StackPanel>
+</UserControl>
