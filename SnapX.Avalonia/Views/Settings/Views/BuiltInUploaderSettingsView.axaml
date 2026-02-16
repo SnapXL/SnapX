@@ -1,0 +1,36 @@
+<UserControl
+    x:Class="SnapX.Avalonia.Views.Settings.Views.BuiltInUploaderSettingsView"
+    x:DataType="viewModels:CoreUploaderVM"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:imageUploaders="clr-namespace:SnapX.Avalonia.Views.Settings.Views.ImageUploaders"
+    xmlns:img="clr-namespace:SnapX.Core.Upload.Img;assembly=SnapX.Core"
+    xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.DataContext>
+        <viewModels:CoreUploaderVM />
+    </Design.DataContext>
+    <ScrollViewer Padding="20">
+        <StackPanel Spacing="12">
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Classes="h1" Text="{Binding SelectedUploader.ServiceName}" />
+            </StackPanel>
+            <!--    -->
+            <!-- <controls:SettingsExpander Header="Service Details" IsExpanded="True"> -->
+            <!--     <controls:SettingsExpander.IconSource> -->
+            <!--         <controls:SymbolIconSource Symbol="AllApps" /> -->
+            <!--     </controls:SettingsExpander.IconSource> -->
+            <!--     <controls:SettingsExpanderItem Content="Service Identifier" Description="Internal unique ID"> -->
+            <!--         <controls:SettingsExpanderItem.Footer> -->
+            <!--             <TextBlock Text="{Binding SelectedUploader.ServiceIdentifier}" /> -->
+            <!--         </controls:SettingsExpanderItem.Footer> -->
+            <!--     </controls:SettingsExpanderItem> -->
+            <!-- </controls:SettingsExpander> -->
+
+            <Border
+                Background="Transparent"
+                MinHeight="100"
+                x:Name="SettingsContainer" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
