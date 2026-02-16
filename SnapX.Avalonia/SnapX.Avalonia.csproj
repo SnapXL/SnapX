@@ -10,7 +10,8 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AvaloniaVersion>11.3.11</AvaloniaVersion>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);Dapper.AOT</InterceptorsNamespaces>
+    <AvaloniaVersion>11.3.12</AvaloniaVersion>
     <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
     <HarfBuzzSharpVersion>8.3.1.2</HarfBuzzSharpVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -52,7 +53,7 @@
     <PackageReference Condition="!$(RuntimeIdentifier.Contains('browser'))" Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
     <PackageReference Include="FluentAvaloniaUI" Version="2.5.0" />
-    <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="2.0.317" />
+    <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="2.0.318" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
     <PackageReference Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
@@ -84,9 +85,5 @@
     <PackageReference Remove="HarfBuzzSharp.NativeAssets.macOS" />
     <PackageReference Remove="HarfBuzzSharp.NativeAssets.Win32" />
     <PackageReference Remove="HarfBuzzSharp.NativeAssets.WebAssembly" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Controls\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 </Project>

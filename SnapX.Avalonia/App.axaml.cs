@@ -17,6 +17,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using SnapX.Avalonia.ViewModels;
@@ -239,9 +240,9 @@ public partial class App : Application
 
         try
         {
-            if (!FeatureFlags.DisableTelemetry && Core.SnapX.TelemetryHandler is null)
+            if (!FeatureFlags.DisableTelemetry && Core.SnapXL.TelemetryHandler is null)
             {
-                Core.SnapX.InitTelemetryServices();
+                Core.SnapXL.InitTelemetryServices();
                 SentrySdk.CaptureException(ex);
 
                 DebugHelper.WriteLine("Error reported to Sentry successfully.");
@@ -312,8 +313,8 @@ public partial class App : Application
 
     public void ListenForEvents()
     {
-        Core.SnapX.EventAggregator.Subscribe<NeedClipboardCopyEvent>(HandleClipboardCopyEvent);
-        Core.SnapX.EventAggregator.Subscribe<ErrorMessageEvent>(HandleErrorMessageEvent);
+        Core.SnapXL.EventAggregator.Subscribe<NeedClipboardCopyEvent>(HandleClipboardCopyEvent);
+        Core.SnapXL.EventAggregator.Subscribe<ErrorMessageEvent>(HandleErrorMessageEvent);
     }
 
     private async void HandleClipboardCopyEvent(NeedClipboardCopyEvent @event)
@@ -489,7 +490,7 @@ public partial class App : Application
     CancellationTokenSource? _pollingCts = null;
 
     // ReSharper disable once AsyncVoidMethod
-    public override async void OnFrameworkInitializationCompleted()
+    public override void OnFrameworkInitializationCompleted()
     {
         // Crashes must be contained, AT ALL COSTS!
         Dispatcher.UIThread.UnhandledException += (s, e) =>
@@ -562,7 +563,7 @@ public partial class App : Application
                     {
                         SnapX.start(desktop.Args ?? []);
                         var CLIManager = SnapX.GetCLIManager();
-                        await CLIManager.UseCommandLineArgs();
+                        CLIManager.UseCommandLineArgs().GetAwaiter().GetResult();
                     }
                     catch (Exception ex)
                     {
@@ -584,7 +585,7 @@ public partial class App : Application
                         var trayIcon = new TrayIcon
                         {
                             Icon = new WindowIcon(logoBitmap),
-                            ToolTipText = Core.SnapX.AppName,
+                            ToolTipText = Core.SnapXL.AppName,
                             Command = OpenSnapXCommand
                         };
 
@@ -777,7 +778,7 @@ public partial class App : Application
                         var uploadFile = new NativeMenuItem("Upload File...");
                         uploadFile.Click += (_, _) =>
                         {
-                            Core.SnapX.EventAggregator.Publish(
+                            Core.SnapXL.EventAggregator.Publish(
                                 new NeedFileOpenerEvent
                                 {
                                     Title = "SnapX | Upload File",
@@ -788,7 +789,7 @@ public partial class App : Application
                         var uploadFolder = new NativeMenuItem("Upload Folder...");
                         uploadFolder.Click += (_, _) =>
                         {
-                            Core.SnapX.EventAggregator.Publish(
+                            Core.SnapXL.EventAggregator.Publish(
                                 new NeedFileOpenerEvent
                                 {
                                     Title = "SnapX | Upload Folder",
@@ -990,7 +991,11 @@ public partial class App : Application
         services.AddTransient<ImportExportView>();
         // services.AddSingleton<ScreenRecordOptionsVM>();
         // services.AddTransient<ScreenRecordOptionsView>();
-
+        services.AddSingleton<CoreUploaderVM>();
+        services.AddTransient<BuiltInUploaderSettingsView>();
+        services.AddSingleton<DatabaseVM>();
+        services.AddSingleton<SqliteConnection>(sp => SnapX.GetDB());
+        services.AddTransient<DatabaseView>();
         services.AddTransient<SettingsHomePageView>();
         services.AddSingleton<SettingsHomePageViewVM>();
 

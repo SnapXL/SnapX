@@ -1,0 +1,187 @@
+<UserControl
+    Initialized="StyledElement_OnInitialized"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.Views.Settings.Views.DatabaseView"
+    x:DataType="viewModels:DatabaseVM"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.DataContext>
+        <viewModels:DatabaseVM />
+    </Design.DataContext>
+    <Grid RowDefinitions="Auto, *">
+        <Border
+            Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,0,0,1"
+            Grid.Row="0"
+            Padding="12">
+            <Grid ColumnDefinitions="*, Auto">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBox
+                        Text="{Binding SearchText, Mode=TwoWay}"
+                        Watermark="Search database..."
+                        Width="300">
+                        <TextBox.InnerLeftContent>
+                            <fluent:SymbolIcon
+                                FontSize="16"
+                                Margin="8,0,0,0"
+                                Symbol="Search" />
+                        </TextBox.InnerLeftContent>
+                    </TextBox>
+                    <Separator Classes="Vertical" />
+                    <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} Records'}" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button Classes="accent" Command="{Binding RefreshCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <fluent:SymbolIcon Symbol="ArrowCounterclockwise" />
+                            <TextBlock Text="Refresh" />
+                        </StackPanel>
+                    </Button>
+                    <ComboBox
+                        ItemsSource="{Binding Tables}"
+                        SelectedItem="{Binding SelectedTable}"
+                        VerticalAlignment="Center"
+                        Width="150">
+                        <ComboBox.SelectionBoxItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <fluent:SymbolIcon FontSize="16" Symbol="Table" />
+                                    <TextBlock Text="{Binding}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.SelectionBoxItemTemplate>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <fluent:SymbolIcon FontSize="16" Symbol="Table" />
+                                    <TextBlock Text="{Binding}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <DropDownButton Content="Quick Actions">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                <MenuItem Command="{Binding ChangePathCommand}" Header="Mass Change Screenshots Path">
+                                    <MenuItem.Icon>
+                                        <fluent:SymbolIcon Symbol="FolderLink" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <!-- <MenuItem Command="{Binding RebuildIndexCommand}" Header="Rebuild Index"> -->
+                                <!--     <MenuItem.Icon> -->
+                                <!--         <fluent:SymbolIcon Symbol="DatabaseLightning" /> -->
+                                <!--     </MenuItem.Icon> -->
+                                <!-- </MenuItem> -->
+                                <!-- <MenuItem Command="{Binding RebuildIndexCommand}" Header="Rebuild file paths"> -->
+                                <!--     <ToolTip.Tip> -->
+                                <!--         <StackPanel MaxWidth="300" Spacing="5"> -->
+                                <!--             <TextBlock FontWeight="Bold" Text="Repair Broken Links" /> -->
+                                <!--             <TextBlock Text="Scans your disks for missing or 0-byte files to restore database integrity." TextWrapping="Wrap" /> -->
+                                <!--             <Separator Margin="0,2" /> -->
+                                <!--  <TextBlock  -->
+                                <!--  FontSize="11"  -->
+                                <!--  Opacity="0.8"  -->
+                                <!--  Text="• Defaults to searching your Home directory." />  -->
+                                <!--  <TextBlock  -->
+                                <!--  FontSize="11"  -->
+                                <!--  Opacity="0.8"  -->
+                                <!--  Text="• You can select other disks or external drives." />  -->
+                                <!--  <TextBlock  -->
+                                <!--  FontSize="11"  -->
+                                <!--  FontWeight="SemiBold"  -->
+                                <!--  Foreground="OrangeRed"  -->
+                                <!--  Text="⚠️ Note: No backups are created during this process." />  -->
+                                <!--         </StackPanel> -->
+                                <!--     </ToolTip.Tip> -->
+                                <!--     <MenuItem.Icon> -->
+                                <!--         <fluent:SymbolIcon Symbol="DatabaseLink" /> -->
+                                <!--     </MenuItem.Icon> -->
+                                <!-- </MenuItem> -->
+                                <MenuItem
+                                    Command="{Binding ExecuteRawSqlCommand}"
+                                    CommandParameter="VACUUM;"
+                                    Header="Vacuum Database">
+                                    <MenuItem.Icon>
+                                        <fluent:SymbolIcon Symbol="BroomSparkle" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <!-- <Separator /> -->
+                                <!-- <MenuItem Command="{Binding ExportCommand}" Header="Export to JSON"> -->
+                                <!--     <MenuItem.Icon> -->
+                                <!--         <fluent:SymbolIcon Symbol="ArrowExport" /> -->
+                                <!--     </MenuItem.Icon> -->
+                                <!-- </MenuItem> -->
+                                <!--  <MenuItem  -->
+                                <!--  Command="{Binding PurgeCommand}"  -->
+                                <!--  Foreground="{DynamicResource SystemFillColorCriticalBrush}"  -->
+                                <!--  Header="Purge Missing Files">  -->
+                                <!--     <MenuItem.Icon> -->
+                                <!--         <fluent:SymbolIcon Symbol="Delete" /> -->
+                                <!--     </MenuItem.Icon> -->
+                                <!-- </MenuItem> -->
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1">
+            <DataGrid
+                AutoGenerateColumns="False"
+                GridLinesVisibility="All"
+                ItemsSource="{Binding Items}"
+                SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                x:Name="MainDataGrid" />
+
+            <StackPanel
+                HorizontalAlignment="Right"
+                Margin="24"
+                VerticalAlignment="Bottom">
+
+                <Button
+                    Height="48"
+                    Padding="0"
+                    ToolTip.Tip="Open SQL Editor"
+                    Width="48">
+                    <Button.Flyout>
+                        <Flyout Placement="TopEdgeAlignedRight">
+                            <Border Padding="4" Width="500">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBox
+                                        AcceptsReturn="True"
+                                        FontFamily="Cascadia Code,Consolas,Monospace"
+                                        Height="100"
+                                        Text="{Binding RawSqlQuery}"
+                                        Watermark="Enter SQL Query..." />
+                                    <Button
+                                        Command="{Binding ExecuteRawSqlCommand}"
+                                        Grid.Column="1"
+                                        Margin="10,0,0,0"
+                                        VerticalAlignment="Stretch">
+                                        <StackPanel Spacing="4">
+                                            <fluent:SymbolIcon Symbol="Play" />
+                                            <TextBlock Text="Run" />
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </Flyout>
+                    </Button.Flyout>
+
+                    <fluent:SymbolIcon FontSize="24" Symbol="DatabaseSearch" />
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
