@@ -68,11 +68,11 @@ public class FTPFileUploaderService : FileUploaderService
     }
 }
 
-public sealed class FTP : FileUploader, IDisposable
+public sealed class FTP : FtpBase
 {
     public FTPAccount Account { get; private set; }
 
-    public bool IsConnected
+    public override bool IsConnected
     {
         get
         {
@@ -82,7 +82,7 @@ public sealed class FTP : FileUploader, IDisposable
 
     private FtpClient client;
 
-    public FTP(FTPAccount account)
+    public FTP(FTPAccount account) : base(account)
     {
         Account = account;
 
@@ -181,7 +181,7 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public bool Connect()
+    public override bool Connect()
     {
         if (!client.IsConnected)
         {
@@ -191,7 +191,7 @@ public sealed class FTP : FileUploader, IDisposable
         return client.IsConnected;
     }
 
-    public void Disconnect()
+    public override void Disconnect()
     {
         if (client != null)
         {
@@ -456,7 +456,7 @@ public sealed class FTP : FileUploader, IDisposable
         return false;
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         if (client != null)
         {

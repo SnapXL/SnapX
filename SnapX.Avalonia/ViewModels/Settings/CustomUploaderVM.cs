@@ -487,7 +487,7 @@ public partial class CustomUploaderVM : ViewModelBase
         bool result
     )
     {
-        if (Core.SnapX.CloseSequenceStarted || IsInitializing)
+        if (Core.SnapXL.CloseSequenceStarted || IsInitializing)
             return;
         DebugHelper.WriteLine("CustomUploaderVM detected settings saved, re-propagating data...");
         await PropagateData();
@@ -1025,5 +1025,5 @@ public partial class CustomUploaderVM : ViewModelBase
     }
 
     [GeneratedRegex(@"(.+?)(?: - Copy(?: \(\d+\))?)$")]
-    private static partial Regex CopyNameRegex();
+    public static partial Regex CopyNameRegex();
 }

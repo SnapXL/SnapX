@@ -93,6 +93,17 @@ public static class Extensions
         return default;
     }
 
+    public static bool IsValidIndex<T>(this ObservableCollection<T> list, int index)
+    {
+        return list != null && index >= 0 && index < list.Count;
+    }
+
+    public static T? ReturnIfValidIndex<T>(this ObservableCollection<T> list, int index)
+    {
+        return list.IsValidIndex(index) ? list[index] : default;
+    }
+
+
     public static T Last<T>(this T[] array, int index = 0)
     {
         if (array.Length > index)
@@ -339,7 +350,7 @@ public static class Extensions
     {
         var error = fullError ? e.ToString() : e.Message;
         DebugHelper.WriteException(error);
-        SnapX.EventAggregator.Publish(new ErrorMessageEvent(e, context, fullError));
+        SnapXL.EventAggregator.Publish(new ErrorMessageEvent(e, context, fullError));
     }
 
     public static Task ContinueInCurrentContext(this Task task, Action action) =>
