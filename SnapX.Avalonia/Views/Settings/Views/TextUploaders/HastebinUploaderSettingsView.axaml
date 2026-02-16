@@ -1,0 +1,33 @@
+<UserControl
+    x:Class="SnapX.Avalonia.Views.Settings.Views.TextUploaders.HastebinUploaderSettingsView"
+    x:DataType="txt:Hastebin"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:txt="clr-namespace:SnapX.Core.Upload.Text;assembly=SnapX.Core"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Spacing="4">
+        <controls:SettingsExpanderItem Content="Custom Domain" Description="Use a different API if you need, otherwise leave default. Hastebin Topal is NOT supported.">
+            <controls:SettingsExpanderItem.Footer>
+                <TextBox
+                    Name="txtCustomURL"
+                    Watermark="https://pastie.io"
+                    Width="200" />
+            </controls:SettingsExpanderItem.Footer>
+        </controls:SettingsExpanderItem>
+
+        <controls:SettingsExpanderItem Content="Syntax highlighting">
+            <controls:SettingsExpanderItem.Footer>
+                <TextBox
+                    Name="txtSyntaxHightlight"
+                    Watermark="hs"
+                    Width="200" />
+            </controls:SettingsExpanderItem.Footer>
+        </controls:SettingsExpanderItem>
+        <controls:SettingsExpanderItem Content="Paste Options">
+            <controls:SettingsExpanderItem.Footer>
+                <CheckBox Content="Use file extension for syntax highlighting (except .txt)" Name="cbUseFileExtension" />
+            </controls:SettingsExpanderItem.Footer>
+        </controls:SettingsExpanderItem>
+    </StackPanel>
+</UserControl>
