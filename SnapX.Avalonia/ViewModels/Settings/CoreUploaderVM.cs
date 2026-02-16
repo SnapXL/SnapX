@@ -71,7 +71,6 @@ public partial class CoreUploaderVM : ViewModelBase
                     UrlShortenerType us => UploaderFactory.URLShortenerServices.GetValueOrDefault(us),
                     URLSharingServices ur => UploaderFactory.URLSharingServices.GetValueOrDefault(ur),
 
-                    // 2. Last resort: String-based lookup in AllServices if it's just a string/identifier
                     _ => UploaderFactory.AllServices.FirstOrDefault(u =>
                         u.ServiceIdentifier.Equals(targetEnum.ToString(), StringComparison.OrdinalIgnoreCase))
                 };
