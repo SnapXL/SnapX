@@ -8,9 +8,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "gitversion.msbuild.6.5.1.nupkg",
-    "sha512": "858510b408c3d9c2616795df4500250b86c05158bb6820315623a1304a5549fc6c7513e4a64485dd339357d43cb2cf89a65fefcebf51da7cf9b5806c3aae87c3",
-    "url": "https://api.nuget.org/v3-flatcontainer/gitversion.msbuild/6.5.1/gitversion.msbuild.6.5.1.nupkg",
+    "dest-filename": "gitversion.msbuild.6.6.0.nupkg",
+    "sha512": "7953d9ad11c15b0a700f7fa27e0b2351114c9af83fad95049a7d582bbcbabb424a313124ed87dae352a16c14876f54ade34c3033aab3a349768bee4c184e5728",
+    "url": "https://api.nuget.org/v3-flatcontainer/gitversion.msbuild/6.6.0/gitversion.msbuild.6.6.0.nupkg",
     "type": "file"
   },
   {
