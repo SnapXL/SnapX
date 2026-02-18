@@ -53,6 +53,8 @@ public partial class OCR : AppWindow
         {
             Title = "OCR Tool";
         }
+
+        AddHandler(DragDrop.DropEvent, Drop);
         // LanguageSelector = this.FindControl<ComboBox>("LanguageSelector");
         // LanguageSelector!.ItemsSource = viewModel.LanguageDisplayNames;
         // LanguageSelector.Items = _languages;
@@ -61,7 +63,32 @@ public partial class OCR : AppWindow
         // LoadImage();
         // RunOCR(_languages[0]);
     }
+    async void Drop(object? sender, DragEventArgs e)
+    {
+        if (e.DataTransfer.TryGetFiles()?.FirstOrDefault() is not { } storageFile) return;
 
+        try
+        {
+            await using Stream stream = File.OpenRead(storageFile.Path.LocalPath);
+            _img = await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(stream);
+
+            if (LanguageSelector?.SelectedIndex is not (>= 0 and int index)) return;
+
+            Title = $"OCR Result for dropped file {_img.Metadata.DecodedImageFormat?.Name}";
+            var code = _ocrViewModel.GetLanguageCode(index);
+            await RunOCRAsync(code);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteException(ex);
+            await new ContentDialog
+            {
+                Title = "Drop Error",
+                Content = ex.Message,
+                CloseButtonText = "OK"
+            }.ShowAsync(this);
+        }
+    }
     public OCR()
         : this(null, new OCRViewModel()) { }
     public OCR(SixLabors.ImageSharp.Image img)

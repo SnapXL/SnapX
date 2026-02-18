@@ -17,6 +17,7 @@
     </Design.DataContext>
 
     <Grid
+        DragDrop.AllowDrop="True"
         Margin="20"
         RowDefinitions="Auto,Auto,Auto,Auto"
         RowSpacing="15"
