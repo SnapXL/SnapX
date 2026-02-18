@@ -541,7 +541,14 @@ public partial class App : Application
                         ea.Cancel = true;
                         sigintReceived = true;
                         SnapX.shutdown();
-                        desktop.Shutdown();
+                        try
+                        {
+                            desktop.Shutdown();
+                        }
+                        catch
+                        {
+                            // Silence at once
+                        }
                         _pollingCts?.Cancel();
                     };
                     // AppDomain.CurrentDomain.ProcessExit += (o, _) =>
