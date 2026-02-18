@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using SnapX.Core.Upload.Custom;
 using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Extensions;
 using YamlDotNet.Serialization;
@@ -45,7 +46,7 @@ public abstract partial class SettingsBase<T>
     public bool CreateWeeklyBackup { get; set; }
 
     [Browsable(false), JsonIgnore, YamlIgnore]
-    public bool SupportDPAPIEncryption { get; set; }
+    public bool UseEncryption { get; set; } = !OperatingSystem.IsFreeBSD();
 
     public bool IsUpgradeFrom(string version)
     {
@@ -85,12 +86,12 @@ public abstract partial class SettingsBase<T>
         Task.Run(() => Save(filePath));
     }
 
-    public MemoryStream SaveToMemoryStream(bool supportDPAPIEncryption = false)
+    public MemoryStream SaveToMemoryStream(bool useEncryption = true)
     {
         ApplicationVersion = Helpers.GetApplicationVersion();
 
         MemoryStream ms = new MemoryStream();
-        SaveToStream(ms, supportDPAPIEncryption, true);
+        SaveToStream(ms, useEncryption, true);
         return ms;
     }
 
@@ -151,7 +152,7 @@ public abstract partial class SettingsBase<T>
             FileOptions.WriteThrough
         );
 
-        SaveToStream(fileStream, SupportDPAPIEncryption);
+        SaveToStream(fileStream, UseEncryption);
 
         return tempFilePath;
     }
@@ -186,16 +187,21 @@ public abstract partial class SettingsBase<T>
     }
 
 
-    private static ISerializer BuildYamlSerializer()
+    private static ISerializer BuildYamlSerializer(SecurePropertyStore store, bool useEncryption = true)
     {
         return new StaticSerializerBuilder(aotContext)
             .WithQuotingNecessaryStrings()
             .WithTypeInspector(inner => new ReadableAndWritablePropertiesTypeInspector(inner), loc => loc.OnBottom())
+            .WithTypeInspector(inner => new EncryptionTypeInspector(inner, store, useEncryption))
             .WithTypeInspector(inner => new PreferredIdentityTypeInspector(inner))
             .WithTypeConverter(new UIFontYamlTypeConverter())
             .WithTypeConverter(new ImageSharpYamlTypeConverter())
             .WithTypeConverter(new TimeZoneInfoYamlTypeConverter())
-            .WithTypeConverter(new HeaderCollectionYamlConverter())
+            // Perfect security is a myth, but total negligence is a choice.
+            // I'd rather encrypt a few harmless headers than leak a single
+            // API token to a plain-text config file.
+            // It's better to be safe and a little bit 'extra' than sorry and compromised.
+            .WithTypeConverter(new HeaderCollectionYamlConverter(store, () => CustomUploaderItem.SensitiveKeys, useEncryption))
             .WithTypeConverter(new HttpMethodYamlConverter())
             .WithEnumNamingConvention(NullNamingConvention.Instance)
             .WithIndentedSequences()
@@ -203,9 +209,9 @@ public abstract partial class SettingsBase<T>
             .Build();
     }
 
-    private string SerializeToYaml(T obj)
+    private string SerializeToYaml(T obj, bool useEncryption = true)
     {
-        var serializer = BuildYamlSerializer();
+        var serializer = BuildYamlSerializer(SecurePropertyStore.Instance, useEncryption);
         return serializer.Serialize(obj);
     }
 
@@ -216,9 +222,9 @@ public abstract partial class SettingsBase<T>
         writer.Flush();
     }
 
-    private void SaveToStream(Stream stream, bool supportDPAPIEncryption = false, bool leaveOpen = false)
+    private void SaveToStream(Stream stream, bool useEncryption = true, bool leaveOpen = false)
     {
-        var yaml = SerializeToYaml((T)this);
+        var yaml = SerializeToYaml((T)this, useEncryption);
         WriteStringToStream(yaml, stream, leaveOpen);
     }
 
@@ -265,15 +271,16 @@ public abstract partial class SettingsBase<T>
         return fallbackFilePaths;
     }
 
-    private static IDeserializer BuildYamlDeserializer()
+    private static IDeserializer BuildYamlDeserializer(SecurePropertyStore store)
     {
         return new StaticDeserializerBuilder(aotContext)
             .WithTypeConverter(new UIFontYamlTypeConverter())
             .WithTypeConverter(new ImageSharpYamlTypeConverter())
             .WithTypeConverter(new TimeZoneInfoYamlTypeConverter())
-            .WithTypeConverter(new HeaderCollectionYamlConverter())
+            .WithTypeConverter(new HeaderCollectionYamlConverter(store, () => CustomUploaderItem.SensitiveKeys))
             .WithTypeConverter(new HttpMethodYamlConverter())
             .WithTypeInspector(inner => new ReadableAndWritablePropertiesTypeInspector(inner), loc => loc.OnBottom())
+            .WithTypeInspector(inner => new EncryptionTypeInspector(inner, store))
             .WithTypeInspector(inner => new PreferredIdentityTypeInspector(inner))
             .WithEnumNamingConvention(NullNamingConvention.Instance)
             .WithAttemptingUnquotedStringTypeDeserialization()
@@ -345,7 +352,7 @@ public abstract partial class SettingsBase<T>
         if (string.IsNullOrWhiteSpace(yaml))
             throw new InvalidDataException("YAML content is empty.");
 
-        var deserializer = BuildYamlDeserializer();
+        var deserializer = BuildYamlDeserializer(SecurePropertyStore.Instance);
         var obj = deserializer.Deserialize<T>(yaml);
 
         if (obj == null)

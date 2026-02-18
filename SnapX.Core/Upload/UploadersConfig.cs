@@ -59,7 +59,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #endregion Chevereto
 
     #region vgy.me
-
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string VgymeUserKey { get; set; } = "";
 
     #endregion vgy.me
@@ -75,7 +76,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #endregion Pastebin
 
     #region Paste.ee
-
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string Paste_eeUserKey { get; set; } = "";
     public bool Paste_eeEncryptPaste { get; set; } = false;
 
@@ -101,6 +103,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #region OneTimeSecret
 
     public string OneTimeSecretAPIUsername { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string OneTimeSecretAPIKey { get; set; } = "";
 
     #endregion OneTimeSecret
@@ -149,7 +153,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #endregion Google Drive
 
     #region puush
-
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string PuushAPIKey { get; set; } = "";
 
     #endregion puush
@@ -158,6 +163,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     public AccountType SendSpaceAccountType { get; set; } = AccountType.Anonymous;
     public string SendSpaceUsername { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string SendSpacePassword { get; set; } = "";
 
     #endregion SendSpace
@@ -174,6 +181,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #region Localhostr
 
     public string LocalhostrEmail { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string LocalhostrPassword { get; set; } = "";
     public bool LocalhostrDirectURL { get; set; } = true;
 
@@ -193,6 +202,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     public string EmailSmtpServer { get; set; } = "smtp.gmail.com";
     public int EmailSmtpPort { get; set; } = 587;
     public string EmailFrom { get; set; } = "...@gmail.com";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string EmailPassword { get; set; } = "";
     public bool EmailRememberLastTo { get; set; } = true;
     public string EmailLastTo { get; set; } = "";
@@ -231,6 +242,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     public string? OwnCloudHost { get; set; } = "";
     public string OwnCloudUsername { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string OwnCloudPassword { get; set; } = "";
     public string OwnCloudPath { get; set; } = "/";
     public int OwnCloudExpiryTime { get; set; } = 7;
@@ -246,6 +259,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #region MediaFire
 
     public string MediaFireUsername { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? MediaFirePassword { get; set; } = "";
     public string? MediaFirePath { get; set; } = "";
     public bool MediaFireUseLongLink { get; set; } = false;
@@ -272,7 +287,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #endregion Pomf
 
     #region s-ul
-
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string SulAPIKey { get; set; } = "";
 
     #endregion s-ul
@@ -280,6 +296,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #region Seafile
 
     public string? SeafileAPIURL { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string SeafileAuthToken { get; set; } = "";
     public string SeafileRepoID { get; set; } = "";
     public string SeafilePath { get; set; } = "/";
@@ -289,6 +307,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     public bool SeafileCreateShareableURLRaw { get; set; } = false;
     public bool SeafileIgnoreInvalidCert { get; set; } = false;
     public int SeafileShareDaysToExpire { get; set; } = 0;
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string SeafileSharePassword { get; set; } = "";
     public string SeafileAccInfoEmail { get; set; } = "";
     public string SeafileAccInfoUsage { get; set; } = "";
@@ -298,6 +318,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #region Streamable
 
     public string StreamableUsername { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string StreamablePassword { get; set; } = "";
     public bool StreamableUseDirectURL { get; set; } = false;
 
@@ -306,6 +328,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #region Azure Storage
 
     public string AzureStorageAccountName { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string AzureStorageAccountAccessKey { get; set; } = "";
     public string AzureStorageContainer { get; set; } = "";
     public string AzureStorageEnvironment { get; set; } = "blob.core.windows.net";
@@ -318,6 +342,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #region Backblaze B2
 
     public string B2ApplicationKeyId { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string B2ApplicationKey { get; set; } = "";
     public string? B2BucketName { get; set; } = "";
     public string? B2UploadPath { get; set; } = "SnapX/%y/%mo";
@@ -365,6 +391,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     public string YourlsAPIURL { get; set; } = "https://yoursite.com/yourls-api.php";
     public string YourlsSignature { get; set; } = "";
     public string YourlsUsername { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string YourlsPassword { get; set; } = "";
 
     #endregion yourls.org
@@ -372,6 +400,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #region polr
 
     public string PolrAPIHostname { get; set; } = "";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string PolrAPIKey { get; set; } = "";
     public bool PolrIsSecret { get; set; } = false;
     public bool PolrUseAPIv1 { get; set; } = false;
@@ -379,7 +409,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #endregion polr
 
     #region Firebase Dynamic Links
-
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string FirebaseWebAPIKey { get; set; } = "";
     public string FirebaseDynamicLinkDomain { get; set; } = "";
     public bool FirebaseIsShort { get; set; } = false;
@@ -395,6 +426,8 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
     #region Zero Width Shortener
 
     public string ZeroWidthShortenerURL { get; set; } = "https://api.zws.im";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string ZeroWidthShortenerToken { get; set; } = "";
 
     #endregion

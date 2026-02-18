@@ -45,6 +45,8 @@ public class FTPAccount : INotifyPropertyChanged
     public string Username { get; set; }
 
     [Category("FTP"), PasswordPropertyText(true)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string Password { get; set; }
 
     [Category("FTP"), Description("Set true for active or false for passive"), DefaultValue(false)]
@@ -126,6 +128,8 @@ public class FTPAccount : INotifyPropertyChanged
     public string Keypath { get; set; }
 
     [Category("SFTP"), Description("OpenSSH key passphrase"), PasswordPropertyText(true)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string Passphrase { get; set; }
 
     public FTPAccount()

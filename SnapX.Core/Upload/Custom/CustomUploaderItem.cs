@@ -14,6 +14,7 @@ using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
+using YamlDotNet.Serialization;
 
 namespace SnapX.Core.Upload.Custom;
 
@@ -136,6 +137,55 @@ public class CustomUploaderItem : INotifyPropertyChanged
 
     [DefaultValue("")]
     public string? ErrorMessage { get; set; }
+    [Browsable(false)]
+    [YamlIgnore]
+    [JsonIgnore]
+    public static readonly string[] SensitiveKeys =
+    {
+        "password",
+        "upload_password",
+        "upload-password",
+        "passwd",
+        "pass",
+        "pwd",
+        "api",
+        "apikey",
+        "api-key",
+        "api_key",
+        "x-api-key",
+        "api key",
+        "key",
+        "keyid",
+        "key-id",
+        "email",
+        "user",
+        "k", // puush.me uses 'k' as their API key header
+        "p", // short for password
+        "username",
+        "user-name",
+        "user name",
+        "credential",
+        "creds",
+        "cred",
+        "token",
+        "secret",
+        "auth",
+        "authorization",
+        "x-authorization",
+        "x-auth-token",
+        "access-token",
+        "access token",
+        "bearer",
+        "session",
+        "jwt",
+        "cookie",
+        "priv",
+        "sid",
+        "uuid",
+        "guid",
+        "salt",
+        "nonce",
+    };
 
     public CustomUploaderItem()
     {

@@ -24,6 +24,8 @@ public class LocalhostAccount : ICloneable
     public string UserName { get; set; }
 
     [Category("Localhost"), PasswordPropertyText(true)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string Password { get; set; }
 
     [Category("Localhost"), Description("Localhost Sub-folder Path, e.g. screenshots, %y = year, %mo = month. SubFolderPath will be automatically appended to HttpHomePath if HttpHomePath does not start with @")]

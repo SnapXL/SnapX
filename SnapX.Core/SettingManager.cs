@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Dapper;
 #if WINDOWS
 using Esatto.Win32.Registry;
@@ -216,7 +217,7 @@ public static class SettingManager
         }
         UploadersConfig.CreateBackup = true;
         UploadersConfig.CreateWeeklyBackup = true;
-        UploadersConfig.SupportDPAPIEncryption = true;
+        UploadersConfig.UseEncryption = true;
         BuiltConfig.Bind(UploadersConfig, Options => Options.BindNonPublicProperties = true);
         UploadersConfigBackwardCompatibilityTasks();
     }
@@ -390,8 +391,9 @@ public static class SettingManager
             new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
-                TypeInfoResolver = SettingsContext.Default,
+                TypeInfoResolver = SettingsContext.Default.WithAddedModifier(typeInfo => JsonEncryptionResolver.CreateModifier(typeInfo, SecurePropertyStore.Instance)),
                 DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+                AllowTrailingCommas = true,
                 Converters =
                 {
                     new JsonRectangleConverter(),

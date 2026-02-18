@@ -3,13 +3,20 @@
 
 
 using CG.Web.MegaApiClient;
+using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.File;
 
 public class MegaAuthInfos
 {
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string Email { get; set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string Hash { get; set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string PasswordAesKey { get; set; }
 
     public MegaAuthInfos()

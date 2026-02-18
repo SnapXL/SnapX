@@ -303,74 +303,74 @@ public partial class FTPSettingsView : UserControl
         await Task.Run(() =>
         {
 
-        try
-        {
-            switch (account.Protocol)
+            try
             {
-                case FTPProtocol.FTP or FTPProtocol.FTPS:
-                    {
-                        using var ftp = new FTP(account);
-                        if (ftp.Connect())
+                switch (account.Protocol)
+                {
+                    case FTPProtocol.FTP or FTPProtocol.FTPS:
                         {
-                            if (!ftp.DirectoryExists(remotePath))
+                            using var ftp = new FTP(account);
+                            if (ftp.Connect())
                             {
-                                directories = ftp.CreateMultiDirectory(remotePath);
-                            }
-
-                            if (ftp.IsConnected)
-                            {
-                                if (directories.Count > 0)
+                                if (!ftp.DirectoryExists(remotePath))
                                 {
-                                    msg = "Account connected, created folders" + "\r\n" + string.Join("\r\n", directories);
+                                    directories = ftp.CreateMultiDirectory(remotePath);
+                                }
+
+                                if (ftp.IsConnected)
+                                {
+                                    if (directories.Count > 0)
+                                    {
+                                        msg = "Account connected, created folders" + "\r\n" + string.Join("\r\n", directories);
+                                    }
+                                    else
+                                    {
+                                        msg = "Account connected";
+                                    }
                                 }
                                 else
                                 {
-                                    msg = "Account connected";
+                                    msg = "Account not connected";
                                 }
                             }
-                            else
-                            {
-                                msg = "Account not connected";
-                            }
+
+                            break;
                         }
-
-                        break;
-                    }
-                case FTPProtocol.SFTP:
-                    {
-                        using var sftp = new SFTP(account);
-                        if (sftp.Connect())
+                    case FTPProtocol.SFTP:
                         {
-                            if (!sftp.DirectoryExists(remotePath))
+                            using var sftp = new SFTP(account);
+                            if (sftp.Connect())
                             {
-                                directories = sftp.CreateMultiDirectory(remotePath);
-                            }
-
-                            if (sftp.IsConnected)
-                            {
-                                if (directories.Count > 0)
+                                if (!sftp.DirectoryExists(remotePath))
                                 {
-                                    msg = "Account connected, created folders" + "\r\n" + string.Join("\r\n", directories);
+                                    directories = sftp.CreateMultiDirectory(remotePath);
+                                }
+
+                                if (sftp.IsConnected)
+                                {
+                                    if (directories.Count > 0)
+                                    {
+                                        msg = "Account connected, created folders" + "\r\n" + string.Join("\r\n", directories);
+                                    }
+                                    else
+                                    {
+                                        msg = "Account connected";
+                                    }
                                 }
                                 else
                                 {
-                                    msg = "Account connected";
+                                    msg = "Account not connected";
                                 }
                             }
-                            else
-                            {
-                                msg =  "Account not connected";
-                            }
-                        }
 
-                        break;
-                    }
+                            break;
+                        }
+                }
             }
-        }
-        catch (Exception e)
-        {
-            msg = e.Message;
-        }
+            catch (Exception e)
+            {
+                msg = e.Message;
+            }
         });
 
         var dialog = new ContentDialog
