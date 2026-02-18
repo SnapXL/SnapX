@@ -70,7 +70,7 @@ jobs:
           prepare: |
             pkg install -y curl bash icu terminfo-db libunwind libinotify brotli openssl lttng-ust krb5 llvm21 sqlite3 sudo patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk onnxruntime
             mkdir -p /usr/lib/dotnet
-            wcurl -O /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.102-sb1-amd64-freebsd-14/dotnet-sdk-10.0.102-freebsd-x64.tar.gz
+            wcurl -O /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.103-amd64-freebsd-14/dotnet-sdk-10.0.103-freebsd-x64.tar.gz
             tar -xzf /tmp/dotnet.tar.gz -C /usr/lib/dotnet --strip-components=1
             rm /tmp/dotnet.tar.gz
             ln -sf /usr/lib/dotnet/dotnet /usr/local/bin/dotnet
