@@ -1,0 +1,67 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.Views.Settings.Views.NotImplemented"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:FluentAvalonia.UI.Controls"
+    xmlns:viewModels="clr-namespace:SnapX.Avalonia.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.DataContext>
+        <viewModels:NotImplementedVM />
+    </Design.DataContext>
+    <Grid RowDefinitions="*,Auto,Auto,*">
+        <Ellipse
+            Fill="{DynamicResource SystemAccentColor}"
+            Grid.Row="0"
+            Grid.RowSpan="4"
+            Height="300"
+            Opacity="0.05"
+            Width="300" />
+
+        <StackPanel
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            Spacing="12">
+            <ui:SymbolIcon
+                FontSize="72"
+                Foreground="{DynamicResource SystemAccentColor}"
+                Symbol="Setting" />
+
+            <TextBlock
+                FontSize="28"
+                FontWeight="SemiBold"
+                HorizontalAlignment="Center"
+                Text="Under Construction" />
+        </StackPanel>
+
+        <StackPanel
+            Grid.Row="2"
+            Margin="0,20,0,0"
+            MaxWidth="450"
+            Spacing="8">
+            <TextBlock
+                FontSize="14"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Text="This feature hasn't been written yet. ChatGPT is down."
+                TextAlignment="Center"
+                TextWrapping="Wrap" />
+
+            <TextBlock
+                FontSize="12"
+                FontStyle="Italic"
+                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                Text="The developer is likely busy fighting Linux file permissions or arguing with YAML serializers. Check back after the next caffeine cycle."
+                TextAlignment="Center"
+                TextWrapping="Wrap" />
+
+            <!--  <Button Content="Go Back"  -->
+            <!--  HorizontalAlignment="Center"  -->
+            <!--  Margin="0,20,0,0"  -->
+            <!--  Classes="accent"  -->
+            <!--  Command="{Binding NavigateBackCommand}" />  -->
+        </StackPanel>
+    </Grid>
+</UserControl>

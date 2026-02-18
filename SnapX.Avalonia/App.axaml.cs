@@ -1011,6 +1011,9 @@ public partial class App : Application
 
         services.AddTransient<HomePageView>();
         services.AddSingleton<HomePageViewModel>();
+        services.AddTransient<NotImplemented>();
+        services.AddSingleton<NotImplementedVM>();
+
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
     }

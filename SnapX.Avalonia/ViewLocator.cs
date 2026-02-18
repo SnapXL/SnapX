@@ -26,6 +26,8 @@ public class ViewLocator : IDataTemplate
         RegisterViewFactory<DatabaseVM, DatabaseView>();
         RegisterViewFactory<CoreUploaderVM, BuiltInUploaderSettingsView>();
         RegisterViewFactory<SettingsHomePageViewVM, SettingsHomePageView>();
+        RegisterViewFactory<NotImplementedVM, NotImplemented>();
+
 
     }
 

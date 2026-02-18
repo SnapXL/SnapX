@@ -26,6 +26,7 @@ public partial class SettingsMainViewVM : ViewModelBase
         // RegisterPage<ScreenRecordOptionsVM>("ScreenRecordOptions");
         RegisterPage<DatabaseVM>("Database");
         RegisterPage<CoreUploaderVM>("BuiltInUploader");
+        RegisterPage<NotImplementedVM>("NotImplemented");
         foreach (var category in Enum.GetValues<UploaderCategory>())
         {
             var pageKey = category.ToString();
@@ -103,12 +104,11 @@ public partial class SettingsMainViewVM : ViewModelBase
         }
         else
         {
-            DebugHelper.WriteLine($"SettingsMainViewVM.Navigate: Unknown destination, defaulting to home page");
-            // fallback, e.g. Home page
+            DebugHelper.WriteLine($"SettingsMainViewVM.Navigate: Unknown destination, defaulting to NotImplemented Page");
             _history.Push(CurrentPage);
             CurrentPage = (Design.IsDesignMode
-                ? Activator.CreateInstance<SettingsHomePageViewVM>()
-                : Ioc.Default.GetService<SettingsHomePageViewVM>())!;
+                ? Activator.CreateInstance<NotImplementedVM>()
+                : Ioc.Default.GetService<NotImplementedVM>())!;
         }
     }
     public bool TryGetPage(string tag, out Type type)
