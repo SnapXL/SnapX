@@ -751,7 +751,7 @@ jobs:
       - name: Assemble MSI
         if: runner.os == 'Windows' && matrix.configuration == 'Release'
         run: "./build.ps1 msi"
-      - name: Assemble MSI
+      - name: Assemble MSIX
         if: runner.os == 'Windows' && matrix.configuration == 'Release'
         run: "./build.ps1 msix"
       - name: Upload MSI
@@ -766,7 +766,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: SnapX-UI-MSIX-${{ runner.arch }}
-          path: "packaging/*.msi"
+          path: "packaging/*.msix"
           if-no-files-found: error
       - name: Upload artifact
         uses: actions/upload-artifact@v6

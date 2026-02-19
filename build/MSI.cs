@@ -155,7 +155,7 @@ public class MSI(IBuildLogger Logger, CommandRunner CommandRunner, FS FileSystem
             throw new InvalidOperationException("Error: you need run the build process as Administrator if you want to build the MSIX setup.");
         }
 #else
-        Logger.LogWarning("MSI/MSIX generation is only supported on Windows. Skipping step.");
+        Logger.Warning("MSI/MSIX generation is only supported on Windows. Skipping step.");
         await Task.CompletedTask;
 #endif
     }
