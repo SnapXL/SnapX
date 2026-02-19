@@ -72,7 +72,7 @@ DisableTelemetry: true
 
 You can additionally disable it with an environment variable. With `SNAPX_DISABLETELEMETRY=true` or the [failed standard](https://consoledonottrack.com/) `DO_NOT_TRACK=1`
 
-You can also set a registry key for those using SnapX in Windows organizations. `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\SnapXL\SnapX\DisableTelemetry` with the value of `1`
+You can also set a registry key for those using SnapX in Windows organizations. `Computer\HKEY_LOCAL_MACHINE\SOFTWARE\SnapXL\SnapX\DisableTelemetry` with the value of `true`
 
 
 Settings are pulled in via the first match from:
