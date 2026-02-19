@@ -75,7 +75,7 @@ public class MSI(IBuildLogger Logger, CommandRunner CommandRunner, FS FileSystem
         var desktopShortcut = new FileShortcut(product, @"%Desktop%");
         var mainInstallDir = new InstallDir(
             new Id("APPLICATIONFOLDER"),
-            @$"%ProgramFiles%\{manufacturer}\{product}",
+            @$"%ProgramFiles64%\{manufacturer}\{product}",
 
             new WixSharp.File(Path.Combine(config.OutputDir, config.TargetInstallAssembly ?? "snapx-ui", "snapx-ui.exe"),
                 startMenuShortcut,
