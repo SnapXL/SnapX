@@ -11,5 +11,9 @@
     <PackageReference Include="Bullseye" Version="6.1.0" />
     <PackageReference Include="SimpleExec" Version="13.0.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.3" />
+    <!-- MSI dependencies, doesn't block building on Linux -->
+    <PackageReference Include="WixSharp.Core" Version="2.12.2" />
+    <PackageReference Include="WixSharp.Msi.Core" Version="2.12.2" />
+    <PackageReference Include="GHSoftware.MarkdownToRtf" Version="0.1.0" />
   </ItemGroup>
 </Project>

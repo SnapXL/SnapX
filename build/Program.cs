@@ -101,6 +101,20 @@ internal class Program
                 var runfileCreator = new Runfile(logger, commandRunner, fileSystem, config);
                 await runfileCreator.ProcessRunfile();
             });
+        Target("msi",
+            async () =>
+            {
+                if (config.ShouldSkip("msi")) return;
+                var msiCreator = new MSI(logger, commandRunner, fileSystem, config);
+                await msiCreator.ProcessMSI(config.SignBinaries);
+            });
+        Target("msix",
+            async () =>
+            {
+                if (config.ShouldSkip("msi")) return;
+                var msiCreator = new MSI(logger, commandRunner, fileSystem, config);
+                await msiCreator.ProcessMSI(config.SignBinaries, true);
+            });
         Target("default", dependsOn: ["build"]);
 
         await RunTargetsAndExitAsync(targetsToRun, config.BullseyeOptions);

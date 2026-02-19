@@ -160,7 +160,13 @@ public class CLI
             DefaultValueFactory = _ => false
         };
         rootCommand.Options.Add(enableWrapperFallbackOption);
-
+        var signBinaries = new Option<bool>("--sign")
+        {
+            Description = "Try to sign binaries, likely broken. Untested.",
+            Arity = ArgumentArity.ZeroOrOne,
+            DefaultValueFactory = _ => false
+        };
+        rootCommand.Options.Add(signBinaries);
         rootCommand.SetAction(async (parseResult, token) =>
         {
             Console.BackgroundColor = ConsoleColor.Black;
@@ -175,6 +181,7 @@ public class CLI
                 SkippedStepsRaw = parseResult.GetValue(skipStepOption) ?? [],
                 EnableWrapperScriptFallback = parseResult.GetValue(enableWrapperFallbackOption),
                 TargetInstallAssembly = parseResult.GetValue(targetAssemblyOption),
+                SignBinaries = parseResult.GetValue(enableWrapperFallbackOption),
                 BullseyeOptions = new Options
                 {
                     Clear = parseResult.GetValue(clearOption),

@@ -150,6 +150,7 @@ public class BuildConfig
     public string? CustomWrapperScript { get; set; }
     public bool DisableWrapperScript { get; set; } = OperatingSystem.IsWindows();
     public string ExtraArgs { get; init; } = "";
+    public bool SignBinaries { get; init; }
     private const string Namespace = "SnapX.";
     public readonly string SnapXVersion = Assembly
         .GetExecutingAssembly()

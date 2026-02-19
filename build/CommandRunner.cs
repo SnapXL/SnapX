@@ -176,7 +176,7 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
         return (from arg in arguments where Path.IsPathRooted(arg) from protectedPath in protectedPaths where arg == protectedPath || arg.StartsWith(protectedPath + '/') select arg).Any();
     }
 
-    private bool IsAdmin()
+    public bool IsAdmin()
     {
         if (OperatingSystem.IsWindows())
         {

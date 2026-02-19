@@ -475,6 +475,7 @@ NSIS/Plugins/x86-unicode/
 
 # Build outputs
 *.cab
+*.rtf
 *.msi
 *.msix
 *.msixbundle
