@@ -748,6 +748,9 @@ jobs:
       - name: Assemble SnapX UI Tarball
         shell: bash
         run: "./build.sh tarball --assembly snapx-ui"
+      - name: Install WIXToolset
+        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+        run: dotnet tool install --global wix
       - name: Assemble MSI
         if: runner.os == 'Windows' && matrix.configuration == 'Release'
         run: "./build.ps1 msi"
