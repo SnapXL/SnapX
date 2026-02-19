@@ -173,6 +173,13 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
           <img src="https://github.com/Abdullah16M.png?size=100" width="85" style="border-radius:50%">
         </a>
       </td>
+    <td align="center" width="150">
+      <b>Anonymous Backer</b>
+      <br>
+      <img src="https://t3.ftcdn.net/jpg/06/97/24/84/360_F_697248427_3i5BB12ezUHJ1LUj3EbroqkwpSkpBh9J.jpg" width="85" style="border-radius:50%">
+      <br>
+      <small>Ledger ID: 511687...</small>
+    </td>
     </tr>
   </table>
 <a href="https://github.com/sponsors/BrycensRanch"><img src="https://img.shields.io/github/sponsors/BrycensRanch?logo=github&logoColor=pink&label=GitHub Sponsors" alt="GitHub Sponsors"></a>
