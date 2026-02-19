@@ -750,7 +750,9 @@ jobs:
         run: "./build.sh tarball --assembly snapx-ui"
       - name: Install WIXToolset
         if: runner.os == 'Windows' && matrix.configuration == 'Release'
-        run: dotnet tool install --global wix --version 6.0.2
+        run: |
+          dotnet tool install --global wix --version 6.0.2
+          wix.exe extension add -g WixToolset.UI.wixext
       - name: Assemble MSI
         if: runner.os == 'Windows' && matrix.configuration == 'Release'
         run: "./build.ps1 msi"
