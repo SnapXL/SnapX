@@ -749,11 +749,25 @@ jobs:
         shell: bash
         run: "./build.sh tarball --assembly snapx-ui"
       - name: Assemble MSI
-        shell: bash
-        run: "./build.sh msi"
+        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+        run: "./build.ps1 msi"
       - name: Assemble MSI
-        shell: bash
-        run: "./build.sh msix"
+        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+        run: "./build.ps1 msix"
+      - name: Upload MSI
+        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+        uses: actions/upload-artifact@v6
+        with:
+          name: SnapX-UI-MSI-${{ runner.arch }}
+          path: "packaging/*.msi"
+          if-no-files-found: error
+      - name: Upload MSIX
+        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+        uses: actions/upload-artifact@v6
+        with:
+          name: SnapX-UI-MSIX-${{ runner.arch }}
+          path: "packaging/*.msi"
+          if-no-files-found: error
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:

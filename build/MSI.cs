@@ -2,12 +2,15 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
+// WixSharp is Windows-only
+#if WINDOWS
 using MarkdownToRtf;
 using WixSharp;
 using WixSharp.CommonTasks;
 using WixSharp.Controls;
 using WixSharp.UI;
 using WixToolset.Dtf.WindowsInstaller;
+#endif
 using File = System.IO.File;
 
 namespace DefaultNamespace;
@@ -18,6 +21,7 @@ public class MSI(IBuildLogger Logger, CommandRunner CommandRunner, FS FileSystem
 {
     public async Task ProcessMSI(bool signBinaries = false, bool generateMSIX = false)
     {
+#if WINDOWS
         var platform = Platform.x64;
         if (config.Runtime.Contains("x64", StringComparison.OrdinalIgnoreCase))
             platform = Platform.x64;
@@ -150,9 +154,13 @@ public class MSI(IBuildLogger Logger, CommandRunner CommandRunner, FS FileSystem
         {
             throw new InvalidOperationException("Error: you need run the build process as Administrator if you want to build the MSIX setup.");
         }
+#else
+        Logger.LogWarning("MSI/MSIX generation is only supported on Windows. Skipping step.");
+        await Task.CompletedTask;
+#endif
     }
 }
-
+#if WINDOWS
 internal static class Msix
 {
     extension(Project project)
@@ -251,3 +259,4 @@ public class Actions
         return ActionResult.UserExit; // terminate the setup
     }
 }
+#endif
