@@ -38,28 +38,39 @@ public static class URLHelpers
     public static void OpenURL(string? url)
     {
         if (string.IsNullOrEmpty(url)) return;
+
         Task.Run(() =>
         {
             try
             {
-                using var process = new Process();
                 var psi = new ProcessStartInfo
                 {
-                    UseShellExecute = true,
+                    UseShellExecute = true
                 };
+
                 if (!string.IsNullOrEmpty(HelpersOptions.BrowserPath))
                 {
                     psi.FileName = HelpersOptions.BrowserPath;
                     psi.Arguments = url;
                 }
+                else if (OperatingSystem.IsMacOS())
+                {
+                    psi.FileName = "open";
+                    psi.Arguments = url;
+                    psi.UseShellExecute = false;
+                }
+                // else if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+                // {
+                //     psi.FileName = "xdg-open";
+                //     psi.Arguments = url;
+                //     psi.UseShellExecute = false;
+                // }
                 else
                 {
                     psi.FileName = url;
                 }
 
-                process.StartInfo = psi;
-                process.Start();
-
+                using var process = Process.Start(psi);
                 DebugHelper.WriteLine("URL opened: " + url);
             }
             catch (Exception e)
