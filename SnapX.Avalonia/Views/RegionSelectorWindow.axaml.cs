@@ -17,6 +17,7 @@ using SnapX.Core.Utils.Native;
 using Image = SixLabors.ImageSharp.Image;
 using Point = Avalonia.Point;
 using Rectangle = Avalonia.Controls.Shapes.Rectangle;
+using WindowState = Avalonia.Controls.WindowState;
 
 namespace SnapX.Avalonia.Views;
 
@@ -423,6 +424,17 @@ public partial class RegionSelectorWindow : Window
     private void OnLostFocus(object? Sender, RoutedEventArgs E)
     {
         if (Sender is Window window) window.Focus();
+    }
+
+    private void StyledElement_OnInitialized(object? Sender, EventArgs E)
+    {
+        if (!OperatingSystem.IsMacOS()) return;
+        WindowState = WindowState.Normal;
+        var screen = Screens.ScreenFromWindow(this);
+        if (screen == null) return;
+        Position = screen.Bounds.Position;
+        Width = screen.Bounds.Width;
+        Height = screen.Bounds.Height;
     }
 }
 

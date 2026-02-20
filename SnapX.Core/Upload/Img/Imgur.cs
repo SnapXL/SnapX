@@ -336,11 +336,11 @@ public sealed class Imgur : ImageUploader, IOAuth2
 
     private ImgurErrorData ParseError(ImgurResponse response)
     {
-        ImgurErrorData errorData = JsonSerializer.Deserialize<ImgurErrorData>(response.data.ToString());
+        ImgurErrorData errorData = JsonSerializer.Deserialize<ImgurErrorData>(response.data.ToString(), ImgurSourceGenerationContext.Default.ImgurErrorData);
 
         if (errorData != null && !(errorData.error is string))
         {
-            errorData.error = JsonSerializer.Deserialize<ImgurErrorData>(errorData.error.ToString());
+            errorData.error = JsonSerializer.Deserialize<ImgurErrorData>(errorData.error.ToString(), ImgurSourceGenerationContext.Default.ImgurErrorData);
         }
 
         return errorData;

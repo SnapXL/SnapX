@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using SnapX.Avalonia.ViewModels.Settings;
 using SnapX.Core;
 using SnapX.Core.Upload;
 
@@ -27,6 +28,10 @@ public partial class SettingsMainViewVM : ViewModelBase
         RegisterPage<DatabaseVM>("Database");
         RegisterPage<CoreUploaderVM>("BuiltInUploader");
         RegisterPage<NotImplementedVM>("NotImplemented");
+        RegisterPage<GeneralSettingsVM>("General");
+        // RegisterPage<ApplicationUploadSettingsVM>("Upload");
+        RegisterPage<ApplicationPathSettingsVM>("Paths");
+
         foreach (var category in Enum.GetValues<UploaderCategory>())
         {
             var pageKey = category.ToString();

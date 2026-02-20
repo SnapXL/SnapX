@@ -167,7 +167,7 @@ public class SnapXL
 
     private static readonly string PortableCheckFilePath = FileHelpers.GetAbsolutePath("Portable");
     public static EventAggregator EventAggregator { get; } = new();
-    private static string CustomPersonalPath { get; set; }
+    public static string CustomPersonalPath { get; set; }
 
     private static string CustomConfigPath { get; set; }
     public static SqliteConnection DbConnection { get; set; }

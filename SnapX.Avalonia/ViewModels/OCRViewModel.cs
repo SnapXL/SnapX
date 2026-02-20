@@ -41,6 +41,42 @@ public partial class OCRViewModel : ViewModelBase
         new(_languages.Select(l => l.Display));
 
     public string GetLanguageCode(int index) => _languages[index].Code;
+    public int GetIndexFromWindowsCode(string windowsCode)
+    {
+        var mapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        { "af", "afr" }, { "am", "amh" }, { "ar", "ara" }, { "az", "aze" },
+        { "be", "bel" }, { "bg", "bul" }, { "bn", "ben" }, { "bs", "bos" },
+        { "ca", "cat" }, { "cs", "ces" }, { "cy", "cym" }, { "da", "dan" },
+        { "de", "deu" }, { "el", "ell" }, { "en", "eng" }, { "es", "spa" },
+        { "et", "est" }, { "eu", "eus" }, { "fa", "fas" }, { "fi", "fin" },
+        { "fr", "fra" }, { "ga", "gle" }, { "gl", "glg" }, { "gu", "guj" },
+        { "hi", "hin" }, { "hr", "hrv" }, { "hu", "hun" }, { "hy", "hye" },
+        { "id", "ind" }, { "is", "isl" }, { "it", "ita" }, { "iw", "heb" },
+        { "ja", "jpn" }, { "ka", "kat" }, { "kk", "kaz" }, { "km", "khm" },
+        { "kn", "kan" }, { "ko", "kor" }, { "lt", "lit" }, { "lv", "lav" },
+        { "mk", "mkd" }, { "ml", "mal" }, { "mn", "mon" }, { "mr", "mar" },
+        { "ms", "msl" }, { "mt", "mlt" }, { "my", "mya" }, { "ne", "nep" },
+        { "nl", "nld" }, { "no", "nor" }, { "pl", "pol" }, { "pt", "por" },
+        { "ro", "ron" }, { "ru", "rus" }, { "sk", "slk" }, { "sl", "slv" },
+        { "sq", "sqi" }, { "sr", "srp" }, { "sv", "swe" }, { "sw", "swa" },
+        { "ta", "tam" }, { "te", "tel" }, { "th", "tha" }, { "tr", "tur" },
+        { "uk", "ukr" }, { "ur", "urd" }, { "uz", "uzb" }, { "vi", "vie" },
+        { "zh-CN", "chi_sim" }, { "zh-TW", "chi_tra" }
+    };
+
+        if (!mapping.TryGetValue(windowsCode, out var internalCode)) return 0;
+        for (var i = 0; i < _languages.Length; i++)
+        {
+            if (_languages[i].Code.Equals(internalCode, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        // We've failed, fuck.
+        return 0;
+    }
 
     public async Task<TaskHelpers.OcrResponse> RunOCRAsync(
         HistoryItem? Item = null,

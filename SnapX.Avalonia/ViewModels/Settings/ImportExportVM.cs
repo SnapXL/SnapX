@@ -95,7 +95,7 @@ public partial class ImportExportVM : ViewModelBase
 
         try
         {
-            await Dispatcher.UIThread.InvokeAsync(async() => { await dialog.ShowAsync(App.MySettingsWindow); });
+            await Dispatcher.UIThread.InvokeAsync(async () => { await dialog.ShowAsync(App.MySettingsWindow); });
         }
         catch (Exception ex)
         {

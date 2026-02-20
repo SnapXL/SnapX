@@ -1,6 +1,9 @@
 using System.Collections;
+using System.ComponentModel;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Controls;
@@ -57,6 +60,155 @@ public partial class SettingsMainView : UserControl
             DebugHelper.WriteLine(
                 $"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!");
         }
+    }
+
+
+    public void RefreshDestinationChecks(MenuFlyout flyout)
+    {
+        var config = SnapXL.Settings;
+        if (config == null || flyout == null) return;
+
+        var settings = config.DefaultTaskSettings;
+
+        foreach (var item in flyout.Items)
+        {
+            if (item is MenuItem categoryItem)
+            {
+                foreach (var subObject in categoryItem.Items)
+                {
+                    if (subObject is MenuItem subItem && subItem.Tag != null)
+                    {
+                        bool isSelected = subItem.Tag switch
+                        {
+                            ImageDestination img => settings.ImageDestination == img,
+                            TextDestination text => settings.TextDestination == text,
+                            FileDestination file => settings.FileDestination == file,
+                            UrlShortenerType shortener => settings.URLShortenerDestination == shortener,
+                            URLSharingServices sharing => settings.URLSharingServiceDestination == sharing,
+                            _ => false
+                        };
+
+                        subItem.Icon = isSelected ? new SymbolIcon { Symbol = Symbol.Accept, FontSize = 16 } : null;
+                    }
+                }
+            }
+        }
+    }
+    public void PopulateDestinations(MenuFlyout flyout)
+    {
+        if (flyout == null)
+        {
+            DebugHelper.WriteLine("Populating destinations: Flyout is null, aborting.");
+            return;
+        }
+
+        flyout.Items.Clear();
+
+        try
+        {
+            flyout.Items.Add(CreateCategory("Image Uploaders", UploaderFactory.ImageUploaderServices));
+            flyout.Items.Add(CreateCategory("Text Uploaders", UploaderFactory.TextUploaderServices));
+            flyout.Items.Add(CreateCategory("File Uploaders", UploaderFactory.FileUploaderServices));
+            flyout.Items.Add(CreateCategory("URL Shorteners", UploaderFactory.URLShortenerServices));
+            flyout.Items.Add(CreateCategory("URL Sharing", UploaderFactory.URLSharingServices));
+            DebugHelper.WriteLine("Populating destinations: Completed successfully");
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteLine($"Populating destinations: Failed to populate menu. Error: {ex.Message}");
+        }
+    }
+
+    private MenuItem CreateCategory<TKey, TService>(string header, Dictionary<TKey, TService> services) where TKey : Enum
+    {
+
+        var category = new MenuItem { Header = header };
+        var settings = SnapXL.Settings?.DefaultTaskSettings;
+
+        if (settings == null)
+        {
+            DebugHelper.WriteLine($"CreateCategory: Settings or DefaultTaskSettings is null for '{header}'");
+        }
+
+        if (services == null || services.Count == 0)
+        {
+            DebugHelper.WriteLine($"CreateCategory: No services found for category '{header}'");
+            return category;
+        }
+
+        foreach (var kvp in services)
+        {
+            var description = kvp.Key.GetDescription();
+            var item = new MenuItem
+            {
+                Header = description,
+                Tag = kvp.Key
+            };
+
+            item.Click += OnDestinationClick;
+
+            var isSelected = kvp.Key switch
+            {
+                ImageDestination img => settings?.ImageDestination == img,
+                TextDestination text => settings?.TextDestination == text,
+                FileDestination file => settings?.FileDestination == file,
+                UrlShortenerType shortener => settings?.URLShortenerDestination == shortener,
+                URLSharingServices sharing => settings?.URLSharingServiceDestination == sharing,
+                _ => false
+            };
+
+            if (isSelected)
+            {
+                DebugHelper.WriteLine($"CreateCategory: Marking '{description}' as selected");
+                item.Icon = new SymbolIcon { Symbol = Symbol.Accept, FontSize = 16 };
+            }
+
+            category.Items.Add(item);
+        }
+
+        return category;
+    }
+
+
+    private void OnDestinationClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem menuItem || menuItem.Tag == null) return;
+        var config = SnapXL.Settings;
+        if (config == null) return;
+
+        var destination = menuItem.Tag;
+
+        switch (destination)
+        {
+            case ImageDestination img:
+                config.DefaultTaskSettings.ImageDestination = img;
+                break;
+            case TextDestination text:
+                config.DefaultTaskSettings.TextDestination = text;
+                break;
+            case FileDestination file:
+                config.DefaultTaskSettings.FileDestination = file;
+                break;
+            case UrlShortenerType shortener:
+                config.DefaultTaskSettings.URLShortenerDestination = shortener;
+                break;
+            case URLSharingServices sharing:
+                config.DefaultTaskSettings.URLSharingServiceDestination = sharing;
+                break;
+        }
+
+        UpdateMenuSelectionFeedback(menuItem);
+    }
+
+    private void UpdateMenuSelectionFeedback(MenuItem selectedItem)
+    {
+        if (selectedItem.Parent is not MenuItem parentGroup) return;
+        foreach (var item in parentGroup.Items.OfType<MenuItem>())
+        {
+            item.Icon = null;
+        }
+
+        selectedItem.Icon = new SymbolIcon { Symbol = Symbol.Accept, FontSize = 16 };
     }
     private NavigationViewItem? GetParentItem(IEnumerable? items, NavigationViewItem target)
     {
@@ -122,11 +274,164 @@ public partial class SettingsMainView : UserControl
                     _vm.TryGetPage(tag, out var type) &&
                     type == targetType);
 
-            if (item is not null)
-                MyNavigationView.SelectedItem = item;
-            else MyNavigationView.SelectedItem = null;
+            MyNavigationView.SelectedItem = item ?? null;
         }
         MyNavigationView.IsBackEnabled = _vm?.CanGoBack ?? true;
+    }
+
+    private void PopupFlyoutBase_OnClosing(object? sender, CancelEventArgs e)
+    {
+        DebugHelper.WriteLine($"{sender} OnClosing");
+
+        if (sender is not FlyoutBase fb) return;
+        var topLevel = TopLevel.GetTopLevel(fb.Target);
+        var focus = topLevel?.FocusManager?.GetFocusedElement();
+
+        if (focus is Control { IsPointerOver: true } c && (c is MenuItem || c is ToggleMenuFlyoutItem))
+        {
+            var tag = c.Tag?.ToString();
+            if (!string.IsNullOrWhiteSpace(tag))
+            {
+                e.Cancel = true;
+                DebugHelper.WriteLine($"{nameof(PopupFlyoutBase_OnClosing)} cancelled - keeping menu open.");
+                return; // user is still clicking
+            }
+        }
+
+        if (_saveCancellation != null)
+        {
+            _saveCancellation.Cancel();
+            _saveCancellation = null;
+
+            DebugHelper.WriteLine("Menu closing: Flushing pending save.");
+            SnapXL.Settings?.SaveAsync();
+        }
+
+        DebugHelper.WriteLine($"{nameof(PopupFlyoutBase_OnClosing)} NOT cancelled - menu closing.");
+    }
+    private CancellationTokenSource? _saveCancellation;
+    private async void DynamicSettingItemOnClick(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (sender is not ToggleMenuFlyoutItem toggle) return;
+            var key = toggle.Tag?.ToString();
+            if (string.IsNullOrWhiteSpace(key)) return;
+            if (key.StartsWith('!')) key = key[1..];
+
+            var changed = false;
+
+            if (Enum.TryParse(key, out AfterCaptureTasks flagCapture) && flagCapture != AfterCaptureTasks.None)
+            {
+                var currentlyHasFlag = (SnapXL.Settings?.DefaultTaskSettings.AfterCaptureJob & flagCapture) == flagCapture;
+
+                if (currentlyHasFlag)
+                    SnapXL.Settings?.DefaultTaskSettings.AfterCaptureJob &= ~flagCapture;
+                else
+                    SnapXL.Settings?.DefaultTaskSettings.AfterCaptureJob |= flagCapture;
+
+                // toggle.IsChecked = !currentlyHasFlag;
+                SnapXL.Settings?.DefaultTaskSettings.UseDefaultAfterCaptureJob = false;
+                changed = true;
+                DebugHelper.WriteLine($"Updated AfterCaptureJob: {key} toggled to {toggle.IsChecked}");
+            }
+            else if (Enum.TryParse(key, out AfterUploadTasks flagUpload) && flagUpload != AfterUploadTasks.None)
+            {
+                var currentlyHasFlag = (SnapXL.Settings?.DefaultTaskSettings.AfterUploadJob & flagUpload) == flagUpload;
+
+                if (currentlyHasFlag)
+                    SnapXL.Settings?.DefaultTaskSettings.AfterUploadJob &= ~flagUpload;
+                else
+                    SnapXL.Settings?.DefaultTaskSettings.AfterUploadJob |= flagUpload;
+
+                // toggle.IsChecked = !currentlyHasFlag;
+                SnapXL.Settings?.DefaultTaskSettings.UseDefaultAfterUploadJob = false;
+                changed = true;
+                DebugHelper.WriteLine($"Updated AfterUploadJob: {key} toggled to {toggle.IsChecked}");
+            }
+
+            if (!changed) return;
+            // Using async here will trigger bugs.
+            // ReSharper disable once MethodHasAsyncOverload
+            _saveCancellation?.Cancel();
+            _saveCancellation = new CancellationTokenSource();
+            var token = _saveCancellation.Token;
+
+            try
+            {
+                await Task.Delay(5000, token);
+                SnapXL.Settings?.SaveAsync();
+                DebugHelper.WriteLine("Debounce complete. Settings saved.");
+            }
+            catch (TaskCanceledException)
+            {
+                DebugHelper.WriteLine("Save debounced.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.ShowError();
+        }
+    }
+    private void OnDestinationsDropDownClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is DropDownButton ddb && ddb.Flyout is MenuFlyout flyout)
+        {
+            PopulateDestinations(flyout);
+        }
+    }
+    private void PopupFlyoutBase_OnOpening(object? sender, EventArgs e)
+    {
+        if (sender is MenuFlyout menuFlyout)
+        {
+            RefreshDestinationChecks(menuFlyout);
+        }
+        if (sender is not FAMenuFlyout flyout) return;
+        foreach (var item in flyout.Items)
+        {
+            InitializeMenuItem(item);
+        }
+    }
+
+    private void InitializeMenuItem(object? item)
+    {
+        switch (item)
+        {
+            case ToggleMenuFlyoutItem toggle:
+                {
+                    var key = toggle.Tag?.ToString();
+                    if (key?.StartsWith('!') ?? false) key = key[1..];
+                    if (string.IsNullOrWhiteSpace(key)) return;
+
+                    var isEnabled = false;
+
+                    if (Enum.TryParse(key, out AfterCaptureTasks flagCapture) && flagCapture != AfterCaptureTasks.None)
+                    {
+                        isEnabled = (SnapXL.Settings?.DefaultTaskSettings.AfterCaptureJob & flagCapture) == flagCapture;
+                    }
+                    else if (Enum.TryParse(key, out AfterUploadTasks flagUpload) && flagUpload != AfterUploadTasks.None)
+                    {
+                        isEnabled = (SnapXL.Settings?.DefaultTaskSettings.AfterUploadJob & flagUpload) == flagUpload;
+                    }
+
+                    toggle.IsChecked = isEnabled;
+                    DebugHelper.WriteLine($"Syncing {key}: {isEnabled}");
+                    break;
+                }
+            case MenuItem menuItem:
+                {
+                    foreach (var subItem in menuItem.Items)
+                    {
+                        InitializeMenuItem(subItem);
+                    }
+
+                    break;
+                }
+        }
+    }
+    private void StyledElement_OnInitialized(object? Sender, EventArgs E)
+    {
+
     }
 }
 

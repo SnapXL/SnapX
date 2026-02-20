@@ -4,6 +4,7 @@ using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using SnapX.Avalonia.ViewModels;
+using SnapX.Avalonia.ViewModels.Settings;
 using SnapX.Avalonia.Views;
 using SnapX.Avalonia.Views.Settings;
 using SnapX.Avalonia.Views.Settings.Views;
@@ -27,6 +28,9 @@ public class ViewLocator : IDataTemplate
         RegisterViewFactory<CoreUploaderVM, BuiltInUploaderSettingsView>();
         RegisterViewFactory<SettingsHomePageViewVM, SettingsHomePageView>();
         RegisterViewFactory<NotImplementedVM, NotImplemented>();
+        RegisterViewFactory<GeneralSettingsVM, GeneralSettingsView>();
+        RegisterViewFactory<ApplicationUploadSettingsVM, ApplicationUploadSettingsView>();
+        RegisterViewFactory<ApplicationPathSettingsVM, ApplicationPathSettingsView>();
 
 
     }

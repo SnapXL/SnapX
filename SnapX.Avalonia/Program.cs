@@ -6,7 +6,6 @@ using SnapX.Avalonia;
 #if BROWSER
 using Avalonia.Browser;
 #else
-using Avalonia.Dialogs;
 using Avalonia.Media;
 #endif
 
@@ -98,7 +97,7 @@ internal static class Program
         {
             builder = builder
                 .UsePlatformDetect()
-                .UseManagedSystemDialogs()
+                // .UseManagedSystemDialogs()
                 .With(x11Options)
                 .With(new AvaloniaNativePlatformOptions { OverlayPopups = true })
                 .With(new Win32PlatformOptions { OverlayPopups = true });

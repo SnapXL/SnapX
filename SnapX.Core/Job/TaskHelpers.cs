@@ -1130,6 +1130,15 @@ public static class TaskHelpers
         return result.FullText;
     }
 
+    public static void OCRImageUI(Image? image, TaskSettings? taskSettings = null)
+    {
+        if (image == null) return;
+
+        taskSettings ??= TaskSettings.GetDefaultTaskSettings();
+
+        SnapXL.EventAggregator.Publish(new NeedOCRWindowEvent(image, taskSettings));
+    }
+
     public static void PinToScreen(TaskSettings taskSettings = null)
     {
         throw new NotImplementedException("PinToScreen is not implemented");

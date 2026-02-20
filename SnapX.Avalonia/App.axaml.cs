@@ -21,6 +21,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using SnapX.Avalonia.ViewModels;
+using SnapX.Avalonia.ViewModels.Settings;
 // using SnapX.Avalonia.ViewModels.Settings;
 using SnapX.Avalonia.Views;
 using SnapX.Avalonia.Views.Settings;
@@ -315,8 +316,27 @@ public partial class App : Application
     {
         Core.SnapXL.EventAggregator.Subscribe<NeedClipboardCopyEvent>(HandleClipboardCopyEvent);
         Core.SnapXL.EventAggregator.Subscribe<ErrorMessageEvent>(HandleErrorMessageEvent);
+        Core.SnapXL.EventAggregator.Subscribe<NeedOCRWindowEvent>(HandleOCRWindowRequestEvent);
+        Core.SnapXL.EventAggregator.Subscribe<NeedScanQRCodeEvent>(HandleScanQRCodeEvent);
     }
-
+    void HandleOCRWindowRequestEvent(NeedOCRWindowEvent @event)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var OCR = new OCR(@event.Image, @event.TaskSettings);
+            OCR.Show();
+        });
+    }
+    void HandleScanQRCodeEvent(NeedScanQRCodeEvent @event)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var qrView = new QRCodeView();
+            qrView.Show();
+            if (@event.HasImage) qrView.ScanImage(@event.Image);
+            else qrView.QRText.Text = @event.Text;
+        });
+    }
     private async void HandleClipboardCopyEvent(NeedClipboardCopyEvent @event)
     {
         try
@@ -1014,6 +1034,13 @@ public partial class App : Application
         services.AddTransient<NotImplemented>();
         services.AddSingleton<NotImplementedVM>();
 
+        services.AddTransient<ApplicationUploadSettingsView>();
+        services.AddSingleton<ApplicationUploadSettingsVM>();
+        services.AddSingleton<ApplicationPathSettingsVM>();
+        services.AddTransient<ApplicationPathSettingsView>();
+
+        services.AddSingleton<GeneralSettingsVM>();
+        services.AddTransient<GeneralSettingsView>();
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
     }

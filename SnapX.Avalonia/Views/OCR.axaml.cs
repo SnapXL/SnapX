@@ -18,6 +18,7 @@ using SixLabors.ImageSharp.Processing;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.History;
+using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using static SnapX.Core.Job.TaskHelpers;
 using Point = Avalonia.Point;
@@ -29,8 +30,9 @@ public partial class OCR : AppWindow
     private OCRViewModel _ocrViewModel;
     private HistoryItem? _item;
     private SixLabors.ImageSharp.Image? _img;
+    private TaskSettings? _taskSettings;
 
-    public OCR(HistoryItem? item, OCRViewModel viewModel, SixLabors.ImageSharp.Image? image = null)
+    public OCR(HistoryItem? item, OCRViewModel viewModel, SixLabors.ImageSharp.Image? image = null, TaskSettings? taskSettings = null)
     {
 
         DataContext = viewModel;
@@ -38,6 +40,7 @@ public partial class OCR : AppWindow
 
         _item = item;
         _img = image;
+        _taskSettings = taskSettings;
         InitializeComponent();
 
         // XAML will overwrite the title if it's put here
@@ -93,7 +96,8 @@ public partial class OCR : AppWindow
         : this(null, new OCRViewModel()) { }
     public OCR(SixLabors.ImageSharp.Image img)
         : this(null, new OCRViewModel(), img) { }
-
+    public OCR(SixLabors.ImageSharp.Image img, TaskSettings taskSettings)
+        : this(null, new OCRViewModel(), img, taskSettings) { }
     public OCR(HistoryItem item)
         : this(item, new OCRViewModel()) { }
 
@@ -106,7 +110,10 @@ public partial class OCR : AppWindow
 
         if (LanguageSelector?.SelectedIndex is not (>= 0 and var index))
             return;
-
+        if (_taskSettings?.CaptureSettings.OCROptions.Language is { } windowsLangCode)
+        {
+            index = _ocrViewModel.GetIndexFromWindowsCode(windowsLangCode);
+        }
         _ocrViewModel.SelectedLanguageIndex = index;
 
         var code = _ocrViewModel.GetLanguageCode(index);
@@ -116,6 +123,7 @@ public partial class OCR : AppWindow
     private async Task RunOCRAsync(string languageCode, CancellationToken cts = default)
     {
         DebugHelper.WriteLine($"{nameof(RunOCRAsync)} triggered");
+        if (_taskSettings?.CaptureSettings.OCROptions.SingleLine ?? false) SingleLine.IsChecked = true;
         try
         {
             // WEED OUT THOSE DISPOSED OBJECTS FUCK YOU
@@ -124,6 +132,7 @@ public partial class OCR : AppWindow
         catch (ObjectDisposedException)
         {
             _img = null;
+            DebugHelper.WriteLine($"Wow, I was given a disposed Image object. What kind of sick joke is this??");
         }
         if (_item is null && _img is null) return;
         ResultText?.Text = Lang.Processing;
@@ -260,6 +269,8 @@ public partial class OCR : AppWindow
                 result = result.Replace("\r", "").Replace("\n", "");
             }
             ResultText?.Text = result;
+            if (_taskSettings?.CaptureSettings.OCROptions.AutoCopy ?? false) CopyResult_Click(this, new RoutedEventArgs());
+
         }
         catch (Exception ex)
         {

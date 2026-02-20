@@ -1,4 +1,5 @@
 <UserControl
+    Initialized="StyledElement_OnInitialized"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
@@ -384,45 +385,338 @@
         </controls:NavigationView.MenuItems>
         <controls:NavigationView.PaneFooter>
             <StackPanel
-                HorizontalAlignment="Center"
-                Margin="0,50,0,0"
-                Spacing="20"
-                VerticalAlignment="Top">
-                <DropDownButton Content="Destinations">
+                HorizontalAlignment="Stretch"
+                Margin="8"
+                Spacing="4">
+                <TextBlock
+                    FontSize="11"
+                    Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                    HorizontalAlignment="Center"
+                    Margin="0,4,0,0"
+                    Text="Control Panel"
+                    TextWrapping="Wrap">
+                    <fluent:FluentIcon
+                        FontSize="14"
+                        Icon="QuestionCircle"
+                        Opacity="0.6">
+                        <ToolTip.Tip>
+                            <TextBlock xml:space="preserve">Keep in mind any options that require interaction with the UI may be broken. We're working on it!</TextBlock>
+                        </ToolTip.Tip>
+                    </fluent:FluentIcon>
+                </TextBlock>
+                <DropDownButton
+                    Click="OnDestinationsDropDownClicked"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <controls:SymbolIcon FontSize="16" Symbol="Share" />
+                        <TextBlock Text="Destinations" VerticalAlignment="Center" />
+                    </StackPanel>
+
                     <DropDownButton.Flyout>
-                        <MenuFlyout Placement="BottomEdgeAlignedLeft">
-                            <MenuItem Header="Image Uploaders" Name="MenuImages">
-                                <MenuItem Header="Imgur" Name="ServiceImgur" />
-                                <MenuItem Header="ImageShack" Name="ServiceImageShack" />
-                                <MenuItem Header="Twitter" Name="ServiceTwitter" />
-                            </MenuItem>
-
-                            <MenuItem Header="Text Uploaders" Name="MenuText">
-                                <MenuItem Header="Pastebin" x:Name="ServicePastebin" />
-                                <MenuItem Header="GitHub Gist" x:Name="ServiceGist" />
-                            </MenuItem>
-                            <MenuItem Header="File Uploaders" Name="MenuFile">
-                                <MenuItem Header="MEGA" x:Name="ServiceMega" />
-                                <MenuItem Header="what the fuck" x:Name="Servicwtf" />
-                            </MenuItem>
-
-                            <MenuItem Header="URL Shorteners" Name="MenuShorteners">
-                                <MenuItem Header="bit.ly" Name="ServiceBitly" />
-                                <MenuItem Header="TinyURL" Name="ServiceTinyUrl" />
-                            </MenuItem>
-
-                            <MenuItem Header="URL Sharing Service" Name="MenuSharing">
-                                <MenuItem Header="Email" Name="ServiceEmail" />
-                                <MenuItem Header="Twitter" Name="ServiceTwitterShare" />
-                            </MenuItem>
+                        <MenuFlyout
+                            Closing="PopupFlyoutBase_OnClosing"
+                            Opening="PopupFlyoutBase_OnOpening"
+                            Placement="RightEdgeAlignedTop">
+                            <MenuItem Header="Loading..." />
                         </MenuFlyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
 
-                <TextBlock
-                    HorizontalAlignment="Center"
-                    Theme="{StaticResource BodyStrongTextBlockStyle}"
-                    x:Name="SelectedStatus" />
+                <DropDownButton HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <fluent:SymbolIcon IconVariant="Regular" Symbol="ScreenCut" />
+                        <TextBlock Text="After Capture" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <DropDownButton.Flyout>
+                        <controls:FAMenuFlyout
+                            Closing="PopupFlyoutBase_OnClosing"
+                            Opening="PopupFlyoutBase_OnOpening"
+                            Placement="RightEdgeAlignedTop">
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IsEnabled="False"
+                                IsVisible="False"
+                                Tag="!ShowQuickTaskMenu"
+                                Text="Show quick task menu" />
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IsEnabled="False"
+                                IsVisible="False"
+                                Tag="!ShowAfterCaptureWindow"
+                                Text="Show After capture window" />
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IsEnabled="False"
+                                Tag="!BeautifyImage"
+                                Text="Beautify image">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ImageSparkle"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:MenuFlyoutSubItem IsEnabled="False" Text="Add Image Effects">
+                                <controls:MenuFlyoutSubItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="FilmstripImage"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:MenuFlyoutSubItem.IconSource>
+                            </controls:MenuFlyoutSubItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IsEnabled="False"
+                                Tag="!AnnotateImage"
+                                Text="Open in Image Editor">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ImageEdit"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!CopyImageToClipboard"
+                                Text="Copy Image to Clipboard">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ImageCopy"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IsEnabled="False"
+                                IsVisible="False"
+                                Tag="!PinToScreen"
+                                Text="Pin To Screen">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="TabDesktopImage"
+                                        IconSize="Size28"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IsEnabled="False"
+                                IsVisible="False"
+                                Tag="!SendImageToPrinter"
+                                Text="Send Image to Printer">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="DocumentPrint"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!SaveImageToFile"
+                                Text="Save to File">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="DocumentSave"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IsEnabled="False"
+                                IsVisible="False"
+                                Tag="!SaveImageToFileWithDialog"
+                                Text="Save to File (Dialog)">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="DocumentImage"
+                                        IconSize="Size28"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!SaveThumbnailImageToFile"
+                                Text="Save thumbnail image to file">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ImageReflection"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!PerformActions"
+                                Text="Perform actions">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="Code"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!CopyFileToClipboard"
+                                Text="Copy file to clipboard">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ClipboardPaste"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!CopyFilePathToClipboard"
+                                Text="Copy file path to clipboard">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ClipboardText"
+                                        IconSize="Size32"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!ShowInExplorer"
+                                Text="Show file in explorer">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="FolderDocument"
+                                        IconSize="Size28"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!ScanQRCode"
+                                Text="Scan QR Code">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="QrCode"
+                                        IconSize="Size28"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!DoOCR"
+                                Text="Perform OCR">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ScanText"
+                                        IconSize="Size28"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IsEnabled="False"
+                                Tag="!ShowBeforeUploadWindow"
+                                Text="Show before upload window">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="WindowNew"
+                                        IconSize="Size28"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!UploadImageToHost"
+                                Text="Upload image to host">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="ImageGlobe"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!DeleteFile"
+                                Text="Delete file locally">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="Delete"
+                                        IconSize="Size28"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                        </controls:FAMenuFlyout>
+                    </DropDownButton.Flyout>
+                </DropDownButton>
+
+                <DropDownButton HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <controls:SymbolIcon FontSize="16" Symbol="CloudSync" />
+                        <TextBlock Text="After Upload" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <DropDownButton.Flyout>
+                        <controls:FAMenuFlyout
+                            Closing="PopupFlyoutBase_OnClosing"
+                            Opening="PopupFlyoutBase_OnOpening"
+                            Placement="RightEdgeAlignedTop">
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IsEnabled="False"
+                                Tag="!ShowAfterUploadWindow"
+                                Text="Show after upload window" />
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!UseURLShortener"
+                                Text="Shorten URL">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="LinkEdit"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IconSource="Share"
+                                Tag="!ShareURL"
+                                Text="Share URL" />
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                IconSource="Link"
+                                Tag="!CopyURLToClipboard"
+                                Text="Copy URL to Clipboard" />
+
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!OpenURL"
+                                Text="Open URL">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="PreviewLink"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                            <controls:ToggleMenuFlyoutItem
+                                Click="DynamicSettingItemOnClick"
+                                Tag="!ShowQRCode"
+                                Text="Show QR Code">
+                                <controls:ToggleMenuFlyoutItem.IconSource>
+                                    <fluent:FluentIconSource
+                                        Icon="QrCode"
+                                        IconSize="Size24"
+                                        IconVariant="Regular" />
+                                </controls:ToggleMenuFlyoutItem.IconSource>
+                            </controls:ToggleMenuFlyoutItem>
+                        </controls:FAMenuFlyout>
+                    </DropDownButton.Flyout>
+                </DropDownButton>
             </StackPanel>
         </controls:NavigationView.PaneFooter>
         <controls:NavigationView.FooterMenuItems>
@@ -437,7 +731,10 @@
                         IconVariant="Regular" />
                 </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>
-            <controls:NavigationViewItem Content="Database" Tag="Database">
+            <controls:NavigationViewItem
+                Content="Database"
+                Tag="Database"
+                ToolTip.Tip="I'm still cooking in the oven, don't judge me!">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource
                         Icon="DatabaseWindow"

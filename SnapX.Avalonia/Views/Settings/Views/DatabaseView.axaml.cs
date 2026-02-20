@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
@@ -125,15 +124,15 @@ public partial class DatabaseView : UserControl
 
     private void ScheduleColumnUpdate()
     {
-        _columnUpdateCts?.Cancel();
-        _columnUpdateCts = new CancellationTokenSource();
-        var token = _columnUpdateCts.Token;
-
-        _ = Task.Delay(100, token).ContinueWith(async t =>
-        {
-            if (!t.IsCanceled)
-                await UpdateDataGridColumnsAsync(MainDataGrid);
-        }, TaskScheduler.Default);
+        // _columnUpdateCts?.Cancel();
+        // _columnUpdateCts = new CancellationTokenSource();
+        // var token = _columnUpdateCts.Token;
+        //
+        // _ = Task.Delay(100, token).ContinueWith(async t =>
+        // {
+        //     if (!t.IsCanceled)
+        //         await UpdateDataGridColumnsAsync(MainDataGrid);
+        // }, TaskScheduler.Default);
     }
 
     private async Task UpdateDataGridColumnsAsync(DataGrid grid)
@@ -160,15 +159,30 @@ public partial class DatabaseView : UserControl
             {
                 if (!existingHeaders.Contains(colName, StringComparer.OrdinalIgnoreCase))
                 {
-                    grid.Columns.Add(new DataGridTextColumn
-                    {
-                        Header = colName,
-                        Binding = new Binding($"Columns[{colName}]")
-                    });
+                    // var binding = new CompiledBindingExtension
+                    // {
+                    //     Path = new PropertyPath($"Columns[{colName}]"),
+                    //     // 3. Provide a strongly-typed function to get the data
+                    //     // This bypasses the need for CompiledBindingPath strings entirely
+                    //     Converter = new FuncValueConverter<DatabaseRow, object>(item =>
+                    //     {
+                    //         if (item != null && item.Columns.TryGetValue(colName, out var value))
+                    //         {
+                    //             return value;
+                    //         }
+                    //         return null;
+                    //     }),
+                    //     Mode = BindingMode.OneWay
+                    // };
+                    // grid.Columns.Add(new DataGridTextColumn
+                    // {
+                    //     Header = colName,
+                    //     Binding = binding
+                    // });
                 }
             }
 
-            if (grid.ItemsSource != _vm.Items)
+            if (!Equals(grid.ItemsSource, _vm.Items))
                 grid.ItemsSource = _vm.Items;
 
             grid.SelectedItem = _vm.SelectedItem;

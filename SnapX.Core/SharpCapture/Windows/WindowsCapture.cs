@@ -3,6 +3,8 @@ using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Media;
+using SnapX.Core.Utils.Native;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
@@ -12,8 +14,6 @@ using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
-using SnapX.Core.Media;
-using SnapX.Core.Utils.Native;
 using WinRT;
 
 

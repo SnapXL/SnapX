@@ -67,6 +67,10 @@
     <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="$(SkiaSharpVersion)" />
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
     <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
+    <PackageReference Include="DesktopNotificationsFixed" Version="1.0.1" />
+    <PackageReference Include="DesktopNotificationsFixed.FreeDesktop" Version="1.0.1" />
+    <PackageReference Include="DesktopNotificationsFixed.Apple" Version="1.0.0" />
+    <!-- Windows notification support? I hardly know her! It's broken.-->
     <ProjectReference Include="..\SnapX.CommonUI\SnapX.CommonUI.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFreeBSD)' == 'true'">
@@ -85,5 +89,14 @@
     <PackageReference Remove="HarfBuzzSharp.NativeAssets.macOS" />
     <PackageReference Remove="HarfBuzzSharp.NativeAssets.Win32" />
     <PackageReference Remove="HarfBuzzSharp.NativeAssets.WebAssembly" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="Views\Settings\Views\ApplicationPathSettingsView.axaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\Settings\Views\ApplicationPathSettingsView.axaml.cs">
+      <DependentUpon>ApplicationPathSettingsView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

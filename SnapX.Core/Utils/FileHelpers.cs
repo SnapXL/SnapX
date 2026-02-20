@@ -266,7 +266,7 @@ public static class FileHelpers
         }
         else if (allowMessageBox)
         {
-            throw new NotImplementedException("OpenFolder is not implemented.");
+            new Exception("Folder not found!").ShowError();
         }
 
         return false;
@@ -290,7 +290,7 @@ public static class FileHelpers
         }
         else
         {
-            throw new NotImplementedException("OpenFolderWithFile is not implemented.");
+            new Exception("Folder not found!").ShowError();
         }
 
         return false;

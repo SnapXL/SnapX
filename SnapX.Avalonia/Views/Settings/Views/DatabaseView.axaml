@@ -138,10 +138,12 @@
         </Border>
         <Grid Grid.Row="1">
             <DataGrid
-                AutoGenerateColumns="False"
-                GridLinesVisibility="All"
+                AutoGenerateColumns="True"
+                GridLinesVisibility="None"
+                IsEnabled="False"
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                ToolTip.Tip="I am disabled until further notice!"
                 x:Name="MainDataGrid" />
 
             <StackPanel

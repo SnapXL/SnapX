@@ -182,7 +182,7 @@ internal static class Msix
                 .SetAttribute("PackageName", project.Name)
                 .SetAttribute("PackageDisplayName", project.Name)
                 .SetAttribute(ns + "PackageDescription", project.Name)
-                .SetAttribute("PublisherName", project.SignAllFiles ?  "CN=" + project.ControlPanelInfo.Manufacturer : "CN=AppModelSamples, OID.2.25.311729368913984317654407730594956997722=1")
+                .SetAttribute("PublisherName", project.SignAllFiles ? "CN=" + project.ControlPanelInfo.Manufacturer : "CN=AppModelSamples, OID.2.25.311729368913984317654407730594956997722=1")
                 .SetAttribute("PublisherDisplayName", project.ControlPanelInfo.Manufacturer)
                 .SetAttribute("Version", project.Version);
 

@@ -1,0 +1,70 @@
+﻿<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.Views.Settings.Views.GeneralSettingsView"
+    x:DataType="settings:GeneralSettingsVM"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SnapX.Avalonia.ViewModels.Settings"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.DataContext>
+        <settings:GeneralSettingsVM />
+    </Design.DataContext>
+    <ScrollViewer Margin="20">
+        <StackPanel Spacing="15">
+
+            <StackPanel Spacing="5">
+                <TextBlock FontWeight="SemiBold" Text="Language" />
+                <ComboBox
+                    PlaceholderText="Select Language"
+                    SelectedItem="English"
+                    Width="200"
+                    x:Name="LanguageComboBox">
+                    <ComboBoxItem Content="English" IsSelected="True" />
+                    <!-- <ComboBoxItem Content="Spanish" /> -->
+                    <!-- <ComboBoxItem Content="French" /> -->
+                    <!-- <ComboBoxItem Content="German" /> -->
+                </ComboBox>
+            </StackPanel>
+
+            <CheckBox
+                Content="Remember main window position"
+                IsChecked="{Binding RememberMainWindowPosition}"
+                x:Name="RememberPositionCheckBox" />
+            <StackPanel Spacing="5">
+                <CheckBox
+                    Content="Disable Telemetry"
+                    IsChecked="{Binding DisableTelemetry}"
+                    Name="TelemetryCheckBox" />
+
+                <TextBlock
+                    FontSize="12"
+                    Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                    Margin="32,0,0,0"
+                    TextWrapping="Wrap"
+                    xml:space="preserve">
+Help us improve SnapX! Our telemetry is <Bold>anonymous</Bold> and strictly uses privacy-respecting services.
+No personal data or files are ever collected.
+ We only see how features are used so we can make them better. We also have usage analytics.</TextBlock>
+
+                <HyperlinkButton
+                    Content="Read our Privacy Policy"
+                    Margin="28,0,0,0"
+                    NavigateUri="https://github.com/SnapXL/SnapX/blob/develop/packaging/PRIVACY.md" />
+            </StackPanel>
+            <Separator Margin="0,10" />
+
+            <controls:InfoBar
+                IsClosable="False"
+                IsOpen="True"
+                Message="I am still working on this section. More settings coming soon!"
+                Severity="Informational"
+                Title="Development Note" />
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
+

@@ -61,11 +61,11 @@
                 <!--  Content="Export"  -->
                 <!--  Width="140">  -->
                 <!--     <SplitButton.Flyout> -->
-                <!--         <MenuFlyout> -->
-                <!--             <controls:MenuFlyoutItem Click="ExportToClipboard_Click" Text="Export to Clipboard" /> -->
-                <!--             <controls:MenuFlyoutItem Click="SaveToFile_Click" Text="Save to File" /> -->
-                <!--             <controls:MenuFlyoutItem Click="UploadAsText_Click" Text="Upload as Text" /> -->
-                <!--         </MenuFlyout> -->
+                <!--         <controls:FAMenuFlyout> -->
+                <!--             <controls:FAMenuFlyoutItem Click="ExportToClipboard_Click" Text="Export to Clipboard" /> -->
+                <!--             <controls:FAMenuFlyoutItem Click="SaveToFile_Click" Text="Save to File" /> -->
+                <!--             <controls:FAMenuFlyoutItem Click="UploadAsText_Click" Text="Upload as Text" /> -->
+                <!--         </controls:FAMenuFlyout> -->
                 <!--     </SplitButton.Flyout> -->
                 <!-- </SplitButton> -->
                 <!--    -->
@@ -74,10 +74,10 @@
                 <!--  Content="Import"  -->
                 <!--  Width="140">  -->
                 <!--     <SplitButton.Flyout> -->
-                <!--         <MenuFlyout> -->
-                <!--             <controls:MenuFlyoutItem Click="ImportFromClipboard_Click" Text="Import from Clipboard" /> -->
-                <!--             <controls:MenuFlyoutItem Click="LoadFromFile_Click" Text="Load from File" /> -->
-                <!--         </MenuFlyout> -->
+                <!--         <controls:FAMenuFlyout> -->
+                <!--             <controls:FAMenuFlyoutItem Click="ImportFromClipboard_Click" Text="Import from Clipboard" /> -->
+                <!--             <controls:FAMenuFlyoutItem Click="LoadFromFile_Click" Text="Load from File" /> -->
+                <!--         </controls:FAMenuFlyout> -->
                 <!--     </SplitButton.Flyout> -->
                 <!-- </SplitButton> -->
 

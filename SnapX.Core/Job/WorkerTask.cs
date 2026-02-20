@@ -725,7 +725,8 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.ScanQRCode) && Info.DataType == EDataType.Image)
             {
-                throw new NotImplementedException("QR Code Scanner not implemented");
+                var clonedImage = Image.CloneAs<Rgba32>();
+                Core.SnapXL.EventAggregator.Publish(new NeedScanQRCodeEvent(clonedImage, Info.TaskSettings));
             }
         }
     }
@@ -830,7 +831,7 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterUploadJob.HasFlag(AfterUploadTasks.ShowQRCode))
             {
-                throw new NotImplementedException("QR Code Scanner not implemented");
+                Core.SnapXL.EventAggregator.Publish(new NeedScanQRCodeEvent(Info.Result.ToString(), Info.TaskSettings));
             }
         }
         catch (Exception e)
@@ -859,7 +860,8 @@ public class WorkerTask : IDisposable
             {
                 uploader.EarlyURLCopyRequested += url =>
                 {
-                    Clipboard.CopyText(url);
+                    SnapXL.EventAggregator.Publish(new NeedClipboardCopyEvent(url));
+
                     EarlyURLCopied = true;
                 };
             }
@@ -1035,7 +1037,8 @@ public class WorkerTask : IDisposable
     {
         if (Image != null && Info.DataType == EDataType.Image)
         {
-            TaskHelpers.OCRImage(Image, Info.TaskSettings).GetAwaiter().GetResult();
+            var clonedImage = Image.CloneAs<Rgba32>();
+            TaskHelpers.OCRImageUI(clonedImage, Info.TaskSettings);
         }
     }
 
