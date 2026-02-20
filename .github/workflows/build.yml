@@ -752,7 +752,7 @@ jobs:
         if: runner.os == 'Windows' && matrix.configuration == 'Release'
         run: |
           dotnet tool install --global wix --version 6.0.2
-          wix.exe extension add -g WixToolset.UI.wixext
+          wix.exe extension add -g WixToolset.UI.wixext/6.0.2
       - name: Assemble MSI
         if: runner.os == 'Windows' && matrix.configuration == 'Release'
         run: "./build.ps1 msi"
