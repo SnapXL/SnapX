@@ -225,6 +225,27 @@
   },
   {
     "dest": "vendor",
+    "dest-filename": "desktopnotificationsfixed.1.0.1.nupkg",
+    "sha512": "7f20304176d6e079e5e22f4ea0a6707fda1ab60ca9e248070bcd47eec7db3c66ed2a5d4194d8057de8ce5e483870512f6a5286016995b3af25dc50870633ebc7",
+    "url": "https://api.nuget.org/v3-flatcontainer/desktopnotificationsfixed/1.0.1/desktopnotificationsfixed.1.0.1.nupkg",
+    "type": "file"
+  },
+  {
+    "dest": "vendor",
+    "dest-filename": "desktopnotificationsfixed.apple.1.0.0.nupkg",
+    "sha512": "d664a9b4be967f81cefc5b361071e5f1d220ecf3194883c4dee974c3101c0a3c4050f473c3aee79ddda35d934b364bacf1543d610ca8861f1c53d15abef1c2b9",
+    "url": "https://api.nuget.org/v3-flatcontainer/desktopnotificationsfixed.apple/1.0.0/desktopnotificationsfixed.apple.1.0.0.nupkg",
+    "type": "file"
+  },
+  {
+    "dest": "vendor",
+    "dest-filename": "desktopnotificationsfixed.freedesktop.1.0.1.nupkg",
+    "sha512": "d3347a86c3708b974f9651bd503563903f0656c6930b72b40098671159362352305852bc90a58e71095cceb52eb50c2a6bedc25cff30a89372d8d15a44097f70",
+    "url": "https://api.nuget.org/v3-flatcontainer/desktopnotificationsfixed.freedesktop/1.0.1/desktopnotificationsfixed.freedesktop.1.0.1.nupkg",
+    "type": "file"
+  },
+  {
+    "dest": "vendor",
     "dest-filename": "dotnext.5.2.0.nupkg",
     "sha512": "e9d702febca57deb9ab41aa1f8f153a7ccc5e7d95023c6f11768851763aca1b1295d93302895d23ae88f427d2dd687c2bc3af03455792253f1cb67b1e5eb1c25",
     "url": "https://api.nuget.org/v3-flatcontainer/dotnext/5.2.0/dotnext.5.2.0.nupkg",
@@ -935,6 +956,13 @@
     "dest-filename": "system.numerics.tensors.9.0.0.nupkg",
     "sha512": "adace58eeed48082d0fd56fb0685b5451ff120404373c627ab4b1193be0aa4b0476b2dd031925f80af25cb8204ce52656c562508ec6974f6bb0cd05461a62d23",
     "url": "https://api.nuget.org/v3-flatcontainer/system.numerics.tensors/9.0.0/system.numerics.tensors.9.0.0.nupkg",
+    "type": "file"
+  },
+  {
+    "dest": "vendor",
+    "dest-filename": "tmds.dbus.0.9.1.nupkg",
+    "sha512": "ce70e7c1f24026443010a8999f3b60c72bb7409bccebc915650eff06cb072556948c7c8de9f8fe558a7860213982eddb99a4663b526ea1e2b33e94f80da96110",
+    "url": "https://api.nuget.org/v3-flatcontainer/tmds.dbus/0.9.1/tmds.dbus.0.9.1.nupkg",
     "type": "file"
   },
   {
