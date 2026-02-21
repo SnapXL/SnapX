@@ -3,12 +3,13 @@
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
   </Folder>
-  <Project Path="build\build.csproj" Type="C#">
+  <Project Path="build\build.csproj">
     <Configuration Solution="Release|*" Project="*|*|NoBuild" />
   </Project>
-  <Project Path="SnapX.Avalonia\SnapX.Avalonia.csproj" Type="C#" />
-  <Project Path="SnapX.CLI\SnapX.CLI.csproj" Type="C#" />
-  <Project Path="SnapX.CommonUI\SnapX.CommonUI.csproj" Type="C#" />
-  <Project Path="SnapX.Core\SnapX.Core.csproj" Type="C#" />
-  <Project Path="SnapX.NativeMessagingHost\SnapX.NativeMessagingHost.csproj" Type="C#" />
+  <Project Path="SnapX.Avalonia\SnapX.Avalonia.csproj" />
+  <Project Path="SnapX.CLI\SnapX.CLI.csproj" />
+  <Project Path="SnapX.CommonUI\SnapX.CommonUI.csproj" />
+  <Project Path="SnapX.Core\SnapX.Core.csproj" />
+  <Project Path="SnapX.NativeMessagingHost\SnapX.NativeMessagingHost.csproj" />
+  <Project Path="SnapX.Secrets/SnapX.Secrets.csproj" />
 </Solution>

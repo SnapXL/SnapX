@@ -370,6 +370,9 @@ public class SnapXL
             DebugHelper.WriteLine($"Session Type: {SnapXResources.SessionType}");
             DebugHelper.WriteLine($"Desktop Environment: {SnapXResources.DesktopEnvironment}{(SnapXResources.DesktopEnvironment == "KDE" ? $" {SnapXResources.KdePlasmaMajorVersion}" : "")}");
         }
+#if FLATPAK
+        APIKeysLoader.Load();
+#endif
         DebugHelper.WriteLine($"Platform: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
         if (OsInfo.IsWSL()) DebugHelper.WriteLine("Running under WSL. Please keep in mind that SnapX defaults to escaping WSL. You can turn this off in settings.");
         DebugHelper.WriteLine(".NET: " + SnapXResources.Dotnet);
