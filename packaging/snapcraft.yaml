@@ -12,7 +12,7 @@ description: |
   This project is under development and is *not* ready for use.
   Supports PNG (including animated variant), WEBP (including animated variant), AVIF (including animated variant), JPEG, GIFs (should be smaller than your typical ShareX GIF), TIFF, and BMP image formats.
   Cross-platform OCR powered by PaddleOCR that rivals PowerToys OCR, TesseractOCR, & Windows 10 built in OCR in accuracy
-version: '0.4.0'
+version: '0.5.0'
 license: GPL-3.0-or-later
 source-code: "https://github.com/SnapXL/SnapX"
 adopt-info: ui-snapx
