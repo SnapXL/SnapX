@@ -29,6 +29,13 @@
                     <!-- <ComboBoxItem Content="German" /> -->
                 </ComboBox>
             </StackPanel>
+            <StackPanel Spacing="5">
+                <TextBlock FontWeight="SemiBold" Text="Image Format" />
+                <ComboBox
+                    ItemsSource="{Binding SupportedFormats}"
+                    SelectedItem="{Binding SelectedFormat}"
+                    Width="200" />
+            </StackPanel>
 
             <CheckBox
                 Content="Remember main window position"

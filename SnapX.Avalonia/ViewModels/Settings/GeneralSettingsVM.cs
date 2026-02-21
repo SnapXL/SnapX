@@ -12,6 +12,9 @@ public partial class GeneralSettingsVM : ViewModelBase
 
     [ObservableProperty]
     private bool _disableTelemetry;
+    public EImageFormat[] SupportedFormats { get; } = Enum.GetValues<EImageFormat>();
+    [ObservableProperty]
+    private EImageFormat _selectedFormat;
 
     public GeneralSettingsVM()
     {
@@ -19,6 +22,11 @@ public partial class GeneralSettingsVM : ViewModelBase
 
         _rememberMainWindowPosition = _config.RememberMainFormPosition;
         _disableTelemetry = _config.DisableTelemetry;
+        _selectedFormat = _config.DefaultTaskSettings.ImageSettings.ImageFormat;
+    }
+    partial void OnSelectedFormatChanged(EImageFormat value)
+    {
+        _config.DefaultTaskSettings.ImageSettings.ImageFormat = value;
     }
 
     partial void OnRememberMainWindowPositionChanged(bool value)
