@@ -137,18 +137,21 @@ public sealed class EncryptionTypeInspector(ITypeInspector innerInspector, Secur
         public IObjectDescriptor Read(object target)
         {
             var value = inner.Read(target).Value as string;
-
-            if (string.IsNullOrWhiteSpace(value) || value.StartsWith(SecurePropertyStore.Header) || !UseEncryption)
-            {
-                value = store.Unprotect(value);
-                return new ObjectDescriptor(value ?? string.Empty, typeof(string), typeof(string));
-            }
-
-            var encrypted = store.Protect(value);
-            return new ObjectDescriptor(encrypted, typeof(string), typeof(string));
+            return new ObjectDescriptor(UseEncryption ? store.Protect(value ?? string.Empty) : value ?? string.Empty, typeof(string), typeof(string));
         }
 
-        public void Write(object target, object? value) => inner.Write(target, value);
+        public void Write(object target, object? value)
+        {
+            var stringValue = value as string;
+            if (UseEncryption && stringValue?.StartsWith(SecurePropertyStore.Header) == true)
+            {
+                inner.Write(target, store.Unprotect(stringValue));
+            }
+            else
+            {
+                inner.Write(target, stringValue);
+            }
+        }
     }
 }
 
