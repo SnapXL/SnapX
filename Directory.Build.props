@@ -18,7 +18,7 @@
     <WriteVersionInfoToBuildLog>true</WriteVersionInfoToBuildLog>
     <RollForward>LatestMajor</RollForward>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <Version>0.4.1</Version>
+    <Version>0.5.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="!Exists('.git')">
     <UpdateAssemblyInfo>false</UpdateAssemblyInfo>
