@@ -54,7 +54,6 @@ package_snapx-core() {
         'fontconfig'
         'libfreetype6-dev'
         'openssl'
-        'libicu74'
         'at'
         'sudo'
         'libxrandr2'
