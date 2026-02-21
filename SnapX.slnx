@@ -11,5 +11,7 @@
   <Project Path="SnapX.CommonUI\SnapX.CommonUI.csproj" />
   <Project Path="SnapX.Core\SnapX.Core.csproj" />
   <Project Path="SnapX.NativeMessagingHost\SnapX.NativeMessagingHost.csproj" />
-  <Project Path="SnapX.Secrets/SnapX.Secrets.csproj" />
+  <Project Path="SnapX.Secrets/SnapX.Secrets.csproj">
+    <Configuration Solution="Release|*" Project="*|*|NoBuild" />
+  </Project>
 </Solution>
