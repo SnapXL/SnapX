@@ -18,13 +18,13 @@ finish-args:
   - --talk-name=com.canonical.AppMenu
   - --talk-name=com.canonical.dbusmenu
   - --talk-name=org.freedesktop.Notifications # Native notfications support
-#  - --talk-name=org.freedesktop.secrets
+  - --talk-name=org.freedesktop.secrets
   - --talk-name=org.freedesktop.portal.Desktop
-#  - --talk-name=org.kde.kwalletd5 # OS Secret support
+  - --talk-name=org.kde.kwalletd5 # OS Secret support
   - --talk-name=org.kde.StatusNotifierWatcher
   - --own-name=org.kde.* # Avalonia's Tray implementation is old, it seems? Without this, the app immediately crashes!
   - --talk-name=org.kde.StatusNotifierItem
-#  - --filesystem=xdg-run/keyring # OS Secret support
+  - --filesystem=xdg-run/keyring # OS Secret support
   - --env=LD_LIBRARY_PATH=/app/lib:/app/lib/snapx # Fixes unable to load shared library 'OpenCvSharpExtern' or one of its dependencies
 modules:
   - name: snapx-ui
