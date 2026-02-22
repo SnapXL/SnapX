@@ -14,7 +14,6 @@ public class HeaderCollectionYamlConverter(SecurePropertyStore Store, Func<IEnum
 
     public object? ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
     {
-        // Handle null/empty scalar
         if (parser.Accept<Scalar>(out var scalar) &&
             (string.IsNullOrWhiteSpace(scalar.Value) || scalar.Value == "null"))
         {
@@ -22,46 +21,36 @@ public class HeaderCollectionYamlConverter(SecurePropertyStore Store, Func<IEnum
             return new ObservableCollection<HeaderItem>();
         }
 
-        // Deserialize to object first (safe approach)
         var result = rootDeserializer(typeof(object));
 
-        // Handle dictionary case
-        if (result is Dictionary<object, object> rawDict)
+        if (result is not Dictionary<object, object> rawDict) return new ObservableCollection<HeaderItem>();
+        var collection = new ObservableCollection<HeaderItem>();
+        foreach (var kvp in rawDict)
         {
-            var collection = new ObservableCollection<HeaderItem>();
-            foreach (var kvp in rawDict)
+            var key = kvp.Key?.ToString();
+            var value = kvp.Value?.ToString();
+
+            if (string.IsNullOrWhiteSpace(key)) continue;
+            if (value?.StartsWith(SecurePropertyStore.Header) == true)
             {
-                var key = kvp.Key?.ToString();
-                var value = kvp.Value?.ToString();
-
-                if (!string.IsNullOrWhiteSpace(key))
+                try
                 {
-                    // Decrypt if the value is protected
-                    if (value?.StartsWith(SecurePropertyStore.Header) == true)
-                    {
-                        try
-                        {
-                            value = Store.Unprotect(value);
-                        }
-                        catch (Exception ex)
-                        {
-                            // If decryption fails, keep the encrypted value
-                            // This allows reading files with corrupted entries
-                            ex.ShowError(true, "Reading encrypted value");
-                        }
-                    }
-
-                    collection.Add(new HeaderItem
-                    {
-                        Key = key,
-                        Value = value ?? string.Empty
-                    });
+                    value = Store.Unprotect(value);
+                }
+                catch (Exception ex)
+                {
+                    ex.ShowError(true, "Reading encrypted value");
                 }
             }
-            return collection;
-        }
 
-        return new ObservableCollection<HeaderItem>();
+            collection.Add(new HeaderItem
+            {
+                Key = key,
+                Value = value ?? string.Empty
+            });
+        }
+        return collection;
+
     }
 
     public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer serializer)
@@ -88,7 +77,7 @@ public class HeaderCollectionYamlConverter(SecurePropertyStore Store, Func<IEnum
 
             emitter.Emit(new Scalar(null, null, key, ScalarStyle.Plain, true, false));
 
-            emitter.Emit(new Scalar(null, null, val, ScalarStyle.Plain, true, false));
+            emitter.Emit(new Scalar(null, null, val, ScalarStyle.DoubleQuoted, true, false));
         }
 
         emitter.Emit(new MappingEnd());
