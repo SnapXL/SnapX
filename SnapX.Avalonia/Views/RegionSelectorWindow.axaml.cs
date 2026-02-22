@@ -234,6 +234,14 @@ public partial class RegionSelectorWindow : Window
         _selectionRect.IsVisible = false;
         _infoBox.IsVisible = false;
         var selectedRegion = _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
+        if (selectedRegion.IsEmpty)
+        {
+            _resultRect.TrySetResult(null);
+            _resultImg.TrySetResult(null);
+            App.MyMainWindow?.Show();
+            Close();
+            return;
+        }
         var sixLaborsRect = new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X,
             (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height);
         _resultRect.TrySetResult(sixLaborsRect);
