@@ -233,17 +233,17 @@ public partial class RegionSelectorWindow : Window
         _isSelecting = false;
         _selectionRect.IsVisible = false;
         _infoBox.IsVisible = false;
-        var selectedRegion = _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
-        if (selectedRegion.IsEmpty)
-        {
-            _resultRect.TrySetResult(null);
-            _resultImg.TrySetResult(null);
-            App.MyMainWindow?.Show();
-            Close();
-            return;
-        }
-        var sixLaborsRect = new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X,
-            (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height);
+        if (_selectionRect.Bounds.Width <= 0 || _selectionRect.Bounds.Height <= 0)
+            await CancelSelection();
+
+        var selectedRegion = _imageBounds.Intersect(_selectionRect.Bounds);
+
+        if (selectedRegion.Width <= 0 || selectedRegion.Height <= 0 ||
+            selectedRegion.Width > _imageBounds.Width || selectedRegion.Height > _imageBounds.Height)
+            await CancelSelection();
+        var sixLaborsRect = new SixLabors.ImageSharp.Rectangle(
+            (int)selectedRegion.X, (int)selectedRegion.Y,
+            (int)selectedRegion.Width, (int)selectedRegion.Height);
         _resultRect.TrySetResult(sixLaborsRect);
         DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {selectedRegion}");
         if (!TakeScreenshot) return;
@@ -277,7 +277,13 @@ public partial class RegionSelectorWindow : Window
         App.MyMainWindow?.Show();
         Close();
     }
-
+    private async Task CancelSelection()
+    {
+        _resultRect.TrySetResult(null);
+        _resultImg.TrySetResult(null);
+        App.MyMainWindow?.Show();
+        Close();
+    }
     private async void OnPointerMoved(object? Sender, PointerEventArgs E)
     {
         if (!_isSelecting) return;
