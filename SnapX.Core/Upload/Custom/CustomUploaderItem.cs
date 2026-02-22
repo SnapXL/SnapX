@@ -215,7 +215,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
     // {
     //     return new CustomUploaderItem()
     //     {
-    //         Version = Helpers.GetApplicationVersion(),
+    //         Version = APIVersion,
     //         RequestMethod = HttpMethod.Post,
     //         Body = CustomUploaderBody.MultipartFormData
     //     };
@@ -611,7 +611,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
             DeletionURL = MigrateOldSyntax(DeletionURL);
             ErrorMessage = MigrateOldSyntax(ErrorMessage);
 
-            Version = Helpers.GetApplicationVersion();
+            Version = APIVersion;
         }
     }
 
