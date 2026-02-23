@@ -337,37 +337,37 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "harfbuzzsharp.8.3.1.2.nupkg",
-    "sha512": "8e3125def22e148286f0d597c80bb626bb5640c0cca4e72d58bfe8a31e2ba4dd12d44060c90537a2b32f05b76f321c8515d31fc164ad8b630cc22ac576debfc7",
-    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp/8.3.1.2/harfbuzzsharp.8.3.1.2.nupkg",
+    "dest-filename": "harfbuzzsharp.8.3.1.3.nupkg",
+    "sha512": "8493b36e88beedfc80e12f13e3b986fb1e5560c4c8df86e672c1cad24a623fa36adc9a1a82f566fda3784f7a2d58975d10273ea65b7bcb119afc126b11a452c8",
+    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp/8.3.1.3/harfbuzzsharp.8.3.1.3.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "harfbuzzsharp.nativeassets.linux.8.3.1.2.nupkg",
-    "sha512": "caf3c6bd434b7755dffb232b8d2932d6282134a7fe5637f68bb18fd8e86da57307b157a158aa20843f2b68f543105ba782c4d129e3613d7c138234fcda431be1",
-    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.linux/8.3.1.2/harfbuzzsharp.nativeassets.linux.8.3.1.2.nupkg",
+    "dest-filename": "harfbuzzsharp.nativeassets.linux.8.3.1.3.nupkg",
+    "sha512": "c413a4244f1fcf0caddd8e039f7e96324cee45ec0970aae23fc324bf40a8808c5fcf9e2b386be5a920f95e37cc2ee03a68d3dd7092fb9091c155e52a729ac8d7",
+    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.linux/8.3.1.3/harfbuzzsharp.nativeassets.linux.8.3.1.3.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "harfbuzzsharp.nativeassets.macos.8.3.1.2.nupkg",
-    "sha512": "8ae0370c25c5e601cdbef019789a315c64dc4a44892762d4bb37c32d9f3cc1eddb14f29a4ab080245adde4d4b18f82a3a1710884e6890623fa3c62249b5c8299",
-    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.macos/8.3.1.2/harfbuzzsharp.nativeassets.macos.8.3.1.2.nupkg",
+    "dest-filename": "harfbuzzsharp.nativeassets.macos.8.3.1.3.nupkg",
+    "sha512": "64222e104f945cc284c08fd98feaa4dbb355b92990eb77858d4179ab6ea112d1e6a127198075e9274745044fd41e99f691c4c68a138ddfd438c5ebdbb0571602",
+    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.macos/8.3.1.3/harfbuzzsharp.nativeassets.macos.8.3.1.3.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "harfbuzzsharp.nativeassets.webassembly.8.3.1.2.nupkg",
-    "sha512": "ff85a051116cbd4b12a540a13f4e1266622dc6c36a32a836cd05b6939b4d8a60d0ae0bcf3ee2becbfc03bdbb70636933498e918a50f97cb5ad0f57d5411d9ba2",
-    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.webassembly/8.3.1.2/harfbuzzsharp.nativeassets.webassembly.8.3.1.2.nupkg",
+    "dest-filename": "harfbuzzsharp.nativeassets.webassembly.8.3.1.3.nupkg",
+    "sha512": "a7991dc993e42ef2e10785d41193cdd731c03c135e8db4c09cb493a3d364a634a07f47ab035cb63ada41e643ff089cd461f1ab5844402f4cd30eecd3ad68b200",
+    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.webassembly/8.3.1.3/harfbuzzsharp.nativeassets.webassembly.8.3.1.3.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "harfbuzzsharp.nativeassets.win32.8.3.1.2.nupkg",
-    "sha512": "6b3ae3a7d94cf5509c89aa6e61f287408885ee770ab895c3ae0b466f45fd0d0180b2b3f436ee8d17d9d062fb5305f3b85bac529819f1fcfcd6244d73c6066b5a",
-    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.win32/8.3.1.2/harfbuzzsharp.nativeassets.win32.8.3.1.2.nupkg",
+    "dest-filename": "harfbuzzsharp.nativeassets.win32.8.3.1.3.nupkg",
+    "sha512": "156ab246a79aeb509672b10c109a1fa29e59b3ad1eb9713ac331e2f11b6bac4b7a96bcb765a8e2da4d3f59bb54d5b648e870aeae4d22543baca28b17cb046fcf",
+    "url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.win32/8.3.1.3/harfbuzzsharp.nativeassets.win32.8.3.1.3.nupkg",
     "type": "file"
   },
   {
@@ -841,37 +841,37 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "skiasharp.3.119.1.nupkg",
-    "sha512": "179fc561c21ff05087fbe92cd7c720a87a189e415c2189c8e5eb8e3e14bbf4cf3eae68a61f35e1c335875787c20694ac847f4d2a9d1ea22ae9bc60af4ea088b9",
-    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp/3.119.1/skiasharp.3.119.1.nupkg",
+    "dest-filename": "skiasharp.3.119.2.nupkg",
+    "sha512": "5655084b43b5cb7442ac8108210eccf810108e7de412e11dd387fbafe04eeb7a90c22f8787c2ac6069963e36099ed630a210284fb0545a98294ebf32b756217d",
+    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp/3.119.2/skiasharp.3.119.2.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "skiasharp.nativeassets.linux.3.119.1.nupkg",
-    "sha512": "187858855d79da40d415d7cdeb69d1c089154081e01b1a04ac67660e2201ba6a1dc32f6db7f48a42713ba5eb191b1eafd66c6e85b40aedc70f44adebadb2cbd8",
-    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.linux/3.119.1/skiasharp.nativeassets.linux.3.119.1.nupkg",
+    "dest-filename": "skiasharp.nativeassets.linux.3.119.2.nupkg",
+    "sha512": "c32a003c242b5747d21eab001199f37040b3288fb4c5916a70c7188e83880db85cd8b341fe35ec8621e7d19b6a73af6dbdc61ad629a836c1ecb9c732a0f42ab2",
+    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.linux/3.119.2/skiasharp.nativeassets.linux.3.119.2.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "skiasharp.nativeassets.macos.3.119.1.nupkg",
-    "sha512": "3fa7655fbafaa26f8e3204c08fc73f2d99a6df56bad6339430476ea231dd2baa55e896e70beef2586db6a7ed1c419dac141ba4be3e4b93e1b0fc56593208b77c",
-    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.macos/3.119.1/skiasharp.nativeassets.macos.3.119.1.nupkg",
+    "dest-filename": "skiasharp.nativeassets.macos.3.119.2.nupkg",
+    "sha512": "8573881ad34053595a638b10e0e894d21363ff13ec8a32e0b50ebbd66632d1e058a5994ab133e7ce75e06c4779596b869facab9e41d45bb296f26dd97540a5a3",
+    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.macos/3.119.2/skiasharp.nativeassets.macos.3.119.2.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "skiasharp.nativeassets.webassembly.3.119.1.nupkg",
-    "sha512": "86df84d457f6af13adbce38ec61f40891d4230effc25011138f12fba0daba5be575ea99b246bfdb6f1054583deb25c96f5e2c1a393f049fe70b75eb31115be67",
-    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.webassembly/3.119.1/skiasharp.nativeassets.webassembly.3.119.1.nupkg",
+    "dest-filename": "skiasharp.nativeassets.webassembly.3.119.2.nupkg",
+    "sha512": "cc70e25d8d9b031cae207874d1ebd0b954698f1a6f629e6d9c02a1aea6fabaf9ed24609606a541d72e115b2df57bdc2eb49e614a6ce0c86f694779043d89107b",
+    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.webassembly/3.119.2/skiasharp.nativeassets.webassembly.3.119.2.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "skiasharp.nativeassets.win32.3.119.1.nupkg",
-    "sha512": "2c27941c243a087ed8a1bd94d7de16efb3e152050efd50756c50343f259190f73204e879a85f25a3467daaf60b152e65b6fb55a80a59e15e1fe9abb650e8bcb1",
-    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.win32/3.119.1/skiasharp.nativeassets.win32.3.119.1.nupkg",
+    "dest-filename": "skiasharp.nativeassets.win32.3.119.2.nupkg",
+    "sha512": "dd60dbc4d812d4c7d85fa47a4c2ead0c00c5b96ec0224a97db9842ee1e813c5de49f2b2c643c2d6463c294d4808e541da4cff40080bc3d847acb975088c4e359",
+    "url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.win32/3.119.2/skiasharp.nativeassets.win32.3.119.2.nupkg",
     "type": "file"
   },
   {
