@@ -5,9 +5,6 @@ using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
-using DesktopNotifications;
-using DesktopNotifications.Apple;
-using DesktopNotifications.FreeDesktop;
 using FluentAvalonia.Styling;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Media;
@@ -19,7 +16,6 @@ using SnapX.Core;
 using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Utils;
-using SnapX.Core.Utils.Extensions;
 using Color = Avalonia.Media.Color;
 using Size = SixLabors.ImageSharp.Size;
 namespace SnapX.Avalonia.Views;
@@ -207,62 +203,5 @@ public partial class MainWindow : AppWindow
         // changelogWindow.LostFocus += (_, _) => changelogWindow.CloseButtonCommand.Execute(null);
         // PointerEntered += (_, _) => changelogWindow.CloseButtonCommand.Execute(null);
         // GotFocus += (_, _) => changelogWindow.CloseButtonCommand.Execute(null);
-    }
-
-    private static INotificationManager? CreateManager()
-    {
-        if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
-        {
-            return new FreeDesktopNotificationManager();
-        }
-
-        if (OperatingSystem.IsMacOS())
-        {
-            return new AppleNotificationManager();
-        }
-
-        DebugHelper.Logger?.Warning(
-            $"WindowsNotificationManager is not available. Windows is not supported for native notifications. Ironic, I know...");
-        return null;
-    }
-
-    private async void Window_OnClosing(object? Sender, WindowClosingEventArgs E)
-    {
-        try
-        {
-            if (E.CloseReason != WindowCloseReason.WindowClosing) return;
-            using var manager = CreateManager();
-            if (manager is not null)
-            {
-                await manager.Initialize();
-                manager.NotificationActivated += ManagerOnNotificationActivated;
-                manager.NotificationDismissed += ManagerOnNotificationDismissed;
-
-                static void ManagerOnNotificationDismissed(object? sender, NotificationDismissedEventArgs e)
-                {
-                    DebugHelper.WriteLine($"Notification dismissed: {e.Reason}");
-                }
-
-                static void ManagerOnNotificationActivated(object? sender, NotificationActivatedEventArgs e)
-                {
-                    DebugHelper.WriteLine($"Notification activated: {e.ActionId}");
-                }
-            }
-
-            if (!(App.SnapX.GetConfiguration()?.FirstTimeMinimizeToTray ?? false)) return;
-            var notification = new Notification
-            {
-                Title = "SnapX",
-                Body = "I'm still running in the system tray...",
-            };
-
-            manager?.ShowNotification(notification);
-
-            App.SnapX.GetConfiguration().FirstTimeMinimizeToTray = false;
-        }
-        catch (Exception e)
-        {
-            e.ShowError();
-        }
     }
 }
