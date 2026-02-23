@@ -22,7 +22,7 @@ jobs:
     continue-on-error: true # FreeBSD is not a first class citizen yet.
     # Prevent Ubuntu runner starvation from regular builds. FreeBSD builds are slightly slower than normal builds.
     needs: build
-    timeout-minutes: 360
+    timeout-minutes: 50
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
       DisableGitVersionTask: 1
@@ -193,7 +193,7 @@ jobs:
      name: Alpine Build
      runs-on: ${{matrix.os}}
      needs: build
-     timeout-minutes: 360
+     timeout-minutes: 50
      env:
        ALLOW_DOTNET_DOWNLOAD: 1
      strategy:
@@ -350,7 +350,7 @@ jobs:
     name: DEB/Snap Build
     runs-on: ${{matrix.os}}
     #    needs: build
-    timeout-minutes: 65
+    timeout-minutes: 50
     permissions:
       packages: write
     strategy:
@@ -583,7 +583,7 @@ jobs:
   build:
     name: Build
     runs-on: ${{matrix.os}}
-    timeout-minutes: 65
+    timeout-minutes: 50
     permissions:
       contents: write
     strategy:
@@ -656,10 +656,6 @@ jobs:
 #          cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr
 #          cmake --build build --parallel
 #          sudo cmake --install build
-      - name: Install Rust toolchain
-        if: runner.os == 'macOS'
-        timeout-minutes: 5
-        run: brew install rust
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet
