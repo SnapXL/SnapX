@@ -108,6 +108,7 @@
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->
     <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.18" />
+    <PackageReference Include="BrycensRanch.SnapXL.SnapXRust" Version="1.0.1" />
     <PackageReference Include="FluentFTP" Version="53.0.2" />
     <PackageReference Include="BrycensRanch.MegaApiClient" Version="1.0.0" />
     <PackageReference Include="Tmds.Ssh" Version="0.19.0" />
@@ -143,7 +144,6 @@
     <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
   </ItemGroup>
 <ItemGroup>
-  <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
   <Compile Remove=".\Tools\GenerateUploaderFactory\app.cs" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->

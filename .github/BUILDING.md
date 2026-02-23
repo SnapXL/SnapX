@@ -3,7 +3,6 @@
 - `git`
 - `dotnet-sdk-10.0`
 - `ffmpeg` (<7)
-- `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
 - `clang`
 - `zlib-devel`
 
@@ -61,7 +60,7 @@ End of life macOS versions are not supported. For example, macOS 13 Ventura is a
 
 ```zsh
 xcode-select --install
-brew install ffmpeg@8 rust
+brew install ffmpeg@8
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
@@ -71,7 +70,7 @@ exec $SHELL -l
 >
 > ```zsh
 > sudo port selfupdate
-> sudo port install ffmpeg8 cargo
+> sudo port install ffmpeg8
 > ```
 
 ### Alpine Linux 3.23+ <img src="https://github.com/user-attachments/assets/a44c5039-017c-4547-8598-8adafeae214b" alt="Alpine Linux Logo" height="25" width="25"/>
