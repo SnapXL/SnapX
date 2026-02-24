@@ -1,10 +1,10 @@
 using System.Collections;
 using System.ComponentModel;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Controls;
 using SnapX.Avalonia.ViewModels;
@@ -99,20 +99,20 @@ public partial class SettingsMainView : UserControl
         }
     }
 
-    public void RefreshDestinationChecks(MenuFlyout flyout)
+    public void RefreshDestinationChecks(FAMenuFlyout flyout)
     {
         var config = SnapXL.Settings;
-        if (config == null || flyout == null) return;
+        if (config?.DefaultTaskSettings == null || flyout == null) return;
 
         var settings = config.DefaultTaskSettings;
 
         foreach (var item in flyout.Items)
         {
-            if (item is MenuItem categoryItem)
+            if (item is MenuFlyoutSubItem category)
             {
-                foreach (var subObject in categoryItem.Items)
+                foreach (var subObject in category.Items)
                 {
-                    if (subObject is MenuItem subItem && subItem.Tag != null)
+                    if (subObject is ToggleMenuFlyoutItem subItem && subItem.Tag != null)
                     {
                         bool isSelected = subItem.Tag switch
                         {
@@ -123,14 +123,13 @@ public partial class SettingsMainView : UserControl
                             URLSharingServices sharing => settings.URLSharingServiceDestination == sharing,
                             _ => false
                         };
-
-                        subItem.Icon = isSelected ? new SymbolIcon { Symbol = Symbol.Accept, FontSize = 16 } : null;
+                        subItem.IsChecked = isSelected;
                     }
                 }
             }
         }
     }
-    public void PopulateDestinations(MenuFlyout flyout)
+    public void PopulateDestinations(FAMenuFlyout flyout)
     {
         if (flyout == null)
         {
@@ -147,7 +146,6 @@ public partial class SettingsMainView : UserControl
             flyout.Items.Add(CreateCategory("File Uploaders", UploaderFactory.FileUploaderServices));
             flyout.Items.Add(CreateCategory("URL Shorteners", UploaderFactory.URLShortenerServices));
             flyout.Items.Add(CreateCategory("URL Sharing", UploaderFactory.URLSharingServices));
-            DebugHelper.WriteLine("Populating destinations: Completed successfully");
         }
         catch (Exception ex)
         {
@@ -155,10 +153,10 @@ public partial class SettingsMainView : UserControl
         }
     }
 
-    private MenuItem CreateCategory<TKey, TService>(string header, Dictionary<TKey, TService> services) where TKey : Enum
+    private MenuFlyoutSubItem CreateCategory<TKey, TService>(string header, Dictionary<TKey, TService> services) where TKey : Enum
     {
 
-        var category = new MenuItem { Header = header };
+        var category = new MenuFlyoutSubItem() { Text = header };
         var settings = SnapXL.Settings?.DefaultTaskSettings;
 
         if (settings == null)
@@ -175,13 +173,13 @@ public partial class SettingsMainView : UserControl
         foreach (var kvp in services)
         {
             var description = kvp.Key.GetDescription();
-            var item = new MenuItem
+            var item = new ToggleMenuFlyoutItem
             {
-                Header = description,
+                Text = description,
                 Tag = kvp.Key
             };
 
-            item.Click += OnDestinationClick;
+            item.Click += DynamicSettingItemOnClick;
 
             var isSelected = kvp.Key switch
             {
@@ -193,11 +191,7 @@ public partial class SettingsMainView : UserControl
                 _ => false
             };
 
-            if (isSelected)
-            {
-                DebugHelper.WriteLine($"CreateCategory: Marking '{description}' as selected");
-                item.Icon = new SymbolIcon { Symbol = Symbol.Accept, FontSize = 16 };
-            }
+            item.IsChecked = isSelected;
 
             category.Items.Add(item);
         }
@@ -205,47 +199,6 @@ public partial class SettingsMainView : UserControl
         return category;
     }
 
-
-    private void OnDestinationClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is not MenuItem menuItem || menuItem.Tag == null) return;
-        var config = SnapXL.Settings;
-        if (config == null) return;
-
-        var destination = menuItem.Tag;
-
-        switch (destination)
-        {
-            case ImageDestination img:
-                config.DefaultTaskSettings.ImageDestination = img;
-                break;
-            case TextDestination text:
-                config.DefaultTaskSettings.TextDestination = text;
-                break;
-            case FileDestination file:
-                config.DefaultTaskSettings.FileDestination = file;
-                break;
-            case UrlShortenerType shortener:
-                config.DefaultTaskSettings.URLShortenerDestination = shortener;
-                break;
-            case URLSharingServices sharing:
-                config.DefaultTaskSettings.URLSharingServiceDestination = sharing;
-                break;
-        }
-
-        UpdateMenuSelectionFeedback(menuItem);
-    }
-
-    private void UpdateMenuSelectionFeedback(MenuItem selectedItem)
-    {
-        if (selectedItem.Parent is not MenuItem parentGroup) return;
-        foreach (var item in parentGroup.Items.OfType<MenuItem>())
-        {
-            item.Icon = null;
-        }
-
-        selectedItem.Icon = new SymbolIcon { Symbol = Symbol.Accept, FontSize = 16 };
-    }
     private NavigationViewItem? GetParentItem(IEnumerable? items, NavigationViewItem target)
     {
         if (items == null) return null;
@@ -317,20 +270,22 @@ public partial class SettingsMainView : UserControl
 
     private void PopupFlyoutBase_OnClosing(object? sender, CancelEventArgs e)
     {
-        DebugHelper.WriteLine($"{sender} OnClosing");
 
-        if (sender is not FlyoutBase fb) return;
+        if (sender is not FAMenuFlyout fb) return;
+
         var topLevel = TopLevel.GetTopLevel(fb.Target);
-        var focus = topLevel?.FocusManager?.GetFocusedElement();
 
-        if (focus is Control { IsPointerOver: true } c && (c is MenuItem || c is ToggleMenuFlyoutItem))
+        var focus = topLevel?.FocusManager?.GetFocusedElement() as Control;
+
+        if (focus is MenuItem or MenuFlyoutItemBase or DropDownButton)
         {
-            var tag = c.Tag?.ToString();
-            if (!string.IsNullOrWhiteSpace(tag))
+            var isOwnItem = fb.Target?.GetVisualRoot() == focus.GetVisualRoot();
+            var tag = focus.Tag?.ToString();
+
+            if (isOwnItem && !string.IsNullOrWhiteSpace(tag))
             {
                 e.Cancel = true;
-                DebugHelper.WriteLine($"{nameof(PopupFlyoutBase_OnClosing)} cancelled - keeping menu open.");
-                return; // user is still clicking
+                return;
             }
         }
 
@@ -338,12 +293,9 @@ public partial class SettingsMainView : UserControl
         {
             _saveCancellation.Cancel();
             _saveCancellation = null;
-
-            DebugHelper.WriteLine("Menu closing: Flushing pending save.");
             SnapXL.Settings?.SaveAsync();
         }
 
-        DebugHelper.WriteLine($"{nameof(PopupFlyoutBase_OnClosing)} NOT cancelled - menu closing.");
     }
     private CancellationTokenSource? _saveCancellation;
     private async void DynamicSettingItemOnClick(object? sender, RoutedEventArgs e)
@@ -385,7 +337,33 @@ public partial class SettingsMainView : UserControl
                 changed = true;
                 DebugHelper.WriteLine($"Updated AfterUploadJob: {key} toggled to {toggle.IsChecked}");
             }
+            else if (Enum.TryParse(key, out ImageDestination imgDestination))
+            {
+                SnapXL.Settings?.DefaultTaskSettings.ImageDestination = imgDestination;
 
+                // toggle.IsChecked = !currentlyHasFlag;
+                SnapXL.Settings?.DefaultTaskSettings.UseDefaultDestinations = false;
+                changed = true;
+                DebugHelper.WriteLine($"Updated ImageDestination: {key}");
+            }
+            else if (Enum.TryParse(key, out TextDestination textDestination))
+            {
+                SnapXL.Settings?.DefaultTaskSettings.TextDestination = textDestination;
+
+                // toggle.IsChecked = !currentlyHasFlag;
+                SnapXL.Settings?.DefaultTaskSettings.UseDefaultDestinations = false;
+                changed = true;
+                DebugHelper.WriteLine($"Updated TextDestination: {key}");
+            }
+            else if (Enum.TryParse(key, out FileDestination fileDestination))
+            {
+                SnapXL.Settings?.DefaultTaskSettings.FileDestination = fileDestination;
+
+                // toggle.IsChecked = !currentlyHasFlag;
+                SnapXL.Settings?.DefaultTaskSettings.UseDefaultDestinations = false;
+                changed = true;
+                DebugHelper.WriteLine($"Updated FileDestination: {key}");
+            }
             if (!changed) return;
             // Using async here will trigger bugs.
             // ReSharper disable once MethodHasAsyncOverload
@@ -411,14 +389,14 @@ public partial class SettingsMainView : UserControl
     }
     private void OnDestinationsDropDownClicked(object? sender, RoutedEventArgs e)
     {
-        if (sender is DropDownButton ddb && ddb.Flyout is MenuFlyout flyout)
+        if (sender is DropDownButton ddb && ddb.Flyout is FAMenuFlyout flyout)
         {
             PopulateDestinations(flyout);
         }
     }
     private void PopupFlyoutBase_OnOpening(object? sender, EventArgs e)
     {
-        if (sender is MenuFlyout menuFlyout)
+        if (sender is FAMenuFlyout menuFlyout)
         {
             RefreshDestinationChecks(menuFlyout);
         }
@@ -448,6 +426,18 @@ public partial class SettingsMainView : UserControl
                     else if (Enum.TryParse(key, out AfterUploadTasks flagUpload) && flagUpload != AfterUploadTasks.None)
                     {
                         isEnabled = (SnapXL.Settings?.DefaultTaskSettings.AfterUploadJob & flagUpload) == flagUpload;
+                    }
+                    else if (Enum.TryParse(key, out ImageDestination imgDestination))
+                    {
+                        isEnabled = SnapXL.Settings?.DefaultTaskSettings.ImageDestination == imgDestination;
+                    }
+                    else if (Enum.TryParse(key, out TextDestination textDestination))
+                    {
+                        isEnabled = SnapXL.Settings?.DefaultTaskSettings.TextDestination == textDestination;
+                    }
+                    else if (Enum.TryParse(key, out FileDestination fileDestination))
+                    {
+                        isEnabled = SnapXL.Settings?.DefaultTaskSettings.FileDestination == fileDestination;
                     }
 
                     toggle.IsChecked = isEnabled;

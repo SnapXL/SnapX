@@ -407,19 +407,21 @@
                 <DropDownButton
                     Click="OnDestinationsDropDownClicked"
                     HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Left">
+                    HorizontalContentAlignment="Left"
+                    Tag="Destinations">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <controls:SymbolIcon FontSize="16" Symbol="Share" />
                         <TextBlock Text="Destinations" VerticalAlignment="Center" />
                     </StackPanel>
 
                     <DropDownButton.Flyout>
-                        <MenuFlyout
+                        <controls:FAMenuFlyout
                             Closing="PopupFlyoutBase_OnClosing"
                             Opening="PopupFlyoutBase_OnOpening"
-                            Placement="RightEdgeAlignedTop">
-                            <MenuItem Header="Loading..." />
-                        </MenuFlyout>
+                            Placement="RightEdgeAlignedTop"
+                            ShowMode="TransientWithDismissOnPointerMoveAway">
+                            <controls:MenuFlyoutItem Text="Loading..." />
+                        </controls:FAMenuFlyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
 
@@ -433,7 +435,8 @@
                         <controls:FAMenuFlyout
                             Closing="PopupFlyoutBase_OnClosing"
                             Opening="PopupFlyoutBase_OnOpening"
-                            Placement="RightEdgeAlignedTop">
+                            Placement="RightEdgeAlignedTop"
+                            ShowMode="TransientWithDismissOnPointerMoveAway">
                             <controls:ToggleMenuFlyoutItem
                                 Click="DynamicSettingItemOnClick"
                                 IsEnabled="False"
@@ -664,7 +667,8 @@
                         <controls:FAMenuFlyout
                             Closing="PopupFlyoutBase_OnClosing"
                             Opening="PopupFlyoutBase_OnOpening"
-                            Placement="RightEdgeAlignedTop">
+                            Placement="RightEdgeAlignedTop"
+                            ShowMode="TransientWithDismissOnPointerMoveAway">
                             <controls:ToggleMenuFlyoutItem
                                 Click="DynamicSettingItemOnClick"
                                 IsEnabled="False"
