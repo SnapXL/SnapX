@@ -17,7 +17,6 @@ using SnapX.Core.Utils.Native;
 using Image = SixLabors.ImageSharp.Image;
 using Point = Avalonia.Point;
 using Rectangle = Avalonia.Controls.Shapes.Rectangle;
-using WindowState = Avalonia.Controls.WindowState;
 
 namespace SnapX.Avalonia.Views;
 
@@ -58,7 +57,7 @@ public partial class RegionSelectorWindow : Window
         base.OnOpened(e);
 
         await SetupWindowBoundsAsync();
-
+        IsVisible = true;
         Opacity = 1;
     }
     public static async Task<Image?> SelectRegionAsync()
@@ -114,7 +113,7 @@ public partial class RegionSelectorWindow : Window
     private async Task SetupWindowBoundsAsync()
     {
 
-        await Dispatcher.UIThread.InvokeAsync(async() =>
+        await Dispatcher.UIThread.InvokeAsync(async () =>
         {
             PixelRect bounds;
 

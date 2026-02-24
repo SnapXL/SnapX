@@ -4,6 +4,7 @@
     Closed="OnClosed"
     Cursor="Hand"
     Focusable="True"
+    IsVisible="False"
     KeyDown="OnKeyDown"
     KeyUp="OnKeyDown"
     Loaded="OnInit"
