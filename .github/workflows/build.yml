@@ -301,7 +301,12 @@ jobs:
           rpmbuild -ba snapx.spec "${DEFINES[@]}" | tee rpmbuild.log
           grep '^Wrote:' rpmbuild.log | awk '{print $2}' > rpm_files.txt
 
-          cat rpm_files.txt
+          mkdir -p rpm-artifacts
+          while IFS= read -r file; do
+          if [[ "$file" == *.rpm ]]; then
+            cp "$file" rpm-artifacts/
+          fi
+          done < rpm_files.txt
 
           echo "rpm_paths=$(paste -sd ' ' rpm_files.txt)" >> $GITHUB_OUTPUT
       - name: Format Container Name
@@ -316,7 +321,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
-          path: /github/home/rpmbuild/RPMS/**/*.rpm
+          path: packaging/rpm-artifacts/
           if-no-files-found: error
       - name: Upload RPM to Package Repository
         if: |
@@ -337,7 +342,7 @@ jobs:
             echo "Targeting NIGHTLY repo: $REPO_SLUG"
           fi
 
-          for rpm in /github/home/rpmbuild/RPMS/**/*.rpm; do
+          for rpm in packaging/rpm-artifacts/*.rpm; do
             [ -e "$rpm" ] || continue
             echo "Uploading $rpm to $REPO_SLUG"
 
