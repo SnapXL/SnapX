@@ -57,6 +57,7 @@ public class Tarball(
                 installConfig.Applicationsdir = junkDir;
                 installConfig.Icondir = junkDir;
                 installConfig.Metainfodir = junkDir;
+                installConfig.DisableWrapperScript = true;
             }
 
             if (!installConfig.ShouldSkip("copy_deps"))
