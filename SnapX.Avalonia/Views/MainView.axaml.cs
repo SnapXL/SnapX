@@ -223,7 +223,7 @@ public partial class MainView : UserControl
             var toolTip = child.FindLogicalDescendantOfType<ToolTip>(true);
             if (toolTip is null)
             {
-                FindURLOnDescendant(child);
+                FindPathOnDescendant(child);
             }
 
             var path = toolTip?.Content as string ?? string.Empty;

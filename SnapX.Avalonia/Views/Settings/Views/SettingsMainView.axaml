@@ -722,7 +722,7 @@
         <controls:NavigationView.FooterMenuItems>
             <controls:NavigationViewItem
                 Content="Config Folder"
-                PointerPressed="DynamicURL_OnPointerPressed"
+                PointerPressed="DynamicFolder_OnPointerPressed"
                 ToolTip.Tip="{x:Static core:SnapXL.ConfigFolder}">
                 <controls:NavigationViewItem.IconSource>
                     <fluent:FluentIconSource

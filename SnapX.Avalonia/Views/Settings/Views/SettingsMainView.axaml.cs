@@ -61,7 +61,43 @@ public partial class SettingsMainView : UserControl
                 $"{nameof(DynamicURL_OnPointerPressed)} called with {Sender} which is not a Control!!");
         }
     }
+    private void DynamicFolder_OnPointerPressed(object? Sender, PointerPressedEventArgs E)
+    {
+        DebugHelper.WriteLine($"{nameof(DynamicFolder_OnPointerPressed)}: {Sender} {E.Source}");
+        if (Sender is Control control)
+        {
+            // The ToolTip class has a storage of loaded tooltips, however, when a user clicks without hovering for a second the button didn't work.
+            // So I added the second if-clause.
+            if (ToolTip.GetTip(control) is string path)
+            {
+                FileHelpers.OpenFolder(path);
+                return;
+            }
 
+            FindPathOnDescendant(control);
+        }
+        else
+        {
+            DebugHelper.WriteLine(
+                $"{nameof(DynamicFolder_OnPointerPressed)} called with {Sender} which is not a Control!!"
+            );
+        }
+    }
+    private void FindPathOnDescendant(ILogical control)
+    {
+        foreach (var child in control.GetLogicalChildren())
+        {
+            var toolTip = child.FindLogicalDescendantOfType<ToolTip>(true);
+            if (toolTip is null)
+            {
+                FindPathOnDescendant(child);
+            }
+
+            var path = toolTip?.Content as string ?? string.Empty;
+            if (!string.IsNullOrEmpty(path))
+                FileHelpers.OpenFolder(path);
+        }
+    }
 
     public void RefreshDestinationChecks(MenuFlyout flyout)
     {
