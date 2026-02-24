@@ -113,16 +113,36 @@ public partial class RegionSelectorWindow : Window
     }
     private async Task SetupWindowBoundsAsync()
     {
-        var bounds = await Task.Run(async () =>
-        {
-            var (x, y, width, height) = await Methods.GetActiveScreen();
-            DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
 
-            return new PixelRect(x, y, width, height);
-        });
-
-        Dispatcher.UIThread.Post(() =>
+        await Dispatcher.UIThread.InvokeAsync(async() =>
         {
+            PixelRect bounds;
+
+
+            var cursorPos = Methods.GetCursorPosition();
+            var screen = Screens.ScreenFromPoint(new PixelPoint(cursorPos.X, cursorPos.Y));
+            if (screen != null)
+            {
+                bounds = screen.Bounds;
+            }
+            else
+            {
+                bounds = await Task.Run(() =>
+                        {
+                            try
+                            {
+                                var SnapXScreen = Methods.GetScreen(cursorPos);
+                                if (SnapXScreen is null) return Task.FromResult(new PixelRect());
+                                var (x, y, width, height) = SnapXScreen.Bounds;
+                                return Task.FromResult(new PixelRect(x, y, width, height));
+                            }
+                            catch (Exception Exception)
+                            {
+                                return Task.FromException<PixelRect>(Exception);
+                            }
+                        });
+            }
+
             Position = new PixelPoint(bounds.X, bounds.Y);
             Width = bounds.Width;
             Height = bounds.Height;
@@ -438,17 +458,6 @@ public partial class RegionSelectorWindow : Window
     private void OnLostFocus(object? Sender, RoutedEventArgs E)
     {
         if (Sender is Window window) window.Focus();
-    }
-
-    private void StyledElement_OnInitialized(object? Sender, EventArgs E)
-    {
-        if (!OperatingSystem.IsMacOS()) return;
-        WindowState = WindowState.Normal;
-        var screen = Screens.ScreenFromWindow(this);
-        if (screen == null) return;
-        Position = screen.Bounds.Position;
-        Width = screen.Bounds.Width;
-        Height = screen.Bounds.Height;
     }
 }
 
