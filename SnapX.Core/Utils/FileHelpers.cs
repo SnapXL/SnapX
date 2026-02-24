@@ -237,7 +237,7 @@ public static class FileHelpers
     {
         if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
         {
-            if (!folderPath.EndsWith(@"\"))
+            if (OperatingSystem.IsWindows() && !folderPath.EndsWith(@"\"))
             {
                 folderPath += @"\";
             }
