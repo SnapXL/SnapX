@@ -260,9 +260,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "fastcloner.sourcegenerator.1.1.4.nupkg",
-    "sha512": "13eac90d557a7968b785e81a44d0c235fba4ec3292d49294bca02d149a71ebb34a021ba381b978ad36acc2a00c6e871e7085d86a4fef6a1dab4c97e620bcffd4",
-    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner.sourcegenerator/1.1.4/fastcloner.sourcegenerator.1.1.4.nupkg",
+    "dest-filename": "fastcloner.sourcegenerator.1.1.5.nupkg",
+    "sha512": "7b471d42d266a0dc50a443f2783e3740c3ce9737429d8ce2cc4de8696e04fce3c26e15fb1a50d51257f8e381c9b2b0fc457abfaf050d323a85262d1f83123096",
+    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner.sourcegenerator/1.1.5/fastcloner.sourcegenerator.1.1.5.nupkg",
     "type": "file"
   },
   {
