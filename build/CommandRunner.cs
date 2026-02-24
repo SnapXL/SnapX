@@ -172,7 +172,7 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
 
         if (OperatingSystem.IsMacOS())
         {
-            noElevationPaths = ["/tmp", "/private/tmp", "/var/tmp"];
+            noElevationPaths = ["/tmp", "/private/tmp", "/var/tmp", "/var/folders"];
         }
 
         var arguments = installArguments
