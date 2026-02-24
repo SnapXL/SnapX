@@ -19,7 +19,7 @@ class PersistentGitBash : IDisposable
         var psi = new ProcessStartInfo
         {
             FileName = bashPath,
-            Arguments = "--noprofile --norc -i",
+            Arguments = "--noprofile --norc",
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -42,7 +42,7 @@ class PersistentGitBash : IDisposable
         {
             outputBuffer.AppendLine(e.Data);
 
-            if (!e.Data.StartsWith("__CMD_DONE__")) return;
+            if (!e.Data.Contains("__CMD_DONE__")) return;
             var success = e.Data.EndsWith("0");
             var output = outputBuffer.ToString();
             var error = errorBuffer.ToString();
