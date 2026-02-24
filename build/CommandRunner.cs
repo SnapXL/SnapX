@@ -160,20 +160,37 @@ public class CommandRunner(IBuildLogger Logger) : ICommandRunner
     {
         if (Environment.GetEnvironmentVariable("ELEVATION_NOT_NEEDED") == "1")
             return false;
-
+        // On Windows, elevation is handled differently (e.g., run as admin).
+        // This simple check is for Unix-like systems.
         if (OperatingSystem.IsWindows())
-            // On Windows, elevation is handled differently (e.g., run as admin).
-            // This simple check is for Unix-like systems.
             return false;
-
         // Common protected base paths (must be rooted)
+
         string[] protectedPaths = ["/usr", "/opt", "/etc", "/var", "/bin", "/sbin"];
+
+        string[] noElevationPaths = [];
+
+        if (OperatingSystem.IsMacOS())
+        {
+            noElevationPaths = ["/tmp", "/private/tmp", "/var/tmp"];
+        }
 
         var arguments = installArguments
             .Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries)
-            .Select(arg => arg.Trim().Trim('"', '\''));
+            .Select(arg => arg.Trim().Trim('"', '\''))
+            .Where(Path.IsPathRooted);
 
-        return (from arg in arguments where Path.IsPathRooted(arg) from protectedPath in protectedPaths where arg == protectedPath || arg.StartsWith(protectedPath + '/') select arg).Any();
+        var argumentsArray = arguments as string[] ?? arguments.ToArray();
+        var requiresElevation = argumentsArray.Any(arg => protectedPaths.Any(path => arg == path || arg.StartsWith(path + '/')));
+
+        if (!requiresElevation) return requiresElevation;
+        {
+            var isTempPath = argumentsArray.Any(arg => noElevationPaths.Any(path => arg == path || arg.StartsWith(path + '/')));
+            if (isTempPath)
+                return false;
+        }
+
+        return requiresElevation;
     }
 
     public bool IsAdmin()
