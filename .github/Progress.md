@@ -11,10 +11,10 @@
 - [ ] Add charts for statistics like uploading, avg image size, most used image extension, and error rate for uploading
 - [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation.
 - [x] Package for popular technologies (Flatpak, RPM (Fedora/OpenSUSE), Snap, Homebrew)
-- [ ] Expose the entire Core in UI (Avalonia) (Missing direct upload function & drag and drop)
+- [x] Expose the entire Core in UI (Avalonia) (Missing direct upload function & drag and drop)
 - [x] Add telemetry & Aptabase is a work in progress, PR pending https://github.com/aptabase/aptabase-maui/pull/12
-- [ ] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp)
-- [ ] Use Microsoft's [MSIX Packaging tool](https://github.com/microsoft/msix-packaging) for MSIXBundles for Windows.
+- [x] Create MSI installer with [WixSharp](https://github.com/oleg-shilo/wixsharp)
+- [x] Use Microsoft's [MSIX Packaging tool](https://github.com/microsoft/msix-packaging) for MSIXBundles for Windows.
 - [ ] Integrate with Windows Share https://discussions.unity.com/t/calling-windows-shareui-dialog-from-unity-on-windows-10-11-on-non-uwp-build-target/1586504
 - [ ] Add to Microsoft Store
 - [ ] Add to Winget, Chocolately, and Scoop
@@ -41,7 +41,8 @@
 - [ ] Add Custom Uploader List to SnapX via a build-time HTTP Fetch, or if the file is there already, use that. Can be disabled by packagers as they need offline builds. Or they could fetch the list, or rather, JSON, as part of their build script that isn't done during packaging time. That list is then embedded into the binary, and then at runtime it is checked *again* for any new entries to said list. Thus, the functionality keeps working even in an environment where SnapX cannot access the internet.
 - [ ] ~~Add automatic region detection that suggests to users in Egypt, Russia, Ukraine, and possibly more to switch their default image uploader from Imgur to ImgBB. According to my tests, ImgBB doesn't have such region blocks for Ukraine & Egypt. Russia is untested because PIA doesn't have any servers there.~~ Imgur continually gets less reliable. I am investigating making ImgBB the default uploader for now until a more suitable alternative is found.
 - [ ] Add instructions to generate API keys for those interested
-- [ ] Add editor functionality (Crop, Annotate, etc) using [Lyon](https://docs.rs/lyon/latest/lyon/)
+- [ ] Add GPU accelerated image editor (Crop, Annotate, etc) using [Silk.NET](https://dotnet.github.io/Silk.NET/)
+- [ ] Integrate Hotkeys into SnapX
 
 ## Studying ShareX's behavior on Windows 11 24H2
 
