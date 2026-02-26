@@ -214,9 +214,9 @@ public class FlickrPhotosGetSizesResponse
 
 public class FlickrPhotosGetSizesSizes
 {
-    public int canblog { get; set; }
-    public bool canprint { get; set; }
-    public int candownload { get; set; }
+    // public int canblog { get; set; }
+    // public int canprint { get; set; }
+    // public int candownload { get; set; }
     public FlickrPhotosGetSizesSize[] size { get; set; }
 }
 
