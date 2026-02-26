@@ -27,7 +27,7 @@ public class WindowsCapture : BaseCapture
     {
         var result = D3D11.D3D11CreateDevice(
             adapter,
-            DriverType.Hardware,
+            DriverType.Unknown,
             creationFlags,
             [featureLevel],
             out var device,
@@ -358,7 +358,7 @@ public class WindowsCapture : BaseCapture
                 continue;
             }
 
-            if (IsSupportedFeatureLevel(adapter, FeatureLevel.Level_11_1, DeviceCreationFlags.BgraSupport))
+            if (!IsSupportedFeatureLevel(adapter, FeatureLevel.Level_11_1, DeviceCreationFlags.BgraSupport))
             {
                 DebugHelper.WriteLine(
                     $"Feature level {FeatureLevel.Level_11_1} not supported. Skipping Adapter {adapter.Description}");
