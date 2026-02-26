@@ -1,5 +1,6 @@
 using System.Timers;
 using Avalonia.Collections;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Threading;
@@ -160,7 +161,7 @@ public partial class HomePageViewModel : ViewModelBase
 
         // var topLevel = TopLevel.GetTopLevel(App.MyMainWindow);
         // var isCtrlPressed = topLevel?.InputManager?.KeyboardDevice?.Modifiers.HasFlag(KeyModifiers.Control) ?? false;
-        //
+
         // if (!isCtrlPressed)
         // {
         //     SelectedTasks.Clear();
@@ -198,12 +199,24 @@ public partial class HomePageViewModel : ViewModelBase
     [RelayCommand]
     public void OpenURL(object parameter)
     {
-        DebugHelper.WriteLine("OpenURL");
         if (parameter is not string url)
             return;
         URLHelpers.OpenURL(url);
     }
-
+    [RelayCommand]
+    public void OpenPath(object parameter)
+    {
+        if (parameter is not string Path)
+            return;
+        FileHelpers.OpenFolderWithFile(Path);
+    }
+    [RelayCommand]
+    public void OpenFile(object parameter)
+    {
+        if (parameter is not string Path)
+            return;
+        FileHelpers.OpenFile(Path);
+    }
     [RelayCommand]
     public void OCRImage(object Sender)
     {

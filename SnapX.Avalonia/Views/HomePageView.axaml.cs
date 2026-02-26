@@ -186,7 +186,7 @@ public partial class HomePageView : UserControl
         var folderPath = Path.GetDirectoryName(filePath);
         if (!string.IsNullOrEmpty(folderPath))
         {
-            URLHelpers.OpenURL(folderPath);
+            FileHelpers.OpenFolder(folderPath);
         }
     }
 

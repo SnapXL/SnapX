@@ -105,16 +105,17 @@
                                             ToolTip.Tip="{x:Static core:Lang.UI_DeletionURL_ToolTip}" />
                                         <controls:MenuFlyoutSeparator />
                                         <controls:MenuFlyoutItem
-                                            Click="DynamicOpenURL"
+                                            Command="{Binding $parent[UserControl].((viewModels1:HomePageViewModel)DataContext).OpenFileCommand}"
+                                            CommandParameter="{Binding task.FilePath}"
                                             HotKey="CTRL+Enter"
                                             IconSource="OpenFile"
                                             IsEnabled="{Binding task.BestImageSource, Converter={StaticResource IsLocalFilePathConverter}}"
-                                            Tag="{Binding task.FilePath}"
                                             Text="{x:Static core:Lang.UI_File}"
                                             ToolTip.Tip="{x:Static core:Lang.UI_File_ToolTip}" />
 
                                         <controls:MenuFlyoutItem
-                                            Click="OpenFolder_Click"
+                                            Command="{Binding $parent[UserControl].((viewModels1:HomePageViewModel)DataContext).OpenPathCommand}"
+                                            CommandParameter="{Binding task.FilePath}"
                                             HotKey="Shift+Enter"
                                             IconSource="OpenFolder"
                                             IsEnabled="{Binding task.BestImageSource, Converter={StaticResource IsLocalFilePathConverter}}"
@@ -161,10 +162,6 @@
                                             IconSource="ImageCopy"
                                             IsEnabled="False"
                                             Text="{x:Static core:Lang.UI_Image}" />
-                                        <controls:MenuFlyoutItem
-                                            IconSource="Copy"
-                                            IsEnabled="False"
-                                            Text="{x:Static core:Lang.UI_Text}" />
                                         <controls:MenuFlyoutItem
                                             IconSource="Copy"
                                             IsEnabled="False"
