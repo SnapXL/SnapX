@@ -145,15 +145,15 @@ jobs:
           rm global.json
           mkdir -p build/obj
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.3.2
+        uses: gittools/actions/gitversion/setup@v4.3.3
         with:
           versionSpec: "6.5.x"
       - name: Run GitVersion
-        uses: gittools/actions/gitversion/command@v4.3.2
+        uses: gittools/actions/gitversion/command@v4.3.3
         with:
           arguments: '/output file /outputfile "build/obj/gitversion.json"'
       - name: Update project files with GitVersion
-        uses: gittools/actions/gitversion/command@v4.3.2
+        uses: gittools/actions/gitversion/command@v4.3.3
         with:
           arguments: "/updateprojectfiles"
       - name: Copy GitVersion data
