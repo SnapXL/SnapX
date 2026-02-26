@@ -156,7 +156,7 @@ public partial class SettingsMainView : UserControl
     private MenuFlyoutSubItem CreateCategory<TKey, TService>(string header, Dictionary<TKey, TService> services) where TKey : Enum
     {
 
-        var category = new MenuFlyoutSubItem() { Text = header };
+        var category = new MenuFlyoutSubItem { Text = header};
         var settings = SnapXL.Settings?.DefaultTaskSettings;
 
         if (settings == null)
@@ -272,17 +272,27 @@ public partial class SettingsMainView : UserControl
     {
 
         if (sender is not FAMenuFlyout fb) return;
+        if (_isDismissingViaBackground) return;
 
         var topLevel = TopLevel.GetTopLevel(fb.Target);
 
         var focus = topLevel?.FocusManager?.GetFocusedElement() as Control;
 
-        if (focus is MenuItem or MenuFlyoutItemBase or DropDownButton)
+        if (focus is MenuItem or MenuFlyoutItemBase)
         {
             var isOwnItem = fb.Target?.GetVisualRoot() == focus.GetVisualRoot();
             var tag = focus.Tag?.ToString();
 
             if (isOwnItem && !string.IsNullOrWhiteSpace(tag))
+            {
+                e.Cancel = true;
+                DebugHelper.WriteLine($"{nameof(PopupFlyoutBase_OnClosing)}: Tag: {tag}");
+                return;
+            }
+        }
+        if (focus is DropDownButton ddb && ddb == fb.Target)
+        {
+            if (ddb.IsPointerOver || Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") is not null)
             {
                 e.Cancel = true;
                 return;
@@ -458,6 +468,23 @@ public partial class SettingsMainView : UserControl
     private void StyledElement_OnInitialized(object? Sender, EventArgs E)
     {
 
+    }
+    private bool _isDismissingViaBackground;
+    private void SettingsMainViewPressed(object? Sender, PointerPressedEventArgs E)
+    {
+        var flyout = DestinationsDropDown.Flyout;
+        if (flyout is not { IsOpen: true }) return;
+        E.Handled = true;
+        Focus();
+        _isDismissingViaBackground = true;
+        try
+        {
+            flyout.Hide();
+        }
+        finally
+        {
+            _isDismissingViaBackground = false;
+        }
     }
 }
 

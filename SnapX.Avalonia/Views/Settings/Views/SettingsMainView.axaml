@@ -1,5 +1,7 @@
 <UserControl
     Initialized="StyledElement_OnInitialized"
+    PointerPressed="SettingsMainViewPressed"
+    Tag="SettingsMainView"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
@@ -387,6 +389,7 @@
             <StackPanel
                 HorizontalAlignment="Stretch"
                 Margin="8"
+                Name="ControlPanelStackPanel"
                 Spacing="4">
                 <TextBlock
                     FontSize="11"
@@ -418,14 +421,18 @@
                         <controls:FAMenuFlyout
                             Closing="PopupFlyoutBase_OnClosing"
                             Opening="PopupFlyoutBase_OnOpening"
+                            OverlayDismissEventPassThrough="True"
                             Placement="RightEdgeAlignedTop"
-                            ShowMode="TransientWithDismissOnPointerMoveAway">
+                            ShowMode="Transient">
                             <controls:MenuFlyoutItem Text="Loading..." />
                         </controls:FAMenuFlyout>
                     </DropDownButton.Flyout>
                 </DropDownButton>
 
-                <DropDownButton HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                <DropDownButton
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Name="DestinationsDropDown">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <fluent:SymbolIcon IconVariant="Regular" Symbol="ScreenCut" />
                         <TextBlock Text="After Capture" VerticalAlignment="Center" />
