@@ -82,7 +82,7 @@ public class MSI(IBuildLogger Logger, CommandRunner CommandRunner, FS FileSystem
                 desktopShortcut),
 
             new Files(Path.Join(config.OutputDir, config.TargetInstallAssembly ?? "snapx-ui") + $"{Path.DirectorySeparatorChar}**",
-                f => !f.EndsWith("snapx-ui.exe"))
+                f => !f.EndsWith("snapx-ui.exe") && !f.EndsWith(".pdb"))
         );
         var project =
             new Project(product,
