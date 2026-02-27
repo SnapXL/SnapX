@@ -17,7 +17,7 @@
   <a href="https://github.com/SnapXL/SnapX/actions/workflows/build.yml"><img src="https://badgen.net/github/checks/SnapXL/SnapX/develop?label=Build" alt="GitHub Workflow Status" /></a>
   <a href="./LICENSE.md"><img src="https://badgen.net/github/license/SnapXL/SnapX?color=green" alt="License" /></a>
   <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://badgen.net/github/release/SnapXL/SnapX?label=Release&color=green" alt="Release" /></a>
-  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://badgen.net/github/assets-dl/SnapXL/SnapX?label=Downloads&color=green" alt="Downloads" /></a>
+  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://img.shields.io/github/downloads/SnapXL/SnapX/total?label=Downloads" alt="Downloads" /></a>
   <br>
   <br>
   <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base" /></a>
