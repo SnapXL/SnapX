@@ -253,16 +253,16 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "fastcloner.3.4.6.nupkg",
-    "sha512": "20881a519c9abd5da2305d3381b50d1679c3864b5432a520adc396ad72996df4aaead89e20e7dd1ac9fb65321f4cce19f92e0b1407b7961c48673fff683ef423",
-    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner/3.4.6/fastcloner.3.4.6.nupkg",
+    "dest-filename": "fastcloner.3.4.7.nupkg",
+    "sha512": "14e5ccea0eb262b865ce1fe53c8ce3e14ceda53221b6e454b1c6718120c2cfd16697836183f7d632c23396cd92a7f1cb0d863f6ea9f9397d6d65ef9d91f4505d",
+    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner/3.4.7/fastcloner.3.4.7.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "fastcloner.sourcegenerator.1.1.5.nupkg",
-    "sha512": "7b471d42d266a0dc50a443f2783e3740c3ce9737429d8ce2cc4de8696e04fce3c26e15fb1a50d51257f8e381c9b2b0fc457abfaf050d323a85262d1f83123096",
-    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner.sourcegenerator/1.1.5/fastcloner.sourcegenerator.1.1.5.nupkg",
+    "dest-filename": "fastcloner.sourcegenerator.1.1.7.nupkg",
+    "sha512": "22ebccc23558b8096a75ba2158328ee1f6906eeece4c1cd0048d9805150482e98d2f7d0b9a27db3f5b7263eac7c3a2904dc7f54fb46f3a6b0c1f28e79faa10c5",
+    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner.sourcegenerator/1.1.7/fastcloner.sourcegenerator.1.1.7.nupkg",
     "type": "file"
   },
   {
