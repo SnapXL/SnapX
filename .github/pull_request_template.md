@@ -49,9 +49,9 @@ Include related issues, discussions, RFCs, or historical pull requests that prov
 -->
 
 <!--
-- Fixes: #
-- Supersedes: #
-- Related to: #
+- Fixes #
+- Supersedes #
+- Related to #
 -->
 
 
