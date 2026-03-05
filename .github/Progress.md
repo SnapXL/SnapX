@@ -6,7 +6,7 @@
 - [x] Convert history to SQLite instead of JSON. I know this is a big change, but it'd remove the typically unnecessary built-in backup feature. <https://pl-rants.net/posts/when-not-json> <https://github.com/dotnet/efcore>
 - [x] Log files should be a daily log file, not a whole MONTH (wtf?)
 - [x] Symlink ~/Documents/SnapX to their appropriate XDG directories to keep the familiar structure users are used to without violating the [XDG spec](https://specifications.freedesktop.org/basedir-spec/latest/).
-- [ ] Create custom uploader list with reviews & privacy policies enforced & popularity filter to quality control hosts. Run service on HB VPS to automatically prune custom uploaders that aren't online 90% of the time in a week.
+- [x] Create custom uploader list with reviews & privacy policies enforced & popularity filter to quality control hosts. Run service on HB VPS to automatically prune custom uploaders that aren't online 90% of the time in a week.
 - [x] Package PaddleOCR for Linux properly.
 - [ ] Add charts for statistics like uploading, avg image size, most used image extension, and error rate for uploading
 - [ ] Ensure SnapX is the default screenshot program when installed on a new Windows installation.
@@ -41,7 +41,7 @@
 - [ ] Add Custom Uploader List to SnapX via a build-time HTTP Fetch, or if the file is there already, use that. Can be disabled by packagers as they need offline builds. Or they could fetch the list, or rather, JSON, as part of their build script that isn't done during packaging time. That list is then embedded into the binary, and then at runtime it is checked *again* for any new entries to said list. Thus, the functionality keeps working even in an environment where SnapX cannot access the internet.
 - [ ] ~~Add automatic region detection that suggests to users in Egypt, Russia, Ukraine, and possibly more to switch their default image uploader from Imgur to ImgBB. According to my tests, ImgBB doesn't have such region blocks for Ukraine & Egypt. Russia is untested because PIA doesn't have any servers there.~~ Imgur continually gets less reliable. I am investigating making ImgBB the default uploader for now until a more suitable alternative is found.
 - [ ] Add instructions to generate API keys for those interested
-- [ ] Add GPU accelerated image editor (Crop, Annotate, etc) using [Silk.NET](https://dotnet.github.io/Silk.NET/)
+- [ ] Add GPU accelerated image editor (Crop, Annotate, etc) using [Silk.NET](https://dotnet.github.io/Silk.NET/). Specifically with Vulkan 1.4 mandated.
 - [ ] Integrate Hotkeys into SnapX
 
 ## Studying ShareX's behavior on Windows 11 24H2
