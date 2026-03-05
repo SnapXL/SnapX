@@ -101,7 +101,7 @@ sudo pkg install -y curl bash icu terminfo-db libunwind libinotify \
 sudo mkdir -p /usr/lib/dotnet
 
 # Download the community-built .NET 10 SDK for FreeBSD
-curl -L -o /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.102-sb1-amd64-freebsd-14/dotnet-sdk-10.0.102-freebsd-x64.tar.gz
+curl -L -o /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.103-amd64-freebsd-14/dotnet-sdk-10.0.103-freebsd-x64.tar.gz
 
 # Extract the SDK
 sudo tar -xzf /tmp/dotnet.tar.gz -C /usr/lib/dotnet --strip-components=1
