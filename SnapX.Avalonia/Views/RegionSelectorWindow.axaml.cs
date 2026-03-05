@@ -17,6 +17,7 @@ using SnapX.Core.Utils.Native;
 using Image = SixLabors.ImageSharp.Image;
 using Point = Avalonia.Point;
 using Rectangle = Avalonia.Controls.Shapes.Rectangle;
+using WindowState = Avalonia.Controls.WindowState;
 
 namespace SnapX.Avalonia.Views;
 
@@ -55,7 +56,6 @@ public partial class RegionSelectorWindow : Window
     protected override async void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-
         await SetupWindowBoundsAsync();
         IsVisible = true;
         Opacity = 1;
@@ -334,7 +334,7 @@ public partial class RegionSelectorWindow : Window
     }
     private readonly Dictionary<Window, WindowBase?> _ownershipMap = new();
 
-    private async void OnInit(object? Sender, RoutedEventArgs EventArgs)
+    private async void OnInit(object? Sender, RoutedEventArgs Args)
     {
         if (!IsSilentMode)
         {
@@ -397,6 +397,7 @@ public partial class RegionSelectorWindow : Window
                 Source = new Bitmap(_imageStream),
                 Stretch = Stretch.UniformToFill,
             };
+            WindowState = OperatingSystem.IsMacOS() ? WindowState.Maximized :  WindowState.Normal;
         }
         catch (Exception ex)
         {

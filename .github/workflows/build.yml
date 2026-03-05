@@ -184,7 +184,7 @@ jobs:
           cd $GITHUB_WORKSPACE;
           sudo -u runner bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-UI-${{ matrix.configuration }}-FreeBSD-${{ runner.arch }}
           path: "SnapX-UI*"
@@ -254,7 +254,7 @@ jobs:
          run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
          shell: alpine.sh {0}
        - name: Upload artifact
-         uses: actions/upload-artifact@v6
+         uses: actions/upload-artifact@v7
          with:
            name: SnapX-UI-${{ matrix.configuration }}-${{ runner.os }}-musl-${{ runner.arch }}
            path: "SnapX-UI*"
@@ -318,7 +318,7 @@ jobs:
           }')
           echo "formattedName=${formattedName}" >> "$GITHUB_OUTPUT"
       - name: Upload artifact (RPM - Release on Linux)
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
           path: packaging/rpm-artifacts/
@@ -423,7 +423,7 @@ jobs:
           echo "snap_file=packaging/$SNAP_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload artifact (DEB)
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.arch }}
           path: packaging/*.deb
@@ -457,7 +457,7 @@ jobs:
                  -F "overwrite=$OVERWRITE_EXISTING"
           done
       - name: Upload artifact (Snap)
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
           path: ${{ steps.build_snap.outputs.snap_file }}
@@ -504,7 +504,7 @@ jobs:
           ./packaging/flathub/update_hashes.sh # Script to fix possible bug in FlatpakGenerator that affects Avalonia
           Nickvision.FlatpakGenerator generate -i build/build.csproj -o packaging/flathub/build-sources.json --destination-name vendor -s false -u
       - name: 🌐 Upload Sources
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: flatpak-sources-${{ matrix.variant.arch }}
           path: packaging/flathub/*.json
@@ -547,7 +547,7 @@ jobs:
           # remove Android library: about 7.8GB (host /usr/local/lib/android)
           rm -rf /host/usr/local/lib/android || true
       - name: Download Generated Sources
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: flatpak-sources-${{ matrix.variant.arch }}
           path: packaging/flathub/
@@ -725,7 +725,7 @@ jobs:
       # I cannot provide them in public source code.
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-Vendored-Source-${{ runner.arch }}
           path: .
@@ -762,7 +762,7 @@ jobs:
 #        run: "./build.ps1 msix"
       - name: Upload MSI
         if: runner.os == 'Windows' && matrix.configuration == 'Release'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-UI-MSI-${{ runner.arch }}
           path: "packaging/*.msi"
@@ -775,7 +775,7 @@ jobs:
 #          path: "packaging/*.msix"
 #          if-no-files-found: error
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-UI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "SnapX-UI*"

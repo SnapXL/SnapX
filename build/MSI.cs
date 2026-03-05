@@ -82,7 +82,7 @@ public class MSI(IBuildLogger Logger, CommandRunner CommandRunner, FS FileSystem
                 desktopShortcut),
 
             new Files(Path.Join(config.OutputDir, config.TargetInstallAssembly ?? "snapx-ui") + $"{Path.DirectorySeparatorChar}**",
-                f => !f.EndsWith("snapx-ui.exe"))
+                f => !f.EndsWith("snapx-ui.exe") && !f.EndsWith(".pdb"))
         );
         var project =
             new Project(product,
@@ -137,7 +137,8 @@ public class MSI(IBuildLogger Logger, CommandRunner CommandRunner, FS FileSystem
         var uname = config.Uname;
         var edition = config.Edition;
         var suffix = !string.IsNullOrEmpty(edition) ? $"-{edition}" : "";
-        project.OutFileName = $"SnapX{suffix}-{config.Configuration}-{uname}-{version}-{arch}";
+        var isDebugSuffix = config.Configuration == "Debug" ? $"-{config.Configuration}" : "";
+        project.OutFileName = $"SnapX{suffix}{isDebugSuffix}-{version}-{arch}";
         project.OutDir = config.PackagingDirectory;
         project.UI = generateMSIX ? WUI.WixUI_ProgressOnly : WUI.WixUI_Advanced;
 
