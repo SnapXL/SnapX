@@ -288,23 +288,23 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "fluenticons.avalonia.fluent.2.0.319.nupkg",
-    "sha512": "42510a69034cd8c7aaaf693c451b969c24773ec479891ab661bb24392b9f51e1f86969318a6a4f41b7d1b38b8c9f149796719952049f7feb934784a43e7e91db",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia.fluent/2.0.319/fluenticons.avalonia.fluent.2.0.319.nupkg",
+    "dest-filename": "fluenticons.avalonia.fluent.2.0.320.nupkg",
+    "sha512": "7767a1a1fcf49334e43a8d73403726209c426eaa0f858ec8f54061b9193508360d261384923b0480b58fa8203296c8ef7f800543e8fa00e9940db9612456e2be",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia.fluent/2.0.320/fluenticons.avalonia.fluent.2.0.320.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "fluenticons.common.2.0.319.nupkg",
-    "sha512": "a65eb1748d2d511cbe19794b128d306c27866e25361f9e8bc18494b90676a323c1367f2178671e6c790340c68a39778011b4b1db7131c38dc0819ee519ec4e0e",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.common/2.0.319/fluenticons.common.2.0.319.nupkg",
+    "dest-filename": "fluenticons.common.2.0.320.nupkg",
+    "sha512": "927bcaa73a2ae22b97232b894c7c83f7aa8557e90400bdbee8ae8210dcbbbae27a556afdeeae9e4236f8c24ada7dc418199328e535ad4ac3fb480c48c8f2e65d",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.common/2.0.320/fluenticons.common.2.0.320.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "fluenticons.resources.avalonia.2.0.319.nupkg",
-    "sha512": "2d8c909375f4ae8a83711fddb01cbfab5fd3e98610bb5599252830b01ac8aec4f0065459b51de35ad55060e93b66e3987f752f177c9ea190a0b1401bdda39a55",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.resources.avalonia/2.0.319/fluenticons.resources.avalonia.2.0.319.nupkg",
+    "dest-filename": "fluenticons.resources.avalonia.2.0.320.nupkg",
+    "sha512": "7bd7703e7c8529412b62e32c60e5ff21e5f0f8376b099a6f351a83dfc2cea0407e56709dc53413ad088aadb032ed6bafd76e68591e0c6191a1324c9a40b5d981",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.resources.avalonia/2.0.320/fluenticons.resources.avalonia.2.0.320.nupkg",
     "type": "file"
   },
   {
