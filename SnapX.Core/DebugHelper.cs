@@ -33,7 +33,12 @@ public static class DebugHelper
 #endif
             .WriteTo.Sink(inMemorySink)
             // If you run multiple SnapX instances, this will be the first to break. :)
-            .WriteTo.Async(a => a.File(logFilePath, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]: {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day, buffered: !SnapXL.IsCLI))
+            .WriteTo.File(
+                logFilePath,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]: {Message:lj}{NewLine}{Exception}",
+                rollingInterval: RollingInterval.Day,
+                buffered: !SnapXL.IsCLI
+            )
             .WriteTo.Console(theme: AnsiConsoleTheme.Sixteen, restrictedToMinimumLevel: ConsoleLogLevel);
 
         Logger = loggerConfig.CreateLogger();
