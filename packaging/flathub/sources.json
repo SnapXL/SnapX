@@ -729,13 +729,6 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "serilog.4.1.0.nupkg",
-    "sha512": "4b0bcbc6ef35b4d1914dc870f3ecafc4a7e320b66842f8fce03d733874fd4d171885343c91e43dd1d5e49f55c50f948cf6c681c64819a8632187309ff82be15a",
-    "url": "https://api.nuget.org/v3-flatcontainer/serilog/4.1.0/serilog.4.1.0.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
     "dest-filename": "serilog.4.2.0.nupkg",
     "sha512": "e6e3335a3019d18420018672c4ccdc9b293364785f24222ac5598fa80e6be592826b142ab29881f8d1a1a8a3f5016584c014aa4cf99deaaf4350a7ba3cb7897d",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog/4.2.0/serilog.4.2.0.nupkg",
@@ -753,13 +746,6 @@
     "dest-filename": "serilog.extensions.logging.10.0.0.nupkg",
     "sha512": "2fe089f70ea35f0cf0f57a358b641e203b839dfed26a7a415fde24cbd06144efe5daba25beb79b611c2e5f5426ab0b0f14f76a49009e55d3480e1c31aa638bd4",
     "url": "https://api.nuget.org/v3-flatcontainer/serilog.extensions.logging/10.0.0/serilog.extensions.logging.10.0.0.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "vendor",
-    "dest-filename": "serilog.sinks.async.2.1.0.nupkg",
-    "sha512": "04c6181f987cf459d96ffafca2a7cb7d5bef0f5b079277deb5ac009d238929ff8b075b2e73504330505462d76652ce106966dd3a0407c8799bfe5d0bec7f0fdd",
-    "url": "https://api.nuget.org/v3-flatcontainer/serilog.sinks.async/2.1.0/serilog.sinks.async.2.1.0.nupkg",
     "type": "file"
   },
   {
