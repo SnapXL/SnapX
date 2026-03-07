@@ -378,9 +378,7 @@ public partial class RegionSelectorWindow : Window
         if (_image == null)
         {
             DebugHelper.WriteLine("RegionSelectorWindow.OnOpened: _image is null");
-            _resultImg.TrySetResult(_image);
-            _resultRect.TrySetResult(null);
-            Close();
+            await CancelSelection();
             return;
         }
 
