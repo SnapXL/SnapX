@@ -323,34 +323,6 @@ jobs:
           name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
           path: packaging/rpm-artifacts/
           if-no-files-found: error
-      - name: Upload RPM to Package Repository
-        if: |
-          github.repository == 'SnapXL/SnapX' &&
-          (github.ref_name == 'main' ||
-           github.ref_name == 'master' ||
-           github.ref_name == 'develop' ||
-           startsWith(github.ref_name, 'alpha') ||
-           startsWith(github.ref_name, 'beta'))
-        env:
-          OVERWRITE_EXISTING: "true"
-        run: |
-          if [[ "$GITHUB_REF_NAME" == "master" || "$GITHUB_REF_NAME" == "main" ]]; then
-            REPO_SLUG="snapx-rpm"
-            echo "Targeting PRODUCTION repo: $REPO_SLUG"
-          else
-            REPO_SLUG="snapx-rpm-nightly"
-            echo "Targeting NIGHTLY repo: $REPO_SLUG"
-          fi
-
-          for rpm in packaging/rpm-artifacts/*.rpm; do
-            [ -e "$rpm" ] || continue
-            echo "Uploading $rpm to $REPO_SLUG"
-
-            curl -f -X POST "https://pkg.brycen.app/api/$REPO_SLUG/upload/" \
-                 -H "Authorization: Token ${{ secrets.PKG_API_TOKEN }}" \
-                 -F "package_file=@$rpm" \
-                 -F "overwrite=$OVERWRITE_EXISTING"
-          done
   ubuntu:
     name: DEB/Snap Build
     runs-on: ${{matrix.os}}
@@ -428,46 +400,12 @@ jobs:
           name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.arch }}
           path: packaging/*.deb
           if-no-files-found: error
-      - name: Upload DEB to Package Repository
-        if: |
-          github.repository == 'SnapXL/SnapX' &&
-          (github.ref_name == 'main' ||
-           github.ref_name == 'master' ||
-           github.ref_name == 'develop' ||
-           startsWith(github.ref_name, 'alpha') ||
-           startsWith(github.ref_name, 'beta'))
-        env:
-          OVERWRITE_EXISTING: "true"
-        run: |
-          if [[ "$GITHUB_REF_NAME" == "master" || "$GITHUB_REF_NAME" == "main" ]]; then
-            REPO_SLUG="snapx-deb"
-            echo "Targeting PRODUCTION repo: $REPO_SLUG"
-          else
-            REPO_SLUG="snapx-deb-nightly"
-            echo "Targeting NIGHTLY repo: $REPO_SLUG"
-          fi
-
-          for deb in packaging/*.deb; do
-            [ -e "$deb" ] || continue
-            echo "Uploading $deb to $REPO_SLUG"
-
-            curl -f -X POST "https://pkg.brycen.app/api/$REPO_SLUG/upload/" \
-                 -H "Authorization: Token ${{ secrets.PKG_API_TOKEN }}" \
-                 -F "package_file=@$deb" \
-                 -F "overwrite=$OVERWRITE_EXISTING"
-          done
       - name: Upload artifact (Snap)
         uses: actions/upload-artifact@v7
         with:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
           path: ${{ steps.build_snap.outputs.snap_file }}
           if-no-files-found: error
-      - uses: canonical/action-publish@v1
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
-        with:
-          snap: ${{ steps.build_snap.outputs.snap_file }}
-          release: ${{ github.event_name == 'pull_request' && format('edge/pr-{0}', github.event.pull_request.number) || 'edge' }}
   generate-sources:
     name: Generate Flatpak Sources (${{ matrix.variant.arch }})
     runs-on: ${{ matrix.variant.runner }}
@@ -573,18 +511,6 @@ jobs:
           bundle: io.github.SnapXL.SnapX.flatpak
           manifest-path: io.github.SnapXL.SnapX.yml
           cache-key: flatpak-builder-${{ matrix.variant.arch }}-${{ github.sha }}
-#      - uses: flatpak/flatpak-github-actions/flat-manager@v6
-#        name: Upload to Flathub
-#        with:
-#          # I have completely given up seperating nightly feeds in our Flatpak repository.
-#          # I admit defeat.
-#          # Once SnapX is actually stable, I will EOL this Flatpak repository.
-#          repository: stable
-#          flat-manager-url: https://hub.flathub.org/
-#          token: ${{ secrets.FLATPAK_REPO_TOKEN }}
-#          build-log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-#          end-of-life: "The application has been renamed to..."
-#          end-of-life-rebase: "org.zbrown.Palette"
   build:
     name: Build
     runs-on: ${{matrix.os}}

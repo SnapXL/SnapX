@@ -1,0 +1,93 @@
+name: Nightly Release
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+#   contents: write
+#   packages: write
+  actions: read
+
+jobs:
+  check_changes:
+    name: Check for Recent Changes
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.check.outputs.has_changes }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: check
+        shell: bash
+        run: |
+          COMMIT_COUNT=$(git rev-list --count --since="24 hours" HEAD)
+          if [ "$COMMIT_COUNT" -gt 0 ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+  quality_gate:
+    name: Testing Gate
+    needs: check_changes
+    if: needs.check_changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: "true"
+
+  publish_nightly:
+    name: Publish Nightly Assets
+    needs: quality_gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download Artifacts from Latest Build
+        uses: dawidd6/action-download-artifact@v18
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build.yml
+          workflow_conclusion: success
+          branch: develop
+          name: ^SnapX-(DEB|RPM|Snap).*
+          name_is_regexp: true
+          merge_multiple: true
+          path: packaging/
+
+      - name: Upload DEB to Nightly Repo
+        env:
+          PKG_API_TOKEN: ${{ secrets.PKG_API_TOKEN }}
+        run: |
+          for deb in packaging/*.deb; do
+            [ -e "$deb" ] || continue
+            curl -f -X POST "https://pkg.brycen.app/api/snapx-deb-nightly/upload/" \
+                 -H "Authorization: Token $PKG_API_TOKEN" \
+                 -F "package_file=@$deb" \
+                 -F "overwrite=true"
+          done
+      - name: Upload Snap to Snapcraft Edge
+        uses: canonical/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.build_snap.outputs.snap_file }}
+          release: ${{ github.event_name == 'pull_request' && format('edge/pr-{0}', github.event.pull_request.number) || 'edge' }}
+      - name: Upload RPM to Nightly Repo
+        env:
+          PKG_API_TOKEN: ${{ secrets.PKG_API_TOKEN }}
+        run: |
+          for rpm in packaging/*.rpm; do
+            [ -e "$rpm" ] || continue
+            curl -f -X POST "https://pkg.brycen.app/api/snapx-rpm-nightly/upload/" \
+                 -H "Authorization: Token $PKG_API_TOKEN" \
+                 -F "package_file=@$rpm" \
+                 -F "overwrite=true"
+          done
