@@ -199,7 +199,7 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
 
 <div align="center">
   <h3>🔬 Battle-tested by a select few</h3>
-  <p>Our code isn't compiled. It's <strong>dry-aged</strong>.</p>
+  <p>We do not merely compile code. We <strong>dry-age</strong> it.</p>
   <p>"Hallucinated" bug fixes are not what we do. We use a more conventional approach: look at a stack trace until someone breaks down in tears.</p>
   <p>SnapX was built by the brave ones who wiped their eyes…<br>and kept clicking.</p>
 <table border="0">
