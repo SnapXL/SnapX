@@ -71,6 +71,7 @@ jobs:
             pkg install -y curl bash icu terminfo-db libunwind libinotify brotli openssl lttng-ust krb5 llvm21 sqlite3 sudo patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk onnxruntime
             mkdir -p /usr/lib/dotnet
             wcurl -O /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.103-amd64-freebsd-14/dotnet-sdk-10.0.103-freebsd-x64.tar.gz
+            echo "778012ecfd32151647e109d772a253b4a0734a5bfe927d1d81b4365284463660  /tmp/dotnet.tar.gz" | sha256sum -c -
             tar -xzf /tmp/dotnet.tar.gz -C /usr/lib/dotnet --strip-components=1
             rm /tmp/dotnet.tar.gz
             ln -sf /usr/lib/dotnet/dotnet /usr/local/bin/dotnet
@@ -78,6 +79,7 @@ jobs:
             dotnet nuget add source https://pkgs.dev.azure.com/IFailAt/freebsd-dotnet-runtime-nightly/_packaging/freebsd-dotnet/nuget/v3/index.json --name freebsd-dotnet
             find /usr/lib/dotnet/packs \( -name "ilc" -o -name "crossgen2" \) -exec chmod +x {} +
             wcurl -O /tmp/libskiasharp.pkg https://github.com/SnapXL/freebsd-libskiasharp3/releases/download/3.119.1/libskiasharp-3.119.1_1-amd64.pkg
+            echo "3e041526f3f9b28ecab3a5adf86de0eb3f66f12ff5407867040dce4648aecb7c  /tmp/libskiasharp.pkg" | sha256sum -c -
             pkg install -y /tmp/libskiasharp.pkg
             rm /tmp/libskiasharp.pkg
 
@@ -85,8 +87,10 @@ jobs:
             ln -sf /usr/local/bin/gawk /usr/local/bin/awk
             # Install pre compiled FreeBSD FFmpeg 8 (amd64 ONLY)
             curl -fsSL https://github.com/Thefrank/ffmpeg-static-freebsd/releases/download/v8.0/ffmpeg -o /usr/local/bin/ffmpeg
+            echo "5aa91471cf9c56af033b451fe5c3cb56769eb33f4f6824aabf22551bbfb0f625  /usr/local/bin/ffmpeg" | sha256sum -c -
             chmod +x /usr/local/bin/ffmpeg
             curl -fsSL https://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh -o /usr/local/bin/xvfb-run
+            echo "68902b9151219d0e954306d3dc309cee3924cd17b92349acfe3f05fdeaf0e71c  /usr/local/bin/xvfb-run" | sha256sum -c -
             chmod +x /usr/local/bin/xvfb-run
             chsh -s /usr/local/bin/bash
             pw useradd runner -m -s /usr/local/bin/bash
