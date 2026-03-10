@@ -450,15 +450,16 @@ jobs:
         with:
           name: flatpak-sources-${{ matrix.variant.arch }}
           path: packaging/flathub/*.json
-      - name: 📦 Commit Flatpak Sources
+      - name: Commit file
+        uses: tohgarashi/verified-commit@v2.x
         if: ${{ runner.arch == 'X64' && !startsWith(github.ref, 'refs/heads/dep/') }}
-        uses: EndBug/add-and-commit@v9
-        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          add: "packaging/flathub/*.json"
-          commit: "--no-verify --no-gpg-sign"
-          push: "--no-verify --no-signed"
-          message: "build(flathub): update nuget vendor sources [skip ci]"
+          files: |
+            packaging/flathub/sources.json
+            packaging/flathub/build-sources.json
+          commit-message: "build(flathub): update nuget vendor sources [skip ci]"
   flatpak:
     name: Flatpak (${{ matrix.variant.arch }})
     needs: generate-sources
