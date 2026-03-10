@@ -595,33 +595,28 @@ jobs:
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet
-      - name: Update fallback version
-        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && always()
-        continue-on-error: true
+      - name: Prepare Fallback Version
+        id: prep_version
+        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && always()
         run: |
           raw_version=$(./build.sh --version | grep -Eo '^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.\+]+)?')
           fallback_version=$(echo "$raw_version" | sed 's/-.*//')
-          echo "Fallback version: $fallback_version"
           sed -i "s|<Version>.*</Version>|<Version>${fallback_version}</Version>|" Directory.Build.props
-      - name: Commit fallback version
-        if: matrix.configuration == 'Debug' && runner.os == 'Linux' && runner.arch == 'X64' && always()
-        continue-on-error: true
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          # Extract the new fallback version from the props file
-          fallback_version=$(grep -oP '(?<=<Version>).*?(?=</Version>)' Directory.Build.props)
-
-          # Check if there are any changes
+          echo "version=$fallback_version" >> "$GITHUB_OUTPUT"
           if ! git diff --quiet Directory.Build.props; then
-            git pull --ff-only
-            git add Directory.Build.props
-            git commit -m "chore(release): update fallback version to ${fallback_version}" --no-verify
-            git push --no-verify
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "No changes to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Commit fallback version
+        if: steps.prep_version.outputs.changed == 'true'
+        uses: tohgarashi/verified-commit@v2.x
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: Directory.Build.props
+          commit-message: "chore(release): update fallback version to ${{ steps.prep_version.outputs.version }}"
       - name: 🛠 Generate NuGet.config
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: |
