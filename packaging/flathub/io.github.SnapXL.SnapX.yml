@@ -38,21 +38,29 @@ modules:
         PKGTYPE: FLATPAK
     build-commands:
       - rm global.json || true
+      # Forcing GitVersion to play nice with our shallow clone, otherwise it fails to determine the version number and thus fails the build.
+      - git checkout -B develop
       - dotnet restore build -p:RestorePackagesPath=vendor --ignore-failed-sources --source vendor
       - dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="-p:RestorePackagesPath=vendor --source vendor --ignore-failed-sources"
       - rm ${FLATPAK_DEST}/bin/snapx ${FLATPAK_DEST}/lib/snapx/snapx # Remove duplicate CLI, available in snapx-ui binary already.
     sources:
       - type: git
         url: https://github.com/SnapXL/SnapX.git
-        commit: 5e23b7d38a2ee4e41a6372b3bcc567210132b781
+        commit: 948f0a46df2b4620c8cc0ef44513aa79413e4f40
       - sources.json
       - build-sources.json
   # XRandr is a required dependency.
   - name: xrandr
+    buildsystem: simple
     sources:
-      - type: archive
-        sha256: f8dd7566adb74147fab9964680b6bbadee87cf406a7fcff51718a5e6949b841c
-        url: https://www.x.org/archive/individual/app/xrandr-1.5.3.tar.xz
+      - type: git
+        url: https://gitlab.freedesktop.org/xorg/app/xrandr.git
+        tag: xrandr-1.5.3
+        commit: 0591ca56f9628d1a1a691160d79d9afb0f225c4d
+    build-commands:
+      - ./autogen.sh --prefix=/app
+      - make -j$(nproc)
+      - make install
   # For diagnostics & telemetry.
   - name: glxinfo
     buildsystem: meson
