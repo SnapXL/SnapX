@@ -22,7 +22,7 @@ public abstract partial class SettingsBase<T>
     [Browsable(false), JsonIgnore, YamlIgnore]
     private static readonly Lazy<SettingsYAMLContext> _aotContext = new(() => new());
     [Browsable(false), JsonIgnore, YamlIgnore]
-    private static SettingsYAMLContext aotContext => _aotContext.Value;
+    private static SettingsYAMLContext settingsYamlContext => _aotContext.Value;
 
     [Browsable(false), JsonIgnore, YamlIgnore]
     public string FilePath { get; private set; }
@@ -189,18 +189,13 @@ public abstract partial class SettingsBase<T>
 
     private static ISerializer BuildYamlSerializer(SecurePropertyStore store, bool useEncryption = true)
     {
-        return new StaticSerializerBuilder(aotContext)
-            .WithQuotingNecessaryStrings()
+        return new StaticSerializerBuilder(settingsYamlContext)
             .WithTypeInspector(inner => new ReadableAndWritablePropertiesTypeInspector(inner), loc => loc.OnBottom())
             .WithTypeInspector(inner => new EncryptionTypeInspector(inner, store, useEncryption))
             .WithTypeInspector(inner => new PreferredIdentityTypeInspector(inner))
             .WithTypeConverter(new UIFontYamlTypeConverter())
             .WithTypeConverter(new ImageSharpYamlTypeConverter())
             .WithTypeConverter(new TimeZoneInfoYamlTypeConverter())
-            // Perfect security is a myth, but total negligence is a choice.
-            // I'd rather encrypt a few harmless headers than leak a single
-            // API token to a plain-text config file.
-            // It's better to be safe and a little bit 'extra' than sorry and compromised.
             .WithTypeConverter(new HeaderCollectionYamlConverter(store, () => CustomUploaderItem.SensitiveKeys, useEncryption))
             .WithTypeConverter(new HttpMethodYamlConverter())
             .WithEnumNamingConvention(NullNamingConvention.Instance)
@@ -273,7 +268,7 @@ public abstract partial class SettingsBase<T>
 
     private static IDeserializer BuildYamlDeserializer(SecurePropertyStore store)
     {
-        return new StaticDeserializerBuilder(aotContext)
+        return new StaticDeserializerBuilder(settingsYamlContext)
             .WithTypeConverter(new UIFontYamlTypeConverter())
             .WithTypeConverter(new ImageSharpYamlTypeConverter())
             .WithTypeConverter(new TimeZoneInfoYamlTypeConverter())
@@ -283,7 +278,7 @@ public abstract partial class SettingsBase<T>
             .WithTypeInspector(inner => new EncryptionTypeInspector(inner, store))
             .WithTypeInspector(inner => new PreferredIdentityTypeInspector(inner))
             .WithEnumNamingConvention(NullNamingConvention.Instance)
-            .WithAttemptingUnquotedStringTypeDeserialization()
+            // .WithAttemptingUnquotedStringTypeDeserialization()
             .WithCaseInsensitivePropertyMatching()
             .WithDuplicateKeyChecking()
             .IgnoreUnmatchedProperties()
@@ -351,6 +346,7 @@ public abstract partial class SettingsBase<T>
     {
         if (string.IsNullOrWhiteSpace(yaml))
             throw new InvalidDataException("YAML content is empty.");
+        // if (yaml.Contains("$DPAPIEncrypted")) throw new SecurityException($"SnapX detected a secret encrypted by ShareX within the configuration of {T}. It cannot decrypt strings encrypted by ShareX. Please use ShareX's export function to extract decrypted files.")
 
         var deserializer = BuildYamlDeserializer(SecurePropertyStore.Instance);
         var obj = deserializer.Deserialize<T>(yaml);

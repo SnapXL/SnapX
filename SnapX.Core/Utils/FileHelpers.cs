@@ -200,150 +200,150 @@ public static class FileHelpers
     }
 
     public static bool OpenFile(string? filePath)
-{
-    if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
     {
-        DebugHelper.WriteLine("File does not exist: " + filePath);
-        return false;
-    }
-
-    try
-    {
-        var psi = new ProcessStartInfo { UseShellExecute = true };
-
-        if (OperatingSystem.IsMacOS())
+        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
         {
-            psi.FileName = "open";
-            psi.Arguments = $"\"{filePath.Replace("\"", "\\\"")}\"";
-            psi.UseShellExecute = false;
-        }
-        else
-        {
-            psi.FileName = filePath;
+            DebugHelper.WriteLine("File does not exist: " + filePath);
+            return false;
         }
 
         try
         {
-            using var process = Process.Start(psi);
-            DebugHelper.WriteLine("File opened: " + filePath);
-            return true;
-        }
-        catch when (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
-        {
-            var fallbackPsi = new ProcessStartInfo
+            var psi = new ProcessStartInfo { UseShellExecute = true };
+
+            if (OperatingSystem.IsMacOS())
             {
-                FileName = "xdg-open",
-                Arguments = $"\"{filePath.Replace("\"", "\\\"")}\"",
-                UseShellExecute = false
-            };
-            using var fallbackProcess = Process.Start(fallbackPsi);
-            return true;
+                psi.FileName = "open";
+                psi.Arguments = $"\"{filePath.Replace("\"", "\\\"")}\"";
+                psi.UseShellExecute = false;
+            }
+            else
+            {
+                psi.FileName = filePath;
+            }
+
+            try
+            {
+                using var process = Process.Start(psi);
+                DebugHelper.WriteLine("File opened: " + filePath);
+                return true;
+            }
+            catch when (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+            {
+                var fallbackPsi = new ProcessStartInfo
+                {
+                    FileName = "xdg-open",
+                    Arguments = $"\"{filePath.Replace("\"", "\\\"")}\"",
+                    UseShellExecute = false
+                };
+                using var fallbackProcess = Process.Start(fallbackPsi);
+                return true;
+            }
         }
-    }
-    catch (Exception e)
-    {
-        DebugHelper.WriteException(e, $"OpenFile({filePath}) failed.");
-    }
+        catch (Exception e)
+        {
+            DebugHelper.WriteException(e, $"OpenFile({filePath}) failed.");
+        }
 
-    return false;
-}
-
-public static bool OpenFolder(string? folderPath, bool allowMessageBox = true)
-{
-    if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
-    {
-        if (allowMessageBox) new Exception("Folder not found!").ShowError();
         return false;
     }
 
-    if (OperatingSystem.IsWindows() && !folderPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+    public static bool OpenFolder(string? folderPath, bool allowMessageBox = true)
     {
-        folderPath += Path.DirectorySeparatorChar;
-    }
-
-    try
-    {
-        var psi = new ProcessStartInfo { UseShellExecute = true };
-
-        if (OperatingSystem.IsMacOS())
+        if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
         {
-            psi.FileName = "open";
-            psi.Arguments = $"\"{folderPath.Replace("\"", "\\\"")}\"";
-            psi.UseShellExecute = false;
+            if (allowMessageBox) new Exception("Folder not found!").ShowError();
+            return false;
         }
-        else
+
+        if (OperatingSystem.IsWindows() && !folderPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
         {
-            psi.FileName = folderPath;
+            folderPath += Path.DirectorySeparatorChar;
         }
 
         try
         {
-            using var process = Process.Start(psi);
-            DebugHelper.WriteLine("Folder opened: " + folderPath);
-            return true;
-        }
-        catch when (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
-        {
-            var fallbackPsi = new ProcessStartInfo
+            var psi = new ProcessStartInfo { UseShellExecute = true };
+
+            if (OperatingSystem.IsMacOS())
             {
-                FileName = "xdg-open",
-                Arguments = $"\"{folderPath.Replace("\"", "\\\"")}\"",
-                UseShellExecute = false
-            };
-            using var fallbackProcess = Process.Start(fallbackPsi);
-            return true;
+                psi.FileName = "open";
+                psi.Arguments = $"\"{folderPath.Replace("\"", "\\\"")}\"";
+                psi.UseShellExecute = false;
+            }
+            else
+            {
+                psi.FileName = folderPath;
+            }
+
+            try
+            {
+                using var process = Process.Start(psi);
+                DebugHelper.WriteLine("Folder opened: " + folderPath);
+                return true;
+            }
+            catch when (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+            {
+                var fallbackPsi = new ProcessStartInfo
+                {
+                    FileName = "xdg-open",
+                    Arguments = $"\"{folderPath.Replace("\"", "\\\"")}\"",
+                    UseShellExecute = false
+                };
+                using var fallbackProcess = Process.Start(fallbackPsi);
+                return true;
+            }
         }
-    }
-    catch (Exception e)
-    {
-        DebugHelper.WriteException(e, $"OpenFolder({folderPath}) failed.");
-    }
+        catch (Exception e)
+        {
+            DebugHelper.WriteException(e, $"OpenFolder({folderPath}) failed.");
+        }
 
-    return false;
-}
-
-public static bool OpenFolderWithFile(string? filePath)
-{
-    if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
-    {
-        new Exception("File not found!").ShowError();
         return false;
     }
 
-    try
+    public static bool OpenFolderWithFile(string? filePath)
     {
-        var psi = new ProcessStartInfo();
-
-        if (OperatingSystem.IsWindows())
+        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
         {
-            psi.FileName = "explorer.exe";
-            psi.Arguments = $"/select,\"{filePath}\"";
-        }
-        else if (OperatingSystem.IsMacOS())
-        {
-            psi.FileName = "open";
-            psi.Arguments = $"-R \"{filePath.Replace("\"", "\\\"")}\"";
-        }
-        else if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
-        {
-            psi.FileName = "dbus-send";
-            psi.Arguments = $"--session --dest=org.freedesktop.FileManager1 --type=method_call /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:\"file://{filePath}\" string:\"\"";
+            new Exception("File not found!").ShowError();
+            return false;
         }
 
-        if (!string.IsNullOrEmpty(psi.FileName))
+        try
         {
-            using var process = Process.Start(psi);
-            DebugHelper.WriteLine("Folder opened with file: " + filePath);
-            return true;
+            var psi = new ProcessStartInfo();
+
+            if (OperatingSystem.IsWindows())
+            {
+                psi.FileName = "explorer.exe";
+                psi.Arguments = $"/select,\"{filePath}\"";
+            }
+            else if (OperatingSystem.IsMacOS())
+            {
+                psi.FileName = "open";
+                psi.Arguments = $"-R \"{filePath.Replace("\"", "\\\"")}\"";
+            }
+            else if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+            {
+                psi.FileName = "dbus-send";
+                psi.Arguments = $"--session --dest=org.freedesktop.FileManager1 --type=method_call /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:\"file://{filePath}\" string:\"\"";
+            }
+
+            if (!string.IsNullOrEmpty(psi.FileName))
+            {
+                using var process = Process.Start(psi);
+                DebugHelper.WriteLine("Folder opened with file: " + filePath);
+                return true;
+            }
         }
+        catch (Exception e)
+        {
+            DebugHelper.WriteException(e, $"OpenFolderWithFile({filePath}) failed.");
+        }
+
+        return OpenFolder(Path.GetDirectoryName(filePath));
     }
-    catch (Exception e)
-    {
-        DebugHelper.WriteException(e, $"OpenFolderWithFile({filePath}) failed.");
-    }
-
-    return OpenFolder(Path.GetDirectoryName(filePath));
-}
 
     public static string? GetUniqueFilePath(string? filePath)
     {

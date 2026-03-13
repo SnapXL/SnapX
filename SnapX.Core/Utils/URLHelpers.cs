@@ -56,7 +56,7 @@ public static class URLHelpers
                 if (!string.IsNullOrEmpty(HelpersOptions.BrowserPath))
                 {
                     psi.FileName = HelpersOptions.BrowserPath;
-                    psi.Arguments = $"\"{url.Replace("\"", "\\\"")}\"";;
+                    psi.Arguments = $"\"{url.Replace("\"", "\\\"")}\""; ;
                 }
                 else if (OperatingSystem.IsMacOS())
                 {
