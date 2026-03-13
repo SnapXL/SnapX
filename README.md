@@ -21,10 +21,11 @@
   <br>
   <br>
   <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base" /></a>
-  <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="My Homebrew Tap" /></a>
-  <a href="https://snapcraft.io/ui-snapx"><img src="https://img.shields.io/badge/Available on Snapcraft-E95420?style=flat&logo=snapcraft&logoColor=white&labelColor=5E2750" height="40" width="244" alt="Get it from the Snap Store" /></a>
-  <a href="https://github.com/SnapXL/SnapX/wiki/Adding-DEB-RPM-repository"><img src="https://img.shields.io/badge/RPMs%2FDEBs_repository-51A2DA?style=flat&logo=linux&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" /></a>
-  <a href="https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview"><img src="https://img.shields.io/badge/Flatpak available-51A2DA?style=flat&logo=flatpak&logoColor=white&labelColor=294172" height="40" Width="244" alt="Get it from our repository" /></a>
+  <a href="https://github.com/BrycensRanch/homebrew-repo"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/homebrew_vector.svg" height="40" alt="Homebrew Tap" /></a>
+  <a href="https://snapcraft.io/ui-snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/snapcraft_vector.svg" height="40" alt="Get it from the Snap Store" /></a>
+  <br>
+  <a href="https://github.com/SnapXL/SnapX/wiki/Adding-DEB-RPM-repository"><img src="https://img.shields.io/badge/RPMs%2FDEBs_repository-51A2DA?style=flat&logo=linux&logoColor=white&labelColor=294172" height="40" width="244" alt="Get it from our repository" /></a>
+  <a href="https://nightly.link/SnapXL/SnapX/workflows/build/develop?preview"><img src="https://img.shields.io/badge/Flatpak_available-51A2DA?style=flat&logo=flatpak&logoColor=white&labelColor=294172" height="40" width="244" alt="Get it from our repository" /></a>
   <br>
   <a href="https://discord.gg/ys3ZCzttVQ"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-singular_vector.svg" height="40" alt="Discord" /></a>
   <a href="https://ko-fi.com/BrycensRanch"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/kofi-singular_vector.svg" height="40" alt="Support me on Ko-fi" /></a>
@@ -182,8 +183,8 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
     </td>
     </tr>
   </table>
-<a href="https://github.com/sponsors/BrycensRanch"><img src="https://img.shields.io/github/sponsors/BrycensRanch?logo=github&logoColor=pink&label=GitHub Sponsors" alt="GitHub Sponsors"></a>
-<a href="https://liberapay.com/BrycensRanch"><img src="https://badgen.net/liberapay/receives/BrycensRanch?label=Liberapay" alt="Liberapay Receive Badge" /></a>
+<a href="https://github.com/sponsors/BrycensRanch"><img src="https://img.shields.io/github/sponsors/BrycensRanch?logo=github&logoColor=pink&label=GitHub%20Sponsors" alt="GitHub Sponsors"></a>
+<a href="https://liberapay.com/BrycensRanch"><img src="https://img.shields.io/liberapay/receives/BrycensRanch?logo=liberapay&label=Liberapay" alt="Liberapay Receive Badge" /></a>
 <a href="https://ko-fi.com/BrycensRanch"><img src="https://badgen.net/badge/KoFi/Buy%20me%20a%20coffee/ff5f5f?icon=kofi" alt="Ko-fi" /></a>
 
 <p>
