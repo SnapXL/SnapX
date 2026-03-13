@@ -9,6 +9,8 @@ namespace SnapX.Core.Upload.Img;
 public class CheveretoUploader
 {
     public string? UploadURL { get; set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? APIKey { get; set; }
 
     public CheveretoUploader()

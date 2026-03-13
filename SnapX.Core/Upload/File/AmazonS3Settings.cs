@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.File;
 
 public class AmazonS3Settings
 {
     public string? AccessKeyID { get; set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string SecretAccessKey { get; set; }
     public string? Endpoint { get; set; }
     public string Region { get; set; }

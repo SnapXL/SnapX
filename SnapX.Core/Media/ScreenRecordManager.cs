@@ -108,7 +108,7 @@ public static class ScreenRecordManager
                 captureRectangle = taskSettings.CaptureSettings.CaptureCustomRegion;
                 break;
             case ScreenRecordStartMethod.LastRegion:
-                captureRectangle = SnapX.Settings.ScreenRecordRegion;
+                captureRectangle = SnapXL.Settings.ScreenRecordRegion;
                 break;
         }
 
@@ -125,7 +125,7 @@ public static class ScreenRecordManager
             return;
         }
 
-        SnapX.Settings.ScreenRecordRegion = captureRectangle;
+        SnapXL.Settings.ScreenRecordRegion = captureRectangle;
 
         IsRecording = true;
 

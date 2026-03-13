@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using System.Diagnostics.CodeAnalysis;
 using SnapX.Core.Upload.Custom.Functions;
 using SnapX.Core.Upload.Utils;
-using SnapX.Core.Utils;
 using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.Custom;

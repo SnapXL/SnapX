@@ -1,0 +1,79 @@
+<UserControl
+    x:Class="SnapX.Avalonia.Views.Settings.Views.TextUploaders.PastebinUploaderSettingsView"
+    x:DataType="txt:Pastebin"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:txt="clr-namespace:SnapX.Core.Upload.Text;assembly=SnapX.Core"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Spacing="4">
+        <controls:SettingsExpander
+            Header="Account Authentication"
+            IconSource="Contact"
+            IsExpanded="True">
+            <controls:SettingsExpanderItem Content="Username">
+                <controls:SettingsExpanderItem.Footer>
+                    <TextBox
+                        Watermark="Username/Email"
+                        Width="200"
+                        x:Name="UsernameTextBox" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem Content="Password">
+                <controls:SettingsExpanderItem.Footer>
+                    <TextBox
+                        PasswordChar="*"
+                        Watermark="Password"
+                        Width="200"
+                        x:Name="PasswordTextBox" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem>
+                <controls:SettingsExpanderItem.Footer>
+                    <Button
+                        Classes="accent"
+                        Content="Login"
+                        x:Name="LoginButton" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+            <controls:SettingsExpanderItem Content="Status: ???" Name="LoginStatus" />
+        </controls:SettingsExpander>
+
+        <controls:SettingsExpander
+            Header="Paste Settings"
+            IconSource="Document"
+            IsExpanded="True">
+            <controls:SettingsExpanderItem Content="Title">
+                <controls:SettingsExpanderItem.Footer>
+                    <TextBox Name="txtPastebinTitle" Width="200" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem Content="Syntax Highlighting">
+                <controls:SettingsExpanderItem.Footer>
+                    <ComboBox Name="cbPastebinSyntax" Width="200" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem Content="Expiration">
+                <controls:SettingsExpanderItem.Footer>
+                    <ComboBox Name="cbPastebinExpiration" Width="200" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem Content="Privacy">
+                <controls:SettingsExpanderItem.Footer>
+                    <ComboBox Name="cbPastebinPrivacy" Width="200" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <CheckBox
+                Content="Use Raw URL"
+                Margin="16,10"
+                Name="cbPastebinRaw" />
+        </controls:SettingsExpander>
+
+    </StackPanel>
+</UserControl>

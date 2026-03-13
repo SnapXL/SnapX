@@ -4,6 +4,7 @@
 
 using System.Security.Cryptography;
 using System.Text;
+using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.OAuth;
 
@@ -14,8 +15,12 @@ public enum OAuth2ChallengeMethod
 
 public class OAuth2ProofKey
 {
-    public string? CodeVerifier { get; private set; }
-    public string? CodeChallenge { get; private set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
+    public string? CodeVerifier { get; set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
+    public string? CodeChallenge { get; set; }
     private OAuth2ChallengeMethod Method;
     public string? ChallengeMethod
     {
@@ -29,7 +34,7 @@ public class OAuth2ProofKey
             return "";
         }
     }
-
+    public OAuth2ProofKey() : this(OAuth2ChallengeMethod.Plain) { }
     public OAuth2ProofKey(OAuth2ChallengeMethod method)
     {
         Method = method;

@@ -1,13 +1,13 @@
 ﻿<Project>
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Condition="!Exists('packages.config')" Version="6.5.1" PrivateAssets="all"/>
+    <PackageReference Include="GitVersion.MsBuild" Condition="!Exists('packages.config')" Version="6.6.0" PrivateAssets="all"/>
   </ItemGroup>
   <PropertyGroup>
     <Company>BrycensRanch and ShareX Team</Company>
     <Product>SnapX</Product>
     <Title>SnapX</Title>
     <Description>Capture, share, and boost productivity. All in one.</Description>
-    <Copyright>Copyright (c) 2025 BrycensRanch and ShareX Team</Copyright>
+    <Copyright>Copyright (c) 2026 BrycensRanch and ShareX Team</Copyright>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <IncludeDebugSymbolsProjectOutputGroup>false</IncludeDebugSymbolsProjectOutputGroup>
     <Optimize>true</Optimize>
@@ -18,7 +18,7 @@
     <WriteVersionInfoToBuildLog>true</WriteVersionInfoToBuildLog>
     <RollForward>LatestMajor</RollForward>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="!Exists('.git')">
     <UpdateAssemblyInfo>false</UpdateAssemblyInfo>

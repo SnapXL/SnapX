@@ -8,6 +8,7 @@ namespace SnapX.Core.Upload.BaseUploaders;
 
 public abstract class TextUploader : GenericUploader
 {
+    public virtual UploaderCategory Category => UploaderCategory.TextUploaders;
     public override UploadResult Upload(Stream stream, string? fileName)
     {
         DebugHelper.WriteLine($"Stream: size ={stream.Length} writable {stream.CanWrite}");

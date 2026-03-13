@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using SnapX.Core.Utils.Extensions;
+using YamlDotNet.Serialization;
 
 namespace SnapX.Core.Indexer;
 
@@ -49,7 +50,7 @@ public class IndexerSettings
     [Category("Indexer / JSON"), DefaultValue(true), Description("Creates parseable but longer json output.")]
     public bool CreateParseableJson { get; set; }
 
-    [JsonIgnore]
+    [JsonIgnore, YamlIgnore]
     public bool BinaryUnits;
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]

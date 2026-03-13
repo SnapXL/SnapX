@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
+using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.File;
 
@@ -117,6 +118,8 @@ public sealed class LobFile : FileUploader
 
 public class LobFileSettings
 {
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string UserAPIKey { get; set; } = "";
 }
 

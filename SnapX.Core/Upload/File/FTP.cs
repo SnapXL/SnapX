@@ -54,29 +54,25 @@ public class FTPFileUploaderService : FileUploaderService
             }
         }
 
-        var account = config.FTPAccountList.ReturnIfValidIndex(index);
+        var account = config.FTPAccountList.ReturnIfValidIndex(index) ?? new FTPAccount();
 
-        if (account != null)
+
+        if (account.Protocol is FTPProtocol.FTP or FTPProtocol.FTPS)
         {
-            if (account.Protocol == FTPProtocol.FTP || account.Protocol == FTPProtocol.FTPS)
-            {
-                return new FTP(account);
-            }
-            else if (account.Protocol == FTPProtocol.SFTP)
-            {
-                return new SFTP(account);
-            }
+            return new FTP(account);
         }
-
-        return null;
+        else
+        {
+            return new SFTP(account);
+        }
     }
 }
 
-public sealed class FTP : FileUploader, IDisposable
+public sealed class FTP : FtpBase
 {
     public FTPAccount Account { get; private set; }
 
-    public bool IsConnected
+    public override bool IsConnected
     {
         get
         {
@@ -86,7 +82,7 @@ public sealed class FTP : FileUploader, IDisposable
 
     private FtpClient client;
 
-    public FTP(FTPAccount account)
+    public FTP(FTPAccount account) : base(account)
     {
         Account = account;
 
@@ -185,7 +181,7 @@ public sealed class FTP : FileUploader, IDisposable
         }
     }
 
-    public bool Connect()
+    public override bool Connect()
     {
         if (!client.IsConnected)
         {
@@ -195,7 +191,7 @@ public sealed class FTP : FileUploader, IDisposable
         return client.IsConnected;
     }
 
-    public void Disconnect()
+    public override void Disconnect()
     {
         if (client != null)
         {
@@ -460,7 +456,7 @@ public sealed class FTP : FileUploader, IDisposable
         return false;
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         if (client != null)
         {

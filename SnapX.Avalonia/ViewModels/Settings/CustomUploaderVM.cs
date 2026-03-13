@@ -487,7 +487,7 @@ public partial class CustomUploaderVM : ViewModelBase
         bool result
     )
     {
-        if (Core.SnapX.CloseSequenceStarted || IsInitializing)
+        if (Core.SnapXL.CloseSequenceStarted || IsInitializing)
             return;
         DebugHelper.WriteLine("CustomUploaderVM detected settings saved, re-propagating data...");
         await PropagateData();
@@ -969,8 +969,7 @@ public partial class CustomUploaderVM : ViewModelBase
             counter++;
         }
 
-        var json = JsonHelpers.SerializeToString(uploader);
-        var newItem = JsonHelpers.DeserializeFromString<CustomUploaderItem>(json);
+        var newItem = uploader.FastDeepClone();
         newItem.Name = newName;
         Uploaders.Add(newItem);
         SelectedUploader = newItem;
@@ -1026,5 +1025,5 @@ public partial class CustomUploaderVM : ViewModelBase
     }
 
     [GeneratedRegex(@"(.+?)(?: - Copy(?: \(\d+\))?)$")]
-    private static partial Regex CopyNameRegex();
+    public static partial Regex CopyNameRegex();
 }

@@ -41,7 +41,7 @@ public partial class LogViewer : AppWindow
         _scrollViewer = this.FindControl<ScrollViewer>("ScrollViewer");
         _logTextBlock = this.FindControl<SelectableTextBlock>("LogTextBlock");
         _lastDisplayedLogCount = 0;
-        StartupPathText.Markdown = StartupPathText.Markdown!.Replace("$shortpath", SnapX.Core.SnapX.ShortenPath(Environment.CurrentDirectory)).Replace("$path", Environment.CurrentDirectory);
+        StartupPathText.Markdown = StartupPathText.Markdown!.Replace("$shortpath", SnapX.Core.SnapXL.ShortenPath(Environment.CurrentDirectory)).Replace("$path", Environment.CurrentDirectory);
 
         _refreshTimer.Start();
     }
@@ -186,7 +186,7 @@ public partial class LogViewer : AppWindow
 
     private void OpenLogFolderButton_OnClick(object? Sender, RoutedEventArgs E)
     {
-        URLHelpers.OpenURL(Core.SnapX.LogsFolder);
+        URLHelpers.OpenURL(Core.SnapXL.LogsFolder);
     }
 
     private void UploadLogButton_OnClick(object? Sender, RoutedEventArgs E)

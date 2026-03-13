@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -47,7 +48,7 @@ public static class TaskHelpers
 {
     public static async Task ExecuteJob(HotkeyType job, CLICommand command = null)
     {
-        await ExecuteJob(SnapX.DefaultTaskSettings, job, command);
+        await ExecuteJob(SnapXL.DefaultTaskSettings, job, command);
     }
 
     public static async Task ExecuteJob(TaskSettings taskSettings)
@@ -336,7 +337,7 @@ public static class TaskHelpers
                 // ToggleTrayMenu();
                 break;
             case HotkeyType.ExitShareX:
-                SnapX.quit();
+                SnapXL.quit();
                 break;
         }
     }
@@ -468,7 +469,7 @@ public static class TaskHelpers
                     $"Unsupported image format: {imageFormat} {typeof(EImageFormat)}"
                 ),
             };
-            if (SnapX.Settings.PNGStripColorSpaceInformation)
+            if (SnapXL.Settings.PNGStripColorSpaceInformation)
             {
                 image.Metadata.IccProfile = null;
             }
@@ -602,7 +603,7 @@ public static class TaskHelpers
 
         NameParser nameParser = new NameParser(NameParserType.FileName)
         {
-            AutoIncrementNumber = SnapX.Settings.NameParserAutoIncrementNumber,
+            AutoIncrementNumber = SnapXL.Settings.NameParserAutoIncrementNumber,
             MaxNameLength = taskSettings.AdvancedSettings.NamePatternMaxLength,
             MaxTitleLength = taskSettings.AdvancedSettings.NamePatternMaxTitleLength,
             CustomTimeZone = taskSettings.UploadSettings.UseCustomTimeZone
@@ -634,7 +635,7 @@ public static class TaskHelpers
             fileName = nameParser.Parse(taskSettings.UploadSettings.NameFormatPattern);
         }
 
-        SnapX.Settings.NameParserAutoIncrementNumber = nameParser.AutoIncrementNumber;
+        SnapXL.Settings.NameParserAutoIncrementNumber = nameParser.AutoIncrementNumber;
 
         if (!string.IsNullOrEmpty(extension))
         {
@@ -681,19 +682,19 @@ public static class TaskHelpers
             string? subFolderPattern;
 
             if (
-                !string.IsNullOrEmpty(SnapX.Settings.SaveImageSubFolderPatternWindow)
+                !string.IsNullOrEmpty(SnapXL.Settings.SaveImageSubFolderPatternWindow)
                 && !string.IsNullOrEmpty(nameParser.WindowText)
             )
             {
-                subFolderPattern = SnapX.Settings.SaveImageSubFolderPatternWindow;
+                subFolderPattern = SnapXL.Settings.SaveImageSubFolderPatternWindow;
             }
             else
             {
-                subFolderPattern = SnapX.Settings.SaveImageSubFolderPattern;
+                subFolderPattern = SnapXL.Settings.SaveImageSubFolderPattern;
             }
 
             string? subFolderPath = nameParser.Parse(subFolderPattern, dt);
-            screenshotsFolder = Path.Combine(SnapX.ScreenshotsParentFolder, subFolderPath);
+            screenshotsFolder = Path.Combine(SnapXL.ScreenshotsParentFolder, subFolderPath);
         }
 
         return FileHelpers.GetAbsolutePath(screenshotsFolder);
@@ -775,7 +776,7 @@ public static class TaskHelpers
         }
         else
         {
-            FileHelpers.OpenFolder(SnapX.ScreenshotsParentFolder);
+            FileHelpers.OpenFolder(SnapXL.ScreenshotsParentFolder);
         }
     }
 
@@ -992,126 +993,109 @@ public static class TaskHelpers
 #endif
 
     public static async Task<OcrResponse> OCRImageDetailed(
-        Image? image = null,
-        string? filePath = null,
-        TaskSettings? taskSettings = null,
-        string? languageCode = null,
-        IProgress<OCRProgress>? progress = null,
-        CancellationToken cts = default
-    )
-
+    Image? image = null,
+    string? filePath = null,
+    TaskSettings? taskSettings = null,
+    string? languageCode = null,
+    IProgress<OCRProgress>? progress = null,
+    CancellationToken cts = default
+)
     {
 #if DISABLE_OCR
-DebugHelper.WriteException(
-
-new Exception("This build of SnapX was built with DISABLE_OCR build time constant.")
-
-);
-
-return new OcrResponse { FullText = "OCR Disabled in this build." };
-
+    DebugHelper.WriteException(new Exception("This build of SnapX was built with DISABLE_OCR build time constant."));
+    return new OcrResponse { FullText = "OCR Disabled in this build." };
 #else
-
-        progress?.Report(
-            new OCRProgress(
-                10,
-                $"Loading model for {languageCode}... (This may take awhile, I MAY download model files from internet)"
-            )
-        );
-
-        await Task.Yield();
-
-        progress?.Report(new OCRProgress(40, "Running OCR inference..."));
-
-        await Task.Yield();
-
+        progress?.Report(new(5, "Initializing OCR engine..."));
 
         var imageConfig = Configuration.Default;
-
         imageConfig.ImageFormatsManager.SetEncoder(AVIFFormat.Instance, AVIFEncoder.Instance);
-
         imageConfig.ImageFormatsManager.SetDecoder(AVIFFormat.Instance, AVIFDecoder.Instance);
-
-        imageConfig.ImageFormatsManager.AddImageFormatDetector(
-            new PatchedAVIFImageFormatDetector()
-        );
-
+        imageConfig.ImageFormatsManager.AddImageFormatDetector(new PatchedAVIFImageFormatDetector());
 
         try
-
         {
             if (filePath is not null && image is null)
-
             {
-                progress?.Report(new OCRProgress(45, "Reading image from disk..."));
-
-                await Task.Yield();
-
+                progress?.Report(new(10, "Reading image from disk..."));
                 image = await Image.LoadAsync(filePath, cts);
             }
         }
-
         catch (Exception ex)
-
         {
             var issue = "Failed to load image for OCR";
-
             DebugHelper.Logger?.Warning(issue);
-
             DebugHelper.WriteException(ex);
-
-            return new OcrResponse
-            {
-                FullText = issue + Environment.NewLine + ex.Message
-            };
+            return new OcrResponse { FullText = $"{issue}{Environment.NewLine}{ex.Message}" };
         }
 
-        if (image is null)
+        if (image is null) return new OcrResponse { FullText = "SNAPX ERROR: PASSED NULL IMAGE AND NULL FILEPATH." };
 
-            return new OcrResponse
-            {
-                FullText = "SNAPX ERROR: PASSED NULL IMAGE AND NULL FILEPATH."
-            };
-
-        progress?.Report(new OCRProgress(55, "Preprocessing image for Paddle..."));
-
-        await Task.Yield();
-
-        DebugHelper.WriteLine(filePath);
-
-
-        progress?.Report(new OCRProgress(65, "Initializing Paddle Inference device..."));
-
-        await Task.Yield();
-
-        DebugHelper.WriteLine($"OCR image bytes: ??");
-
-        progress?.Report(new OCRProgress(75, "Performing Text Detection & Recognition..."));
-
-        await Task.Yield();
-
-        var ocrEngine = new RapidOcr();
-        var modelDir = Path.Combine(
-
-            BaseDirectory.CacheHome,
-
-            SnapX.AppName,
-
-            "PaddleOCRModels"
-
-            );
+        var modelDir = Path.Combine(BaseDirectory.CacheHome, SnapXL.AppName, "PaddleOCRModels");
         var model = await GetModelForLanguage(languageCode ?? "eng");
+        var ocrEngine = new RapidOcr();
 
-        await ocrEngine.LoadModelAsync(model, modelDir, HttpClientFactory.Get(), ct: cts);
+        var progressValue = 15;
+        var fileUrls = new ConcurrentDictionary<string, int>();
+        var fileProgressValues = new ConcurrentDictionary<string, int>();
+
+        EventHandler<HttpProgressEventArgs> progressHandler = async (sender, args) =>
+        {
+            var url = args.UserState as string;
+            if (string.IsNullOrEmpty(url)) return;
+            if (!url.Contains("PP-OCR", StringComparison.OrdinalIgnoreCase) &&
+                !url.Contains("ppocr", StringComparison.OrdinalIgnoreCase)) return;
+
+            fileUrls.TryAdd(url, fileUrls.Count);
+
+            var fileIndex = fileUrls[url];
+            var fileCount = Math.Max(1, fileUrls.Count);
+            var perFileRange = 70 / fileCount;
+
+            var fileStartPct = 15 + (fileIndex * perFileRange);
+            var fileEndPct = fileStartPct + perFileRange;
+
+            var currentFileProgress = fileStartPct + (int)((args.ProgressPercentage / 100.0) * (fileEndPct - fileStartPct));
+            var lastFileProgress = fileProgressValues.GetOrAdd(url, 0);
+
+            var uri = new Uri(url);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var filename = query["filename"] ?? query["name"] ?? query["response-content-disposition"];
+
+            if (string.IsNullOrEmpty(filename)) filename = Path.GetFileName(uri.LocalPath);
+            if (!string.IsNullOrEmpty(filename) && filename.Contains("filename="))
+                filename = filename.Split("filename=").Last().Trim('"');
+
+            filename ??= "model.onnx";
+
+            var displayProgress = Math.Max(progressValue, currentFileProgress);
+            progress?.Report(new(displayProgress, $"Downloading {filename} ({args.ProgressPercentage}%)..."));
+
+            if (currentFileProgress > lastFileProgress)
+            {
+                fileProgressValues[url] = currentFileProgress;
+                if (currentFileProgress > progressValue) progressValue = currentFileProgress;
+            }
+            await Task.Yield();
+        };
+
+        if (HttpClientFactory._ph != null) HttpClientFactory._ph.HttpReceiveProgress += progressHandler;
+
+        try
+        {
+            progress?.Report(new(15, "Checking and loading OCR models..."));
+            await ocrEngine.LoadModelAsync(model, modelDir, HttpClientFactory.Get(), ct: cts);
+        }
+        finally
+        {
+            if (HttpClientFactory._ph != null) HttpClientFactory._ph.HttpReceiveProgress -= progressHandler;
+        }
+
+        progress?.Report(new(85, "Preprocessing image for Paddle..."));
         var originalLongSide = Math.Max(image.Width, image.Height);
         var targetLimit = 1504;
+        var finalResize = originalLongSide < targetLimit ? (int)(Math.Ceiling(originalLongSide / 32.0) * 32) : targetLimit;
 
-        // This logic ensures we don't upscale tiny images,
-        // but we still snap the result to a multiple of 32.
-        var finalResize = originalLongSide < targetLimit
-            ? (int)(Math.Ceiling(originalLongSide / 32.0) * 32)
-            : targetLimit;
-
+        progress?.Report(new(90, "Performing Text Detection & Recognition..."));
         var ocrResult = ocrEngine.Detect(image, new RapidOcrOptions
         {
             BoxScoreThresh = 0.5f,
@@ -1120,31 +1104,17 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
             MostAngle = true,
             UnClipRatio = 1.6f,
             ImgResize = finalResize,
-            Padding = 10, // Reduced to keep text from getting lost in margins
+            Padding = 10,
         });
+
         var visualDebugImage = image.Clone(_ => { });
-
-
         foreach (var block in ocrResult.TextBlocks)
-
         {
-            DebugHelper.WriteLine(block.ToString());
-
-            var points = block.BoxPoints;
-
-
-            visualDebugImage.Mutate(ctx => { ctx.DrawPolygon(Color.Red, 4f, points); });
+            visualDebugImage.Mutate(ctx => { ctx.DrawPolygon(Color.Red, 4f, block.BoxPoints); });
         }
 
-
-        progress?.Report(new OCRProgress(95, "Finalizing results..."));
-
-        await Task.Yield();
-
-        DebugHelper.WriteAlways("Detected all texts: \n" + ocrResult.StrRes);
-
+        progress?.Report(new(98, "Finalizing results..."));
         return MapToResponse(ocrResult, visualDebugImage);
-
 #endif
     }
 
@@ -1158,6 +1128,15 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
     {
         var result = await OCRImageDetailed(image, filePath, taskSettings, languageCode, progress);
         return result.FullText;
+    }
+
+    public static void OCRImageUI(Image? image, TaskSettings? taskSettings = null)
+    {
+        if (image == null) return;
+
+        taskSettings ??= TaskSettings.GetDefaultTaskSettings();
+
+        SnapXL.EventAggregator.Publish(new NeedOCRWindowEvent(image, taskSettings));
     }
 
     public static void PinToScreen(TaskSettings taskSettings = null)
@@ -1187,15 +1166,15 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
 
     public static bool ToggleHotkeys()
     {
-        bool disableHotkeys = !SnapX.Settings.DisableHotkeys;
+        bool disableHotkeys = !SnapXL.Settings.DisableHotkeys;
         ToggleHotkeys(disableHotkeys);
         return disableHotkeys;
     }
 
     public static void ToggleHotkeys(bool disableHotkeys)
     {
-        SnapX.Settings.DisableHotkeys = disableHotkeys;
-        SnapX.HotkeyManager.ToggleHotkeys(disableHotkeys);
+        SnapXL.Settings.DisableHotkeys = disableHotkeys;
+        SnapXL.HotkeyManager.ToggleHotkeys(disableHotkeys);
     }
 
     public static bool CheckFFmpeg(TaskSettings taskSettings)
@@ -1237,7 +1216,7 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
 
     public static void ImportCustomUploaderJson(IEnumerable<string> jsonContents)
     {
-        if (SnapX.UploadersConfig == null)
+        if (SnapXL.UploadersConfig == null)
             return;
 
         foreach (var json in jsonContents)
@@ -1274,35 +1253,35 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
                     }
 
                     cui.CheckBackwardCompatibility();
-                    SnapX.UploadersConfig.CustomUploadersList.Add(cui);
+                    SnapXL.UploadersConfig.CustomUploadersList.Add(cui);
 
                     if (activate)
                     {
-                        int index = SnapX.UploadersConfig.CustomUploadersList.Count - 1;
+                        int index = SnapXL.UploadersConfig.CustomUploadersList.Count - 1;
                         if (
                             cui.DestinationType.HasFlag(CustomUploaderDestinationType.ImageUploader)
                         )
                         {
-                            SnapX.UploadersConfig.CustomImageUploaderSelected = index;
-                            SnapX.DefaultTaskSettings.ImageDestination =
+                            SnapXL.UploadersConfig.CustomImageUploaderSelected = index;
+                            SnapXL.DefaultTaskSettings.ImageDestination =
                                 ImageDestination.CustomImageUploader;
                         }
                         if (cui.DestinationType.HasFlag(CustomUploaderDestinationType.TextUploader))
                         {
-                            SnapX.UploadersConfig.CustomTextUploaderSelected = index;
-                            SnapX.DefaultTaskSettings.TextDestination =
+                            SnapXL.UploadersConfig.CustomTextUploaderSelected = index;
+                            SnapXL.DefaultTaskSettings.TextDestination =
                                 TextDestination.CustomTextUploader;
                         }
                         if (cui.DestinationType.HasFlag(CustomUploaderDestinationType.FileUploader))
                         {
-                            SnapX.UploadersConfig.CustomFileUploaderSelected = index;
-                            SnapX.DefaultTaskSettings.FileDestination =
+                            SnapXL.UploadersConfig.CustomFileUploaderSelected = index;
+                            SnapXL.DefaultTaskSettings.FileDestination =
                                 FileDestination.CustomFileUploader;
                         }
                         if (cui.DestinationType.HasFlag(CustomUploaderDestinationType.URLShortener))
                         {
-                            SnapX.UploadersConfig.CustomURLShortenerSelected = index;
-                            SnapX.DefaultTaskSettings.URLShortenerDestination =
+                            SnapXL.UploadersConfig.CustomURLShortenerSelected = index;
+                            SnapXL.DefaultTaskSettings.URLShortenerDestination =
                                 UrlShortenerType.CustomURLShortener;
                         }
                         if (
@@ -1311,8 +1290,8 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
                             )
                         )
                         {
-                            SnapX.UploadersConfig.CustomURLSharingServiceSelected = index;
-                            SnapX.DefaultTaskSettings.URLSharingServiceDestination =
+                            SnapXL.UploadersConfig.CustomURLSharingServiceSelected = index;
+                            SnapXL.DefaultTaskSettings.URLSharingServiceDestination =
                                 URLSharingServices.CustomURLSharingService;
                         }
                     }
@@ -1542,7 +1521,7 @@ return new OcrResponse { FullText = "OCR Disabled in this build." };
 
     public static bool IsUploadAllowed()
     {
-        if (SnapX.Settings.DisableUpload)
+        if (SnapXL.Settings.DisableUpload)
         {
             return false;
         }

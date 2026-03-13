@@ -5,11 +5,11 @@
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
+using System.Net;
 using System.Security;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 using System.Web;
 using SnapX.Core.CLI;
 using SnapX.Core.Upload.Custom;
@@ -38,29 +38,70 @@ public static class URLHelpers
     public static void OpenURL(string? url)
     {
         if (string.IsNullOrEmpty(url)) return;
+        url = url.Trim().TrimEnd('\n', '\r');
+        if (!IsValidURL(url))
+        {
+            throw new SecurityException($"OpenURL: '{url}' is not a valid URL!");
+        }
+
         Task.Run(() =>
         {
             try
             {
-                using var process = new Process();
                 var psi = new ProcessStartInfo
                 {
-                    UseShellExecute = true,
+                    UseShellExecute = true
                 };
+
                 if (!string.IsNullOrEmpty(HelpersOptions.BrowserPath))
                 {
                     psi.FileName = HelpersOptions.BrowserPath;
-                    psi.Arguments = url;
+                    psi.Arguments = $"\"{url.Replace("\"", "\\\"")}\"";;
                 }
+                else if (OperatingSystem.IsMacOS())
+                {
+                    var sanitizedUrl = url;
+                    if (!Uri.IsWellFormedUriString(sanitizedUrl, UriKind.Absolute))
+                    {
+                        if (Uri.TryCreate(sanitizedUrl, UriKind.Absolute, out var uri))
+                        {
+                            sanitizedUrl = uri.AbsoluteUri;
+                        }
+                    }
+                    psi.FileName = "open";
+                    psi.Arguments = $"\"{sanitizedUrl.Replace("\"", "\\\"")}\"";
+                    psi.UseShellExecute = false;
+                }
+                // else if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+                // {
+                //     psi.FileName = "xdg-open";
+                //     psi.Arguments = url;
+                //     psi.UseShellExecute = false;
+                // }
                 else
                 {
                     psi.FileName = url;
                 }
 
-                process.StartInfo = psi;
-                process.Start();
-
-                DebugHelper.WriteLine("URL opened: " + url);
+                try
+                {
+                    // Intent: Use KDE Plasma native way of opening URLs directly without xdg-open.
+                    // This first way works good in Flatpak's sandbox.
+                    // If that fails, fallback to xdg-open
+                    using var process = Process.Start(psi);
+                    DebugHelper.WriteLine($"URL opened: {url}");
+                }
+                catch when (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
+                {
+                    var fallbackPsi = new ProcessStartInfo
+                    {
+                        FileName = "xdg-open",
+                        Arguments = $"\"{url.Replace("\"", "\\\"")}\"",
+                        UseShellExecute = false
+                    };
+                    using var fallbackProcess = Process.Start(fallbackPsi);
+                    DebugHelper.WriteLine($"URL opened via xdg-open: {url}");
+                }
             }
             catch (Exception e)
             {
@@ -205,37 +246,41 @@ public static class URLHelpers
     }
 
     public static string? CombineURL(params string?[] urls) => urls.Aggregate(CombineURL);
-    public static bool IsValidURL(string? url, bool useRegex = true)
+    private static readonly string[] AllowedSchemes = { Uri.UriSchemeHttp, Uri.UriSchemeHttps, Uri.UriSchemeFtp, Uri.UriSchemeFtps, Uri.UriSchemeSsh, Uri.UriSchemeMailto, Uri.UriSchemeSftp, "git", };
+    /// <summary>
+    /// Ensures a URI is globally routable and safe for public service interaction.
+    /// This logic prevents Server-Side Request Forgery (SSRF) by excluding internal,
+    /// loopback, and private network ranges that Uri.IsWellFormedUriString typically permits.
+    /// </summary>
+    public static bool IsValidURL(string? url)
     {
-        if (string.IsNullOrEmpty(url)) return false;
+        if (string.IsNullOrWhiteSpace(url)) return false;
 
-        url = url.Trim();
+        if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out var uri)) return false;
 
-        if (useRegex)
+        if (!AllowedSchemes.Contains(uri.Scheme)) return false;
+
+        if (uri.HostNameType is UriHostNameType.IPv4 or UriHostNameType.IPv6)
         {
-            const string pattern = @"^
-            (?:(?:https?|ftp)://)                             # protocol identifier
-            (?:\S+(?::\S*)?@)?                                # user:pass authentication
-            (?:(?!(?:10|127)(?:\.\d{1,3}){3})                 # IP address exclusion
-               (?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})
-               (?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})
-               (?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])            # valid IP address range
-               (?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}
-               (?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))
-            |                                                 # OR host name
-            (?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)
-            (?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)* # domain name
-            (?:\.(?:[a-z\u00a1-\uffff]{2,}))                    # TLD
-            \.?
-            )
-            (?::\d{2,5})?                                     # optional port number
-            (?:[/?#]\S*)?                                     # optional resource path
-            $";
+            if (IPAddress.IsLoopback(IPAddress.Parse(uri.Host))) return false;
 
-            return Regex.IsMatch(url, pattern, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+            var bytes = IPAddress.Parse(uri.Host).GetAddressBytes();
+            var isPrivate = bytes switch
+            {
+                [10, ..] => true,
+                [172, >= 16 and <= 31, ..] => true,
+                [192, 168, ..] => true,
+                [169, 254, ..] => true,
+                _ => false
+            };
+
+            if (isPrivate) return false;
         }
 
-        return !url.StartsWith("file://") && Uri.IsWellFormedUriString(url, UriKind.Absolute);
+        if (uri.HostNameType is not UriHostNameType.Dns) return uri.IsWellFormedOriginalString();
+        var host = uri.IdnHost;
+        if (host.Contains('_') || !host.Contains('.')) return false;
+        return host.Split('.').Last().Length >= 2 && uri.IsWellFormedOriginalString();
     }
 
     public static string? AddSlash(string? url, SlashType slashType) => AddSlash(url, slashType, 1);

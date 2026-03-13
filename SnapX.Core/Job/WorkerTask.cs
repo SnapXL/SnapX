@@ -323,17 +323,17 @@ public class WorkerTask : IDisposable
 
     private void DoUploadJob()
     {
-        if (SnapX.Settings.ShowUploadWarning)
+        if (SnapXL.Settings.ShowUploadWarning)
         {
             bool disableUpload = false;
 
-            SnapX.Settings.ShowUploadWarning = false;
+            SnapXL.Settings.ShowUploadWarning = false;
 
             if (disableUpload)
             {
-                SnapX.DefaultTaskSettings.AfterCaptureJob = SnapX.DefaultTaskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.UploadImageToHost);
+                SnapXL.DefaultTaskSettings.AfterCaptureJob = SnapXL.DefaultTaskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.UploadImageToHost);
 
-                foreach (HotkeySettings hotkeySettings in SnapX.HotkeysConfig.Hotkeys)
+                foreach (HotkeySettings hotkeySettings in SnapXL.HotkeysConfig.Hotkeys)
                 {
                     if (hotkeySettings.TaskSettings != null)
                     {
@@ -349,9 +349,9 @@ public class WorkerTask : IDisposable
             }
         }
 
-        if (SnapX.Settings.ShowLargeFileSizeWarning > 0)
+        if (SnapXL.Settings.ShowLargeFileSizeWarning > 0)
         {
-            long dataSize = SnapX.Settings.BinaryUnits ? SnapX.Settings.ShowLargeFileSizeWarning * 1024 * 1024 : SnapX.Settings.ShowLargeFileSizeWarning * 1000 * 1000;
+            long dataSize = SnapXL.Settings.BinaryUnits ? SnapXL.Settings.ShowLargeFileSizeWarning * 1024 * 1024 : SnapXL.Settings.ShowLargeFileSizeWarning * 1000 * 1000;
             if (Data != null && Data.Length > dataSize)
             {
                 throw new NotImplementedException("LargeFileSizeWarning");
@@ -379,9 +379,9 @@ public class WorkerTask : IDisposable
 
                 bool isError = DoUpload(Data, Info.FileName);
 
-                if (isError && SnapX.Settings.MaxUploadFailRetry > 0)
+                if (isError && SnapXL.Settings.MaxUploadFailRetry > 0)
                 {
-                    for (int retry = 1; !StopRequested && isError && retry <= SnapX.Settings.MaxUploadFailRetry; retry++)
+                    for (int retry = 1; !StopRequested && isError && retry <= SnapXL.Settings.MaxUploadFailRetry; retry++)
                     {
                         DebugHelper.WriteLine("Upload failed. Retrying upload.");
                         isError = DoUpload(Data, Info.FileName, retry);
@@ -406,13 +406,13 @@ public class WorkerTask : IDisposable
 
         if (retry > 0)
         {
-            if (SnapX.Settings.UseSecondaryUploaders)
+            if (SnapXL.Settings.UseSecondaryUploaders)
             {
-                Info.TaskSettings.ImageDestination = SnapX.Settings.SecondaryImageUploaders[retry - 1];
-                Info.TaskSettings.ImageFileDestination = SnapX.Settings.SecondaryFileUploaders[retry - 1];
-                Info.TaskSettings.TextDestination = SnapX.Settings.SecondaryTextUploaders[retry - 1];
-                Info.TaskSettings.TextFileDestination = SnapX.Settings.SecondaryFileUploaders[retry - 1];
-                Info.TaskSettings.FileDestination = SnapX.Settings.SecondaryFileUploaders[retry - 1];
+                Info.TaskSettings.ImageDestination = SnapXL.Settings.SecondaryImageUploaders[retry - 1];
+                Info.TaskSettings.ImageFileDestination = SnapXL.Settings.SecondaryFileUploaders[retry - 1];
+                Info.TaskSettings.TextDestination = SnapXL.Settings.SecondaryTextUploaders[retry - 1];
+                Info.TaskSettings.TextFileDestination = SnapXL.Settings.SecondaryFileUploaders[retry - 1];
+                Info.TaskSettings.FileDestination = SnapXL.Settings.SecondaryFileUploaders[retry - 1];
             }
             else
             {
@@ -595,7 +595,7 @@ public class WorkerTask : IDisposable
         if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.CopyImageToClipboard))
         {
             // Clipboard.CopyImage(Image, Info.FileName);
-            Core.SnapX.EventAggregator.Publish(new NeedClipboardCopyEvent(Image, Info.FileName));
+            Core.SnapXL.EventAggregator.Publish(new NeedClipboardCopyEvent(Image, Info.FileName));
 
             DebugHelper.WriteLine("Image copied to clipboard.");
         }
@@ -715,7 +715,7 @@ public class WorkerTask : IDisposable
             else if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.CopyFilePathToClipboard))
             {
                 // Clipboard.CopyText(Info.FilePath);
-                Core.SnapX.EventAggregator.Publish(new NeedClipboardCopyEvent(Info.FilePath));
+                Core.SnapXL.EventAggregator.Publish(new NeedClipboardCopyEvent(Info.FilePath));
             }
 
             if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.ShowInExplorer))
@@ -725,7 +725,8 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterCaptureJob.HasFlag(AfterCaptureTasks.ScanQRCode) && Info.DataType == EDataType.Image)
             {
-                throw new NotImplementedException("QR Code Scanner not implemented");
+                var clonedImage = Image.CloneAs<Rgba32>();
+                Core.SnapXL.EventAggregator.Publish(new NeedScanQRCodeEvent(clonedImage, Info.TaskSettings));
             }
         }
     }
@@ -808,7 +809,7 @@ public class WorkerTask : IDisposable
                 if (!string.IsNullOrEmpty(txt))
                 {
                     // Clipboard.CopyText(txt);
-                    Core.SnapX.EventAggregator.Publish(new NeedClipboardCopyEvent(txt));
+                    Core.SnapXL.EventAggregator.Publish(new NeedClipboardCopyEvent(txt));
                 }
             }
 
@@ -830,7 +831,7 @@ public class WorkerTask : IDisposable
 
             if (Info.TaskSettings.AfterUploadJob.HasFlag(AfterUploadTasks.ShowQRCode))
             {
-                throw new NotImplementedException("QR Code Scanner not implemented");
+                Core.SnapXL.EventAggregator.Publish(new NeedScanQRCodeEvent(Info.Result.ToString(), Info.TaskSettings));
             }
         }
         catch (Exception e)
@@ -842,24 +843,25 @@ public class WorkerTask : IDisposable
 
     public UploadResult UploadData(IGenericUploaderService service, Stream stream, string? fileName)
     {
-        if (!service.CheckConfig(SnapX.UploadersConfig))
+        if (!service.CheckConfig(SnapXL.UploadersConfig))
         {
             return GetInvalidConfigResult(service);
         }
 
-        uploader = service.CreateUploader(SnapX.UploadersConfig, taskReferenceHelper);
+        uploader = service.CreateUploader(SnapXL.UploadersConfig, taskReferenceHelper);
 
         if (uploader != null)
         {
             uploader.Errors.DefaultTitle = service.ServiceName + " " + "error";
-            uploader.BufferSize = (int)Math.Pow(2, SnapX.Settings.BufferSizePower) * 1024;
+            uploader.BufferSize = (int)Math.Pow(2, SnapXL.Settings.BufferSizePower) * 1024;
             uploader.ProgressChanged += uploader_ProgressChanged;
 
             if (Info.TaskSettings.AfterUploadJob.HasFlag(AfterUploadTasks.CopyURLToClipboard) && Info.TaskSettings.AdvancedSettings.EarlyCopyURL)
             {
                 uploader.EarlyURLCopyRequested += url =>
                 {
-                    Clipboard.CopyText(url);
+                    SnapXL.EventAggregator.Publish(new NeedClipboardCopyEvent(url));
+
                     EarlyURLCopied = true;
                 };
             }
@@ -930,12 +932,12 @@ public class WorkerTask : IDisposable
     {
         URLShortenerService service = UploaderFactory.URLShortenerServices[Info.TaskSettings.URLShortenerDestination];
 
-        if (!service.CheckConfig(SnapX.UploadersConfig))
+        if (!service.CheckConfig(SnapXL.UploadersConfig))
         {
             return GetInvalidConfigResult(service);
         }
 
-        URLShortener urlShortener = service.CreateShortener(SnapX.UploadersConfig, taskReferenceHelper);
+        URLShortener urlShortener = service.CreateShortener(SnapXL.UploadersConfig, taskReferenceHelper);
 
         if (urlShortener != null)
         {
@@ -951,12 +953,12 @@ public class WorkerTask : IDisposable
         {
             URLSharingService service = UploaderFactory.URLSharingServices[Info.TaskSettings.URLSharingServiceDestination];
 
-            if (!service.CheckConfig(SnapX.UploadersConfig))
+            if (!service.CheckConfig(SnapXL.UploadersConfig))
             {
                 return GetInvalidConfigResult(service);
             }
 
-            URLSharer urlSharer = service.CreateSharer(SnapX.UploadersConfig, taskReferenceHelper);
+            URLSharer urlSharer = service.CreateSharer(SnapXL.UploadersConfig, taskReferenceHelper);
 
             if (urlSharer != null)
             {
@@ -1035,7 +1037,8 @@ public class WorkerTask : IDisposable
     {
         if (Image != null && Info.DataType == EDataType.Image)
         {
-            TaskHelpers.OCRImage(Image, Info.TaskSettings).GetAwaiter().GetResult();
+            var clonedImage = Image.CloneAs<Rgba32>();
+            TaskHelpers.OCRImageUI(clonedImage, Info.TaskSettings);
         }
     }
 
@@ -1083,7 +1086,7 @@ public class WorkerTask : IDisposable
         {
             Image image = null;
 
-            if (SnapX.Settings.TaskViewMode == TaskViewMode.ThumbnailView && Image != null)
+            if (SnapXL.Settings.TaskViewMode == TaskViewMode.ThumbnailView && Image != null)
             {
                 DebugHelper.WriteException(new NotImplementedException("SnapX.Settings.TaskViewMode == TaskViewMode.ThumbnailView"));
             }

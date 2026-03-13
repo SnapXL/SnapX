@@ -459,11 +459,15 @@ public class PastebinSyntaxInfo
 public class PastebinSettings
 {
     public string? Username { get; set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? Password { get; set; }
     public PastebinPrivacy Exposure { get; set; } = PastebinPrivacy.Unlisted;
     public PastebinExpiration Expiration { get; set; } = PastebinExpiration.N;
     public string? Title { get; set; }
     public string? TextFormat { get; set; } = "text";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? UserKey { get; set; }
     public bool RawURL { get; set; }
 }

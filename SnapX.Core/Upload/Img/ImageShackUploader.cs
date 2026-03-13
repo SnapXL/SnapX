@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
+using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.Img;
 
@@ -122,7 +123,31 @@ public sealed class ImageShackUploader(string DeveloperKey, ImageShackOptions? C
     {
         public bool success { get; set; }
         public int process_time { get; set; }
-        public ImageShackLogin result { get; set; }
+        [JsonConverter(typeof(ImageShackResultConverter))]
+        public ImageShackLogin? result { get; set; }
+    }
+    public class ImageShackResultConverter : JsonConverter<ImageShackLogin?>
+    {
+        public override ImageShackLogin? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.False || reader.TokenType == JsonTokenType.True)
+            {
+                reader.GetBoolean();
+                return null;
+            }
+
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                return JsonSerializer.Deserialize<ImageShackLogin>(ref reader, options);
+            }
+
+            return null;
+        }
+
+        public override void Write(Utf8JsonWriter writer, ImageShackLogin? value, JsonSerializerOptions options)
+        {
+            JsonSerializer.Serialize(writer, value, options);
+        }
     }
 
     public class ImageShackLogin
@@ -210,8 +235,12 @@ public sealed class ImageShackUploader(string DeveloperKey, ImageShackOptions? C
 public class ImageShackOptions
 {
     public string? Username { get; set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? Password { get; set; }
     public bool IsPublic { get; set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? Auth_token { get; set; }
     public int ThumbnailWidth { get; set; } = 256;
     public int ThumbnailHeight { get; set; }

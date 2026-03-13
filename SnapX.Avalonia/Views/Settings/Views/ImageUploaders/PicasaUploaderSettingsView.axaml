@@ -1,0 +1,139 @@
+<UserControl
+    x:Class="SnapX.Avalonia.Views.Settings.Views.ImageUploaders.PicasaUploaderSettingsView"
+    x:DataType="img:GooglePhotos"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
+    xmlns:img="clr-namespace:SnapX.Core.Upload.Img;assembly=SnapX.Core"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Spacing="4">
+        <controls:InfoBar
+            IsClosable="True"
+            IsOpen="True"
+            Message="Google now requires a $10,000+ annual audit for third-party photo uploads. We've disabled this by default to keep SnapX free, but you can still enable it using your own API key in Settings."
+            Severity="Error"
+            Title="Google Photos Support Limited" />
+        <controls:SettingsExpander
+            Header="Account Authentication"
+            IconSource="Contact"
+            IsExpanded="True">
+            <controls:SettingsExpanderItem Content="Connect">
+                <controls:SettingsExpanderItem.Footer>
+                    <Button Name="ConnectButton">
+                        <fluent:SymbolIcon FontSize="18" Symbol="PersonAccounts" />
+                    </Button>
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem Name="LoginStatusInfo">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <Image Name="UserPicture" Stretch="UniformToFill" />
+
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock
+                            FontWeight="Bold"
+                            Name="UserNameText"
+                            Text="Not Logged In" />
+
+                        <TextBlock
+                            Name="UserIdText"
+                            Opacity="0.6"
+                            Text="ID: ---" />
+
+                        <TextBlock
+                            FontSize="12"
+                            Name="LoginStatusLabel"
+                            Text="Status: Unknown" />
+                    </StackPanel>
+                </StackPanel>
+
+                <controls:SettingsExpanderItem.Footer>
+                    <Button
+                        Classes="accent"
+                        Content="Disconnect"
+                        Name="DisconnectButton" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+        </controls:SettingsExpander>
+
+        <controls:SettingsExpander Header="Album Management" IconSource="Folder">
+            <controls:SettingsExpanderItem Content="Create New Album">
+                <controls:SettingsExpanderItem.Footer>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox
+                            Name="txtGooglePhotosCreateAlbumName"
+                            VerticalAlignment="Center"
+                            Watermark="Album name"
+                            Width="200" />
+                        <CheckBox Content="Public" Name="cbGooglePhotosIsPublic" />
+                        <Button Content="Create" Name="btnGooglePhotosCreateAlbum" />
+                    </StackPanel>
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem Content="Album ID">
+                <controls:SettingsExpanderItem.Footer>
+                    <TextBox
+                        Name="txtPicasaAlbumID"
+                        VerticalAlignment="Center"
+                        Watermark="Current Album ID"
+                        Width="250" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem>
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Available Albums" />
+                    <Button Content="Refresh List" Name="btnPicasaRefreshAlbumList" />
+                    <DataGrid
+                        AutoGenerateColumns="False"
+                        Height="200"
+                        IsEnabled="False"
+                        IsReadOnly="True"
+                        Name="lvPicasaAlbumList"
+                        x:DataType="img:GooglePhotos+GooglePhotosAlbumInfo">
+
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="ID" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Margin="5,0" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Name" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            FontWeight="Bold"
+                                            Margin="5,0"
+                                            VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Summary" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            Margin="5,0"
+                                            TextTrimming="CharacterEllipsis"
+                                            VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </controls:SettingsExpanderItem>
+            <controls:SettingsExpanderItem Content="Public Upload">
+                <controls:SettingsExpanderItem.Footer>
+                    <ToggleSwitch x:Name="PublicUploadSwitch" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+        </controls:SettingsExpander>
+    </StackPanel>
+</UserControl>

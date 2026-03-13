@@ -237,15 +237,15 @@ public class MacOSAPI : NativeAPI
         var windows = rawWindows
             .Select(raw => new WindowInfo
             {
-                ProcessId = (int)raw.processId,
-                ProcessName = Process.GetProcessById((int)raw.processId).ProcessName,
+                ProcessId = (int)raw.ProcessId,
+                ProcessName = Process.GetProcessById((int)raw.ProcessId).ProcessName,
 
-                Title = raw.title,
-                Rectangle = new Rectangle(raw.x, raw.y, (int)raw.width, (int)raw.height),
-                IsMinimized = raw.isMinimized,
-                IsVisible = !raw.isMinimized,
-                IsActive = raw.isFocused,
-                Handle = (nint)(nuint)raw.hwnd,
+                Title = raw.Title,
+                Rectangle = new Rectangle(raw.X, raw.Y, (int)raw.Width, (int)raw.Height),
+                IsMinimized = raw.IsMinimized,
+                IsVisible = !raw.IsMinimized,
+                IsActive = raw.IsFocused,
+                Handle = (nint)raw.Hwnd,
             })
             .ToList();
 

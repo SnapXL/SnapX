@@ -3,7 +3,6 @@
 
 
 using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
@@ -37,14 +36,13 @@ public sealed class OneTimeSecret : TextUploader
     public string API_KEY { get; set; }
     public string API_USERNAME { get; set; }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
+
     public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();
         if (string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(fileName)) return ur;
 
-        var args = new Dictionary<string, string?>() { { "text", text } };
+        var args = new Dictionary<string, string?>() { { "secret", text } };
 
         NameValueCollection headers = null;
 
@@ -74,9 +72,9 @@ public sealed class OneTimeSecret : TextUploader
         public string custid { get; set; }
         public string metadata_key { get; set; }
         public string? secret_key { get; set; }
-        public string ttl { get; set; }
-        public string updated { get; set; }
-        public string created { get; set; }
+        public int ttl { get; set; }
+        public int updated { get; set; }
+        public int created { get; set; }
     }
 }
 

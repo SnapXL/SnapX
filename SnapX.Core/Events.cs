@@ -9,7 +9,7 @@ public class NeedFileOpenerEvent
     public string Directory { get; set; } = UserDirectory.PicturesDir;
     public string? FileName { get; set; }
     public List<string>? AcceptedExtensions { get; set; }
-    public string? Title { get; set; } = SnapX.AppName;
+    public string? Title { get; set; } = SnapXL.AppName;
     public bool Multiselect { get; set; } = false;
     public bool FolderPicker { get; set; }
     public TaskSettings TaskSettings { get; set; }
@@ -36,6 +36,7 @@ public class NeedClipboardCopyEvent
     public NeedClipboardCopyEvent(Image img)
     {
         Image = img;
+        FileName = "image.png";
     }
     public NeedClipboardCopyEvent(Image img, string? filename = null)
     {
@@ -59,6 +60,40 @@ public class NeedClipboardCopyEvent
         Handled = true;
     }
 }
+public class NeedOCRWindowEvent(Image Image, TaskSettings Settings)
+{
+    public Image Image { get; set; } = Image;
+    public TaskSettings TaskSettings { get; set; } = Settings;
+}
+
+public class NeedScanQRCodeEvent
+{
+    public NeedScanQRCodeEvent(Image image, TaskSettings settings)
+    {
+        Image = image;
+        TaskSettings = settings;
+    }
+
+    public NeedScanQRCodeEvent(string text, TaskSettings settings)
+    {
+        Text = text;
+        TaskSettings = settings;
+    }
+
+    public Image? Image { get; set; }
+    public string? Text { get; set; }
+    public TaskSettings TaskSettings { get; set; }
+
+    public bool HasText => !string.IsNullOrEmpty(Text);
+    public bool HasImage => Image != null;
+
+    // public bool Handled { get; set; }
+    //
+    // public void MarkAsHandled()
+    // {
+    //     Handled = true;
+    // }
+}
 
 public class EventAggregator
 {
@@ -67,7 +102,7 @@ public class EventAggregator
     public void Subscribe<TEvent>(Action<TEvent> action)
     {
         _subscriptions.Add(
-            Tuple.Create<Type, Action<object>>(typeof(TEvent), (o) => action((TEvent)o))
+            Tuple.Create<Type, Action<object>>(typeof(TEvent), o => action((TEvent)o))
         );
     }
 

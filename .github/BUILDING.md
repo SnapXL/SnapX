@@ -3,7 +3,6 @@
 - `git`
 - `dotnet-sdk-10.0`
 - `ffmpeg` (<7)
-- `rust` & `cargo` (<1.80) (macOS only, the rest use SharpCapture)
 - `clang`
 - `zlib-devel`
 
@@ -61,7 +60,7 @@ End of life macOS versions are not supported. For example, macOS 13 Ventura is a
 
 ```zsh
 xcode-select --install
-brew install ffmpeg@8 rust
+brew install ffmpeg@8
 git --version # If prompted to install Git, do it.
 exec $SHELL -l
 ```
@@ -71,7 +70,7 @@ exec $SHELL -l
 >
 > ```zsh
 > sudo port selfupdate
-> sudo port install ffmpeg8 cargo
+> sudo port install ffmpeg8
 > ```
 
 ### Alpine Linux 3.23+ <img src="https://github.com/user-attachments/assets/a44c5039-017c-4547-8598-8adafeae214b" alt="Alpine Linux Logo" height="25" width="25"/>
@@ -102,7 +101,7 @@ sudo pkg install -y curl bash icu terminfo-db libunwind libinotify \
 sudo mkdir -p /usr/lib/dotnet
 
 # Download the community-built .NET 10 SDK for FreeBSD
-curl -L -o /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.102-sb1-amd64-freebsd-14/dotnet-sdk-10.0.102-freebsd-x64.tar.gz
+curl -L -o /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.103-amd64-freebsd-14/dotnet-sdk-10.0.103-freebsd-x64.tar.gz
 
 # Extract the SDK
 sudo tar -xzf /tmp/dotnet.tar.gz -C /usr/lib/dotnet --strip-components=1

@@ -4,13 +4,13 @@
 
 using System.Collections.Specialized;
 using System.Net;
-using System.Net.Http.Handlers;
 using System.Net.Http.Headers;
 using System.Text;
 using SnapX.Core.Upload.OAuth;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
+using SnapX.Core.Utils.Miscellaneous;
 using Math = System.Math;
 
 namespace SnapX.Core.Upload.BaseUploaders;
@@ -25,7 +25,8 @@ public class Uploader
     public bool IsUploading { get; protected set; }
     public UploaderErrorManager Errors { get; private set; } = new UploaderErrorManager();
     public bool IsError => !StopUploadRequested && Errors is { Count: > 0 };
-    public int BufferSize { get; set; } = 8192;
+    // SFTP and Dropbox uploaders use this. According to my research, 8KiB is very small for 2026 networking.
+    public int BufferSize { get; set; } = 65536;
 
     protected bool StopUploadRequested { get; set; }
     protected bool AllowReportProgress { get; set; } = true;
@@ -144,7 +145,8 @@ public class Uploader
         {
             foreach (var arg in args)
             {
-                multipartContent.Add(new StringContent(arg.Value), arg.Key);
+                var contentValue = arg.Value ?? string.Empty;
+                multipartContent.Add(new StringContent(contentValue), arg.Key);
             }
         }
 
@@ -437,44 +439,63 @@ public class Uploader
 
     #region Helper methods
 
-    protected bool TransferData(Stream dataStream, Stream requestStream, long dataPosition = 0, long dataLength = -1)
+    protected async Task<bool> TransferDataAsync(Stream dataStream, Stream requestStream, long dataPosition = 0, long dataLength = -1)
     {
         if (dataPosition >= dataStream.Length)
-        {
             return true;
-        }
 
         if (dataStream.CanSeek)
-        {
             dataStream.Position = dataPosition;
-        }
 
         if (dataLength == -1)
-        {
             dataLength = dataStream.Length;
-        }
+
         dataLength = Math.Min(dataLength, dataStream.Length - dataPosition);
 
-        ProgressManager progress = new ProgressManager(dataStream.Length, dataPosition);
-        int length = (int)Math.Min(BufferSize, dataLength);
-        byte[] buffer = new byte[length];
-        int bytesRead;
+        var progress = new ProgressManager(dataStream.Length, dataPosition);
+        var bytesRemaining = dataLength;
 
-        long bytesRemaining = dataLength;
-        while (!StopUploadRequested && (bytesRead = dataStream.Read(buffer, 0, length)) > 0)
+        var maxBuffer = 4 * 1024 * 1024;
+
+        while (!StopUploadRequested && bytesRemaining > 0)
         {
-            requestStream.Write(buffer, 0, bytesRead);
+            int currentBufferSize = BufferSize;
+
+            if (dataLength >= 500 * 1024 * 1024)
+            {
+                currentBufferSize = (int)Math.Min(maxBuffer, Math.Max(BufferSize, bytesRemaining));
+            }
+            else
+            {
+                currentBufferSize = (int)Math.Min(BufferSize, bytesRemaining);
+            }
+
+            var buffer = new byte[currentBufferSize];
+
+            var bytesRead = await dataStream.ReadAsync(buffer.AsMemory(0, currentBufferSize)).ConfigureAwait(false);
+            if (bytesRead == 0)
+                break;
+
+            await requestStream.WriteAsync(buffer.AsMemory(0, bytesRead)).ConfigureAwait(false);
+
             bytesRemaining -= bytesRead;
-            length = (int)Math.Min(buffer.Length, bytesRemaining);
 
             if (AllowReportProgress && progress.UpdateProgress(bytesRead))
-            {
                 OnProgressChanged(progress);
-            }
         }
 
         return !StopUploadRequested;
     }
+
+
+    protected bool TransferData(Stream dataStream, Stream requestStream, long dataPosition = 0, long dataLength = -1)
+    {
+        return TransferDataAsync(dataStream, requestStream, dataPosition, dataLength)
+            .ConfigureAwait(false)
+            .GetAwaiter()
+            .GetResult();
+    }
+
 
     private string? ProcessError(Exception e, string? requestURL)
     {

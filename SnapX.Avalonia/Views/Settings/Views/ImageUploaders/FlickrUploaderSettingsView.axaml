@@ -1,0 +1,60 @@
+<UserControl
+    x:Class="SnapX.Avalonia.Views.Settings.Views.ImageUploaders.FlickrUploaderSettingsView"
+    x:DataType="img:FlickrUploader"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:fluent="clr-namespace:FluentIcons.Avalonia.Fluent;assembly=FluentIcons.Avalonia.Fluent"
+    xmlns:img="clr-namespace:SnapX.Core.Upload.Img;assembly=SnapX.Core"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Spacing="4">
+        <controls:SettingsExpander
+            Header="Account Authentication"
+            IconSource="Contact"
+            IsExpanded="True">
+            <controls:SettingsExpanderItem Content="Connect">
+                <controls:SettingsExpanderItem.Footer>
+                    <Button Name="ConnectButton">
+                        <fluent:SymbolIcon FontSize="18" Symbol="PersonAccounts" />
+                    </Button>
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem Content="Verification Code" Description="Enter the code received from your provider to link your account.">
+                <controls:SettingsExpanderItem.Footer>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox
+                            PasswordChar="*"
+                            VerticalAlignment="Center"
+                            Watermark="Paste authorization code here"
+                            Width="250"
+                            x:Name="AuthCodeTextBox" />
+
+                        <Button
+                            Content="Login"
+                            VerticalAlignment="Center"
+                            x:Name="CompleteAuthButton" />
+                    </StackPanel>
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem Content="Status: ???" Name="LoginStatus">
+                <controls:SettingsExpanderItem.Footer>
+                    <StackPanel>
+                        <Button
+                            Classes="accent"
+                            Content="Disconnect"
+                            x:Name="DisconnectButton" />
+                    </StackPanel>
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+        </controls:SettingsExpander>
+
+        <controls:SettingsExpanderItem Content="Direct Link">
+            <controls:SettingsExpanderItem.Footer>
+                <ToggleSwitch Theme="{StaticResource CompactToggleSwitchStyle}" x:Name="DirectLinkSwitch" />
+            </controls:SettingsExpanderItem.Footer>
+        </controls:SettingsExpanderItem>
+
+    </StackPanel>
+</UserControl>

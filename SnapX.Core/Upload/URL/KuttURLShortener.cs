@@ -115,7 +115,11 @@ public sealed class KuttURLShortener : URLShortener
 public class KuttSettings
 {
     public string? Host { get; set; } = "https://kutt.it";
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string APIKey { get; set; }
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string Password { get; set; }
     public bool Reuse { get; set; }
     public string Domain { get; set; }

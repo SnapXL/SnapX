@@ -46,6 +46,8 @@ bld/
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 
+*.env*
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
@@ -475,6 +477,7 @@ NSIS/Plugins/x86-unicode/
 
 # Build outputs
 *.cab
+*.rtf
 *.msi
 *.msix
 *.msixbundle

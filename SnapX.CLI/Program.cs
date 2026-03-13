@@ -9,7 +9,7 @@ if (args.Length != 0 && (args[0] == "--version" || args[0] == "-v"))
     return;
 }
 
-var snapx = new SnapX.Core.SnapX();
+var snapx = new SnapX.Core.SnapXL();
 snapx.IdentifyAsCLI();
 snapx.start(args);
 

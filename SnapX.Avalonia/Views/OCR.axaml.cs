@@ -12,11 +12,13 @@ using Avalonia.Styling;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SnapX.Avalonia.ViewModels;
 using SnapX.Core;
 using SnapX.Core.History;
+using SnapX.Core.Job;
 using SnapX.Core.Utils;
 using static SnapX.Core.Job.TaskHelpers;
 using Point = Avalonia.Point;
@@ -28,8 +30,9 @@ public partial class OCR : AppWindow
     private OCRViewModel _ocrViewModel;
     private HistoryItem? _item;
     private SixLabors.ImageSharp.Image? _img;
+    private TaskSettings? _taskSettings;
 
-    public OCR(HistoryItem? item, OCRViewModel viewModel, SixLabors.ImageSharp.Image? image = null)
+    public OCR(HistoryItem? item, OCRViewModel viewModel, SixLabors.ImageSharp.Image? image = null, TaskSettings? taskSettings = null)
     {
 
         DataContext = viewModel;
@@ -37,6 +40,7 @@ public partial class OCR : AppWindow
 
         _item = item;
         _img = image;
+        _taskSettings = taskSettings;
         InitializeComponent();
 
         // XAML will overwrite the title if it's put here
@@ -52,6 +56,8 @@ public partial class OCR : AppWindow
         {
             Title = "OCR Tool";
         }
+
+        AddHandler(DragDrop.DropEvent, Drop);
         // LanguageSelector = this.FindControl<ComboBox>("LanguageSelector");
         // LanguageSelector!.ItemsSource = viewModel.LanguageDisplayNames;
         // LanguageSelector.Items = _languages;
@@ -60,12 +66,38 @@ public partial class OCR : AppWindow
         // LoadImage();
         // RunOCR(_languages[0]);
     }
+    async void Drop(object? sender, DragEventArgs e)
+    {
+        if (e.DataTransfer.TryGetFiles()?.FirstOrDefault() is not { } storageFile) return;
 
+        try
+        {
+            await using Stream stream = File.OpenRead(storageFile.Path.LocalPath);
+            _img = await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(stream);
+
+            if (LanguageSelector?.SelectedIndex is not (>= 0 and int index)) return;
+
+            Title = $"OCR Result for dropped file {_img.Metadata.DecodedImageFormat?.Name}";
+            var code = _ocrViewModel.GetLanguageCode(index);
+            await RunOCRAsync(code);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteException(ex);
+            await new ContentDialog
+            {
+                Title = "Drop Error",
+                Content = ex.Message,
+                CloseButtonText = "OK"
+            }.ShowAsync(this);
+        }
+    }
     public OCR()
         : this(null, new OCRViewModel()) { }
     public OCR(SixLabors.ImageSharp.Image img)
         : this(null, new OCRViewModel(), img) { }
-
+    public OCR(SixLabors.ImageSharp.Image img, TaskSettings taskSettings)
+        : this(null, new OCRViewModel(), img, taskSettings) { }
     public OCR(HistoryItem item)
         : this(item, new OCRViewModel()) { }
 
@@ -78,7 +110,10 @@ public partial class OCR : AppWindow
 
         if (LanguageSelector?.SelectedIndex is not (>= 0 and var index))
             return;
-
+        if (_taskSettings?.CaptureSettings.OCROptions.Language is { } windowsLangCode)
+        {
+            index = _ocrViewModel.GetIndexFromWindowsCode(windowsLangCode);
+        }
         _ocrViewModel.SelectedLanguageIndex = index;
 
         var code = _ocrViewModel.GetLanguageCode(index);
@@ -88,6 +123,7 @@ public partial class OCR : AppWindow
     private async Task RunOCRAsync(string languageCode, CancellationToken cts = default)
     {
         DebugHelper.WriteLine($"{nameof(RunOCRAsync)} triggered");
+        if (_taskSettings?.CaptureSettings.OCROptions.SingleLine ?? false) SingleLine.IsChecked = true;
         try
         {
             // WEED OUT THOSE DISPOSED OBJECTS FUCK YOU
@@ -96,6 +132,7 @@ public partial class OCR : AppWindow
         catch (ObjectDisposedException)
         {
             _img = null;
+            DebugHelper.WriteLine($"Wow, I was given a disposed Image object. What kind of sick joke is this??");
         }
         if (_item is null && _img is null) return;
         ResultText?.Text = Lang.Processing;
@@ -134,7 +171,11 @@ public partial class OCR : AppWindow
 
                 // Resize the image to match the Canvas exactly otherwise text boxes aren't where they should be.
                 response.AnnotatedImage.Mutate(x => x.Resize((int)TextOverlayCanvas.Width, (int)TextOverlayCanvas.Height, KnownResamplers.Bicubic));
-                await response.AnnotatedImage.SaveAsWebpAsync(ms, cts).ConfigureAwait(true);
+                await response.AnnotatedImage.SaveAsWebpAsync(ms, new WebpEncoder()
+                {
+                    Quality = 85
+                },
+                    cts).ConfigureAwait(true);
 
                 ms.Seek(0, SeekOrigin.Begin);
                 var bitmap = new Bitmap(ms);
@@ -228,12 +269,14 @@ public partial class OCR : AppWindow
                 result = result.Replace("\r", "").Replace("\n", "");
             }
             ResultText?.Text = result;
+            if (_taskSettings?.CaptureSettings.OCROptions.AutoCopy ?? false) CopyResult_Click(this, new RoutedEventArgs());
+
         }
         catch (Exception ex)
         {
             ResultText?.Text = ex.ToString();
             OnToggleView(ShowTextBtn, new RoutedEventArgs());
-            DebugHelper.Logger?.Error(ex.ToString());
+            DebugHelper.WriteException(ex);
         }
         finally
         {

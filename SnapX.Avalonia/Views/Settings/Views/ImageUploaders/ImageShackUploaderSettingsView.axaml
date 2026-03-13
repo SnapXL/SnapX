@@ -1,0 +1,65 @@
+<UserControl
+    x:Class="SnapX.Avalonia.Views.Settings.Views.ImageUploaders.ImageShackUploaderSettingsView"
+    x:DataType="img:ImageShackUploader"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:img="clr-namespace:SnapX.Core.Upload.Img;assembly=SnapX.Core"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Spacing="4">
+        <controls:InfoBar
+            IsClosable="False"
+            IsOpen="True"
+            Margin="0,0,0,8"
+            Message="ImageShack's Login API is broken. We are in the process of contacting support regarding this issue. This means uploading with SnapX using ImageShack is currently impossible."
+            Severity="Warning"
+            Title="ImageShack Logins Unavailable" />
+        <controls:SettingsExpander
+            Header="Account Authentication"
+            IconSource="Contact"
+            IsExpanded="False">
+            <controls:SettingsExpanderItem Content="Username">
+                <controls:SettingsExpanderItem.Footer>
+                    <TextBox
+                        Watermark="Username/Email"
+                        Width="200"
+                        x:Name="UsernameTextBox" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem Content="Password">
+                <controls:SettingsExpanderItem.Footer>
+                    <TextBox
+                        PasswordChar="*"
+                        Watermark="Password"
+                        Width="200"
+                        x:Name="PasswordTextBox" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+
+            <controls:SettingsExpanderItem>
+                <controls:SettingsExpanderItem.Footer>
+                    <Button
+                        Classes="accent"
+                        Content="Login"
+                        x:Name="LoginButton" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+        </controls:SettingsExpander>
+
+        <controls:SettingsExpanderItem Content="Public Upload" ToolTip.Tip="Will it show on ImageShack's homepage?">
+            <controls:SettingsExpanderItem.Footer>
+                <ToggleSwitch Theme="{StaticResource CompactToggleSwitchStyle}" x:Name="PublicUploadSwitch" />
+            </controls:SettingsExpanderItem.Footer>
+        </controls:SettingsExpanderItem>
+        <controls:SettingsExpanderItem Content="External Links">
+            <controls:SettingsExpanderItem.Footer>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="My Images" x:Name="OpenImagesButton" />
+                    <Button Content="Public Profile" x:Name="OpenProfileButton" />
+                </StackPanel>
+            </controls:SettingsExpanderItem.Footer>
+        </controls:SettingsExpanderItem>
+
+    </StackPanel>
+</UserControl>

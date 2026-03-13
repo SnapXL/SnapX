@@ -6,7 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Dapper.AOT</InterceptorsPreviewNamespaces>
     <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
-    <MSExtensionsVersion>10.0.2</MSExtensionsVersion>
+    <MSExtensionsVersion>10.0.3</MSExtensionsVersion>
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
 
@@ -53,16 +53,13 @@
 <!--    <Message Text="Generator output: $(GeneratorOutput)" Importance="normal" />-->
 <!--  </Target>-->
   <ItemGroup>
-    <!-- Google Photos Library from Microsoft employee -->
-    <PackageReference Include="CasCap.Api.GooglePhotos" Version="3.1.0" />
     <!-- Privacy friendly user/feature analytics -->
     <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.5" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Dapper.AOT" Version="1.0.48" />
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
-    <PackageReference Include="JsonPath.Net" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+    <PackageReference Include="JsonPath.Net" Version="3.0.1" />
     <!-- For History, JSON shouldn't be a data storage backend imho -->
     <PackageReference Include="Microsoft.Data.Sqlite" Version="$(MSExtensionsVersion)" />
     <!-- Builds are notably not provided for FreeBSD. Dynamic loading of normal system sqlite3 supported. -->
@@ -71,7 +68,8 @@
     <!-- Configuration has never been so intuitive -->
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
+    <PackageReference Include="Vecc.YamlDotNet.Analyzers.StaticGenerator" Version="16.3.0" />
     <!-- Source generator dependency. It is just useful for keeping redudant code out of tree  -->
     <PackageReference Include="MimeTypes" Version="2.5.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -84,11 +82,12 @@
     <PackageReference Include="Sentry.Profiling" Version="6.1.0" />
     <!-- Next generation logging -->
     <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-    <PackageReference Include="Serilog.Settings.Configuration" Version="10.0.0" />
-    <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.InMemory" Version="2.0.0" />
+    <!-- AOT friendly cloning, I am not going to good places for adding this as a dependency... -->
+    <PackageReference Include="FastCloner" Version="3.4.7" />
+    <PackageReference Include="FastCloner.SourceGenerator" Version="1.1.7" />
     <!-- Cross platform image library -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageReference Include="BrycensRanch.NeoSolve.ImageSharp.AVIF" Version="1.3.2" />
@@ -98,7 +97,9 @@
     while these are only useful for Linux,
     hiding them behind a compiler conditional makes debugging more difficult. -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.90.3" />
-<!--    <PackageReference Include="WaylandSharper" Version="0.1.3">-->
+    <PackageReference Include="GnomeStack.Secrets.OperatingSystem" Version="0.1.6" />
+    <PackageReference Include="SimpleBase" Version="5.6.0" />
+    <!--    <PackageReference Include="WaylandSharper" Version="0.1.3">-->
 <!--      <IncludeAssets>build; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
 <!--      <PrivateAssets>all</PrivateAssets>-->
 <!--    </PackageReference>-->
@@ -106,9 +107,10 @@
     <PackageReference Include="Xdg.Directories" Version="0.1.2" />
     <!-- QR Code library-->
     <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.18" />
+    <PackageReference Include="BrycensRanch.SnapXL.SnapXRust" Version="1.0.1" />
     <PackageReference Include="FluentFTP" Version="53.0.2" />
     <PackageReference Include="BrycensRanch.MegaApiClient" Version="1.0.0" />
-    <PackageReference Include="SSH.NET" Version="2025.1.0" />
+    <PackageReference Include="Tmds.Ssh" Version="0.19.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Resources\host-manifest-chrome.json">
@@ -119,8 +121,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\OAuthCallbackPage.html" />
-    <Content Include="Resources\jira_sharex.pfx" />
+    <EmbeddedResource Include="Resources\OAuthCallbackPage.html" />
     <EmbeddedResource Include="Resources\*.flac" />
     <EmbeddedResource Include="Migrations\*.sql" />
     <EmbeddedResource Include="Resources\*.png" />
@@ -142,7 +143,6 @@
     <AdditionalFiles Include="wayland.xml" WaylandProtocol="client" />
   </ItemGroup>
 <ItemGroup>
-  <Compile Include=".\ScreenCapture\Rust\bindings\snapxrust.cs" Link="snapxrust.cs" />
   <Compile Remove=".\Tools\GenerateUploaderFactory\app.cs" />
 </ItemGroup>
   <!-- Exclude Windows-specific files from macOS and Linux -->

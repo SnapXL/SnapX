@@ -2,6 +2,7 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Controls.Primitives;
 using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Windowing;
+using SnapX.Avalonia.Views.Settings.Views;
 
 namespace SnapX.Avalonia.Views.Settings;
 
@@ -19,6 +20,10 @@ public partial class SettingsWindow : AppWindow
                 NotificationManager?.Show(new Notification(m.Title, m.Message, m.Type));
             }
         );
+        WeakReferenceMessenger.Default.Register<ChangeWindowTitleRequest>(this, (r, m) =>
+        {
+            Title = m.Title;
+        });
     }
 
     private void SettingsWindowInit(object? Sender, EventArgs E)

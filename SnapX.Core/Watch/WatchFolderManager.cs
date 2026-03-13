@@ -22,12 +22,12 @@ public class WatchFolderManager : IDisposable
 
         WatchFolders = [];
 
-        foreach (WatchFolderSettings defaultWatchFolderSetting in SnapX.DefaultTaskSettings.WatchFolderList)
+        foreach (WatchFolderSettings defaultWatchFolderSetting in SnapXL.DefaultTaskSettings.WatchFolderList)
         {
-            AddWatchFolder(defaultWatchFolderSetting, SnapX.DefaultTaskSettings);
+            AddWatchFolder(defaultWatchFolderSetting, SnapXL.DefaultTaskSettings);
         }
 
-        foreach (HotkeySettings hotkeySetting in SnapX.HotkeysConfig.Hotkeys)
+        foreach (HotkeySettings hotkeySetting in SnapXL.HotkeysConfig.Hotkeys)
         {
             foreach (WatchFolderSettings watchFolderSetting in hotkeySetting.TaskSettings.WatchFolderList)
             {

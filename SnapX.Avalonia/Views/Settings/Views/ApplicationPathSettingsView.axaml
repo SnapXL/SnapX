@@ -1,0 +1,97 @@
+﻿<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.Views.Settings.ApplicationPathSettingsView"
+    x:DataType="settings:ApplicationPathSettingsVM"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SnapX.Avalonia.ViewModels.Settings"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.DataContext>
+        <settings:ApplicationPathSettingsVM />
+    </Design.DataContext>
+    <ScrollViewer Margin="20">
+        <StackPanel Spacing="20">
+
+            <StackPanel Spacing="5">
+                <TextBlock FontWeight="SemiBold" Text="SnapX Personal Folder" />
+                <Grid ColumnDefinitions="*, Auto, Auto, Auto" RowDefinitions="Auto">
+                    <TextBox
+                        Grid.Column="0"
+                        IsReadOnly="True"
+                        Margin="0,0,5,0"
+                        Text="{Binding PersonalFolderPath}" />
+                    <Button
+                        Command="{Binding BrowsePersonalFolderCommand}"
+                        Content="Browse"
+                        Grid.Column="1"
+                        IsEnabled="False"
+                        Margin="0,0,5,0"
+                        ToolTip.Tip="I'm still cooking in the oven!" />
+                    <Button
+                        Command="{Binding ApplyPersonalFolderCommand}"
+                        Content="Apply"
+                        Grid.Column="2"
+                        IsEnabled="False"
+                        Margin="0,0,5,0"
+                        ToolTip.Tip="I'm still cooking in the oven!" />
+                    <Button
+                        Command="{Binding OpenPersonalFolderCommand}"
+                        Content="Open"
+                        Grid.Column="3" />
+                </Grid>
+            </StackPanel>
+
+            <StackPanel Spacing="5">
+                <CheckBox Content="Use custom screenshots folder" IsChecked="{Binding UseCustomScreenshotsFolder}" />
+                <Grid ColumnDefinitions="*, Auto" IsEnabled="{Binding UseCustomScreenshotsFolder}">
+                    <TextBox
+                        Grid.Column="0"
+                        Margin="0,0,5,0"
+                        Text="{Binding CustomScreenshotsPath}" />
+                    <Button
+                        Command="{Binding BrowseCustomScreenshotsCommand}"
+                        Content="Browse"
+                        Grid.Column="1" />
+                </Grid>
+            </StackPanel>
+
+            <StackPanel Spacing="5">
+                <TextBlock FontWeight="SemiBold" Text="Sub-folder Pattern" />
+                <Grid ColumnDefinitions="*, Auto">
+                    <TextBox
+                        Grid.Column="0"
+                        Margin="0,0,5,0"
+                        Text="{Binding SubFolderPattern}" />
+                    <Button
+                        Command="{Binding OpenSubFolderCommand}"
+                        Content="Open"
+                        Grid.Column="1" />
+                </Grid>
+                <TextBlock
+                    FontSize="12"
+                    FontStyle="Italic"
+                    Foreground="{DynamicResource SystemAccentColorLight1}"
+                    Margin="2,0,0,0"
+                    Text="{Binding SubFolderPreviewPath}" />
+            </StackPanel>
+
+            <StackPanel Spacing="5">
+                <TextBlock FontWeight="SemiBold" Text="Sub-folder Pattern (Window)" />
+                <TextBox Text="{Binding WindowSubFolderPattern}" Watermark="Enter pattern..." />
+            </StackPanel>
+
+            <Separator Margin="0,10" />
+
+            <controls:InfoBar
+                IsClosable="False"
+                IsOpen="True"
+                Message="I am still working on this section. More settings coming soon!"
+                Severity="Informational"
+                Title="Development Note" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

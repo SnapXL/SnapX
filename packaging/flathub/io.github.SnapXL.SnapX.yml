@@ -18,13 +18,13 @@ finish-args:
   - --talk-name=com.canonical.AppMenu
   - --talk-name=com.canonical.dbusmenu
   - --talk-name=org.freedesktop.Notifications # Native notfications support
-#  - --talk-name=org.freedesktop.secrets
+  - --talk-name=org.freedesktop.secrets
   - --talk-name=org.freedesktop.portal.Desktop
-#  - --talk-name=org.kde.kwalletd5 # OS Secret support
+  - --talk-name=org.kde.kwalletd5 # OS Secret support
   - --talk-name=org.kde.StatusNotifierWatcher
   - --own-name=org.kde.* # Avalonia's Tray implementation is old, it seems? Without this, the app immediately crashes!
   - --talk-name=org.kde.StatusNotifierItem
-#  - --filesystem=xdg-run/keyring # OS Secret support
+  - --filesystem=xdg-run/keyring # OS Secret support
   - --env=LD_LIBRARY_PATH=/app/lib:/app/lib/snapx # Fixes unable to load shared library 'OpenCvSharpExtern' or one of its dependencies
 modules:
   - name: snapx-ui
@@ -42,8 +42,9 @@ modules:
       - dotnet run --project build --no-restore -- install --no-color --no-extended-chars --prefix ${FLATPAK_DEST} --extra-args="-p:RestorePackagesPath=vendor --source vendor --ignore-failed-sources"
       - rm ${FLATPAK_DEST}/bin/snapx ${FLATPAK_DEST}/lib/snapx/snapx # Remove duplicate CLI, available in snapx-ui binary already.
     sources:
-      - type: dir
-        path: ../..
+      - type: git
+        url: https://github.com/SnapXL/SnapX.git
+        commit: 5e23b7d38a2ee4e41a6372b3bcc567210132b781
       - sources.json
       - build-sources.json
   # XRandr is a required dependency.
@@ -52,6 +53,7 @@ modules:
       - type: archive
         sha256: f8dd7566adb74147fab9964680b6bbadee87cf406a7fcff51718a5e6949b841c
         url: https://www.x.org/archive/individual/app/xrandr-1.5.3.tar.xz
+  # For diagnostics & telemetry.
   - name: glxinfo
     buildsystem: meson
     config-opts:
@@ -97,6 +99,7 @@ modules:
       - type: git
         url: https://github.com/microsoft/msquic.git
         tag: v2.5.6
+# For diagnostics & telemetry.
   - name: lspci
     buildsystem: simple
     sources:

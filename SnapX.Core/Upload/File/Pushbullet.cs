@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using SnapX.Core.Upload.BaseServices;
 using SnapX.Core.Upload.BaseUploaders;
 using SnapX.Core.Upload.Utils;
+using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
 
 namespace SnapX.Core.Upload.File;
@@ -230,6 +231,8 @@ public class PushbulletDevice
 
 public class PushbulletSettings
 {
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string UserAPIKey { get; set; } = "";
     public List<PushbulletDevice?> DeviceList { get; set; } = [];
     public int SelectedDevice { get; set; } = 0;

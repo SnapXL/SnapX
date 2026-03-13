@@ -17,6 +17,7 @@ using SnapX.Core.Utils.Native;
 using Image = SixLabors.ImageSharp.Image;
 using Point = Avalonia.Point;
 using Rectangle = Avalonia.Controls.Shapes.Rectangle;
+using WindowState = Avalonia.Controls.WindowState;
 
 namespace SnapX.Avalonia.Views;
 
@@ -55,9 +56,8 @@ public partial class RegionSelectorWindow : Window
     protected override async void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-
         await SetupWindowBoundsAsync();
-
+        IsVisible = true;
         Opacity = 1;
     }
     public static async Task<Image?> SelectRegionAsync()
@@ -112,16 +112,36 @@ public partial class RegionSelectorWindow : Window
     }
     private async Task SetupWindowBoundsAsync()
     {
-        var bounds = await Task.Run(async () =>
-        {
-            var (x, y, width, height) = await Methods.GetActiveScreen();
-            DebugHelper.WriteLine($"VirtualScreen details: X is {x} Y is {y} Width is {width}  Height is {height}");
 
-            return new PixelRect(x, y, width, height);
-        });
-
-        Dispatcher.UIThread.Post(() =>
+        await Dispatcher.UIThread.InvokeAsync(async () =>
         {
+            PixelRect bounds;
+
+
+            var cursorPos = Methods.GetCursorPosition();
+            var screen = Screens.ScreenFromPoint(new PixelPoint(cursorPos.X, cursorPos.Y));
+            if (screen != null)
+            {
+                bounds = screen.Bounds;
+            }
+            else
+            {
+                bounds = await Task.Run(() =>
+                        {
+                            try
+                            {
+                                var SnapXScreen = Methods.GetScreen(cursorPos);
+                                if (SnapXScreen is null) return Task.FromResult(new PixelRect());
+                                var (x, y, width, height) = SnapXScreen.Bounds;
+                                return Task.FromResult(new PixelRect(x, y, width, height));
+                            }
+                            catch (Exception Exception)
+                            {
+                                return Task.FromException<PixelRect>(Exception);
+                            }
+                        });
+            }
+
             Position = new PixelPoint(bounds.X, bounds.Y);
             Width = bounds.Width;
             Height = bounds.Height;
@@ -232,9 +252,17 @@ public partial class RegionSelectorWindow : Window
         _isSelecting = false;
         _selectionRect.IsVisible = false;
         _infoBox.IsVisible = false;
-        var selectedRegion = _imageBounds.Intersect(new Rect(_selectionRect.Bounds.X, _selectionRect.Bounds.Y, _selectionRect.Bounds.Width, _selectionRect.Bounds.Height));
-        var sixLaborsRect = new SixLabors.ImageSharp.Rectangle((int)selectedRegion.X,
-            (int)selectedRegion.Y, (int)selectedRegion.Width, (int)selectedRegion.Height);
+        if (_selectionRect.Bounds.Width <= 0 || _selectionRect.Bounds.Height <= 0)
+            await CancelSelection();
+
+        var selectedRegion = _imageBounds.Intersect(_selectionRect.Bounds);
+
+        if (selectedRegion.Width <= 0 || selectedRegion.Height <= 0 ||
+            selectedRegion.Width > _imageBounds.Width || selectedRegion.Height > _imageBounds.Height)
+            await CancelSelection();
+        var sixLaborsRect = new SixLabors.ImageSharp.Rectangle(
+            (int)selectedRegion.X, (int)selectedRegion.Y,
+            (int)selectedRegion.Width, (int)selectedRegion.Height);
         _resultRect.TrySetResult(sixLaborsRect);
         DebugHelper.WriteLine($"RegionSelectorWindow.OnPointerReleased: Region: {selectedRegion}");
         if (!TakeScreenshot) return;
@@ -268,7 +296,13 @@ public partial class RegionSelectorWindow : Window
         App.MyMainWindow?.Show();
         Close();
     }
-
+    private async Task CancelSelection()
+    {
+        _resultRect.TrySetResult(null);
+        _resultImg.TrySetResult(null);
+        App.MyMainWindow?.Show();
+        Close();
+    }
     private async void OnPointerMoved(object? Sender, PointerEventArgs E)
     {
         if (!_isSelecting) return;
@@ -300,7 +334,7 @@ public partial class RegionSelectorWindow : Window
     }
     private readonly Dictionary<Window, WindowBase?> _ownershipMap = new();
 
-    private async void OnInit(object? Sender, EventArgs EventArgs)
+    private async void OnInit(object? Sender, RoutedEventArgs Args)
     {
         if (!IsSilentMode)
         {
@@ -344,9 +378,7 @@ public partial class RegionSelectorWindow : Window
         if (_image == null)
         {
             DebugHelper.WriteLine("RegionSelectorWindow.OnOpened: _image is null");
-            _resultImg.TrySetResult(_image);
-            _resultRect.TrySetResult(null);
-            Close();
+            await CancelSelection();
             return;
         }
 
@@ -363,6 +395,7 @@ public partial class RegionSelectorWindow : Window
                 Source = new Bitmap(_imageStream),
                 Stretch = Stretch.UniformToFill,
             };
+            WindowState = OperatingSystem.IsMacOS() ? WindowState.Maximized :  WindowState.Normal;
         }
         catch (Exception ex)
         {

@@ -1,0 +1,255 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapX.Avalonia.Views.Settings.Views.ScreenRecordOptionsView"
+    x:DataType="settings:ScreenRecordOptionsVM"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SnapX.Avalonia.ViewModels.Settings"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto">
+        <StackPanel
+            Grid.Row="0"
+            Margin="5,0"
+            Orientation="Vertical">
+            <Grid ColumnDefinitions="*,Auto" Margin="0,5,0,0">
+                <Label Grid.Column="0">Screen Recording FPS:</Label>
+                <NumericUpDown
+                    FormatString="0"
+                    Grid.Column="1"
+                    Margin="0,0,5,0"
+                    Maximum="1000"
+                    Minimum="1"
+                    ParsingNumberStyle="Integer"
+                    Watermark="30" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" Margin="0,5,0,0">
+                <Label Grid.Column="0">GIF FPS:</Label>
+                <NumericUpDown
+                    FormatString="0"
+                    Grid.Column="1"
+                    Margin="0,0,5,0"
+                    Maximum="1000"
+                    Minimum="1"
+                    ParsingNumberStyle="Integer"
+                    Watermark="15" />
+            </Grid>
+        </StackPanel>
+        <StackPanel
+            Grid.Row="1"
+            Margin="5,0"
+            Orientation="Vertical">
+            <CheckBox Content="Use Custom FFmpeg Path" Name="cbUseCustomFFmpegPath" />
+            <Grid ColumnDefinitions="*,Auto" Margin="0,5,0,0">
+                <TextBox
+                    Grid.Column="0"
+                    Name="txtFFmpegPath"
+                    Watermark="Path to ffmpeg.exe" />
+                <Button
+                    Content="Browse..."
+                    Grid.Column="1"
+                    Margin="5,0,0,0"
+                    Name="btnFFmpegBrowse" />
+            </Grid>
+        </StackPanel>
+
+        <Grid
+            ColumnDefinitions="Auto,*,Auto,*"
+            Grid.Row="2"
+            Margin="5">
+            <TextBlock
+                Grid.Column="0"
+                Margin="0,0,10,0"
+                Name="lblVideoSource"
+                Text="Video Source:"
+                VerticalAlignment="Center" />
+            <ComboBox
+                Grid.Column="1"
+                Margin="0,0,10,0"
+                Name="cbVideoSource" />
+
+            <TextBlock
+                Grid.Column="2"
+                Margin="10,0,10,0"
+                Name="lblAudioSource"
+                Text="Audio Source:"
+                VerticalAlignment="Center" />
+            <ComboBox Grid.Column="3" Name="cbAudioSource" />
+        </Grid>
+
+        <Grid
+            ColumnDefinitions="Auto,*,Auto,*"
+            Grid.Row="3"
+            Margin="5,0,5,5">
+            <TextBlock
+                Grid.Column="0"
+                Margin="0,0,10,0"
+                Name="lblVideoEncoder"
+                Text="Video Encoder:"
+                VerticalAlignment="Center" />
+            <ComboBox
+                Grid.Column="1"
+                Margin="0,0,10,0"
+                Name="cbVideoCodec" />
+
+            <TextBlock
+                Grid.Column="2"
+                Margin="10,0,10,0"
+                Name="lblAudioEncoder"
+                Text="Audio Encoder:"
+                VerticalAlignment="Center" />
+            <ComboBox Grid.Column="3" Name="cbAudioCodec" />
+        </Grid>
+
+        <Grid ColumnDefinitions="*,*" Grid.Row="4">
+            <TabControl
+                Grid.Column="0"
+                Margin="5"
+                Name="tcFFmpegVideoCodecs">
+                <TabItem Header="x264" Name="tpX264">
+                    <StackPanel Margin="5">
+                        <CheckBox
+                            Content="Use Bitrate"
+                            Margin="0,0,0,5"
+                            Name="cbx264UseBitrate" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,5">
+                            <TextBlock
+                                Grid.Column="0"
+                                Margin="0,0,10,0"
+                                Name="lblx264Preset"
+                                Text="x264 Preset:"
+                                VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" Name="cbx264Preset" />
+                            <!-- <Image Source="resm:YourApp.Assets.exclamation_button.png?assembly=YourAppAssembly" Width="16" Height="16" Grid.Column="2" Margin="5,0,0,0" Name="pbx264PresetWarning"/> -->
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,5">
+                            <TextBlock
+                                Grid.Column="0"
+                                Margin="0,0,10,0"
+                                Name="lblx264CRF"
+                                Text="CRF:"
+                                VerticalAlignment="Center" />
+                            <NumericUpDown
+                                FormatString="0"
+                                Grid.Column="1"
+                                Margin="0,0,5,0"
+                                Maximum="51"
+                                Minimum="0"
+                                Name="nudx264CRF"
+                                ParsingNumberStyle="Integer"
+                                Value="23" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,5">
+                            <TextBlock
+                                Grid.Column="0"
+                                Margin="0,0,10,0"
+                                Text="Bitrate:"
+                                VerticalAlignment="Center" />
+                            <NumericUpDown
+                                FormatString="0"
+                                Grid.Column="1"
+                                Margin="0,0,5,0"
+                                Maximum="100000"
+                                Minimum="100"
+                                Name="nudx264Bitrate"
+                                ParsingNumberStyle="Integer"
+                                Value="3000" />
+                            <TextBlock
+                                Grid.Column="2"
+                                Name="lblx264BitrateK"
+                                Text="K"
+                                VerticalAlignment="Center" />
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="Xvid" Name="tpXvid">
+                    <StackPanel Margin="5">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock
+                                Grid.Column="0"
+                                Margin="0,0,10,0"
+                                Name="lblXvidQscale"
+                                Text="Qscale:"
+                                VerticalAlignment="Center" />
+                            <NumericUpDown
+                                Grid.Column="1"
+                                Maximum="31"
+                                Minimum="1"
+                                Name="nudXvidQscale"
+                                Value="3" />
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+
+            </TabControl>
+
+            <TabControl
+                Grid.Column="1"
+                Margin="5"
+                Name="tcFFmpegAudioCodecs">
+                <TabItem Header="AAC" Name="tpAAC">
+                    <StackPanel Margin="5">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <TextBlock
+                                Grid.Column="0"
+                                Margin="0,0,10,0"
+                                Name="lblAACBitrate"
+                                Text="Bitrate:"
+                                VerticalAlignment="Center" />
+                            <ComboBox
+                                Grid.Column="1"
+                                Margin="0,0,5,0"
+                                Name="cbAACBitrate" />
+                            <TextBlock
+                                Grid.Column="2"
+                                Name="lblAACBitrateK"
+                                Text="K"
+                                VerticalAlignment="Center" />
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+
+            </TabControl>
+        </Grid>
+
+        <CheckBox
+            Content="Use custom commands"
+            Grid.Row="5"
+            Margin="5,10,5,5"
+            Name="cbCustomCommands" />
+
+        <StackPanel Grid.Row="6" Margin="5,0,5,5">
+            <TextBlock
+                Margin="0,0,0,5"
+                Name="lblCommandLineArgs"
+                Text="Command Line Arguments (User):" />
+            <TextBox
+                AcceptsReturn="True"
+                MinHeight="40"
+                Name="txtUserArgs"
+                TextWrapping="Wrap" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="7" Margin="5,0,5,5">
+            <TextBlock Margin="0,0,0,5" Text="Command Line Preview:" />
+            <TextBox
+                AcceptsReturn="True"
+                IsReadOnly="True"
+                MinHeight="40"
+                Name="txtCommandLinePreview"
+                TextWrapping="Wrap" />
+        </StackPanel>
+
+        <Button
+            Content="Reset Options"
+            Grid.Row="8"
+            HorizontalAlignment="Right"
+            Margin="5"
+            Name="btnResetOptions" />
+
+    </Grid>
+</UserControl>
+

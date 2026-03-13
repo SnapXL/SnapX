@@ -151,7 +151,7 @@ public partial class MainView : UserControl
             return;
 
         delay = TimeSpan.FromSeconds(long.Parse(item.Tag as string));
-        Core.SnapX.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay = (decimal)
+        Core.SnapXL.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay = (decimal)
             delay.Value.TotalSeconds;
         var DelayMenuItem = this.FindControl<NavigationViewItem>("DelayMenuItem");
         if (DelayMenuItem == null || DelayMenuItem.MenuItems == null)
@@ -179,7 +179,7 @@ public partial class MainView : UserControl
                 }
             }
         }
-        Core.SnapX.Settings.SaveAsync();
+        Core.SnapXL.Settings.SaveAsync();
     }
 
     [RelayCommand]
@@ -216,7 +216,21 @@ public partial class MainView : UserControl
                 URLHelpers.OpenURL(url);
         }
     }
+    private void FindPathOnDescendant(ILogical control)
+    {
+        foreach (var child in control.GetLogicalChildren())
+        {
+            var toolTip = child.FindLogicalDescendantOfType<ToolTip>(true);
+            if (toolTip is null)
+            {
+                FindPathOnDescendant(child);
+            }
 
+            var path = toolTip?.Content as string ?? string.Empty;
+            if (!string.IsNullOrEmpty(path))
+                FileHelpers.OpenFolder(path);
+        }
+    }
     private void DynamicURL_OnPointerPressed(object? Sender, PointerPressedEventArgs E)
     {
         DebugHelper.WriteLine($"{nameof(DynamicURL_OnPointerPressed)}: {Sender} {E.Source}");
@@ -239,7 +253,28 @@ public partial class MainView : UserControl
             );
         }
     }
+    private void DynamicFolder_OnPointerPressed(object? Sender, PointerPressedEventArgs E)
+    {
+        DebugHelper.WriteLine($"{nameof(DynamicFolder_OnPointerPressed)}: {Sender} {E.Source}");
+        if (Sender is Control control)
+        {
+            // The ToolTip class has a storage of loaded tooltips, however, when a user clicks without hovering for a second the button didn't work.
+            // So I added the second if-clause.
+            if (ToolTip.GetTip(control) is string path)
+            {
+                FileHelpers.OpenFolder(path);
+                return;
+            }
 
+            FindPathOnDescendant(control);
+        }
+        else
+        {
+            DebugHelper.WriteLine(
+                $"{nameof(DynamicFolder_OnPointerPressed)} called with {Sender} which is not a Control!!"
+            );
+        }
+    }
     private void OpenDebugLog(object? Sender, PointerPressedEventArgs E)
     {
         var window = new LogViewer();
@@ -249,7 +284,7 @@ public partial class MainView : UserControl
     private void MainView_OnInit(object? Sender, EventArgs E)
     {
         delay = TimeSpan.FromSeconds(
-            (long)Core.SnapX.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay
+            (long)Core.SnapXL.Settings.DefaultTaskSettings.CaptureSettings.ScreenshotDelay
         );
 
         var MainNavView = this.FindControl<NavigationView>("MainNavView");

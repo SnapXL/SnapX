@@ -6,6 +6,6 @@ namespace SnapX.Core.Hotkey;
 
 public class HotkeysConfig : SettingsBase<HotkeysConfig>
 {
-    public List<HotkeySettings> Hotkeys { get; set; } = HotkeyManager.GetDefaultHotkeyList();
+    public List<HotkeySettings> Hotkeys { get; set; } = new();
 }
 

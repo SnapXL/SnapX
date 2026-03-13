@@ -22,7 +22,7 @@ jobs:
     continue-on-error: true # FreeBSD is not a first class citizen yet.
     # Prevent Ubuntu runner starvation from regular builds. FreeBSD builds are slightly slower than normal builds.
     needs: build
-    timeout-minutes: 360
+    timeout-minutes: 50
     env:
       ALLOW_DOTNET_DOWNLOAD: 1
       DisableGitVersionTask: 1
@@ -70,7 +70,7 @@ jobs:
           prepare: |
             pkg install -y curl bash icu terminfo-db libunwind libinotify brotli openssl lttng-ust krb5 llvm21 sqlite3 sudo patchelf git flock xorg xorg-vfbserver dbus glx-utils pciutils dmidecode cmake rust-coreutils gawk onnxruntime
             mkdir -p /usr/lib/dotnet
-            wcurl -O /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.102-sb1-amd64-freebsd-14/dotnet-sdk-10.0.102-freebsd-x64.tar.gz
+            wcurl -O /tmp/dotnet.tar.gz https://github.com/Thefrank/dotnet-freebsd-crossbuild/releases/download/v10.0.103-amd64-freebsd-14/dotnet-sdk-10.0.103-freebsd-x64.tar.gz
             tar -xzf /tmp/dotnet.tar.gz -C /usr/lib/dotnet --strip-components=1
             rm /tmp/dotnet.tar.gz
             ln -sf /usr/lib/dotnet/dotnet /usr/local/bin/dotnet
@@ -86,7 +86,7 @@ jobs:
             # Install pre compiled FreeBSD FFmpeg 8 (amd64 ONLY)
             curl -fsSL https://github.com/Thefrank/ffmpeg-static-freebsd/releases/download/v8.0/ffmpeg -o /usr/local/bin/ffmpeg
             chmod +x /usr/local/bin/ffmpeg
-            curl -fsSL http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh -o /usr/local/bin/xvfb-run
+            curl -fsSL https://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh -o /usr/local/bin/xvfb-run
             chmod +x /usr/local/bin/xvfb-run
             chsh -s /usr/local/bin/bash
             pw useradd runner -m -s /usr/local/bin/bash
@@ -145,15 +145,15 @@ jobs:
           rm global.json
           mkdir -p build/obj
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.2.0
+        uses: gittools/actions/gitversion/setup@v4.3.3
         with:
           versionSpec: "6.5.x"
       - name: Run GitVersion
-        uses: gittools/actions/gitversion/command@v4.2.0
+        uses: gittools/actions/gitversion/command@v4.3.3
         with:
           arguments: '/output file /outputfile "build/obj/gitversion.json"'
       - name: Update project files with GitVersion
-        uses: gittools/actions/gitversion/command@v4.2.0
+        uses: gittools/actions/gitversion/command@v4.3.3
         with:
           arguments: "/updateprojectfiles"
       - name: Copy GitVersion data
@@ -184,7 +184,7 @@ jobs:
           cd $GITHUB_WORKSPACE;
           sudo -u runner bash build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-UI-${{ matrix.configuration }}-FreeBSD-${{ runner.arch }}
           path: "SnapX-UI*"
@@ -193,7 +193,7 @@ jobs:
      name: Alpine Build
      runs-on: ${{matrix.os}}
      needs: build
-     timeout-minutes: 360
+     timeout-minutes: 50
      env:
        ALLOW_DOTNET_DOWNLOAD: 1
      strategy:
@@ -254,7 +254,7 @@ jobs:
          run: ./build.sh tarball --configuration ${{ matrix.configuration }} --assembly snapx-ui
          shell: alpine.sh {0}
        - name: Upload artifact
-         uses: actions/upload-artifact@v6
+         uses: actions/upload-artifact@v7
          with:
            name: SnapX-UI-${{ matrix.configuration }}-${{ runner.os }}-musl-${{ runner.arch }}
            path: "SnapX-UI*"
@@ -301,7 +301,12 @@ jobs:
           rpmbuild -ba snapx.spec "${DEFINES[@]}" | tee rpmbuild.log
           grep '^Wrote:' rpmbuild.log | awk '{print $2}' > rpm_files.txt
 
-          cat rpm_files.txt
+          mkdir -p rpm-artifacts
+          while IFS= read -r file; do
+          if [[ "$file" == *.rpm ]]; then
+            cp "$file" rpm-artifacts/
+          fi
+          done < rpm_files.txt
 
           echo "rpm_paths=$(paste -sd ' ' rpm_files.txt)" >> $GITHUB_OUTPUT
       - name: Format Container Name
@@ -313,10 +318,10 @@ jobs:
           }')
           echo "formattedName=${formattedName}" >> "$GITHUB_OUTPUT"
       - name: Upload artifact (RPM - Release on Linux)
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-RPM-${{ steps.format.outputs.formattedName }}-${{ runner.arch }}
-          path: /github/home/rpmbuild/RPMS/**/*.rpm
+          path: packaging/rpm-artifacts/
           if-no-files-found: error
       - name: Upload RPM to Package Repository
         if: |
@@ -337,7 +342,7 @@ jobs:
             echo "Targeting NIGHTLY repo: $REPO_SLUG"
           fi
 
-          for rpm in /github/home/rpmbuild/RPMS/**/*.rpm; do
+          for rpm in packaging/rpm-artifacts/*.rpm; do
             [ -e "$rpm" ] || continue
             echo "Uploading $rpm to $REPO_SLUG"
 
@@ -350,7 +355,7 @@ jobs:
     name: DEB/Snap Build
     runs-on: ${{matrix.os}}
     #    needs: build
-    timeout-minutes: 65
+    timeout-minutes: 50
     permissions:
       packages: write
     strategy:
@@ -418,7 +423,7 @@ jobs:
           echo "snap_file=packaging/$SNAP_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload artifact (DEB)
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-DEB-${{steps.osname.outputs.prettyName}}-${{ matrix.arch }}
           path: packaging/*.deb
@@ -452,17 +457,17 @@ jobs:
                  -F "overwrite=$OVERWRITE_EXISTING"
           done
       - name: Upload artifact (Snap)
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-Snap-${{ matrix.pretty_arch || matrix.arch }}
           path: ${{ steps.build_snap.outputs.snap_file }}
           if-no-files-found: error
-      - uses: snapcore/action-publish@v1
+      - uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
           snap: ${{ steps.build_snap.outputs.snap_file }}
-          release: edge
+          release: ${{ github.event_name == 'pull_request' && format('edge/pr-{0}', github.event.pull_request.number) || 'edge' }}
   generate-sources:
     name: Generate Flatpak Sources (${{ matrix.variant.arch }})
     runs-on: ${{ matrix.variant.runner }}
@@ -499,7 +504,7 @@ jobs:
           ./packaging/flathub/update_hashes.sh # Script to fix possible bug in FlatpakGenerator that affects Avalonia
           Nickvision.FlatpakGenerator generate -i build/build.csproj -o packaging/flathub/build-sources.json --destination-name vendor -s false -u
       - name: 🌐 Upload Sources
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: flatpak-sources-${{ matrix.variant.arch }}
           path: packaging/flathub/*.json
@@ -542,7 +547,7 @@ jobs:
           # remove Android library: about 7.8GB (host /usr/local/lib/android)
           rm -rf /host/usr/local/lib/android || true
       - name: Download Generated Sources
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: flatpak-sources-${{ matrix.variant.arch }}
           path: packaging/flathub/
@@ -583,7 +588,7 @@ jobs:
   build:
     name: Build
     runs-on: ${{matrix.os}}
-    timeout-minutes: 65
+    timeout-minutes: 50
     permissions:
       contents: write
     strategy:
@@ -656,10 +661,6 @@ jobs:
 #          cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr
 #          cmake --build build --parallel
 #          sudo cmake --install build
-      - name: Install Rust toolchain
-        if: runner.os == 'macOS'
-        timeout-minutes: 5
-        run: brew install rust
       - name: Install xmlstarlet
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
         run: sudo apt install -y xmlstarlet
@@ -724,7 +725,7 @@ jobs:
       # I cannot provide them in public source code.
       - name: Upload Source With Dependencies
         if: matrix.configuration == 'Debug' && runner.os == 'Linux'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-Vendored-Source-${{ runner.arch }}
           path: .
@@ -748,9 +749,33 @@ jobs:
       - name: Assemble SnapX UI Tarball
         shell: bash
         run: "./build.sh tarball --assembly snapx-ui"
-
+      - name: Install WIXToolset
+        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+        run: |
+          dotnet tool install --global wix --version 6.0.2
+          wix.exe extension add -g WixToolset.UI.wixext/6.0.2
+      - name: Assemble MSI
+        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+        run: "./build.ps1 msi"
+#      - name: Assemble MSIX
+#        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+#        run: "./build.ps1 msix"
+      - name: Upload MSI
+        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+        uses: actions/upload-artifact@v7
+        with:
+          name: SnapX-UI-MSI-${{ runner.arch }}
+          path: "packaging/*.msi"
+          if-no-files-found: error
+#      - name: Upload MSIX
+#        if: runner.os == 'Windows' && matrix.configuration == 'Release'
+#        uses: actions/upload-artifact@v6
+#        with:
+#          name: SnapX-UI-MSIX-${{ runner.arch }}
+#          path: "packaging/*.msix"
+#          if-no-files-found: error
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: SnapX-UI-${{ matrix.configuration }}-${{ runner.os }}-${{ runner.arch }}
           path: "SnapX-UI*"

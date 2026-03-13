@@ -5,42 +5,42 @@
 namespace SnapX.Core.Upload;
 
 // ReSharper disable once PartialTypeWithSinglePart
-internal static partial class APIKeys
+public static partial class APIKeys
 {
     // Image uploaders
-    public static readonly string? ImgurClientID = "";
-    public static readonly string? ImgurClientSecret = "";
-    public static readonly string ImageShackKey = "";
-    public static readonly string FlickrKey = "";
-    public static readonly string FlickrSecret = "";
-    public static readonly string PhotobucketConsumerKey = "";
-    public static readonly string PhotobucketConsumerSecret = "";
+    public static string? ImgurClientID = "";
+    public static string? ImgurClientSecret = "";
+    public static string ImageShackKey = "";
+    public static string FlickrKey = "";
+    public static string FlickrSecret = "";
+    public static string PhotobucketConsumerKey = "";
+    public static string PhotobucketConsumerSecret = "";
 
     // Text uploaders
-    public static readonly string PastebinKey = "";
-    public static readonly string GitHubID = "";
-    public static readonly string GitHubSecret = "";
-    public static readonly string Paste_eeApplicationKey = "";
+    public static string PastebinKey = "";
+    public static string GitHubID = "";
+    public static string GitHubSecret = "";
+    public static string Paste_eeApplicationKey = "";
 
     // File uploaders
-    public static readonly string DropboxConsumerKey = "";
-    public static readonly string DropboxConsumerSecret = "";
-    public static readonly string BoxClientID = "";
-    public static readonly string BoxClientSecret = "";
-    public static readonly string? SendSpaceKey = "";
-    public static readonly string JiraConsumerKey = "";
-    public static readonly string? MediaFireAppId = "";
-    public static readonly string MediaFireApiKey = "";
-    public static readonly string OneDriveClientID = "";
-    public static readonly string OneDriveClientSecret = "";
+    public static string DropboxConsumerKey = "";
+    public static string DropboxConsumerSecret = "";
+    public static string BoxClientID = "";
+    public static string BoxClientSecret = "";
+    public static string? SendSpaceKey = "";
+    public static string JiraConsumerKey = "";
+    public static string? MediaFireAppId = "";
+    public static string MediaFireApiKey = "";
+    public static string OneDriveClientID = "";
+    public static string OneDriveClientSecret = "";
 
     // URL shorteners
-    public static readonly string? BitlyClientID = "";
-    public static readonly string? BitlyClientSecret = "";
+    public static string? BitlyClientID = "";
+    public static string? BitlyClientSecret = "";
 
     // Other services
-    public static readonly string GoogleClientID = "";
-    public static readonly string GoogleClientSecret = "";
-    public static readonly string TwitterConsumerKey = "";
-    public static readonly string TwitterConsumerSecret = "";
+    public static string GoogleClientID = "";
+    public static string GoogleClientSecret = "";
+    public static string TwitterConsumerKey = "";
+    public static string TwitterConsumerSecret = "";
 }

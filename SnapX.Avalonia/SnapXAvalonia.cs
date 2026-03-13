@@ -3,7 +3,7 @@ using SixLabors.ImageSharp;
 
 namespace SnapX.Avalonia;
 
-public class SnapXAvalonia : Core.SnapX
+public class SnapXAvalonia : Core.SnapXL
 {
 
     public Bitmap ConvertImageSharpImgToAvalonia(Image image)

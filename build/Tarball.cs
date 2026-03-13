@@ -57,6 +57,7 @@ public class Tarball(
                 installConfig.Applicationsdir = junkDir;
                 installConfig.Icondir = junkDir;
                 installConfig.Metainfodir = junkDir;
+                installConfig.DisableWrapperScript = true;
             }
 
             if (!installConfig.ShouldSkip("copy_deps"))
@@ -126,7 +127,6 @@ public class Tarball(
                 ? Path.Join(config.OutputDir, TargetInstallAssembly)
                 : Path.Join(config.OutputDir);
             var files = Directory.EnumerateFiles(targetOutputDir, "*", SearchOption.AllDirectories);
-            await FileSystem.TryDeleteFile("/tmp/processed_deps.lockfile");
             foreach (var file in files)
             {
                 try
@@ -147,10 +147,6 @@ public class Tarball(
                     Logger.Error($"Error processing {file}: {ex.Message}");
                 }
             }
-
-            await FileSystem.TryDeleteFile("/tmp/processed_deps.lockfile");
-
-
             if (!config.ShouldSkip("sniff_deps"))
             {
                 var usesWrapperScript = config.DisableWrapperScript is false;
@@ -161,6 +157,42 @@ public class Tarball(
                     Path.Join(config.PackagingDirectory, "sniff_deps.sh"),
                     args
                 );
+            }
+            await FileSystem.TryDeleteFile("/tmp/processed_deps.lockfile");
+            var allLibFiles = Directory.EnumerateFiles(
+                config.LibDir,
+                "*",
+                SearchOption.AllDirectories
+            );
+            var interpreterFile = Directory
+                .EnumerateFiles(config.LibDir, "ld*.so*", SearchOption.TopDirectoryOnly)
+                .Select(Path.GetFileName)
+                .FirstOrDefault(f => f.StartsWith("ld"));
+
+            var interpreterArgs = string.Empty;
+
+            if (
+                !config.ShouldSkip("set_interpreter") && !string.IsNullOrWhiteSpace(interpreterFile)
+            )
+            {
+                var relativeLibPath = Path.GetRelativePath(config.Tarballdir, config.LibDir);
+                interpreterArgs =
+                    $"--set-interpreter {Path.Combine(relativeLibPath, interpreterFile)} ";
+            }
+            foreach (var file in allLibFiles)
+            {
+                try
+                {
+                    if (IsSoFile(file) || !IsElfFile(file)) continue;
+                    await CommandRunner.RunAsync(
+                        "patchelf",
+                        $"--set-rpath \"$ORIGIN\" --force-rpath {interpreterArgs} {file}"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Error patching {file}: {ex.Message}");
+                }
             }
         }
 
@@ -195,7 +227,7 @@ public class Tarball(
         return fileName.Contains(".so");
     }
 
-    private static bool IsElfFile(string filePath)
+    public static bool IsElfFile(string filePath)
     {
         try
         {

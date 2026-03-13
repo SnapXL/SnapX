@@ -318,7 +318,7 @@ public class WindowsAPI : NativeAPI
 
     private static readonly string ApplicationPath = $"\"{AppDomain.CurrentDomain.BaseDirectory}\"";
 
-    private static readonly string ShellExtMenuName = SnapX.AppName;
+    private static readonly string ShellExtMenuName = SnapXL.AppName;
     private static readonly string ShellExtMenuFiles = $@"Software\Classes\*\shell\{ShellExtMenuName}";
     private static readonly string ShellExtMenuFilesCmd = $@"{ShellExtMenuFiles}\command";
     private static readonly string ShellExtMenuDirectory = $@"Software\Classes\Directory\shell\{ShellExtMenuName}";
@@ -674,13 +674,13 @@ public class WindowsAPI : NativeAPI
     [RequiresAssemblyFiles()]
     public static bool CheckSendToMenuButton()
     {
-        return CheckShortcut(Environment.SpecialFolder.SendTo, SnapX.AppName, Assembly.GetEntryAssembly()!.Location);
+        return CheckShortcut(Environment.SpecialFolder.SendTo, SnapXL.AppName, Assembly.GetEntryAssembly()!.Location);
     }
 
     [RequiresAssemblyFiles()]
     public static bool CreateSendToMenuButton(bool create)
     {
-        return SetShortcut(create, Environment.SpecialFolder.SendTo, SnapX.AppName,
+        return SetShortcut(create, Environment.SpecialFolder.SendTo, SnapXL.AppName,
             Assembly.GetEntryAssembly()!.Location);
     }
     public static void CreateRegistry(string path, string value, RegistryHive root = RegistryHive.CurrentUser)

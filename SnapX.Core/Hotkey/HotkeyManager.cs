@@ -36,7 +36,7 @@ public class HotkeyManager
 
     public void RegisterHotkey(HotkeySettings hotkeySetting)
     {
-        if (!SnapX.Settings.DisableHotkeys || hotkeySetting.TaskSettings.Job == HotkeyType.DisableHotkeys)
+        if (!SnapXL.Settings.DisableHotkeys || hotkeySetting.TaskSettings.Job == HotkeyType.DisableHotkeys)
         {
             UnregisterHotkey(hotkeySetting, false);
 
@@ -137,7 +137,7 @@ public class HotkeyManager
         Hotkeys.AddRange(GetDefaultHotkeyList());
         RegisterAllHotkeys();
 
-        if (SnapX.Settings.DisableHotkeys)
+        if (SnapXL.Settings.DisableHotkeys)
         {
             TaskHelpers.ToggleHotkeys();
         }

@@ -21,11 +21,11 @@ public static class DebugHelper
 #if DEBUG
         ConsoleLogLevel = LogEventLevel.Debug;
 #endif
-        if (SnapX.IsCLI)
+        if (SnapXL.IsCLI)
         {
-            #if !DEBUG
+#if !DEBUG
             ConsoleLogLevel = LogEventLevel.Warning;
-            #endif
+#endif
         }
         var loggerConfig = new LoggerConfiguration()
 #if DEBUG
@@ -33,13 +33,14 @@ public static class DebugHelper
 #endif
             .WriteTo.Sink(inMemorySink)
             // If you run multiple SnapX instances, this will be the first to break. :)
-            .WriteTo.Async(a => a.File(logFilePath, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]: {Message:lj}{NewLine}{Exception}", rollingInterval: RollingInterval.Day, buffered: !SnapX.IsCLI))
+            .WriteTo.File(
+                logFilePath,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}]: {Message:lj}{NewLine}{Exception}",
+                rollingInterval: RollingInterval.Day,
+                buffered: !SnapXL.IsCLI
+            )
             .WriteTo.Console(theme: AnsiConsoleTheme.Sixteen, restrictedToMinimumLevel: ConsoleLogLevel);
 
-        if (SnapX.Configuration != null)
-        {
-            loggerConfig.ReadFrom.Configuration(SnapX.Configuration);
-        }
         Logger = loggerConfig.CreateLogger();
         Log.Logger = Logger;
     }
@@ -68,7 +69,7 @@ public static class DebugHelper
     /// <param name="message">The text to display or log.</param>
     public static void WriteAlways(string? message = "")
     {
-        if (Logger != null && !SnapX.IsCLI)
+        if (Logger != null && !SnapXL.IsCLI)
         {
             Logger.Information(message);
         }
@@ -81,7 +82,7 @@ public static class DebugHelper
     {
         foreach (var bufferedMessage in messageBuffer)
         {
-            if (Logger is null && SnapX.IsCLI)
+            if (Logger is null && SnapXL.IsCLI)
             {
                 Console.WriteLine(bufferedMessage);
             }

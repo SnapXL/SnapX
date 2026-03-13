@@ -3,6 +3,9 @@
 
 
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using FastCloner.Code;
+using FastCloner.SourceGenerator.Shared;
 using SnapX.Core.Upload.Custom;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Extensions;
@@ -10,13 +13,27 @@ using SnapX.Core.Utils.Parsers;
 
 namespace SnapX.Core.Upload.File;
 
-public class FTPAccount : ICloneable
+[FastClonerClonable]
+public class FTPAccount : INotifyPropertyChanged
 {
     [Category("FTP"), Description("Shown in the list as: Name - Server:Port")]
     public string Name { get; set; }
+    public bool IsSftp => Protocol == FTPProtocol.SFTP;
 
     [Category("Account"), Description("Connection protocol"), DefaultValue(FTPProtocol.FTP)]
-    public FTPProtocol Protocol { get; set; }
+    public FTPProtocol Protocol
+    {
+        get => field;
+        set
+        {
+            if (field != value)
+            {
+                field = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsSftp));
+            }
+        }
+    }
 
     [Category("FTP"), Description("Host, e.g. google.com")]
     public string? Host { get; set; }
@@ -28,6 +45,8 @@ public class FTPAccount : ICloneable
     public string Username { get; set; }
 
     [Category("FTP"), PasswordPropertyText(true)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string Password { get; set; }
 
     [Category("FTP"), Description("Set true for active or false for passive"), DefaultValue(false)]
@@ -77,7 +96,7 @@ public class FTPAccount : ICloneable
             return string.Format("{0}{1}:{2}", serverProtocol, Host, Port);
         }
     }
-
+    [FastClonerIgnore]
     private string? exampleFileName = "example.png";
 
     [Category("FTP"), Description("Preview of the FTP path based on the settings above")]
@@ -109,6 +128,8 @@ public class FTPAccount : ICloneable
     public string Keypath { get; set; }
 
     [Category("SFTP"), Description("OpenSSH key passphrase"), PasswordPropertyText(true)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string Passphrase { get; set; }
 
     public FTPAccount()
@@ -250,14 +271,7 @@ public class FTPAccount : ICloneable
     {
         return $"{Name} ({Host}:{Port})";
     }
-
-    public FTPAccount Clone()
-    {
-        return MemberwiseClone() as FTPAccount;
-    }
-
-    object ICloneable.Clone()
-    {
-        return Clone();
-    }
+    public event PropertyChangedEventHandler? PropertyChanged;
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

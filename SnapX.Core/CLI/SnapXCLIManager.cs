@@ -47,13 +47,13 @@ public class SnapXCLIManager : CLIManager
 
     private TaskSettings FindCLITask(List<CLICommand> commands)
     {
-        if (SnapX.HotkeysConfig != null)
+        if (SnapXL.HotkeysConfig != null)
         {
             CLICommand command = commands.FirstOrDefault(x => x.CheckCommand("task") && !string.IsNullOrEmpty(x.Parameter));
 
             if (command != null)
             {
-                foreach (HotkeySettings hotkeySetting in SnapX.HotkeysConfig.Hotkeys)
+                foreach (HotkeySettings hotkeySetting in SnapXL.HotkeysConfig.Hotkeys)
                 {
                     if (command.Parameter == hotkeySetting.TaskSettings.ToString())
                     {
@@ -113,9 +113,9 @@ public class SnapXCLIManager : CLIManager
 
     private async Task<bool> CheckCLIWorkflow(CLICommand command)
     {
-        if (SnapX.HotkeysConfig != null && command.CheckCommand("workflow") && !string.IsNullOrEmpty(command.Parameter))
+        if (SnapXL.HotkeysConfig != null && command.CheckCommand("workflow") && !string.IsNullOrEmpty(command.Parameter))
         {
-            foreach (HotkeySettings hotkeySetting in SnapX.HotkeysConfig.Hotkeys)
+            foreach (HotkeySettings hotkeySetting in SnapXL.HotkeysConfig.Hotkeys)
             {
                 if (hotkeySetting.TaskSettings.Job != HotkeyType.None)
                 {

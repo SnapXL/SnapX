@@ -70,7 +70,7 @@ public class OAuthListener : IDisposable
                     : "Authorization did not succeed.";
 
             var assembly = Assembly.GetExecutingAssembly();
-            await using var stream = assembly.GetManifestResourceStream("OAuthCallbackPage.html");
+            await using var stream = assembly.GetManifestResourceStream("SnapX.Core.Resources.OAuthCallbackPage.html");
             if (stream == null || stream.Length == 0) return false;
             using var reader = new StreamReader(stream);
             var oAuthCallbackPage = reader.ReadToEnd();

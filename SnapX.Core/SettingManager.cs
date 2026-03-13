@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Dapper;
 #if WINDOWS
 using Esatto.Win32.Registry;
@@ -18,6 +19,7 @@ using SnapX.Core.Job;
 using SnapX.Core.Upload;
 using SnapX.Core.Upload.Zip;
 using SnapX.Core.Utils;
+using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Extensions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -45,27 +47,28 @@ namespace SnapX.Core;
 // [JsonSerializable(typeof(SafeEnumConverter<HotkeyStatus>))]
 
 internal partial class SettingsContext : JsonSerializerContext;
+
 public static class SettingManager
 {
-    private const string ApplicationConfigFileName = "ApplicationConfig.json";
+    private const string ApplicationConfigFileName = "ApplicationConfig.yaml";
 
     private static string ApplicationConfigFilePath
     {
         get
         {
-            if (SnapX.Sandbox) return "";
+            if (SnapXL.Sandbox) return "";
 
-            return Path.Combine(SnapX.ConfigFolder, ApplicationConfigFileName);
+            return Path.Combine(SnapXL.ConfigFolder, ApplicationConfigFileName);
         }
     }
 
-    private const string UploadersConfigFileName = "UploadersConfig.json";
+    private const string UploadersConfigFileName = "UploadersConfig.yaml";
 
     private static string UploadersConfigFilePath
     {
         get
         {
-            if (SnapX.Sandbox) return "";
+            if (SnapXL.Sandbox) return "";
 
             string? uploadersConfigFolder;
 
@@ -75,20 +78,20 @@ public static class SettingManager
             }
             else
             {
-                uploadersConfigFolder = SnapX.ConfigFolder;
+                uploadersConfigFolder = SnapXL.ConfigFolder;
             }
 
             return Path.Combine(uploadersConfigFolder, UploadersConfigFileName);
         }
     }
 
-    private const string HotkeysConfigFileName = "HotkeysConfig.json";
+    private const string HotkeysConfigFileName = "HotkeysConfig.yaml";
 
     private static string HotkeysConfigFilePath
     {
         get
         {
-            if (SnapX.Sandbox) return "";
+            if (SnapXL.Sandbox) return "";
 
             string? hotkeysConfigFolder;
 
@@ -98,19 +101,19 @@ public static class SettingManager
             }
             else
             {
-                hotkeysConfigFolder = SnapX.ConfigFolder;
+                hotkeysConfigFolder = SnapXL.ConfigFolder;
             }
 
             return Path.Combine(hotkeysConfigFolder, HotkeysConfigFileName);
         }
     }
 
-    public static string? SnapshotFolder => Path.Combine(SnapX.PersonalFolder, "Snapshots");
+    public static string? SnapshotFolder => Path.Combine(SnapXL.PersonalFolder, "Snapshots");
 
-    private static ApplicationConfig Settings { get => SnapX.Settings; set => SnapX.Settings = value; }
-    private static TaskSettings DefaultTaskSettings { get => SnapX.DefaultTaskSettings; set => SnapX.DefaultTaskSettings = value; }
-    private static UploadersConfig UploadersConfig { get => SnapX.UploadersConfig; set => SnapX.UploadersConfig = value; }
-    private static HotkeysConfig HotkeysConfig { get => SnapX.HotkeysConfig; set => SnapX.HotkeysConfig = value; }
+    private static ApplicationConfig Settings { get => SnapXL.Settings; set => SnapXL.Settings = value; }
+    private static TaskSettings DefaultTaskSettings { get => SnapXL.DefaultTaskSettings; set => SnapXL.DefaultTaskSettings = value; }
+    private static UploadersConfig UploadersConfig { get => SnapXL.UploadersConfig; set => SnapXL.UploadersConfig = value; }
+    private static HotkeysConfig HotkeysConfig { get => SnapXL.HotkeysConfig; set => SnapXL.HotkeysConfig = value; }
     private static VersionEnforcer theLaw;
 
     private static ManualResetEvent uploadersConfigResetEvent = new(false);
@@ -119,7 +122,7 @@ public static class SettingManager
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     public static void LoadInitialSettings()
     {
-        theLaw = new VersionEnforcer(SnapX.LockDirectory);
+        theLaw = new VersionEnforcer(SnapXL.LockDirectory);
         theLaw.Enforce();
         LoadApplicationConfig();
 
@@ -165,17 +168,17 @@ public static class SettingManager
         // Allows ALL settings to be managed via the Windows Registry.
         // This call does nothing on non-Windows Operating Systems
         .AddEnvironmentVariables(prefix: "SNAPX_");
-        SnapX.Configuration = configurationBuilder.Build();
+        SnapXL.Configuration = configurationBuilder.Build();
         Settings = ApplicationConfig.Load(ApplicationConfigFilePath, SnapshotFolder, fallbackSupport);
         Settings.CreateBackup = true;
         Settings.CreateWeeklyBackup = true;
         Settings.SettingsSaveFailed += Settings_SettingsSaveFailed;
-        SnapX.Configuration.Bind(Settings, Options => Options.BindNonPublicProperties = true);
+        SnapXL.Configuration.Bind(Settings, Options => Options.BindNonPublicProperties = true);
         DefaultTaskSettings = Settings.DefaultTaskSettings;
         ApplicationConfigBackwardCompatibilityTasks();
 
         if (string.IsNullOrWhiteSpace(Settings.SQLitePath))
-            Settings.SQLitePath = Path.Combine(SnapX.DefaultPersonalFolder, "SnapX.db");
+            Settings.SQLitePath = Path.Combine(SnapXL.DefaultPersonalFolder, "SnapX.db");
         MigrateHistoryFile();
     }
     private static void Settings_SettingsSaveFailed(Exception e)
@@ -208,9 +211,13 @@ public static class SettingManager
             .AddCommandLine(Environment.GetCommandLineArgs());
         var BuiltConfig = configurationBuilder.Build();
         UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, SnapshotFolder, fallbackSupport);
+        foreach (var ftpAccount in UploadersConfig.FTPAccountList)
+        {
+            DebugHelper.WriteLine($"{ftpAccount.Username}@{ftpAccount.Host}:{ftpAccount.Port}");
+        }
         UploadersConfig.CreateBackup = true;
         UploadersConfig.CreateWeeklyBackup = true;
-        UploadersConfig.SupportDPAPIEncryption = true;
+        UploadersConfig.UseEncryption = true;
         BuiltConfig.Bind(UploadersConfig, Options => Options.BindNonPublicProperties = true);
         UploadersConfigBackwardCompatibilityTasks();
     }
@@ -231,6 +238,8 @@ public static class SettingManager
         HotkeysConfig = HotkeysConfig.Load(HotkeysConfigFilePath, SnapshotFolder, fallbackSupport);
         HotkeysConfig.CreateBackup = true;
         HotkeysConfig.CreateWeeklyBackup = true;
+        if (HotkeysConfig.Hotkeys.Count <= 0) HotkeysConfig.Hotkeys = HotkeyManager.GetDefaultHotkeyList();
+
         BuiltConfig.Bind(HotkeysConfig, Options => Options.BindNonPublicProperties = true);
         HotkeysConfigBackwardCompatibilityTasks();
     }
@@ -238,6 +247,8 @@ public static class SettingManager
     [DapperAot]
     private static void ApplicationConfigBackwardCompatibilityTasks()
     {
+        if (File.Exists(SnapXL.ApplicationConfigPathOld)) Settings = MigrateJsonConfig<ApplicationConfig>(SnapXL.ApplicationConfigPathOld);
+
         if (File.Exists(ApplicationConfigFilePath)) MigrateApplicationConfig();
 
         var assembly = Assembly.GetExecutingAssembly();
@@ -249,7 +260,7 @@ public static class SettingManager
 
         // Ensure MigrationLog table exists for the checks below
         // This is crucial if it's the very first time running migrations.
-        SnapX.DbConnection.Execute(@"
+        SnapXL.DbConnection.Execute(@"
         CREATE TABLE IF NOT EXISTS MigrationLog (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             FileName TEXT NOT NULL UNIQUE,
@@ -263,7 +274,7 @@ public static class SettingManager
 
         // First, load the last applied migration version from the database, if MigrationLog exists and has entries.
         // If MigrationLog is empty or doesn't exist, lastAppliedMigrationVersion remains -1.
-        var currentMigrationsInDb = SnapX.DbConnection.QueryFirstOrDefault<string>(
+        var currentMigrationsInDb = SnapXL.DbConnection.QueryFirstOrDefault<string>(
             "SELECT FileName FROM MigrationLog ORDER BY FileName DESC LIMIT 1;"
         );
 
@@ -311,7 +322,7 @@ public static class SettingManager
                 // Check if this specific migration is already applied.
                 // If it is, and its version is <= lastApplied, then it's either already processed
                 // or an older one found after newer ones.
-                var alreadyApplied = SnapX.DbConnection.ExecuteScalar<int>(
+                var alreadyApplied = SnapXL.DbConnection.ExecuteScalar<int>(
                     "SELECT COUNT(1) FROM MigrationLog WHERE FileName = @FileName",
                     new { FileName = fileName }
                 ) > 0;
@@ -348,23 +359,60 @@ public static class SettingManager
             using var reader = new StreamReader(stream!);
             var sql = reader.ReadToEnd();
 
-            using var tx = SnapX.DbConnection.BeginTransaction(IsolationLevel.Serializable);
+            using var tx = SnapXL.DbConnection.BeginTransaction(IsolationLevel.Serializable);
             try
             {
-                SnapX.DbConnection.Execute(sql, transaction: tx);
-                SnapX.DbConnection.Execute("INSERT INTO MigrationLog (FileName) VALUES (@FileName)", new { FileName = fileName }, transaction: tx);
+                SnapXL.DbConnection.Execute(sql, transaction: tx);
+                SnapXL.DbConnection.Execute("INSERT INTO MigrationLog (FileName) VALUES (@FileName)", new { FileName = fileName }, transaction: tx);
                 tx.Commit();
                 DebugHelper.WriteLine($"Applied SQL Migration: {fileName}");
             }
             catch (Exception ex)
             {
-                tx.Rollback(); // Rollback on error
+                tx.Rollback();
                 DebugHelper.WriteException(ex);
                 throw new InvalidOperationException($"Failed to apply migration '{fileName}'. Transaction rolled back.", ex);
             }
         }
 
-        SnapX.DbConnection.Execute("PRAGMA optimize;");
+        SnapXL.DbConnection.Execute("PRAGMA optimize;");
+    }
+
+    private static T MigrateJsonConfig<T>(string path)
+    {
+
+        var typeName = typeof(T).Name;
+        // if (!File.Exists(path)) return default;
+        FileHelpers.BackupFileMonthly(path, SnapshotFolder);
+        DebugHelper.WriteAlways($"Config JSON -> YAML Migration: Migrating {typeName}.json ({path})");
+        var rawJSON = File.ReadAllText(path);
+        var settings = JsonSerializer.Deserialize<T>(
+            rawJSON,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                TypeInfoResolver = SettingsContext.Default.WithAddedModifier(typeInfo => JsonEncryptionResolver.CreateModifier(typeInfo, SecurePropertyStore.Instance)),
+                DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonRectangleConverter(),
+                    new JsonPointConverter(),
+                    new JsonPaddingConverter(),
+                    new JsonTimeZoneInfoConverter(),
+                    new JsonSizeConverter(),
+                    new UtcDateTimeConverter(),
+                    new JsonColorConverter(),
+                    new JsonFontConverter(),
+                    new JsonStringEnumConverter(),
+                },
+            }
+        );
+        if (settings is null) return settings ?? throw new Exception($"{typeName} object is null.");
+        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        var migratedPath = path + $"{timestamp}.migrated";
+        File.Move(path, migratedPath);
+        return settings;
     }
 
     private static void MigrateApplicationConfig()
@@ -375,27 +423,26 @@ public static class SettingManager
         }
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static async Task MigrateHistoryFile()
     {
-        if (SnapX.Sandbox)
+        if (SnapXL.Sandbox)
             return;
-        if (!File.Exists(SnapX.HistoryFilePathOld)) return;
+        if (!File.Exists(SnapXL.HistoryFilePathOld)) return;
 
         TaskManager.InitHistoryManager();
-        DebugHelper.WriteLine($"JSON -> SQLite Migration: Migrating history ({FileHelpers.GetFileSizeReadable(SnapX.HistoryFilePathOld)})");
+        DebugHelper.WriteAlways($"JSON -> SQLite Migration: Migrating history ({FileHelpers.GetFileSizeReadable(SnapXL.HistoryFilePathOld)})");
 
-        FileHelpers.BackupFileMonthly(SnapX.HistoryFilePathOld, SnapshotFolder);
+        FileHelpers.BackupFileMonthly(SnapXL.HistoryFilePathOld, SnapshotFolder);
 
         try
         {
-            var json = await File.ReadAllTextAsync(SnapX.HistoryFilePathOld);
+            var json = await File.ReadAllTextAsync(SnapXL.HistoryFilePathOld);
             if (!json.StartsWith('[')) json = "[" + json + "]";
 
             if (string.IsNullOrEmpty(json) || json == "{}" || json == "[{}]")
             {
-                DebugHelper.WriteLine("JSON -> SQLite Migration: Old history file is empty. Deleting it to prevent the migration running again.");
-                File.Delete(SnapX.HistoryFilePathOld);
+                DebugHelper.WriteAlways("JSON -> SQLite Migration: Old history file is empty. Deleting it to prevent the migration running again.");
+                File.Delete(SnapXL.HistoryFilePathOld);
             }
 
             var historyItems = JsonSerializer.Deserialize<List<HistoryItem>>(json, new JsonSerializerOptions
@@ -406,33 +453,32 @@ public static class SettingManager
             var shouldRenameFile = true;
             if (historyItems?.Count > 0)
             {
-                DebugHelper.WriteLine($"JSON -> SQLite Migration: Found {historyItems.Count:N0} history items. First one is {historyItems[0].FilePath} and the last one is {historyItems[^1].FilePath}");
+                DebugHelper.WriteAlways($"JSON -> SQLite Migration: Found {historyItems.Count:N0} history items. First one is {historyItems[0].FilePath} and the last one is {historyItems[^1].FilePath}");
                 if (!TaskManager.History.AppendHistoryItems(historyItems))
                 {
-                    DebugHelper.WriteLine("JSON -> SQLite Migration: Failed to migrate history items.");
+                    DebugHelper.WriteAlways("JSON -> SQLite Migration: Failed to migrate history items.");
                     shouldRenameFile = false;
                 }
                 else
                 {
-                    DebugHelper.WriteLine("JSON -> SQLite Migration: Migration complete! Welcome to the future! 🚀");
+                    DebugHelper.WriteAlways("JSON -> SQLite Migration: Migration complete! Welcome to the future! 🚀");
                 }
             }
             else
             {
-                DebugHelper.WriteLine("JSON -> SQLite Migration: No history items found");
+                DebugHelper.WriteAlways("JSON -> SQLite Migration: No history items found");
             }
 
             if (shouldRenameFile)
             {
-                var migratedPath = SnapX.HistoryFilePathOld + ".migrated";
                 var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                migratedPath = SnapX.HistoryFilePathOld + $"{timestamp}.migrated";
-                File.Move(SnapX.HistoryFilePathOld, migratedPath);
+                var migratedPath = $"{SnapXL.HistoryFilePathOld}.{timestamp}.migrated";
+                File.Move(SnapXL.HistoryFilePathOld, migratedPath);
             }
         }
         catch (Exception ex)
         {
-            DebugHelper.WriteLine($"JSON -> SQLite Migration: Migration failed!!!");
+            DebugHelper.WriteAlways($"JSON -> SQLite Migration: Migration failed!!!");
             DebugHelper.WriteException(ex);
         }
     }
@@ -446,6 +492,8 @@ public static class SettingManager
                 cui.CheckBackwardCompatibility();
             }
         }
+
+        if (File.Exists(SnapXL.UploadersConfigPathOld)) UploadersConfig = MigrateJsonConfig<UploadersConfig>(SnapXL.UploadersConfigPathOld);
     }
 
     private static void HotkeysConfigBackwardCompatibilityTasks()
@@ -462,14 +510,16 @@ public static class SettingManager
         //         }
         //     }
         // }
+        if (File.Exists(SnapXL.HotkeyConfigPathOld)) HotkeysConfig = MigrateJsonConfig<HotkeysConfig>(SnapXL.HotkeyConfigPathOld);
+
     }
 
     public static void Dispose() => theLaw.Dispose();
     public static void CleanupHotkeysConfig()
     {
-        foreach (var taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
+        foreach (var settings in HotkeysConfig.Hotkeys)
         {
-            taskSettings.Cleanup();
+            settings.TaskSettings?.Cleanup();
         }
     }
 
@@ -555,9 +605,9 @@ public static class SettingManager
 
             if (history)
             {
-                string tempDb = Path.Combine(Path.GetTempPath(), $"{SnapX.AppName}_DB_Backup_{Guid.NewGuid()}.db");
+                string tempDb = Path.Combine(Path.GetTempPath(), $"{SnapXL.AppName}_DB_Backup_{Guid.NewGuid()}.db");
 
-                using (var cmd = SnapX.DbConnection.CreateCommand())
+                using (var cmd = SnapXL.DbConnection.CreateCommand())
                 {
                     cmd.CommandText = $"VACUUM INTO '{tempDb}'";
                     cmd.ExecuteNonQuery();
@@ -568,7 +618,7 @@ public static class SettingManager
 
                 File.Delete(tempDb);
 
-                entries.Add(new ZipEntryInfo(msSqlite, Path.GetFileName(SnapX.DBPath)));
+                entries.Add(new ZipEntryInfo(msSqlite, Path.GetFileName(SnapXL.DBPath)));
             }
 
             ZipManager.Compress(archivePath, entries);
@@ -595,7 +645,7 @@ public static class SettingManager
         {
             ZipManager.Extract(
                 archivePath,
-                SnapX.PersonalFolder,
+                SnapXL.PersonalFolder,
                 true,
                 entry =>
                 {
@@ -603,7 +653,7 @@ public static class SettingManager
                 },
                 1_000_000_000
             );
-            ZipManager.Extract(archivePath, SnapX.ConfigFolder, true, entry =>
+            ZipManager.Extract(archivePath, SnapXL.ConfigFolder, true, entry =>
             {
                 return FileHelpers.CheckExtension(entry.Name, new[] { "json", "xml" });
             }, 1_000_000_000);

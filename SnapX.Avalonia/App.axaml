@@ -1,5 +1,5 @@
 <Application
-    Name="{x:Static core:SnapX.AppName}"
+    Name="{x:Static core:SnapXL.AppName}"
     x:Class="SnapX.Avalonia.App"
     x:DataType="avalonia:App"
     xmlns="https://github.com/avaloniaui"

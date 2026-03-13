@@ -4,23 +4,42 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FastCloner.Code;
+using FastCloner.SourceGenerator.Shared;
 using SnapX.Core.Upload.Utils;
 using SnapX.Core.Utils;
 using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Extensions;
 using SnapX.Core.Utils.Miscellaneous;
 using SnapX.Core.Utils.Parsers;
+using YamlDotNet.Serialization;
 
 namespace SnapX.Core.Upload.Custom;
 
+[FastClonerClonable]
 public class CustomUploaderItem : INotifyPropertyChanged
 {
     [DefaultValue("")]
     public string Version { get; set; }
+    /// <summary>
+    /// The API version used for custom uploader format compatibility.
+    /// </summary>
+    /// <remarks>
+    /// This property defines the version of the custom uploader API format that SnapX should use.
+    /// Unlike previous versions where SnapX attempted to define its own "Version" property,
+    /// this APIVersion is dictated by ShareX as the format leader. SnapX's primary goal is to
+    /// maintain compatibility with ShareX's custom uploader format, not to introduce
+    /// API-breaking changes. By following ShareX's versioning, SnapX ensures that custom
+    /// uploaders created for ShareX work seamlessly in SnapX without modifications and vice versa.
+    /// </remarks>
+    [YamlIgnore]
+    [JsonIgnore]
+    [FastClonerIgnore]
+
+    private string APIVersion = "19.0.2";
 
     [DefaultValue("")]
     public string? Name
@@ -122,7 +141,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
 
     [JsonConverter(typeof(JsonStringEnumConverter<ResponseType>))]
     // TEMP: For backward compatibility
-    public ResponseType ResponseType { private get; set; }
+    public ResponseType ResponseType { get; set; }
 
     [DefaultValue("")]
     public string? URL { get; set; }
@@ -135,10 +154,59 @@ public class CustomUploaderItem : INotifyPropertyChanged
 
     [DefaultValue("")]
     public string? ErrorMessage { get; set; }
+    [Browsable(false)]
+    [YamlIgnore]
+    [JsonIgnore]
+    public static readonly string[] SensitiveKeys =
+    {
+        "password",
+        "upload_password",
+        "upload-password",
+        "passwd",
+        "pass",
+        "pwd",
+        "api",
+        "apikey",
+        "api-key",
+        "api_key",
+        "x-api-key",
+        "api key",
+        "key",
+        "keyid",
+        "key-id",
+        "email",
+        "user",
+        "k", // puush.me uses 'k' as their API key header
+        "p", // short for password
+        "username",
+        "user-name",
+        "user name",
+        "credential",
+        "creds",
+        "cred",
+        "token",
+        "secret",
+        "auth",
+        "authorization",
+        "x-authorization",
+        "x-auth-token",
+        "access-token",
+        "access token",
+        "bearer",
+        "session",
+        "jwt",
+        "cookie",
+        "priv",
+        "sid",
+        "uuid",
+        "guid",
+        "salt",
+        "nonce",
+    };
 
     public CustomUploaderItem()
     {
-        Version = Helpers.GetApplicationVersion();
+        Version = APIVersion;
         if (string.IsNullOrWhiteSpace(Name))
             Name = URLHelpers.GetHostName(RequestURL);
     }
@@ -147,7 +215,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
     // {
     //     return new CustomUploaderItem()
     //     {
-    //         Version = Helpers.GetApplicationVersion(),
+    //         Version = APIVersion,
     //         RequestMethod = HttpMethod.Post,
     //         Body = CustomUploaderBody.MultipartFormData
     //     };
@@ -442,7 +510,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
     public void CheckBackwardCompatibility()
     {
         CheckRequestURL();
-
+        if (!string.IsNullOrWhiteSpace(Version) && new Version(Version).Major == 0) Version = APIVersion;
         if (string.IsNullOrEmpty(Version) || Helpers.CompareVersion(Version, "12.3.1") <= 0)
         {
             if (RequestMethod == HttpMethod.Post)
@@ -543,7 +611,7 @@ public class CustomUploaderItem : INotifyPropertyChanged
             DeletionURL = MigrateOldSyntax(DeletionURL);
             ErrorMessage = MigrateOldSyntax(ErrorMessage);
 
-            Version = Helpers.GetApplicationVersion();
+            Version = APIVersion;
         }
     }
 

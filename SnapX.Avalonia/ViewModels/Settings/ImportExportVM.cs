@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
@@ -57,18 +56,30 @@ public partial class ImportExportVM : ViewModelBase
     private async Task RestartApp()
     {
         string message =
-            "SnapX needs to restart to propagate changes! Hopefully this restart works!";
-        DebugHelper.WriteLine(message);
+
+            "SnapX needs to restart to propagate changes! The app used to auto restart, until the stupid app developer corrupted his database doing so. So enjoy the auto shutdown! :DDD";
+
+        var desktop = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+
+        // Silently murder MyMainWindow 💔
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            desktop.MainWindow = App.MySettingsWindow;
+            if (App.MyMainWindow == null) return;
+            App.MyMainWindow.Content = null;
+            App.MyMainWindow.DataContext = null;
+            App.MyMainWindow.Opacity = 0;
+            App.MyMainWindow.IsEnabled = false;
+            // App.MyMainWindow.Hide();
+        });
 
         var dialog = new ContentDialog
         {
             Title = "Restart Required",
-            Content = message + "\n\nRestarting automatically in 5 seconds...",
+            Content = message,
             PrimaryButtonText = "OK",
             DefaultButton = ContentDialogButton.Primary,
         };
-        var desktop =
-            Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
 
         if (desktop?.Windows != null)
         {
@@ -77,52 +88,23 @@ public partial class ImportExportVM : ViewModelBase
                 win.IsEnabled = false;
             }
         }
-        if (App.MyMainWindow is { } window)
-        {
-            // Start a timer to close the dialog automatically
-            var autoCloseTask = Task.Delay(TimeSpan.FromSeconds(5))
-                .ContinueWith(_ =>
-                {
-                    Dispatcher.UIThread.Post(() => dialog.Hide());
-                });
 
-            await dialog.ShowAsync();
+        using var cts = new CancellationTokenSource();
+        _ = Task.Delay(TimeSpan.FromSeconds(5)).ContinueWith(_ =>
+            Dispatcher.UIThread.Post(dialog.Hide), cts.Token);
+
+        try
+        {
+            await Dispatcher.UIThread.InvokeAsync(async () => { await dialog.ShowAsync(App.MySettingsWindow); });
         }
-        var processPath = Environment.ProcessPath;
-        if (string.IsNullOrEmpty(processPath))
-            return;
-
-        var psi = new ProcessStartInfo
+        catch (Exception ex)
         {
-            FileName = processPath,
-            UseShellExecute = true,
-            WorkingDirectory = AppContext.BaseDirectory,
-        };
-
-        var args = Environment.GetCommandLineArgs().Skip(1);
-        foreach (var arg in args)
-        {
-            psi.ArgumentList.Add(arg);
+            DebugHelper.WriteAlways($"Dialog failed: {ex.Message}");
         }
-        Process.Start(psi);
-
-        foreach (System.Collections.DictionaryEntry de in Environment.GetEnvironmentVariables())
+        finally
         {
-            var key = de.Key.ToString();
-            var val = de.Value?.ToString();
-            if (!string.IsNullOrEmpty(key) && !psi.Environment.ContainsKey(key))
-            {
-                psi.EnvironmentVariables[key] = val;
-            }
-        }
-
-        if (Application.Current?.ApplicationLifetime is IControlledApplicationLifetime lifetime)
-        {
-            lifetime.Shutdown(0);
-        }
-        else
-        {
-            Environment.Exit(0);
+            await cts.CancelAsync();
+            Dispatcher.UIThread.Invoke(() => desktop?.Shutdown());
         }
     }
     [RelayCommand]

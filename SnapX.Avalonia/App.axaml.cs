@@ -17,9 +17,11 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using SnapX.Avalonia.ViewModels;
+using SnapX.Avalonia.ViewModels.Settings;
 // using SnapX.Avalonia.ViewModels.Settings;
 using SnapX.Avalonia.Views;
 using SnapX.Avalonia.Views.Settings;
@@ -46,7 +48,7 @@ public partial class App : Application
 
     // There is no limit of what chaos could occur if two settings windows exist.
     // We must keep track of it.
-    private static SettingsWindow? MySettingsWindow { get; set; }
+    public static SettingsWindow? MySettingsWindow { get; set; }
     public static string TrayTitle => $"SnapX v{SimpleVersion()}";
 
     private static Lock _windowLock = new();
@@ -239,9 +241,9 @@ public partial class App : Application
 
         try
         {
-            if (!FeatureFlags.DisableTelemetry && Core.SnapX.TelemetryHandler is null)
+            if (!FeatureFlags.DisableTelemetry && Core.SnapXL.TelemetryHandler is null)
             {
-                Core.SnapX.InitTelemetryServices();
+                Core.SnapXL.InitTelemetryServices();
                 SentrySdk.CaptureException(ex);
 
                 DebugHelper.WriteLine("Error reported to Sentry successfully.");
@@ -312,10 +314,29 @@ public partial class App : Application
 
     public void ListenForEvents()
     {
-        Core.SnapX.EventAggregator.Subscribe<NeedClipboardCopyEvent>(HandleClipboardCopyEvent);
-        Core.SnapX.EventAggregator.Subscribe<ErrorMessageEvent>(HandleErrorMessageEvent);
+        Core.SnapXL.EventAggregator.Subscribe<NeedClipboardCopyEvent>(HandleClipboardCopyEvent);
+        Core.SnapXL.EventAggregator.Subscribe<ErrorMessageEvent>(HandleErrorMessageEvent);
+        Core.SnapXL.EventAggregator.Subscribe<NeedOCRWindowEvent>(HandleOCRWindowRequestEvent);
+        Core.SnapXL.EventAggregator.Subscribe<NeedScanQRCodeEvent>(HandleScanQRCodeEvent);
     }
-
+    void HandleOCRWindowRequestEvent(NeedOCRWindowEvent @event)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var OCR = new OCR(@event.Image, @event.TaskSettings);
+            OCR.Show();
+        });
+    }
+    void HandleScanQRCodeEvent(NeedScanQRCodeEvent @event)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var qrView = new QRCodeView();
+            qrView.Show();
+            if (@event.HasImage) qrView.ScanImage(@event.Image);
+            else qrView.QRText.Text = @event.Text;
+        });
+    }
     private async void HandleClipboardCopyEvent(NeedClipboardCopyEvent @event)
     {
         try
@@ -489,7 +510,7 @@ public partial class App : Application
     CancellationTokenSource? _pollingCts = null;
 
     // ReSharper disable once AsyncVoidMethod
-    public override async void OnFrameworkInitializationCompleted()
+    public override void OnFrameworkInitializationCompleted()
     {
         // Crashes must be contained, AT ALL COSTS!
         Dispatcher.UIThread.UnhandledException += (s, e) =>
@@ -512,7 +533,6 @@ public partial class App : Application
         var provider = services.BuildServiceProvider();
 
         Ioc.Default.ConfigureServices(provider);
-        Ioc.Default.AddStaticLogging();
         var vm = Ioc.Default.GetRequiredService<MainViewModel>();
 
         switch (ApplicationLifetime)
@@ -541,7 +561,14 @@ public partial class App : Application
                         ea.Cancel = true;
                         sigintReceived = true;
                         SnapX.shutdown();
-                        desktop.Shutdown();
+                        try
+                        {
+                            desktop.Shutdown();
+                        }
+                        catch
+                        {
+                            // Silence at once
+                        }
                         _pollingCts?.Cancel();
                     };
                     // AppDomain.CurrentDomain.ProcessExit += (o, _) =>
@@ -563,7 +590,7 @@ public partial class App : Application
                     {
                         SnapX.start(desktop.Args ?? []);
                         var CLIManager = SnapX.GetCLIManager();
-                        await CLIManager.UseCommandLineArgs();
+                        CLIManager.UseCommandLineArgs().GetAwaiter().GetResult();
                     }
                     catch (Exception ex)
                     {
@@ -585,7 +612,7 @@ public partial class App : Application
                         var trayIcon = new TrayIcon
                         {
                             Icon = new WindowIcon(logoBitmap),
-                            ToolTipText = Core.SnapX.AppName,
+                            ToolTipText = Core.SnapXL.AppName,
                             Command = OpenSnapXCommand
                         };
 
@@ -778,7 +805,7 @@ public partial class App : Application
                         var uploadFile = new NativeMenuItem("Upload File...");
                         uploadFile.Click += (_, _) =>
                         {
-                            Core.SnapX.EventAggregator.Publish(
+                            Core.SnapXL.EventAggregator.Publish(
                                 new NeedFileOpenerEvent
                                 {
                                     Title = "SnapX | Upload File",
@@ -789,7 +816,7 @@ public partial class App : Application
                         var uploadFolder = new NativeMenuItem("Upload Folder...");
                         uploadFolder.Click += (_, _) =>
                         {
-                            Core.SnapX.EventAggregator.Publish(
+                            Core.SnapXL.EventAggregator.Publish(
                                 new NeedFileOpenerEvent
                                 {
                                     Title = "SnapX | Upload Folder",
@@ -991,7 +1018,11 @@ public partial class App : Application
         services.AddTransient<ImportExportView>();
         // services.AddSingleton<ScreenRecordOptionsVM>();
         // services.AddTransient<ScreenRecordOptionsView>();
-
+        services.AddSingleton<CoreUploaderVM>();
+        services.AddTransient<BuiltInUploaderSettingsView>();
+        services.AddSingleton<DatabaseVM>();
+        services.AddSingleton<SqliteConnection>(sp => SnapX.GetDB());
+        services.AddTransient<DatabaseView>();
         services.AddTransient<SettingsHomePageView>();
         services.AddSingleton<SettingsHomePageViewVM>();
 
@@ -1000,6 +1031,16 @@ public partial class App : Application
 
         services.AddTransient<HomePageView>();
         services.AddSingleton<HomePageViewModel>();
+        services.AddTransient<NotImplemented>();
+        services.AddSingleton<NotImplementedVM>();
+
+        services.AddTransient<ApplicationUploadSettingsView>();
+        services.AddSingleton<ApplicationUploadSettingsVM>();
+        services.AddSingleton<ApplicationPathSettingsVM>();
+        services.AddTransient<ApplicationPathSettingsView>();
+
+        services.AddSingleton<GeneralSettingsVM>();
+        services.AddTransient<GeneralSettingsView>();
 
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
     }

@@ -3,7 +3,6 @@
 
 
 using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -70,8 +69,6 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
         return URLHelpers.CreateQueryString("https://github.com/login/oauth/authorize", args);
     }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
     public bool GetAccessToken(string? code)
     {
         var args = new Dictionary<string, string?>
@@ -83,7 +80,7 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
 
         var headers = new WebHeaderCollection()
         {
-            "Accept", RequestHelpers.ContentTypeJSON
+            { "Accept", RequestHelpers.ContentTypeJSON }
         };
 
         var response = SendRequestMultiPart("https://github.com/login/oauth/access_token", args, headers);
@@ -95,8 +92,7 @@ public sealed class GitHubGist : TextUploader, IOAuth2Basic
         return true;
     }
 
-    [RequiresDynamicCode("Uploader")]
-    [RequiresUnreferencedCode("Uploader")]
+
     public override UploadResult UploadText(string? text, string? fileName)
     {
         var ur = new UploadResult();

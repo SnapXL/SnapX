@@ -356,7 +356,7 @@ public class macOSCapture : BaseCapture
     private Image CaptureMonitor(Point pos)
     {
         var monitor = SnapxrustMethods.GetMonitor((uint)pos.X, (uint)pos.Y);
-        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureMonitor(monitor.name));
+        return ImageHelpers.ImageDataToImage(SnapxrustMethods.CaptureMonitor(monitor.Name));
     }
     private Image CaptureRectangleNative(Rectangle rect, bool captureCursor = false)
     {
@@ -366,18 +366,18 @@ public class macOSCapture : BaseCapture
     public override async Task<Rectangle> GetWorkingArea()
     {
         var ScreenDimensions = SnapxrustMethods.GetWorkingArea();
-        return new Rectangle(ScreenDimensions.x, ScreenDimensions.y, (int)ScreenDimensions.width, (int)ScreenDimensions.height);
+        return new Rectangle(ScreenDimensions.X, ScreenDimensions.Y, (int)ScreenDimensions.Width, (int)ScreenDimensions.Height);
     }
 
     public override async Task<Rectangle> GetPrimaryScreen()
     {
         var monitor = SnapxrustMethods.GetPrimaryMonitor();
-        return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
+        return new Rectangle(monitor.X, monitor.Y, (int)monitor.Width, (int)monitor.Height);
     }
 
     public override async Task<Rectangle> GetScreen(Point pos)
     {
         var monitor = SnapxrustMethods.GetMonitor((uint)pos.X, (uint)pos.Y);
-        return new Rectangle(monitor.x, monitor.y, (int)monitor.width, (int)monitor.height);
+        return new Rectangle(monitor.X, monitor.Y, (int)monitor.Width, (int)monitor.Height);
     }
 }

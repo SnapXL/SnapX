@@ -22,8 +22,11 @@ namespace SnapX.Avalonia.Views;
 
 public partial class MainWindow : AppWindow
 {
-    public static string MainWindowName => Core.SnapX.Title + " " + Core.SnapX.VersionText;
-    public static string LogoResourcePath => OperatingSystem.IsWindows() ? "/Assets/SnapX_Icon.ico" : "avares://snapx-ui/SnapX_Logo.png";
+    public static string MainWindowName => Core.SnapXL.Title + " " + Core.SnapXL.VersionText;
+
+    public static string LogoResourcePath =>
+        OperatingSystem.IsWindows() ? "/Assets/SnapX_Icon.ico" : "avares://snapx-ui/SnapX_Logo.png";
+
     public MainWindow(MainViewModel vm)
     {
         DataContext = vm;
@@ -52,21 +55,26 @@ public partial class MainWindow : AppWindow
         {
             Position = new PixelPoint(config.MainFormPosition.X, config.MainFormPosition.Y);
         }
+
         InitializeComponent();
         ListenForEvents();
     }
-    public MainWindow() : this(new MainViewModel()) { }
+
+    public MainWindow() : this(new MainViewModel())
+    {
+    }
 
     public void ListenForEvents()
     {
-        Core.SnapX.EventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
-        Core.SnapX.EventAggregator.Subscribe<NeedMainWindowHandle>(HandleMainWindowHandleRequested);
+        Core.SnapXL.EventAggregator.Subscribe<NeedFileOpenerEvent>(HandleFileSelectionRequested);
+        Core.SnapXL.EventAggregator.Subscribe<NeedMainWindowHandle>(HandleMainWindowHandleRequested);
 
         void HandleMainWindowHandleRequested(NeedMainWindowHandle Obj)
         {
             Obj.ResultHandle = TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
         }
     }
+
     private async void HandleFileSelectionRequested(NeedFileOpenerEvent @event)
     {
         var topLevel = GetTopLevel(this);
@@ -150,6 +158,7 @@ public partial class MainWindow : AppWindow
 
             TryEnableMicaEffect();
         }
+
         TaskManager.InitHistoryManager();
     }
 
@@ -183,8 +192,8 @@ public partial class MainWindow : AppWindow
     private void TopLevel_OnOpened(object? Sender, EventArgs E)
     {
         DebugHelper.WriteLine("MainWindow Opened");
-        if (Core.SnapX.Settings.FirstTimeRunDate != DateTime.MinValue &&
-            Core.SnapX.Settings.FirstTimeRunDate != null) return;
+        if (Core.SnapXL.Settings.FirstTimeRunDate != DateTime.MinValue &&
+            Core.SnapXL.Settings.FirstTimeRunDate != null) return;
         var changelogDialog = new ContentDialog
         {
             Title = Title,

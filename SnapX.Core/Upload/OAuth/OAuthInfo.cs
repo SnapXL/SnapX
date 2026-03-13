@@ -3,6 +3,7 @@
 
 
 using System.ComponentModel;
+using SnapX.Core.Utils;
 
 namespace SnapX.Core.Upload.OAuth;
 
@@ -20,32 +21,48 @@ public class OAuthInfo : ICloneable
     public string? OAuthVersion { get; set; }
 
     [Browsable(false)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? ConsumerKey { get; set; }
 
     // Used for HMAC_SHA1 signature
     [Browsable(false)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? ConsumerSecret { get; set; }
 
     // Used for RSA_SHA1 signature
     [Browsable(false)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string ConsumerPrivateKey { get; set; }
 
     [Browsable(false)]
     public OAuthInfoSignatureMethod SignatureMethod { get; set; }
 
     [Browsable(false)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? AuthToken { get; set; }
 
     [Browsable(false)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? AuthSecret { get; set; }
 
     [Description("Verification Code from the Authorization Page")]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? AuthVerifier { get; set; }
 
     [Browsable(false)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? UserToken { get; set; }
 
     [Browsable(false)]
+    [JsonEncrypt]
+    [YamlEncrypt]
     public string? UserSecret { get; set; }
 
     public OAuthInfo()

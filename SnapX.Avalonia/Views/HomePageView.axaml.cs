@@ -28,7 +28,7 @@ public partial class HomePageView : UserControl
         AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader(
             HttpClientFactory.Get(),
             false,
-            Path.Combine(Core.SnapX.CacheFolder, "Images")
+            Path.Combine(Core.SnapXL.CacheFolder, "Images")
         );
     }
 
@@ -186,7 +186,7 @@ public partial class HomePageView : UserControl
         var folderPath = Path.GetDirectoryName(filePath);
         if (!string.IsNullOrEmpty(folderPath))
         {
-            URLHelpers.OpenURL(folderPath);
+            FileHelpers.OpenFolder(folderPath);
         }
     }
 

@@ -3,6 +3,8 @@ using System.Runtime.Versioning;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SnapX.Core.Media;
+using SnapX.Core.Utils.Native;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
@@ -12,8 +14,6 @@ using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
-using SnapX.Core.Media;
-using SnapX.Core.Utils.Native;
 using WinRT;
 
 
@@ -27,7 +27,7 @@ public class WindowsCapture : BaseCapture
     {
         var result = D3D11.D3D11CreateDevice(
             adapter,
-            DriverType.Hardware,
+            DriverType.Unknown,
             creationFlags,
             [featureLevel],
             out var device,
@@ -358,7 +358,7 @@ public class WindowsCapture : BaseCapture
                 continue;
             }
 
-            if (IsSupportedFeatureLevel(adapter, FeatureLevel.Level_11_1, DeviceCreationFlags.BgraSupport))
+            if (!IsSupportedFeatureLevel(adapter, FeatureLevel.Level_11_1, DeviceCreationFlags.BgraSupport))
             {
                 DebugHelper.WriteLine(
                     $"Feature level {FeatureLevel.Level_11_1} not supported. Skipping Adapter {adapter.Description}");

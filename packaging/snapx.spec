@@ -17,7 +17,7 @@
 
 # This spec requires internet access! This is only meant to be built on GitHub Actions at the moment!
 %global base_release 3
-%global full_version %{?passed_version}%{!?passed_version:%(../build.sh --version | tail -n1 | tr -d '\n' || echo 0.4.0)}
+%global full_version %{?passed_version}%{!?passed_version:%(../build.sh --version | tail -n1 | tr -d '\n' || echo 0.5.0)}
 
 # extract upstream version (everything before the last dot-number+git)
 %global version %(echo "%{full_version}" | sed 's/\.[^.]*$//; s/-/~/g')
@@ -90,6 +90,7 @@ Recommends:     /usr/bin/xrandr
 # Required for opening browser tabs across Linux desktops
 Requires:       xdg-utils
 Requires:       /usr/bin/avifenc
+Requires:       libsecret
 
 %description core
 This package contains the heavy dependencies and shared libraries used by both

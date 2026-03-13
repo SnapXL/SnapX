@@ -11,8 +11,6 @@ public enum ImageDestination
     ImageShack,
     [Description("Flickr")]
     Flickr,
-    [Description("Photobucket")]
-    Photobucket,
     [Description("Google Photos")]
     Picasa,
     [Description("Chevereto")]
@@ -38,8 +36,6 @@ public enum TextDestination
     Hastebin,
     [Description("OneTimeSecret")]
     OneTimeSecret,
-    [Description("Pastie")]
-    Pastie,
     CustomTextUploader, // Localized
     FileUploader // Localized
 }

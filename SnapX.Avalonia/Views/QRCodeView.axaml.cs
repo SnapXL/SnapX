@@ -173,7 +173,7 @@ public partial class QRCodeView : AppWindow
         }
     }
 
-    private async Task ScanImage(SixLabors.ImageSharp.Image scanImage, Func<Task>? onRetry = null)
+    internal async Task ScanImage(SixLabors.ImageSharp.Image scanImage, Func<Task>? onRetry = null)
     {
         using var grayImage = scanImage.CloneAs<L8>();
         var width = grayImage.Width;

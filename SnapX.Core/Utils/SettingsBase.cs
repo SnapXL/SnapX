@@ -1,13 +1,13 @@
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using SnapX.Core.Upload.Custom;
 using SnapX.Core.Utils.Converters;
 using SnapX.Core.Utils.Extensions;
-using JsonSerializer = System.Text.Json.JsonSerializer;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization.TypeInspectors;
 
 namespace SnapX.Core.Utils;
 
@@ -19,30 +19,34 @@ public abstract partial class SettingsBase<T>
 
     public delegate void SettingsSaveFailedEventHandler(Exception e);
     public event SettingsSaveFailedEventHandler SettingsSaveFailed;
+    [Browsable(false), JsonIgnore, YamlIgnore]
+    private static readonly Lazy<SettingsYAMLContext> _aotContext = new(() => new());
+    [Browsable(false), JsonIgnore, YamlIgnore]
+    private static SettingsYAMLContext aotContext => _aotContext.Value;
 
-    [Browsable(false), JsonIgnore]
+    [Browsable(false), JsonIgnore, YamlIgnore]
     public string FilePath { get; private set; }
 
     [Browsable(false)]
     public string ApplicationVersion { get; set; }
 
-    [Browsable(false), JsonIgnore]
+    [Browsable(false), JsonIgnore, YamlIgnore]
     public bool IsFirstTimeRun { get; private set; }
 
-    [Browsable(false), JsonIgnore]
+    [Browsable(false), JsonIgnore, YamlIgnore]
     public bool IsUpgrade { get; private set; }
 
-    [Browsable(false), JsonIgnore]
+    [Browsable(false), JsonIgnore, YamlIgnore]
     public string BackupFolder { get; set; }
 
-    [Browsable(false), JsonIgnore]
+    [Browsable(false), JsonIgnore, YamlIgnore]
     public bool CreateBackup { get; set; }
 
-    [Browsable(false), JsonIgnore]
+    [Browsable(false), JsonIgnore, YamlIgnore]
     public bool CreateWeeklyBackup { get; set; }
 
-    [Browsable(false), JsonIgnore]
-    public bool SupportDPAPIEncryption { get; set; }
+    [Browsable(false), JsonIgnore, YamlIgnore]
+    public bool UseEncryption { get; set; } = !OperatingSystem.IsFreeBSD();
 
     public bool IsUpgradeFrom(string version)
     {
@@ -82,12 +86,12 @@ public abstract partial class SettingsBase<T>
         Task.Run(() => Save(filePath));
     }
 
-    public MemoryStream SaveToMemoryStream(bool supportDPAPIEncryption = false)
+    public MemoryStream SaveToMemoryStream(bool useEncryption = true)
     {
         ApplicationVersion = Helpers.GetApplicationVersion();
 
         MemoryStream ms = new MemoryStream();
-        SaveToStream(ms, supportDPAPIEncryption, true);
+        SaveToStream(ms, useEncryption, true);
         return ms;
     }
 
@@ -100,198 +104,191 @@ public abstract partial class SettingsBase<T>
 
         try
         {
-            if (!string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrEmpty(filePath))
+                return false;
+
+            lock (this)
             {
-                lock (this)
-                {
-                    FileHelpers.CreateDirectoryFromFilePath(filePath);
+                EnsureDirectoryExists(filePath);
 
-                    var tempFilePath = filePath + ".temp";
+                var tempFilePath = WriteTempFile(filePath);
 
-                    using (
-                        var fileStream = new FileStream(
-                            tempFilePath,
-                            FileMode.Create,
-                            FileAccess.Write,
-                            FileShare.Read,
-                            4096,
-                            FileOptions.WriteThrough
-                        )
-                    )
-                    {
-                        SaveToStream(fileStream, SupportDPAPIEncryption);
-                    }
+                ReplaceFileWithBackup(filePath, tempFilePath);
 
-                    if (!JsonHelpers.QuickVerifyJsonFile(tempFilePath))
-                    {
-                        throw new Exception($"{typeName} file is corrupt: {tempFilePath}");
-                    }
+                if (CreateWeeklyBackup && !string.IsNullOrEmpty(BackupFolder))
+                    FileHelpers.BackupFileWeekly(filePath, BackupFolder);
 
-                    if (File.Exists(filePath))
-                    {
-                        string backupFilePath = null;
-
-                        if (CreateBackup)
-                        {
-                            var fileName = Path.GetFileName(filePath);
-                            backupFilePath = Path.Combine(BackupFolder, fileName);
-                            FileHelpers.CreateDirectory(BackupFolder);
-                        }
-
-                        File.Replace(tempFilePath, filePath, backupFilePath, true);
-                    }
-                    else
-                    {
-                        File.Move(tempFilePath, filePath);
-                    }
-
-                    if (CreateWeeklyBackup && !string.IsNullOrEmpty(BackupFolder))
-                    {
-                        FileHelpers.BackupFileWeekly(filePath, BackupFolder);
-                    }
-
-                    isSuccess = true;
-                }
+                isSuccess = true;
             }
         }
         catch (Exception e)
         {
-            DebugHelper.WriteException(e);
-
+            e.ShowError(true, $"Error saving {typeName}");
             OnSettingsSaveFailed(e);
         }
         finally
         {
-            var status = isSuccess ? "successful" : "failed";
-            DebugHelper.WriteLine($"{typeName} save {status}");
+            LogSaveResult(typeName, isSuccess);
         }
 
         return isSuccess;
     }
 
-    [RequiresDynamicCode(
-        "Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)"
-    )]
-    [RequiresUnreferencedCode(
-        "Calls Microsoft.Extensions.Configuration.ConfigurationBinder.Bind(Object)"
-    )]
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
-    private void SaveToStream(
-        Stream stream,
-        bool supportDPAPIEncryption = false,
-        bool leaveOpen = false
-    )
+    private void EnsureDirectoryExists(string filePath)
     {
-        var options = new JsonSerializerOptions
+        FileHelpers.CreateDirectoryFromFilePath(filePath);
+    }
+
+    private string WriteTempFile(string filePath)
+    {
+        var tempFilePath = filePath + ".temp";
+
+        using var fileStream = new FileStream(
+            tempFilePath,
+            FileMode.Create,
+            FileAccess.Write,
+            FileShare.Read,
+            4096,
+            FileOptions.WriteThrough
+        );
+
+        SaveToStream(fileStream, UseEncryption);
+
+        return tempFilePath;
+    }
+
+    private void ReplaceFileWithBackup(string filePath, string tempFilePath)
+    {
+        if (File.Exists(filePath))
         {
-            PropertyNameCaseInsensitive = true,
-            WriteIndented = true,
-            TypeInfoResolver = SettingsContext.Default,
-            Converters =
+            string backupFilePath = null;
+
+            if (CreateBackup && !string.IsNullOrEmpty(BackupFolder))
             {
-                new JsonRectangleConverter(),
-                new JsonPointConverter(),
-                new JsonSizeConverter(),
-                new JsonPaddingConverter(),
-                new UtcDateTimeConverter(),
-                new JsonTimeZoneInfoConverter(),
-                new JsonColorConverter(),
-                new JsonFontConverter(),
-                // new SafeEnumConverterFactory()
-                new JsonStringEnumConverter(),
-            },
-        };
+                FileHelpers.CreateDirectory(BackupFolder);
+                var fileName = Path.GetFileName(filePath);
+                backupFilePath = Path.Combine(BackupFolder, fileName);
+            }
 
-        var json = JsonSerializer.Serialize((T)this, options);
+            File.Replace(tempFilePath, filePath, backupFilePath, true);
+        }
+        else
+        {
+            File.Move(tempFilePath, filePath);
+        }
+    }
 
-        using var writer = new StreamWriter(stream, new UTF8Encoding(false, true), 1024, leaveOpen);
-        writer.Write(json);
+    private void LogSaveResult(string typeName, bool isSuccess)
+    {
+        if (isSuccess)
+            DebugHelper.Logger?.Information("{typeName} save successful", typeName);
+        else
+            DebugHelper.Logger?.Error("{typeName} save failed", typeName);
+    }
+
+
+    private static ISerializer BuildYamlSerializer(SecurePropertyStore store, bool useEncryption = true)
+    {
+        return new StaticSerializerBuilder(aotContext)
+            .WithQuotingNecessaryStrings()
+            .WithTypeInspector(inner => new ReadableAndWritablePropertiesTypeInspector(inner), loc => loc.OnBottom())
+            .WithTypeInspector(inner => new EncryptionTypeInspector(inner, store, useEncryption))
+            .WithTypeInspector(inner => new PreferredIdentityTypeInspector(inner))
+            .WithTypeConverter(new UIFontYamlTypeConverter())
+            .WithTypeConverter(new ImageSharpYamlTypeConverter())
+            .WithTypeConverter(new TimeZoneInfoYamlTypeConverter())
+            // Perfect security is a myth, but total negligence is a choice.
+            // I'd rather encrypt a few harmless headers than leak a single
+            // API token to a plain-text config file.
+            // It's better to be safe and a little bit 'extra' than sorry and compromised.
+            .WithTypeConverter(new HeaderCollectionYamlConverter(store, () => CustomUploaderItem.SensitiveKeys, useEncryption))
+            .WithTypeConverter(new HttpMethodYamlConverter())
+            .WithEnumNamingConvention(NullNamingConvention.Instance)
+            .WithIndentedSequences()
+            .WithNamingConvention(NullNamingConvention.Instance)
+            .Build();
+    }
+
+    private string SerializeToYaml(T obj, bool useEncryption = true)
+    {
+        var serializer = BuildYamlSerializer(SecurePropertyStore.Instance, useEncryption);
+        return serializer.Serialize(obj);
+    }
+
+    private static void WriteStringToStream(string content, Stream stream, bool leaveOpen = false)
+    {
+        using var writer = new StreamWriter(stream, new UTF8Encoding(false, true), 4096, leaveOpen);
+        writer.Write(content);
         writer.Flush();
     }
 
-    private void LogSerializedString(string json)
+    private void SaveToStream(Stream stream, bool useEncryption = true, bool leaveOpen = false)
     {
-        DebugHelper.WriteLine("[Serialized JSON]");
-        DebugHelper.WriteLine(json);
+        var yaml = SerializeToYaml((T)this, useEncryption);
+        WriteStringToStream(yaml, stream, leaveOpen);
     }
 
-    private void LogProperties(object obj)
-    {
-        DebugHelper.WriteLine("[Object Properties & Fields]");
-        var type = obj.GetType();
-
-        // Log public instance properties
-        foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            object? value;
-            try
-            {
-                value = prop.GetValue(obj);
-            }
-            catch (Exception ex)
-            {
-                value = $"<Error: {ex.Message}>";
-            }
-
-            DebugHelper.WriteLine($"Property - {prop.Name}: {value}");
-        }
-
-        // Log public instance fields
-        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
-        {
-            object? value;
-            try
-            {
-                value = field.GetValue(obj);
-            }
-            catch (Exception ex)
-            {
-                value = $"<Error: {ex.Message}>";
-            }
-
-            DebugHelper.WriteLine($"Field    - {field.Name}: {value}");
-        }
-    }
 
     public static T Load(string filePath, string backupFolder = null, bool fallbackSupport = true)
     {
-        var fallbackFilePaths = new List<string>();
-
-        if (fallbackSupport && !string.IsNullOrEmpty(filePath))
-        {
-            var tempFilePath = filePath + ".temp";
-            fallbackFilePaths.Add(tempFilePath);
-
-            if (!string.IsNullOrEmpty(backupFolder) && Directory.Exists(backupFolder))
-            {
-                var fileName = Path.GetFileName(filePath);
-                var backupFilePath = Path.Combine(backupFolder, fileName);
-                fallbackFilePaths.Add(backupFilePath);
-
-                var fileNameNoExt = Path.GetFileNameWithoutExtension(fileName);
-                var lastWeeklyBackupFilePath = Directory
-                    .GetFiles(backupFolder, fileNameNoExt + "-*")
-                    .OrderBy(x => x)
-                    .LastOrDefault();
-                if (!string.IsNullOrEmpty(lastWeeklyBackupFilePath))
-                {
-                    fallbackFilePaths.Add(lastWeeklyBackupFilePath);
-                }
-            }
-        }
-
+        var fallbackFilePaths = GetFallbackFilePaths(filePath, backupFolder, fallbackSupport);
         var setting = LoadInternal(filePath, fallbackFilePaths);
 
         if (setting == null)
             return setting;
+
         setting.FilePath = filePath;
-        setting.IsFirstTimeRun = string.IsNullOrEmpty(setting.ApplicationVersion);
-        setting.IsUpgrade =
-            !setting.IsFirstTimeRun
-            && Helpers.CompareApplicationVersion(setting.ApplicationVersion) < 0;
         setting.BackupFolder = backupFolder;
+        setting.IsFirstTimeRun = string.IsNullOrEmpty(setting.ApplicationVersion);
+        setting.IsUpgrade = !setting.IsFirstTimeRun
+                            && Helpers.CompareApplicationVersion(setting.ApplicationVersion) < 0;
 
         return setting;
+    }
+
+    private static List<string> GetFallbackFilePaths(string filePath, string backupFolder, bool fallbackSupport)
+    {
+        var fallbackFilePaths = new List<string>();
+
+        if (!fallbackSupport || string.IsNullOrEmpty(filePath))
+            return fallbackFilePaths;
+
+        fallbackFilePaths.Add(filePath + ".temp");
+
+        if (string.IsNullOrEmpty(backupFolder) || !Directory.Exists(backupFolder)) return fallbackFilePaths;
+        var fileName = Path.GetFileName(filePath);
+        fallbackFilePaths.Add(Path.Combine(backupFolder, fileName));
+
+        var fileNameNoExt = Path.GetFileNameWithoutExtension(fileName);
+        var lastWeeklyBackup = Directory
+            .GetFiles(backupFolder, fileNameNoExt + "-*")
+            .OrderBy(x => x)
+            .LastOrDefault();
+
+        if (!string.IsNullOrEmpty(lastWeeklyBackup))
+            fallbackFilePaths.Add(lastWeeklyBackup);
+
+        return fallbackFilePaths;
+    }
+
+    private static IDeserializer BuildYamlDeserializer(SecurePropertyStore store)
+    {
+        return new StaticDeserializerBuilder(aotContext)
+            .WithTypeConverter(new UIFontYamlTypeConverter())
+            .WithTypeConverter(new ImageSharpYamlTypeConverter())
+            .WithTypeConverter(new TimeZoneInfoYamlTypeConverter())
+            .WithTypeConverter(new HeaderCollectionYamlConverter(store, () => CustomUploaderItem.SensitiveKeys))
+            .WithTypeConverter(new HttpMethodYamlConverter())
+            .WithTypeInspector(inner => new ReadableAndWritablePropertiesTypeInspector(inner), loc => loc.OnBottom())
+            .WithTypeInspector(inner => new EncryptionTypeInspector(inner, store))
+            .WithTypeInspector(inner => new PreferredIdentityTypeInspector(inner))
+            .WithEnumNamingConvention(NullNamingConvention.Instance)
+            .WithAttemptingUnquotedStringTypeDeserialization()
+            .WithCaseInsensitivePropertyMatching()
+            .WithDuplicateKeyChecking()
+            .IgnoreUnmatchedProperties()
+            .WithNamingConvention(NullNamingConvention.Instance)
+            .Build();
     }
 
     private static T LoadInternal(string filePath, List<string> fallbackFilePaths = null)
@@ -304,43 +301,11 @@ public abstract partial class SettingsBase<T>
 
             try
             {
-                using var fileStream = new FileStream(
-                    filePath,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.Read
-                );
-                var rawJson = File.ReadAllText(filePath);
+                var settings = DeserializeFromFile(filePath);
 
-                // $type: "Namespace.Type, Assembly" → $type: "Type"
-                rawJson = AssemblyTypeRegex()
-                    .Replace(rawJson, m => $"\"$type\": \"{m.Groups[1].Value}\"");
-
-                var settings = JsonSerializer.Deserialize<T>(
-                    rawJson,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        TypeInfoResolver = SettingsContext.Default,
-                        DefaultIgnoreCondition = JsonIgnoreCondition.Never,
-                        Converters =
-                        {
-                            new JsonRectangleConverter(),
-                            new JsonPointConverter(),
-                            new JsonPaddingConverter(),
-                            new JsonTimeZoneInfoConverter(),
-                            new JsonSizeConverter(),
-                            new UtcDateTimeConverter(),
-                            new JsonColorConverter(),
-                            new JsonFontConverter(),
-                            new JsonStringEnumConverter(),
-                        },
-                    }
-                );
                 if (settings == null)
-                {
                     throw new Exception($"{typeName} object is null.");
-                }
+
                 DebugHelper.WriteLine($"{typeName} load finished");
                 return settings;
             }
@@ -362,21 +327,41 @@ public abstract partial class SettingsBase<T>
         }
 
         DebugHelper.WriteLine($"Loading new {typeName} instance.");
-
         return new T();
     }
 
-    private static void Serializer_Error(
-        object sender,
-        Newtonsoft.Json.Serialization.ErrorEventArgs e
-    )
+    private static T DeserializeFromFile(string filePath)
     {
-        // Handle missing enum values
-        if (e.ErrorContext.Error.Message.StartsWith("Error converting value"))
-        {
-            e.ErrorContext.Handled = true;
-        }
+        var rawYaml = ReadFile(filePath);
+        return DeserializeYaml(rawYaml);
     }
+
+    private static string ReadFile(string filePath)
+    {
+        if (string.IsNullOrEmpty(filePath))
+            throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException("File not found.", filePath);
+
+        return File.ReadAllText(filePath);
+    }
+
+    private static T DeserializeYaml(string yaml)
+    {
+        if (string.IsNullOrWhiteSpace(yaml))
+            throw new InvalidDataException("YAML content is empty.");
+
+        var deserializer = BuildYamlDeserializer(SecurePropertyStore.Instance);
+        var obj = deserializer.Deserialize<T>(yaml);
+
+        if (obj == null)
+            throw new InvalidDataException($"Failed to deserialize YAML into {typeof(T).Name}.");
+
+        return obj;
+    }
+
+
 
     [GeneratedRegex(@"\""\$type\""\s*:\s*\""(?:[\w\.]+\.)?(\w+)(?:,\s*[\w\.]+)?\""")]
     private static partial Regex AssemblyTypeRegex();

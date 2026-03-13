@@ -17,7 +17,7 @@
   <a href="https://github.com/SnapXL/SnapX/actions/workflows/build.yml"><img src="https://badgen.net/github/checks/SnapXL/SnapX/develop?label=Build" alt="GitHub Workflow Status" /></a>
   <a href="./LICENSE.md"><img src="https://badgen.net/github/license/SnapXL/SnapX?color=green" alt="License" /></a>
   <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://badgen.net/github/release/SnapXL/SnapX?label=Release&color=green" alt="Release" /></a>
-  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://badgen.net/github/assets-dl/SnapXL/SnapX?label=Downloads&color=green" alt="Downloads" /></a>
+  <a href="https://github.com/SnapXL/SnapX/releases/latest"><img src="https://img.shields.io/github/downloads/SnapXL/SnapX/total?label=Downloads" alt="Downloads" /></a>
   <br>
   <br>
   <a href="https://aur.archlinux.org/pkgbase/snapx"><img src="https://raw.githubusercontent.com/ok-coder1/devins-badges-contrib/refs/heads/v3/assets/compact/available/aur_vector.svg" height="40" alt="AUR Package Base" /></a>
@@ -79,8 +79,9 @@ Additionally, you can download nightly builds from [here](https://nightly.link/S
 
 ## Technical Details
 
-- It uses [.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview) and [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
-- It uses [SQLite](https://www.sqlite.org/about.html) for [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28).
+- Uses [.NET 10](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-10/overview) and [ImageSharp](https://docs.sixlabors.com/articles/imagesharp/?tabs=tabid-1) (cross-platform image library).
+- Uses [SQLite](https://www.sqlite.org/about.html) for [image metadata like image hashes & history](https://github.com/SnapXL/SnapX/issues/28).
+- Uses [YAML](https://yaml.org) for a cleaner configuration supporting comments with auto migration from JSON.
 - UI is GPU-accelerated, leading to a more responsive UI & yet less CPU usage while navigating the UI. (Fixes low performance on 4K screens with a weak CPU)
 - Respects [XDG directory specification](https://specifications.freedesktop.org/basedir-spec/latest/), Symlinks ~/Documents/SnapX to respective config/data directory on Linux/macOS.
 - Uses [Direct3D11](https://learn.microsoft.com/en-us/windows/win32/direct2d/comparing-direct2d-and-gdi) & [WinRT](https://learn.microsoft.com/en-us/windows/apps/develop/platform/csharp-winrt/) to capture on Windows, [XCap](https://github.com/nashaofu/xcap) on macOS, and [XDG Portals](https://flatpak.github.io/xdg-desktop-portal/) on Linux.
@@ -90,7 +91,6 @@ Additionally, you can download nightly builds from [here](https://nightly.link/S
 - Keeps compatibility with the custom uploader configuration format (.sxcu).
 - As a user, you do **NOT** need to have .NET installed. Whether you're on Linux, Windows, macOS, or FreeBSD.
 
-[//]: # (- Supports Google Photos Image Uploader after the [new API change]&#40;https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/&#41;.)
 
 What does this all mean? It means you'll be able to have a more **performant**, **reliable**, and **stylish** application.
 
@@ -173,18 +173,33 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
           <img src="https://github.com/Abdullah16M.png?size=100" width="85" style="border-radius:50%">
         </a>
       </td>
+    <td align="center" width="150">
+      <b>Anonymous Backer</b>
+      <br>
+      <img src="https://t3.ftcdn.net/jpg/06/97/24/84/360_F_697248427_3i5BB12ezUHJ1LUj3EbroqkwpSkpBh9J.jpg" width="85" style="border-radius:50%">
+      <br>
+      <small>Ledger ID: 511687...</small>
+    </td>
     </tr>
   </table>
 <a href="https://github.com/sponsors/BrycensRanch"><img src="https://img.shields.io/github/sponsors/BrycensRanch?logo=github&logoColor=pink&label=GitHub%20Sponsors" alt="GitHub Sponsors"></a>
 <a href="https://liberapay.com/BrycensRanch"><img src="https://img.shields.io/liberapay/receives/BrycensRanch?logo=liberapay&label=Liberapay" alt="Liberapay Receive Badge" /></a>
 <a href="https://ko-fi.com/BrycensRanch"><img src="https://badgen.net/badge/KoFi/Buy%20me%20a%20coffee/ff5f5f?icon=kofi" alt="Ko-fi" /></a>
+
+<p>
+  <i>Your support translates directly into development time:</i>
+</p>
+<a href="https://wakatime.com/badge/user/98380b95-655e-40aa-bd54-064929ac4eb0/project/47ad010c-c5a6-4a79-af64-277af9ae982f">
+  <img src="https://wakatime.com/badge/user/98380b95-655e-40aa-bd54-064929ac4eb0/project/47ad010c-c5a6-4a79-af64-277af9ae982f.svg" alt="wakatime">
+</a>
+<img alt="GitHub commit activity by BrycensRanch" src="https://img.shields.io/github/commit-activity/m/SnapXL/SnapX?authorFilter=BrycensRanch&logo=github">
 </div>
 
 <br>
 
 <div align="center">
   <h3>🔬 Battle-tested by a select few</h3>
-  <p>Our code isn't compiled. It's <strong>dry-aged</strong>.</p>
+  <p>We do not merely compile code. We <strong>dry-age</strong> it.</p>
   <p>"Hallucinated" bug fixes are not what we do. We use a more conventional approach: look at a stack trace until someone breaks down in tears.</p>
   <p>SnapX was built by the brave ones who wiped their eyes…<br>and kept clicking.</p>
 <table border="0">

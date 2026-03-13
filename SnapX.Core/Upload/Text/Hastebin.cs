@@ -42,13 +42,14 @@ public sealed class Hastebin : TextUploader
     {
         var ur = new UploadResult();
         if (string.IsNullOrEmpty(text)) return ur;
-        var domain = !string.IsNullOrEmpty(CustomDomain) ? CustomDomain : "https://hastebin.com";
+        var domain = !string.IsNullOrEmpty(CustomDomain) ? CustomDomain : "https://pastie.io";
 
         ur.Response = SendRequest(HttpMethod.Post, URLHelpers.CombineURL(domain, "documents"), text);
         if (string.IsNullOrEmpty(ur.Response)) return ur;
         var options = new JsonSerializerOptions()
         {
-            TypeInfoResolver = HastebinContext.Default
+            TypeInfoResolver = HastebinContext.Default,
+            PropertyNameCaseInsensitive = true
         };
         var response = JsonSerializer.Deserialize<HastebinResponse>(ur.Response, options);
         if (response == null || string.IsNullOrEmpty(response.Key)) return ur;

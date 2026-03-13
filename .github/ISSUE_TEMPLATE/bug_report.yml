@@ -4,8 +4,7 @@ labels: "bug"
 body:
   - type: markdown
     attributes:
-      value: |
-        Thanks for taking the time to fill out this bug report!
+      value: Thanks for taking the time to fill out this bug report!
     validations:
       required: false
 
@@ -23,7 +22,6 @@ body:
       label: What happened?
       description: Tell us what happened.
       placeholder: Tell us what you see!
-      value: "A bug happened!"
     validations:
       required: true
 
@@ -32,7 +30,7 @@ body:
     attributes:
       label: What did you expect?
       description: What did you expect to happen?
-      placeholder: I expected ...
+      placeholder: I expected...
     validations:
       required: true
 
@@ -42,12 +40,13 @@ body:
       label: Version
       description: What version of SnapX are you running?
       options:
+        - `develop` branch
         - 0.1.0 Dev
         - 0.2.0 Dev
         - 0.2.1 Dev
         - 0.3.0 Dev
         - 0.4.0 Dev
-      default: 4
+      default: 0
     validations:
       required: true
 
@@ -73,5 +72,5 @@ body:
       label: Code of Conduct
       description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/BrycensRanch/SnapX/tree/develop/.github/CODE_OF_CONDUCT.md). 
       options:
-        - label: I agree to follow this project's [Code of Conduct](https://github.com/BrycensRanch/SnapX/tree/develop/.github/CODE_OF_CONDUCT.md)
+        - label: I agree to follow this project's [Code of Conduct](https://github.com/BrycensRanch/SnapX/tree/develop/.github/CODE_OF_CONDUCT.md).
           required: true

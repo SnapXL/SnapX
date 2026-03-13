@@ -2,25 +2,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-using Renci.SshNet;
-using Renci.SshNet.Common;
-using Renci.SshNet.Sftp;
-using SnapX.Core.Upload.BaseUploaders;
+using System.Runtime.InteropServices;
 using SnapX.Core.Utils;
+using Tmds.Ssh;
 
 namespace SnapX.Core.Upload.File;
 
-public sealed class SFTP : FileUploader, IDisposable
+public sealed class SFTP : FtpBase
 {
     public FTPAccount Account { get; private set; }
 
     public bool IsValidAccount => (!string.IsNullOrEmpty(Account.Keypath) && System.IO.File.Exists(Account.Keypath)) || !string.IsNullOrEmpty(Account.Password);
 
-    public bool IsConnected => client != null && client.IsConnected;
+    public override bool IsConnected => client != null;
 
-    private SftpClient client;
+    private SftpClient? client;
 
-    public SFTP(FTPAccount account)
+    public SFTP(FTPAccount account) : base(account)
     {
         Account = account;
     }
@@ -38,8 +36,8 @@ public sealed class SFTP : FileUploader, IDisposable
         try
         {
             IsUploading = true;
-
-            bool uploadResult = UploadStream(stream, path, true);
+            if (!IsConnected) Connect();
+            bool uploadResult = UploadStream(stream, path, true).GetAwaiter().GetResult();
 
             if (uploadResult && !StopUploadRequested && !IsError)
             {
@@ -72,55 +70,57 @@ public sealed class SFTP : FileUploader, IDisposable
             }
         }
     }
-
-    public bool Connect()
+    public string ConstructSshDestination(string user, string host, int port = 22)
     {
-        if (client == null)
+        return $"{user}@{host}:{port}";
+    }
+    public override bool Connect()
+    {
+        var sshDestination = ConstructSshDestination(Account.Username, Account.Host, Account.Port);
+
+        var settings = new SshClientSettings(sshDestination)
         {
-            if (!string.IsNullOrEmpty(Account.Keypath))
+            AutoConnect = true,
+            AutoReconnect = true,
+        };
+        string? keyPath = Account.Keypath;
+
+        if (string.IsNullOrWhiteSpace(keyPath))
+        {
+            var home = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+                : Environment.GetEnvironmentVariable("HOME") ?? string.Empty;
+
+            var defaultKeys = new[]
             {
-                if (!System.IO.File.Exists(Account.Keypath))
-                {
-                    throw new FileNotFoundException("Key file does not exist.", Account.Keypath);
-                }
+                "id_ed25519",
+                "id_rsa",
+                "id_ecdsa",
+                "id_dsa"
+            };
 
-                PrivateKeyFile keyFile;
-
-                if (string.IsNullOrEmpty(Account.Passphrase))
-                {
-                    keyFile = new PrivateKeyFile(Account.Keypath);
-                }
-                else
-                {
-                    keyFile = new PrivateKeyFile(Account.Keypath, Account.Passphrase);
-                }
-
-                client = new SftpClient(Account.Host, Account.Port, Account.Username, keyFile);
-            }
-            else if (!string.IsNullOrEmpty(Account.Password))
+            foreach (var key in defaultKeys)
             {
-                client = new SftpClient(Account.Host, Account.Port, Account.Username, Account.Password);
-            }
-
-            if (client != null)
-            {
-                client.BufferSize = (uint)BufferSize;
+                var path = Path.Combine(home, ".ssh", key);
+                if (!System.IO.File.Exists(path)) continue;
+                keyPath = path;
+                break;
             }
         }
+        if (!string.IsNullOrEmpty(keyPath)) settings.Credentials.Add(new PrivateKeyCredential(keyPath, Account.Passphrase));
+        if (!string.IsNullOrEmpty(Account.Password)) settings.Credentials.Add(new PasswordCredential(Account.Password));
+        settings.Credentials.Add(new SshAgentCredentials());
 
-        if (client != null && !client.IsConnected)
-        {
-            client.Connect();
-        }
-
-        return IsConnected;
+        client = new SftpClient(settings);
+        return client is not null;
     }
 
-    public void Disconnect()
+    public override void Disconnect()
     {
-        if (client != null && client.IsConnected)
+        if (client != null)
         {
-            client.Disconnect();
+            client.Dispose();
+            client = null;
         }
     }
 
@@ -130,9 +130,9 @@ public sealed class SFTP : FileUploader, IDisposable
         {
             try
             {
-                client.ChangeDirectory(path);
+                client.GetDirectory(path);
             }
-            catch (SftpPathNotFoundException) when (autoCreateDirectory)
+            catch (SftpException) when (autoCreateDirectory)
             {
                 CreateDirectory(path, true);
                 ChangeDirectory(path);
@@ -142,80 +142,66 @@ public sealed class SFTP : FileUploader, IDisposable
 
     public bool DirectoryExists(string? path)
     {
-        if (Connect())
-        {
-            return client.Exists(path);
-        }
+        if (string.IsNullOrEmpty(path))
+            return false;
 
-        return false;
+        try
+        {
+            var attributes = client.GetAttributesAsync(path, followLinks: true, filter: null).ConfigureAwait(false).GetAwaiter().GetResult();
+            return attributes is { FileType: UnixFileType.Directory };
+        }
+        catch (SftpException)
+        {
+            return false;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
-    public void CreateDirectory(string? path, bool createMultiDirectory = false)
+    public async void CreateDirectory(string? path, bool createMultiDirectory = false)
     {
         if (Connect())
         {
             try
             {
-                client.CreateDirectory(path);
+                await client.CreateDirectoryAsync(path);
 
                 DebugHelper.WriteLine($"SFTP directory created: {path}");
             }
-            catch (SftpPathNotFoundException) when (createMultiDirectory)
+            catch (SftpException e) when (createMultiDirectory)
             {
-                CreateMultiDirectory(path);
-            }
-            catch (SftpPermissionDeniedException)
-            {
+                if (e.Error == SftpError.PermissionDenied) return;
+                await client.CreateDirectoryAsync(path, true);
+
             }
         }
     }
 
-    public List<string?> CreateMultiDirectory(string? path)
+    private async Task<bool> UploadStream(Stream stream, string? remotePath, bool autoCreateDirectory = false)
     {
-        List<string?> directoryList = [];
-
-        List<string?> paths = URLHelpers.GetPaths(path);
-
-        foreach (string? directory in paths)
+        try
         {
-            if (!DirectoryExists(directory))
-            {
-                CreateDirectory(directory);
-                directoryList.Add(directory);
-            }
+            await using var remoteStream = await client.OpenOrCreateFileAsync(remotePath, FileAccess.Write, null).ConfigureAwait(false);
+            return await TransferDataAsync(stream, remoteStream);
         }
-
-        return directoryList;
+        catch (SftpException e) when (autoCreateDirectory)
+        {
+            var code = e.Error;
+            if (code is not SftpError.NoSuchFile) return false;
+            CreateDirectory(URLHelpers.GetDirectoryPath(remotePath), true);
+            return await UploadStream(stream, remotePath).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            DebugHelper.WriteException(ex);
+            return false;
+        }
     }
 
-    private bool UploadStream(Stream stream, string? remotePath, bool autoCreateDirectory = false)
-    {
-        if (Connect())
-        {
-            try
-            {
-                using (SftpFileStream sftpStream = client.Create(remotePath))
-                {
-                    return TransferData(stream, sftpStream);
-                }
-            }
-            catch (SftpPathNotFoundException) when (autoCreateDirectory)
-            {
-                // Happens when directory not exist, create directory and retry uploading
 
-                CreateDirectory(URLHelpers.GetDirectoryPath(remotePath), true);
-                return UploadStream(stream, remotePath);
-            }
-            catch (NullReferenceException)
-            {
-                // Happens when disconnect while uploading
-            }
-        }
-
-        return false;
-    }
-
-    public void Dispose()
+    public override void Dispose()
     {
         if (client != null)
         {
@@ -228,5 +214,18 @@ public sealed class SFTP : FileUploader, IDisposable
                 DebugHelper.WriteException(e);
             }
         }
+    }
+
+    public List<string?> CreateMultiDirectory(string? remotePath)
+    {
+        List<string?> paths = URLHelpers.GetPaths(remotePath);
+
+        foreach (string? path in paths)
+        {
+            CreateDirectory(path);
+            DebugHelper.WriteLine($"FTP directory created: {path}");
+        }
+
+        return paths;
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.Data.Sqlite;
 namespace SnapX.Core.History;
 
 
-public class HistoryManagerSQLite(SqliteConnection Connection) : HistoryManager(SnapX.DBPath)
+public class HistoryManagerSQLite(SqliteConnection Connection) : HistoryManager(SnapXL.DBPath)
 {
     [DapperAot]
     protected override List<HistoryItem> Load(string? filePath)

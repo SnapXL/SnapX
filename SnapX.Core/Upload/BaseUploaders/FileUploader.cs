@@ -5,6 +5,7 @@ namespace SnapX.Core.Upload.BaseUploaders;
 
 public abstract class FileUploader : GenericUploader
 {
+    public virtual UploaderCategory Category => UploaderCategory.FileUploaders;
     public UploadResult UploadFile(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath)) throw new ArgumentNullException(nameof(filePath));
