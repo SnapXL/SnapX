@@ -27,7 +27,7 @@
 - [ ] Add to FOSS Torrents
 - [ ] Add to PortableApps.com
 - [ ] Add [Jump list](https://github.com/ShareX/ShareX/issues/1106#issuecomment-596048694)
-- [ ] Rework settings. Making it fit in with the WinUI style.
+- [x] Rework settings. Making it fit in with the WinUI style.
 - [ ] Add database viewer as an built in SQLite database viewer that is able to complete operations like mass path replacement ie `C:\Users/Brycen` -> `/home/brycen`
 - [ ] Make CLI UNIX friendly while keeping ShareX's CLI valid. The CLI should be able to print its usage and autocomplete.
 - [ ] Add first tool, the FFMPEG 100MB video transcoder
@@ -44,19 +44,12 @@
 - [ ] Add GPU accelerated image editor (Crop, Annotate, etc) using [Silk.NET](https://dotnet.github.io/Silk.NET/). Specifically with Vulkan 1.4 mandated.
 - [ ] Integrate Hotkeys into SnapX
 
-## Studying ShareX's behavior on Windows 11 24H2
-
-It's important to know how the program *should* behave per user expectations. As such, I've done a little recording of it.
-
 ## Rewrite
 
-ShareX's internal code needs major refactoring and decoupling to be ready to work on Linux natively. For example, most cross platform screen capture libraries only work on X11 or hardly work at all. Hopefully, screenshotting on [Wayland](https://wayland.freedesktop.org/) can be done with DBus on .NET. <https://github.com/tmds/Tmds.DBus>
-
+ShareX's internal code needed major refactoring and decoupling to be ready to work on Linux natively. For example, the Core code called the UI directly to show a message box. This is not ideal for a cross-platform application. The Core should be able to work without the UI.
 I also want to decouple *away* from a specific UI framework. \
-While GTK4 does "work" on these platforms, it's significantly handicapped or unstable (on macOS). \
+While GTK4 does "work" on our supported platforms, it's significantly handicapped or unstable (on macOS). \
 Keeping flexibility will be advantageous in the future, I imagine.
-
-For screen capture, we currently use [xcap](https://github.com/nashaofu/xcap).
 
 ### SemVer & New Commit Message Standard
 
