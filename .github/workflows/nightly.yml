@@ -79,7 +79,7 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
           snap: ${{ steps.build_snap.outputs.snap_file }}
-          release: ${{ github.event_name == 'pull_request' && format('edge/pr-{0}', github.event.pull_request.number) || 'edge' }}
+          release: edge
       - name: Upload RPM to Nightly Repo
         env:
           PKG_API_TOKEN: ${{ secrets.PKG_API_TOKEN }}
