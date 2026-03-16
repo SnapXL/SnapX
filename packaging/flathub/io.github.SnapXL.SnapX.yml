@@ -46,7 +46,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/SnapXL/SnapX.git
-        commit: 948f0a46df2b4620c8cc0ef44513aa79413e4f40
+        commit: 2dd8d4fb3aaf280d0ff6b18ad5710f4c04fc0593
       - sources.json
       - build-sources.json
   # XRandr is a required dependency.
