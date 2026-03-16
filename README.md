@@ -4,7 +4,7 @@
   </a>
 </p>
 <h1 align="center">SnapX</h1>
-<h3 align="center">Capture, share, and boost productivity. All in one.</h3>
+<h3 align="center">Capture, share, and automate your screenshots.</h3>
 <h3 align="center">Built on the foundations of <a href="https://getsharex.com">ShareX</a>, made cross-platform. </h3>
 <p align="center">
   <b>Everything you love, engineered for speed. User-centric. Native. Powerful. </b>
@@ -200,7 +200,7 @@ Free-range, organic, non-GMO, and locally sourced developers. This code was crea
 
 <div align="center">
   <h3>🔬 Battle-tested by a select few</h3>
-  <p>We do not merely compile code. We <strong>dry-age</strong> it.</p>
+  <p>We do not merely compile code; We <strong>dry-age</strong> it.</p>
   <p>"Hallucinated" bug fixes are not what we do. We use a more conventional approach: look at a stack trace until someone breaks down in tears.</p>
   <p>SnapX was built by the brave ones who wiped their eyes…<br>and kept clicking.</p>
 <table border="0">
