@@ -73,12 +73,24 @@ jobs:
                  -F "package_file=@$deb" \
                  -F "overwrite=true"
           done
-      - name: Upload Snap to Snapcraft Edge
+      - name: Resolve Snap Paths
+        id: snaps
+        run: |
+          echo "x64=$(ls packaging/ui-snapx*amd64.snap)" >> $GITHUB_OUTPUT
+          echo "arm=$(ls packaging/ui-snapx*arm64.snap)" >> $GITHUB_OUTPUT
+      - name: Upload X64 Snap to Snapcraft Edge
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
-          snap: packaging/*.snap
+          snap: ${{ steps.snaps.outputs.x64 }}
+          release: edge
+      - name: Upload ARM64 Snap to Snapcraft Edge
+        uses: canonical/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.snaps.outputs.arm }}
           release: edge
       - name: Upload RPM to Nightly Repo
         env:
