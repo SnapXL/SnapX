@@ -78,7 +78,7 @@ jobs:
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
-          snap: ${{ steps.build_snap.outputs.snap_file }}
+          snap: packaging/*.snap
           release: edge
       - name: Upload RPM to Nightly Repo
         env:
