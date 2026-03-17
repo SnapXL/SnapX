@@ -260,9 +260,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "fastcloner.sourcegenerator.1.1.7.nupkg",
-    "sha512": "22ebccc23558b8096a75ba2158328ee1f6906eeece4c1cd0048d9805150482e98d2f7d0b9a27db3f5b7263eac7c3a2904dc7f54fb46f3a6b0c1f28e79faa10c5",
-    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner.sourcegenerator/1.1.7/fastcloner.sourcegenerator.1.1.7.nupkg",
+    "dest-filename": "fastcloner.sourcegenerator.1.2.0.nupkg",
+    "sha512": "d2dcb43a82579e6230c459d0f7161d5852c134bd71c06c547b6d2eba3153b35882801321255188d5cd852e315720bc3392764e5bb8afd7f5693beee8b66300c7",
+    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner.sourcegenerator/1.2.0/fastcloner.sourcegenerator.1.2.0.nupkg",
     "type": "file"
   },
   {
@@ -288,23 +288,23 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "fluenticons.avalonia.fluent.2.0.320.nupkg",
-    "sha512": "7767a1a1fcf49334e43a8d73403726209c426eaa0f858ec8f54061b9193508360d261384923b0480b58fa8203296c8ef7f800543e8fa00e9940db9612456e2be",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia.fluent/2.0.320/fluenticons.avalonia.fluent.2.0.320.nupkg",
+    "dest-filename": "fluenticons.avalonia.fluent.2.0.321.nupkg",
+    "sha512": "f262b8de809e6d20a59f14495f75ed6c4a47ec21ba4ad050fc4f6fd0c48afc7c36d10c18167d89bfc2ce17db9b251f32810581ecb5a78829eb99223a5c0f7fb6",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.avalonia.fluent/2.0.321/fluenticons.avalonia.fluent.2.0.321.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "fluenticons.common.2.0.320.nupkg",
-    "sha512": "927bcaa73a2ae22b97232b894c7c83f7aa8557e90400bdbee8ae8210dcbbbae27a556afdeeae9e4236f8c24ada7dc418199328e535ad4ac3fb480c48c8f2e65d",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.common/2.0.320/fluenticons.common.2.0.320.nupkg",
+    "dest-filename": "fluenticons.common.2.0.321.nupkg",
+    "sha512": "212aca33cd5eeebf74beccf896ce31d454449f30dbeba26a13ac11b2712aaf1b79198664e45248fad76e011eabe8b2eab29ced7cd979a1864cc840ca96da3673",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.common/2.0.321/fluenticons.common.2.0.321.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "fluenticons.resources.avalonia.2.0.320.nupkg",
-    "sha512": "7bd7703e7c8529412b62e32c60e5ff21e5f0f8376b099a6f351a83dfc2cea0407e56709dc53413ad088aadb032ed6bafd76e68591e0c6191a1324c9a40b5d981",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.resources.avalonia/2.0.320/fluenticons.resources.avalonia.2.0.320.nupkg",
+    "dest-filename": "fluenticons.resources.avalonia.2.0.321.nupkg",
+    "sha512": "a99c303b66b1699c0cb60e798cffa2fa32faa4a68b7db2f9c344f2746cbb1af900921121bf5eded535fdded79b003d358d1e8d65e80927f7fe4630c854a6f25a",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluenticons.resources.avalonia/2.0.321/fluenticons.resources.avalonia.2.0.321.nupkg",
     "type": "file"
   },
   {
@@ -701,16 +701,16 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "sentry.6.1.0.nupkg",
-    "sha512": "28fa4cdbbbcdf2f74f21194b6d15bd6a51103389d078cdc0f3a75c591e21bc38e287a646a2915c02f77e692449ea25673fe86278c875f5c1f268e3d5bbc41d02",
-    "url": "https://api.nuget.org/v3-flatcontainer/sentry/6.1.0/sentry.6.1.0.nupkg",
+    "dest-filename": "sentry.6.2.0.nupkg",
+    "sha512": "fb19f097ceeeb4f185ba80105dde29561957381b9fe4fd49c5b76df0db9829b4f8ff1cf145e5e230643fc8d1408718264d88e24b87cd8415b7419ec129fe0656",
+    "url": "https://api.nuget.org/v3-flatcontainer/sentry/6.2.0/sentry.6.2.0.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "sentry.profiling.6.1.0.nupkg",
-    "sha512": "210a91d6e746c54267b06b2fbc35bfba0e824ed73144a7af263824b0ded8c5d589caa0fff8921ba84b7fe2bc082d4737b85f64081651871dd187092224e06360",
-    "url": "https://api.nuget.org/v3-flatcontainer/sentry.profiling/6.1.0/sentry.profiling.6.1.0.nupkg",
+    "dest-filename": "sentry.profiling.6.2.0.nupkg",
+    "sha512": "5e6cd443f71ca2835cedce15d007d0aa7759d0d21d107e81f3ab6bf82b49696b396cb318dc85b76f8c1e71a060bb0b9c0a05a6023622d9f0495aa5c9f65f746a",
+    "url": "https://api.nuget.org/v3-flatcontainer/sentry.profiling/6.2.0/sentry.profiling.6.2.0.nupkg",
     "type": "file"
   },
   {
@@ -939,9 +939,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "tmds.ssh.0.19.0.nupkg",
-    "sha512": "c514f6995f9bdd8eba6f94c99e704fe22ed27547e04cec100e042b7709930826335aa0d74be6f8fefde826c7f5e63f14c517a5943f7453f0327488aa31b05c8b",
-    "url": "https://api.nuget.org/v3-flatcontainer/tmds.ssh/0.19.0/tmds.ssh.0.19.0.nupkg",
+    "dest-filename": "tmds.ssh.0.20.0.nupkg",
+    "sha512": "d2c79b4444af7503fb8cb2b3e993daf22f9248445a4a51cfba07eeaa589e0b7d95941916809f1d0ac9f5d7030ec0ca4014cc2fced8c0348ef1f3c10ee9dc2604",
+    "url": "https://api.nuget.org/v3-flatcontainer/tmds.ssh/0.20.0/tmds.ssh.0.20.0.nupkg",
     "type": "file"
   },
   {
