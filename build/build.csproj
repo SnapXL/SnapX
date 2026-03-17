@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Bullseye" Version="6.1.0" />
     <PackageReference Include="SimpleExec" Version="13.0.0" />
-    <PackageReference Include="System.CommandLine" Version="2.0.3" />
+    <PackageReference Include="System.CommandLine" Version="2.0.5" />
   </ItemGroup>
   <ItemGroup Label="Windows" Condition="'$(TargetWindows)' == 'true'">
     <!-- MSI dependencies, ~~doesn't block building on Linux~~ it does -->

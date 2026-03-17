@@ -6,7 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Dapper.AOT</InterceptorsPreviewNamespaces>
     <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
-    <MSExtensionsVersion>10.0.3</MSExtensionsVersion>
+    <MSExtensionsVersion>10.0.5</MSExtensionsVersion>
   </PropertyGroup>
   <!-- Most elegant way of handling platform specific code -->
 
