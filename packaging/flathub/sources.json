@@ -253,9 +253,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "fastcloner.3.4.7.nupkg",
-    "sha512": "14e5ccea0eb262b865ce1fe53c8ce3e14ceda53221b6e454b1c6718120c2cfd16697836183f7d632c23396cd92a7f1cb0d863f6ea9f9397d6d65ef9d91f4505d",
-    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner/3.4.7/fastcloner.3.4.7.nupkg",
+    "dest-filename": "fastcloner.3.5.2.nupkg",
+    "sha512": "1fa6de25e7c116e85963254f2fcd61dd1e7bb03bc68664d1b610d5206050385c8986ec8d217e6fdef05cf8ec9f13397e3e6bd5a4446f7e9e9899a08512afd5e6",
+    "url": "https://api.nuget.org/v3-flatcontainer/fastcloner/3.5.2/fastcloner.3.5.2.nupkg",
     "type": "file"
   },
   {
