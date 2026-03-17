@@ -218,9 +218,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "dapper.2.1.66.nupkg",
-    "sha512": "80c9499838bd81b3c532ca2fcb6eb72ff8c5607e55f81992d1dbbe6727e0fbc5e8ce325b342adb292e970d9f5829796dab19b097529c52c1cd382a669ba96dcf",
-    "url": "https://api.nuget.org/v3-flatcontainer/dapper/2.1.66/dapper.2.1.66.nupkg",
+    "dest-filename": "dapper.2.1.72.nupkg",
+    "sha512": "2ca81cb2748b5268b6135b4a3ae545075e7c690f2e9c63571e96790e3dfdf4ebbcc1308c5f6a3ee5641df707507e580d3605206a139ff8d8d89c4a85fca3a129",
+    "url": "https://api.nuget.org/v3-flatcontainer/dapper/2.1.72/dapper.2.1.72.nupkg",
     "type": "file"
   },
   {
