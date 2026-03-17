@@ -421,16 +421,16 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "microsoft.data.sqlite.10.0.3.nupkg",
-    "sha512": "54bce271573ce5d54b4c5bb8dc279cfce153bca75e59b23d4d658d9ff8ab8b0f52c15110e55da4f17cec17e28f6e70dd205307ff8e6a316002dd6f732a2ce8a2",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.data.sqlite/10.0.3/microsoft.data.sqlite.10.0.3.nupkg",
+    "dest-filename": "microsoft.data.sqlite.10.0.5.nupkg",
+    "sha512": "99669fe50e2b3ca6da7573b1f1e498956757319bca24a53b86a2fa0b7a4022a04a87c316bd6c33e9f29b96d6a1e79ee259a9fa38823e299c3e12ea27eda37299",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.data.sqlite/10.0.5/microsoft.data.sqlite.10.0.5.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "microsoft.data.sqlite.core.10.0.3.nupkg",
-    "sha512": "1d4d9d3c403c9f3c7a6534d488849d4c27715b6fb7ea5d2eb9e1cfaa7e09623c0aa69068c5ed290367765b4796d9a1eeb665a959ce4d1c086d379095db606a61",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.data.sqlite.core/10.0.3/microsoft.data.sqlite.core.10.0.3.nupkg",
+    "dest-filename": "microsoft.data.sqlite.core.10.0.5.nupkg",
+    "sha512": "9a40f72afdbefa1a3657c32bc4760a03809f90d94243718edcaec337915b87bd444f4184cfccebc217c9fdb3b949d30dc19058416b2af9e12f5d3dc7cf39453b",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.data.sqlite.core/10.0.5/microsoft.data.sqlite.core.10.0.5.nupkg",
     "type": "file"
   },
   {
@@ -456,9 +456,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "microsoft.extensions.configuration.10.0.3.nupkg",
-    "sha512": "64d7337a2b0dd0e7d74f197b81df774bb9d2de57bf9f69d91081370d47fca93fb015d0b9ef756875e85fa9cd77942b2dcf0c3ffdac967de1306ccbd59ffca78c",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration/10.0.3/microsoft.extensions.configuration.10.0.3.nupkg",
+    "dest-filename": "microsoft.extensions.configuration.10.0.5.nupkg",
+    "sha512": "b394cf264f462d69c41ac972decc306a30b770eaba4d1803deed463ef583d95ccfcf5623e31be0403dcaf7f8ebd2f1e59a3290aa7d6decf96e78d0cfc1906c87",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration/10.0.5/microsoft.extensions.configuration.10.0.5.nupkg",
     "type": "file"
   },
   {
@@ -470,9 +470,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "microsoft.extensions.configuration.abstractions.10.0.3.nupkg",
-    "sha512": "09ab56e0b69f6126be3a0008a3d11c9f6e5e819c4a1ca065541cf3cfaeca5ed82c52b75897c14d09795c0e7022673c828efc15028ac3393e3553f702d27850c5",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.abstractions/10.0.3/microsoft.extensions.configuration.abstractions.10.0.3.nupkg",
+    "dest-filename": "microsoft.extensions.configuration.abstractions.10.0.5.nupkg",
+    "sha512": "c11ac27564d41aa45614567572d1f8c226ebbf2dacbe9845489a60e94b6f81af2fb91f2de5a2663d8fb5197359621c0201272ed0efa05f2337fce85ab2425ceb",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.abstractions/10.0.5/microsoft.extensions.configuration.abstractions.10.0.5.nupkg",
     "type": "file"
   },
   {
@@ -484,16 +484,16 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "microsoft.extensions.configuration.commandline.10.0.3.nupkg",
-    "sha512": "41a6371872e772a64d5177bba590adff2edbd19b74858a8cfe8090f3361d89527ae43c47286fa5b597fd733cc716e83d1d5a3c55e0957f6cee9ed0dbf92ccc4c",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.commandline/10.0.3/microsoft.extensions.configuration.commandline.10.0.3.nupkg",
+    "dest-filename": "microsoft.extensions.configuration.commandline.10.0.5.nupkg",
+    "sha512": "f45a4505474fb2e4cfec0208c747412dfb7e89c9b75da732abc576c8959fea7b4172c36def779cc95df21d68443fe03ab4493368ffb2ea4713a7bb819603f944",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.commandline/10.0.5/microsoft.extensions.configuration.commandline.10.0.5.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "microsoft.extensions.configuration.environmentvariables.10.0.3.nupkg",
-    "sha512": "d3c08eabbd224d47c9c5453fcdf554b017889eebe6e19d117d6383e3c5b0e05e6dd40b6a1b5e71e0bad88b029043e39ef76f154ee6e9160bf437712f1ecbeae1",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.environmentvariables/10.0.3/microsoft.extensions.configuration.environmentvariables.10.0.3.nupkg",
+    "dest-filename": "microsoft.extensions.configuration.environmentvariables.10.0.5.nupkg",
+    "sha512": "3d819c8394f1ad3b27041f1e471c290c28e1feb890ffbd3165573619e3eee0cf7059f464fe906e97b537cab522d50568e385f0dfdcc28ccc6fb58aaa8a12810d",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.configuration.environmentvariables/10.0.5/microsoft.extensions.configuration.environmentvariables.10.0.5.nupkg",
     "type": "file"
   },
   {
@@ -638,9 +638,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "microsoft.extensions.primitives.10.0.3.nupkg",
-    "sha512": "065898679cf8e7f0c1f532181ab0443902218e9e8b6bc0dae929a173d09276fe9d74cd52bb90e2d6c59f0af5f55ccfbaa415e92542c1fee8d07e21d1630e97c3",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.primitives/10.0.3/microsoft.extensions.primitives.10.0.3.nupkg",
+    "dest-filename": "microsoft.extensions.primitives.10.0.5.nupkg",
+    "sha512": "41f2293da787620806ba5351a517e4142e3a8ba354f3ca983f237676420dff3833e58fd784d5537656841495cf3cdba441b2ca18e73b3c577f350a97c5212464",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.primitives/10.0.5/microsoft.extensions.primitives.10.0.5.nupkg",
     "type": "file"
   },
   {

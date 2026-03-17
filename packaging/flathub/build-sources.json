@@ -22,9 +22,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "system.commandline.2.0.3.nupkg",
-    "sha512": "4f7b05cc1ef827d1c0ad19da031af2e9fe712ac4682ef1bf0ab3ebe1f7cffe23fd22d10b88f15724739c690de482f5a9ae25210866e57405241e71c9d51057ad",
-    "url": "https://api.nuget.org/v3-flatcontainer/system.commandline/2.0.3/system.commandline.2.0.3.nupkg",
+    "dest-filename": "system.commandline.2.0.5.nupkg",
+    "sha512": "7f95a7e8e88b999dc28f68d1e14fe38925f657d66071374d0afccbac535745ba03fb0dc173994284706c085bdc9a8016de3b148c768923fa8172d206bfd39be4",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.commandline/2.0.5/system.commandline.2.0.5.nupkg",
     "type": "file"
   }
 ]
