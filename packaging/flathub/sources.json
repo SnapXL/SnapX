@@ -358,16 +358,16 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "json.more.net.3.0.0.nupkg",
-    "sha512": "86b63b6a6a289c937721f7f2f435e888863b016c59edd384651413050a8f4a5c3917b241e1d54aa489f2ba3103e916e35b2c20f4742bac84f3be11b267593c48",
-    "url": "https://api.nuget.org/v3-flatcontainer/json.more.net/3.0.0/json.more.net.3.0.0.nupkg",
+    "dest-filename": "json.more.net.3.0.1.nupkg",
+    "sha512": "5b16dc67710e1cf70c93fafacee4a72f23a59d166a5aa942ec45bf4b182dcbedd61b95e7005c7bf72cf47e1fba3de5636d08150bcf7dd3fc2bc5d77ba0d72872",
+    "url": "https://api.nuget.org/v3-flatcontainer/json.more.net/3.0.1/json.more.net.3.0.1.nupkg",
     "type": "file"
   },
   {
     "dest": "vendor",
-    "dest-filename": "jsonpath.net.3.0.1.nupkg",
-    "sha512": "0105c59f2fac103f8bc8d6cb9bbf004d8b9dcca3598cface9c9eed7ce201fb6f6c7ab92db87cb39e152566058a29add11438f498e14f80b8792e1f8453c48e3b",
-    "url": "https://api.nuget.org/v3-flatcontainer/jsonpath.net/3.0.1/jsonpath.net.3.0.1.nupkg",
+    "dest-filename": "jsonpath.net.3.0.2.nupkg",
+    "sha512": "1b12c989fbc937b8b6d06467e21a20d73ee17969d39a4d86f4f3814555b411141aaaf77cc96662e4705de7318ce1a73e99226fa1203fac9d44596997a88f7ddd",
+    "url": "https://api.nuget.org/v3-flatcontainer/jsonpath.net/3.0.2/jsonpath.net.3.0.2.nupkg",
     "type": "file"
   },
   {
