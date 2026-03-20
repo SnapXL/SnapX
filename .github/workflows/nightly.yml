@@ -51,7 +51,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download Artifacts from Latest Build
-        uses: dawidd6/action-download-artifact@v18
+        uses: dawidd6/action-download-artifact@v19
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build.yml
