@@ -106,7 +106,7 @@
     <!-- QR Code library-->
     <PackageReference Include="ZXing.Net.Bindings.ImageSharp.V3" Version="0.16.18" />
     <PackageReference Include="BrycensRanch.SnapXL.SnapXRust" Version="1.0.1" />
-    <PackageReference Include="FluentFTP" Version="53.0.2" />
+    <PackageReference Include="FluentFTP" Version="54.0.2" />
     <PackageReference Include="BrycensRanch.MegaApiClient" Version="1.0.0" />
     <PackageReference Include="Tmds.Ssh" Version="0.20.0" />
   </ItemGroup>
