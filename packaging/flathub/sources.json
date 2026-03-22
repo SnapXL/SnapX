@@ -281,9 +281,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "fluentftp.53.0.2.nupkg",
-    "sha512": "05b07f8ebc641c5e989782d387adf1381119cc320058fb3d9d14b1c9f2ad7c514934c3bc5265d4b74d4484d58f98be981e8c17f611f62d3157b8230247bdd38e",
-    "url": "https://api.nuget.org/v3-flatcontainer/fluentftp/53.0.2/fluentftp.53.0.2.nupkg",
+    "dest-filename": "fluentftp.54.0.2.nupkg",
+    "sha512": "02f3d31aab10f2dcb6cbb74fb88f54237aea7d20c4117995eec769142cb263034073ae9c9566c2596e87724770d5388c98d3d0d63ad9380e99406460447ebb37",
+    "url": "https://api.nuget.org/v3-flatcontainer/fluentftp/54.0.2/fluentftp.54.0.2.nupkg",
     "type": "file"
   },
   {
