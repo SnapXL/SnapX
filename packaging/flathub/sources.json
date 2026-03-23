@@ -211,9 +211,9 @@
   },
   {
     "dest": "vendor",
-    "dest-filename": "communitytoolkit.mvvm.8.4.0.nupkg",
-    "sha512": "5e9705a1ad58b19f0b3ce956ac40226337402a7b17d067fbb5fd987e9ecee2a100c2d76f15537932b18618599599023542257fe67df32b193dc2b30542b2c30b",
-    "url": "https://api.nuget.org/v3-flatcontainer/communitytoolkit.mvvm/8.4.0/communitytoolkit.mvvm.8.4.0.nupkg",
+    "dest-filename": "communitytoolkit.mvvm.8.4.1.nupkg",
+    "sha512": "fc228949834b3593d3a6adaedb358129f15a964733ca0e2cd2c77dadc9d4520eaa6456a33e77790a5a1e609c850e2b697c5592aac56a0258debc30b7760c2a3d",
+    "url": "https://api.nuget.org/v3-flatcontainer/communitytoolkit.mvvm/8.4.1/communitytoolkit.mvvm.8.4.1.nupkg",
     "type": "file"
   },
   {
