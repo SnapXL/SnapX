@@ -1,0 +1,14 @@
+name: Publish to WinGet
+on:
+  release:
+    types: [released]
+jobs:
+  publish:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Run WinGet Releaser
+        uses: vedantmgoyal9/winget-releaser@7bd472be23763def6e16bd06cc8b1cdfab0e2fd5
+        with:
+          identifier: SnapXL.SnapX
+          max-versions-to-keep: 5
+          token: ${{ secrets.WINGET_TOKEN }}
