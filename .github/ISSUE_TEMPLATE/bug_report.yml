@@ -4,7 +4,7 @@ labels: "bug"
 body:
   - type: markdown
     attributes:
-      value: Thanks for taking the time to fill out this bug report!
+      value: Thanks for taking the time to fill out this bug report! If you need real-time help, join us on [Discord](https://discord.gg/ys3ZCzttVQ).
     validations:
       required: false
 
@@ -40,12 +40,13 @@ body:
       label: Version
       description: What version of SnapX are you running?
       options:
-        - `develop` branch
-        - 0.1.0 Dev
-        - 0.2.0 Dev
-        - 0.2.1 Dev
-        - 0.3.0 Dev
-        - 0.4.0 Dev
+        - 0.4.0
+        - 0.3.0
+        - 0.2.1
+        - 0.2.0
+        - 0.1.0
+        - Nightly
+        - Building from Source
       default: 0
     validations:
       required: true
