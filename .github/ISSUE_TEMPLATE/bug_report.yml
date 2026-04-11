@@ -40,13 +40,13 @@ body:
       label: Version
       description: What version of SnapX are you running?
       options:
-        - Building from Source
-        - Nightly
-        - 0.1.0
-        - 0.2.0
-        - 0.2.1
-        - 0.3.0
         - 0.4.0
+        - 0.3.0
+        - 0.2.1
+        - 0.2.0
+        - 0.1.0
+        - Nightly
+        - Building from Source
       default: 0
     validations:
       required: true
