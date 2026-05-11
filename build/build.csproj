@@ -15,7 +15,7 @@
   <ItemGroup Label="Windows" Condition="'$(TargetWindows)' == 'true'">
     <!-- MSI dependencies, ~~doesn't block building on Linux~~ it does -->
     <PackageReference Include="WixSharp.Core" Version="2.12.2" />
-    <PackageReference Include="WixSharp.Msi.Core" Version="2.12.2" />
+    <PackageReference Include="WixSharp.Msi.Core" Version="2.14.0" />
     <PackageReference Include="GHSoftware.MarkdownToRtf" Version="0.1.0" />
   </ItemGroup>
 </Project>
