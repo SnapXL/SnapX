@@ -102,6 +102,7 @@ private static void Register<T>(T service) where T : IUploaderService
     Register(new SendSpaceFileUploaderService());
     Register(new SulFileUploaderService());
     Register(new Vault_oooFileUploaderService());
+    Register(new VoidedHostFileUploaderService());
     Register(new GooglePhotosImageUploaderService());
     Register(new CheveretoImageUploaderService());
     Register(new CustomImageUploaderService());
@@ -109,6 +110,7 @@ private static void Register<T>(T service) where T : IUploaderService
     Register(new ImageShackImageUploaderService());
     Register(new ImgurImageUploaderService());
     Register(new VgymeImageUploaderService());
+    Register(new VoidedHostImageUploaderService());
     Register(new CustomTextUploaderService());
     Register(new GitHubGistTextUploaderService());
     Register(new HastebinTextUploaderService());
@@ -116,6 +118,7 @@ private static void Register<T>(T service) where T : IUploaderService
     Register(new Paste2TextUploaderService());
     Register(new Paste_eeTextUploaderService());
     Register(new PastebinTextUploaderService());
+    Register(new VoidedHostTextUploaderService());
     Register(new YourlsURLShortenerService());
     Register(new ZeroWidthURLShortenerService());
     Register(new VURLShortenerService());

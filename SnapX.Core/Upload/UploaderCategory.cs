@@ -8,6 +8,8 @@ namespace SnapX.Core.Upload;
 /// </summary>
 public enum UploaderCategory
 {
+    [Description("Universal uploaders")]
+    UniversalUploaders,
     [Description("Image uploaders")]
     ImageUploaders,
     [Description("Text uploaders")]
