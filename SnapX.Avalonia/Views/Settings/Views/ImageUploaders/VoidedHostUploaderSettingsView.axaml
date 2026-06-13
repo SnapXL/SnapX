@@ -1,0 +1,47 @@
+<UserControl
+    x:Class="SnapX.Avalonia.Views.Settings.Views.ImageUploaders.VoidedHostUploaderSettingsView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Spacing="4">
+        <controls:SettingsExpander
+            Description="These settings apply to image, text, and file uploads via voided.host."
+            Header="Account"
+            IconSource="Contact"
+            IsExpanded="True">
+            <controls:SettingsExpanderItem Content="Don't have an account?">
+                <controls:SettingsExpanderItem.Footer>
+                    <Button
+                        Classes="accent"
+                        Click="RegisterButton_OnClick"
+                        Content="Create account"
+                        x:Name="RegisterButton" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+            <controls:SettingsExpanderItem Content="Upload as guest" Description="Use shared guest account instead of your personal key">
+                <controls:SettingsExpanderItem.Footer>
+                    <CheckBox
+                        x:Name="cbUseGuest" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+            <controls:SettingsExpanderItem Content="Upload Key" x:Name="UploadKeyItem">
+                <controls:SettingsExpanderItem.Footer>
+                    <TextBox
+                        PasswordChar="*"
+                        VerticalAlignment="Center"
+                        Watermark="Paste your upload key here..."
+                        Width="350"
+                        x:Name="txtUploadKey" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+            <controls:SettingsExpanderItem Content="Manage your upload keys on voided.host" x:Name="ManageKeysItem">
+                <controls:SettingsExpanderItem.Footer>
+                    <Button
+                        Click="ManageKeysButton_OnClick"
+                        Content="Open key settings" />
+                </controls:SettingsExpanderItem.Footer>
+            </controls:SettingsExpanderItem>
+        </controls:SettingsExpander>
+    </StackPanel>
+</UserControl>
