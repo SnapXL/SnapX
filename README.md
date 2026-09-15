@@ -35,7 +35,7 @@
 
 > [!CAUTION]
 > SnapX is in **_Early Access_**.
-> The core capture and upload engine is stable and ready for daily use. However, the Image Editor is still in the works.
+> The core upload engine and capture engine are currently experimental. An ongoing rewrite will improve stability, add essential features like hotkey support, and reduce app size. Progress reports are done via our Discord.
 
 ## Feature-wise
 
