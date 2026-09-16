@@ -56,7 +56,7 @@
     <!-- Privacy friendly user/feature analytics -->
     <PackageReference Include="BrycensRanch.Aptabase.Core" Version="0.2.5" />
     <PackageReference Include="Dapper" Version="2.1.72" />
-    <PackageReference Include="Dapper.AOT" Version="1.0.48" />
+    <PackageReference Include="Dapper.AOT" Version="1.1.0" />
     <!-- Ported JSONPaths from Newtonsoft.Json for System.Text.Json -->
     <!-- Newtonsoft.Json is not AOT friendly -->
     <PackageReference Include="JsonPath.Net" Version="3.0.2" />
