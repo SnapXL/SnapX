@@ -353,8 +353,6 @@
                             <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.SharedFolder}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.SharedFolder}" />
                             <controls:NavigationViewItem Content="{Binding Source={x:Static upload:FileDestination.Email}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:FileDestination.Email}" />
 
-
-
                         </controls:NavigationViewItem.MenuItems>
                     </controls:NavigationViewItem>
                     <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UploaderCategory.URLShorteners}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UploaderCategory.URLShorteners}">
@@ -372,6 +370,17 @@
                             <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UrlShortenerType.ZeroWidthShortener}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UrlShortenerType.ZeroWidthShortener}" />
 
 
+                        </controls:NavigationViewItem.MenuItems>
+                    </controls:NavigationViewItem>
+                    <controls:NavigationViewItem Content="{Binding Source={x:Static upload:UploaderCategory.UniversalUploaders}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:UploaderCategory.UniversalUploaders}">
+                        <controls:NavigationViewItem.IconSource>
+                            <fluent:FluentIconSource
+                                Icon="Apps"
+                                IconSize="Size24"
+                                IconVariant="Regular" />
+                        </controls:NavigationViewItem.IconSource>
+                        <controls:NavigationViewItem.MenuItems>
+                            <controls:NavigationViewItem Content="{Binding Source={x:Static upload:ImageDestination.VoidedHost}, Converter={StaticResource EnumDescConverter}}" Tag="{x:Static upload:ImageDestination.VoidedHost}" />
                         </controls:NavigationViewItem.MenuItems>
                     </controls:NavigationViewItem>
                     <controls:NavigationViewItem Content="Custom uploaders" Tag="CustomUploader">

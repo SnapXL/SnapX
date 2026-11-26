@@ -65,6 +65,16 @@ public class UploadersConfig : SettingsBase<UploadersConfig>
 
     #endregion vgy.me
 
+    #region voided.host
+
+    [JsonEncrypt]
+    [YamlEncrypt]
+    public string VoidedHostUploadKey { get; set; } = "";
+
+    public bool VoidedHostUseGuest { get; set; } = true;
+
+    #endregion voided.host
+
     #endregion Image uploaders
 
     #region Text uploaders

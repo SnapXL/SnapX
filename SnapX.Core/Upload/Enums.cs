@@ -17,6 +17,8 @@ public enum ImageDestination
     Chevereto,
     [Description("vgy.me")]
     Vgyme,
+    [Description("voided.host")]
+    VoidedHost,
     CustomImageUploader, // Localized
     FileUploader // Localized
 }
@@ -36,6 +38,8 @@ public enum TextDestination
     Hastebin,
     [Description("OneTimeSecret")]
     OneTimeSecret,
+    [Description("voided.host")]
+    VoidedHost,
     CustomTextUploader, // Localized
     FileUploader // Localized
 }
@@ -95,6 +99,8 @@ public enum FileDestination
     YouTube,
     [Description("Vault.ooo")]
     Vault_ooo,
+    [Description("voided.host")]
+    VoidedHost,
     SharedFolder, // Localized
     Email, // Localized
     CustomFileUploader // Localized

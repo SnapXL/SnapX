@@ -83,6 +83,9 @@ public partial class BuiltInUploaderSettingsView : UserControl
             GitHubGist => new GithubGistUploaderSettingsView() { DataContext = instance },
             Hastebin => new HastebinUploaderSettingsView() { DataContext = instance },
             OneTimeSecret => new OneTimeSecretUploadSettingsView() { DataContext = instance },
+            VoidedHostUploader => new ImageUploaders.VoidedHostUploaderSettingsView { DataContext = instance },
+            VoidedHostTextUploader => new ImageUploaders.VoidedHostUploaderSettingsView { DataContext = instance },
+            VoidedHostFileUploader => new ImageUploaders.VoidedHostUploaderSettingsView { DataContext = instance },
             FTP or SFTP => new FTPSettingsView() { DataContext = instance },
             // Add other mappings here:
             // AmazonS3 => new S3SettingsView { DataContext = instance },
